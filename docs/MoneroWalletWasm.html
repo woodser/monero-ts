@@ -226,7 +226,7 @@ static wallet creation utilities in this class.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line281">line 281</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line298">line 298</a>
     </li></ul></dd>
     
 
@@ -282,7 +282,7 @@ static wallet creation utilities in this class.
     
 
     
-    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(is)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -290,36 +290,20 @@ static wallet creation utilities in this class.
 
 
 <div class="description">
-    Create a wallet using WebAssembly bindings to wallet2.h.
+    <p>Create a wallet using WebAssembly bindings to wallet2.h.<p>
 
-Example:
-  let wallet = await MoneroWalletWasm.createWallet({
-    path: "./test_wallets/wallet1",
-    password: "supersecretpassword",
-    networkType: MoneroNetworkType.STAGENET,
-    server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),
-    mnemonic: "coexist igloo pamphlet lagoon...",
-    restoreHeight: 1543218
-  });
-  
-All supported configuration:
-  {string} path - path of the wallet to create (optional, in-memory wallet if not given)
-  {string} password - password of the wallet to create
-  {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-  {string} mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-  {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-  {string} privateViewKey - private view key of the wallet to create (optional)
-  {string} privateSpendKey - private spend key of the wallet to create (optional)
-  {number} restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
-  {string} serverUri - uri of the wallet's daemon (optional)
-  {string} serverUsername - username to authenticate with the daemon (optional)
-  {string} serverPassword - password to authenticate with the daemon (optional)
-  {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-  {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-  {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (defaults to false)
-  {File System} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+<p>Example:</p>
+
+<code>
+let wallet = await MoneroWalletWasm.createWallet({<br>
+&nbsp;&nbsp; path: "./test_wallets/wallet1",<br>
+&nbsp;&nbsp; password: "supersecretpassword",<br>
+&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
+&nbsp;&nbsp; restoreHeight: 1543218<br>
+&nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
+});
+</code>
 </div>
 
 
@@ -355,13 +339,406 @@ All supported configuration:
 
         <tr>
             
-                <td class="name"><code>is</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
             
                 
+<span class="param-type">object</span>
+|
+
 <span class="param-type"><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroWalletConfig or equivalent config object
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet to create (optional, in-memory wallet if not given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet to create (optional, in-memory wallet if not given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to create</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mnemonic</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seedOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>primaryAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">primary address of the wallet to create (only provide if restoring from keys)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateViewKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private view key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateSpendKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private spend key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>restoreHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">block height to start scanning from (defaults to 0 unless generating random wallet)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>language</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">uri of the wallet's daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUsername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">username to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverPassword</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rejectUnauthorized</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">reject self-signed server certificates if true (defaults to true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
 |
 
 <span class="param-type">object</span>
@@ -374,7 +751,60 @@ All supported configuration:
 
             
 
-            <td class="description last">a MoneroWalletConfig or equivalent config object</td>
+            <td class="description last">MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>proxyToWorker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">proxies wallet operations to a web worker in order to not block the browser's main thread (defaults to false)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">node-js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -415,7 +845,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line119">line 119</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line136">line 136</a>
     </li></ul></dd>
     
 
@@ -459,24 +889,27 @@ All supported configuration:
 
 
 <div class="description">
-    Open an existing wallet using WebAssembly bindings to wallet2.h.
+    <p>Open an existing wallet using WebAssembly bindings to wallet2.h.</p>
 
-Examples:
-  let wallet = await MoneroWalletWasm.openWallet("./wallets/wallet1" "supersecretpassword", MoneroNetworkType.STAGENET, "http://localhost:38081");
-  let wallet = await MoneroWalletWasm.openWallet({path: "./wallets/wallet1", password: "supersecretpassword", networkType: MoneroNetworkType.STAGENET, serverUri: "http://localhost:38081", ...});
+<p>Examples:<p>
 
-All supported configuration:
-  {string} path - path of the wallet to open (optional if 'keysData' provided)
-  {string} password - password of the wallet to open
-  {string|number} networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-  {Uint8Array} keysData - wallet keys data to open (optional if path provided)
-  {Uint8Array} cacheData - wallet cache data to open (optional)
-  {string} serverUri - uri of the wallet's daemon (optional)
-  {string} serverUsername - username to authenticate with the daemon (optional)
-  {string} serverPassword - password to authenticate with the daemon (optional)
-  {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-  {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing server configuration (optional)
-  {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+<code>
+let wallet1 = await MoneroWalletWasm.openWallet(<br>
+&nbsp;&nbsp; "./wallets/wallet1",<br>
+&nbsp;&nbsp; "supersecretpassword",<br>
+&nbsp;&nbsp; MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; "http://localhost:38081" // daemon uri<br>
+);<br><br>
+
+let wallet2 = await MoneroWalletWasm.openWallet({<br>
+&nbsp;&nbsp; path: "./wallets/wallet2",<br>
+&nbsp;&nbsp; password: "supersecretpassword",<br>
+&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; serverUri: "http://localhost:38081", // daemon configuration<br>
+&nbsp;&nbsp; serverUsername: "superuser",<br>
+&nbsp;&nbsp; serverPassword: "abctesting123",<br>
+});
+</code>
 </div>
 
 
@@ -534,7 +967,49 @@ All supported configuration:
 
             
 
-            <td class="description last">is a MoneroWalletConfig or equivalent config object or a path to a wallet to open</td>
+            <td class="description last">MoneroWalletConfig or equivalent config object or a path to a wallet to open
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet to open (optional if 'keysData' provided)</td>
         </tr>
 
     
@@ -557,7 +1032,7 @@ All supported configuration:
 
             
 
-            <td class="description last">is the password of the wallet to open</td>
+            <td class="description last">password of the wallet to open</td>
         </tr>
 
     
@@ -583,23 +1058,20 @@ All supported configuration:
 
             
 
-            <td class="description last">is the network type of the wallet to open</td>
+            <td class="description last">network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>daemonUriOrConnection</code></td>
+                <td class="name"><code>keysData</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
-|
-
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+<span class="param-type">Uint8Array</span>
 
 
             
@@ -609,7 +1081,148 @@ All supported configuration:
 
             
 
-            <td class="description last">is a daemon URI or MoneroRpcConnection</td>
+            <td class="description last">wallet keys data to open (optional if path provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cacheData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Uint8Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">wallet cache data to open (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">uri of the wallet's daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUsername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">username to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverPassword</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rejectUnauthorized</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">reject self-signed server certificates if true (defaults to true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)</td>
         </tr>
 
     
@@ -644,13 +1257,146 @@ All supported configuration:
 
             <td class="type">
             
+                
+<span class="param-type">fs</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last">node-js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to open</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to open</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>daemonUriOrConnection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">daemon URI or MoneroRpcConnection</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>proxyToWorker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">node-js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
         </tr>
 
     
@@ -691,7 +1437,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line52">line 52</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -727,7 +1473,7 @@ All supported configuration:
     
 
     
-    <h4 class="name" id=".walletExists"><span class="type-signature">(async, static) </span>walletExists<span class="signature">(path, fs)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id=".walletExists"><span class="type-signature">(async, static) </span>walletExists<span class="signature">(path, is)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
 
     
@@ -794,10 +1540,15 @@ All supported configuration:
 
         <tr>
             
-                <td class="name"><code>fs</code></td>
+                <td class="name"><code>is</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
             
             </td>
 
@@ -805,7 +1556,7 @@ All supported configuration:
 
             
 
-            <td class="description last"></td>
+            <td class="description last">a node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)</td>
         </tr>
 
     
@@ -1005,7 +1756,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1658">line 1658</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1675">line 1675</a>
     </li></ul></dd>
     
 
@@ -1093,7 +1844,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1544">line 1544</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1561">line 1561</a>
     </li></ul></dd>
     
 
@@ -1181,7 +1932,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1523">line 1523</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1540">line 1540</a>
     </li></ul></dd>
     
 
@@ -1348,7 +2099,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line964">line 964</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line962">line 962</a>
     </li></ul></dd>
     
 
@@ -1507,7 +2258,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line404">line 404</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line421">line 421</a>
     </li></ul></dd>
     
 
@@ -1697,7 +2448,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line903">line 903</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line901">line 901</a>
     </li></ul></dd>
     
 
@@ -1909,7 +2660,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line869">line 869</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line867">line 867</a>
     </li></ul></dd>
     
 
@@ -2121,7 +2872,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line821">line 821</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line819">line 819</a>
     </li></ul></dd>
     
 
@@ -2356,7 +3107,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line846">line 846</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line844">line 844</a>
     </li></ul></dd>
     
 
@@ -2522,7 +3273,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1198">line 1198</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1196">line 1196</a>
     </li></ul></dd>
     
 
@@ -2832,7 +3583,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1033">line 1033</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1031">line 1031</a>
     </li></ul></dd>
     
 
@@ -3353,7 +4104,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line986">line 986</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line984">line 984</a>
     </li></ul></dd>
     
 
@@ -3564,7 +4315,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line977">line 977</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line975">line 975</a>
     </li></ul></dd>
     
 
@@ -3733,7 +4484,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1143">line 1143</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1141">line 1141</a>
     </li></ul></dd>
     
 
@@ -4228,7 +4979,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1013">line 1013</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1011">line 1011</a>
     </li></ul></dd>
     
 
@@ -4394,7 +5145,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line953">line 953</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line951">line 951</a>
     </li></ul></dd>
     
 
@@ -4560,7 +5311,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1053">line 1053</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1051">line 1051</a>
     </li></ul></dd>
     
 
@@ -5021,7 +5772,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line299">line 299</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line316">line 316</a>
     </li></ul></dd>
     
 
@@ -5131,7 +5882,7 @@ This process must be repeated with participants exactly N-M times.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1413">line 1413</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line1430">line 1430</a>
     </li></ul></dd>
     
 
@@ -5532,7 +6283,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line553">line 553</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line551">line 551</a>
     </li></ul></dd>
     
 
@@ -5642,7 +6393,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line429">line 429</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line446">line 446</a>
     </li></ul></dd>
     
 
@@ -5759,7 +6510,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1152">line 1152</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1150">line 1150</a>
     </li></ul></dd>
     
 
@@ -5876,7 +6627,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1108">line 1108</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1106">line 1106</a>
     </li></ul></dd>
     
 
@@ -5986,7 +6737,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line365">line 365</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line382">line 382</a>
     </li></ul></dd>
     
 
@@ -6103,7 +6854,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line572">line 572</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line570">line 570</a>
     </li></ul></dd>
     
 
@@ -6169,15 +6920,13 @@ given payment ID.  Generates a random payment ID if none is given.
 
 
 <div class="description">
-    Get outputs created from previous transactions that belong to the wallet
+    <p>Get outputs created from previous transactions that belong to the wallet
 (i.e. that the wallet can spend one time).  Outputs are part of
-transactions which are stored in blocks on the blockchain.
+transactions which are stored in blocks on the blockchain.</p>
 
-Results can be configured by passing a MoneroOutputQuery.  Outputs must
+<p>Results can be configured by passing a MoneroOutputQuery.  Outputs must
 meet every criteria defined in the query in order to be returned.  All
-filtering is optional and no filtering is applied when not defined.
-
-TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
+filtering is optional and no filtering is applied when not defined.</p>
 </div>
 
 
@@ -6467,7 +7216,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line525">line 525</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line523">line 523</a>
     </li></ul></dd>
     
 
@@ -6584,7 +7333,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line534">line 534</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line532">line 532</a>
     </li></ul></dd>
     
 
@@ -6913,7 +7662,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line891">line 891</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line889">line 889</a>
     </li></ul></dd>
     
 
@@ -7074,7 +7823,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line879">line 879</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line877">line 877</a>
     </li></ul></dd>
     
 
@@ -7172,7 +7921,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line378">line 378</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line395">line 395</a>
     </li></ul></dd>
     
 
@@ -7361,7 +8110,7 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line857">line 857</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line855">line 855</a>
     </li></ul></dd>
     
 
@@ -7616,17 +8365,17 @@ TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
 
 
 <div class="description">
-    Get incoming and outgoing transfers to and from this wallet.  An outgoing
+    <p>Get incoming and outgoing transfers to and from this wallet.  An outgoing
 transfer represents a total amount sent from one or more subaddresses
 within an account to individual destination addresses, each with their
 own amount.  An incoming transfer represents a total amount received into
 a subaddress within an account.  Transfers belong to transactions which
-are stored on the blockchain.
+are stored on the blockchain.</p>
 
-Query results can be configured or filtered by passing in a configuration.
+<p>Query results can be configured or filtered by passing in a configuration.
 Transfers must meet every criteria defined in the configuration in order
 to be returned.  All configuration is optional and no filtering is applied
-when not defined.
+when not defined.</p>
 </div>
 
 
@@ -8151,7 +8900,7 @@ when not defined.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line809">line 809</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line807">line 807</a>
     </li></ul></dd>
     
 
@@ -8317,7 +9066,7 @@ when not defined.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line923">line 923</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line921">line 921</a>
     </li></ul></dd>
     
 
@@ -8529,7 +9278,7 @@ when not defined.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line833">line 833</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line831">line 831</a>
     </li></ul></dd>
     
 
@@ -8595,16 +9344,16 @@ when not defined.
 
 
 <div class="description">
-    Get wallet transactions.  Wallet transactions contain one or more
-transfers that are either incoming or outgoing to the wallet.
+    <p>Get wallet transactions.  Wallet transactions contain one or more
+transfers that are either incoming or outgoing to the wallet.<p>
 
-Query results can be filtered by passing in a transaction query.
+<p>Query results can be filtered by passing in a transaction query.
 Transactions must meet every criteria defined in the query in order to
 be returned.  All filtering is optional and no filtering is applied when
-not defined.
+not defined.</p>
 
-Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
-array of tx hashes.
+<p>Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
+array of tx hashes.</p>
 </div>
 
 
@@ -9527,7 +10276,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line563">line 563</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line561">line 561</a>
     </li></ul></dd>
     
 
@@ -9693,7 +10442,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1162">line 1162</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1160">line 1160</a>
     </li></ul></dd>
     
 
@@ -9859,7 +10608,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line544">line 544</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line542">line 542</a>
     </li></ul></dd>
     
 
@@ -10086,7 +10835,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line321">line 321</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line338">line 338</a>
     </li></ul></dd>
     
 
@@ -10203,7 +10952,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1099">line 1099</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1097">line 1097</a>
     </li></ul></dd>
     
 
@@ -10320,7 +11069,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1090">line 1090</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1088">line 1088</a>
     </li></ul></dd>
     
 
@@ -10430,7 +11179,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line343">line 343</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line360">line 360</a>
     </li></ul></dd>
     
 
@@ -10642,7 +11391,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1130">line 1130</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1128">line 1128</a>
     </li></ul></dd>
     
 
@@ -10824,7 +11573,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line440">line 440</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line457">line 457</a>
     </li></ul></dd>
     
 
@@ -10968,7 +11717,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1043">line 1043</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1041">line 1041</a>
     </li></ul></dd>
     
 
@@ -11134,7 +11883,7 @@ array of tx hashes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line757">line 757</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line755">line 755</a>
     </li></ul></dd>
     
 
@@ -11252,7 +12001,7 @@ multisig wallet.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1118">line 1118</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1116">line 1116</a>
     </li></ul></dd>
     
 
@@ -11421,7 +12170,7 @@ multisig wallet.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line640">line 640</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line638">line 638</a>
     </li></ul></dd>
     
 
@@ -11580,7 +12329,7 @@ multisig wallet.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line416">line 416</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line433">line 433</a>
     </li></ul></dd>
     
 
@@ -11624,11 +12373,11 @@ multisig wallet.
 
 
 <div class="description">
-    Rescan the blockchain from scratch, losing any information which cannot be recovered from
-the blockchain itself.
+    <p>Rescan the blockchain from scratch, losing any information which cannot be recovered from
+the blockchain itself.</p>
 
-WARNING: This method discards local wallet data like destination addresses, tx secret keys,
-tx notes, etc.
+<p>WARNING: This method discards local wallet data like destination addresses, tx secret keys,
+tx notes, etc.</p>
 </div>
 
 
@@ -11723,13 +12472,13 @@ tx notes, etc.
 
 
 <div class="description">
-    Rescan the blockchain for spent outputs.
+    <p>Rescan the blockchain for spent outputs.</p>
 
-Note: this can only be called with a trusted daemon.
+<p>Note: this can only be called with a trusted daemon.</p>
 
-Example use case: peer multisig hex is import when connected to an untrusted daemon,
+<p>Example use case: peer multisig hex is import when connected to an untrusted daemon,
 so the wallet will not rescan spent outputs.  Then the wallet connects to a trusted
-daemon.  This method should be manually invoked to rescan outputs.
+daemon.  This method should be manually invoked to rescan outputs.</p>
 </div>
 
 
@@ -11875,7 +12624,7 @@ daemon.  This method should be manually invoked to rescan outputs.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1189">line 1189</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1187">line 1187</a>
     </li></ul></dd>
     
 
@@ -12072,7 +12821,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line673">line 673</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line671">line 671</a>
     </li></ul></dd>
     
 
@@ -12261,7 +13010,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1023">line 1023</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1021">line 1021</a>
     </li></ul></dd>
     
 
@@ -12428,7 +13177,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1063">line 1063</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1061">line 1061</a>
     </li></ul></dd>
     
 
@@ -12758,7 +13507,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line391">line 391</a>
+        <a href="wallet_MoneroWalletWasm.js.html">wallet/MoneroWalletWasm.js</a>, <a href="wallet_MoneroWalletWasm.js.html#line408">line 408</a>
     </li></ul></dd>
     
 
@@ -12925,7 +13674,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line943">line 943</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line941">line 941</a>
     </li></ul></dd>
     
 
@@ -13069,7 +13818,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line787">line 787</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line785">line 785</a>
     </li></ul></dd>
     
 
@@ -13235,7 +13984,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1172">line 1172</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1170">line 1170</a>
     </li></ul></dd>
     
 
@@ -13401,7 +14150,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line767">line 767</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line765">line 765</a>
     </li></ul></dd>
     
 
@@ -13613,7 +14362,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1074">line 1074</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1072">line 1072</a>
     </li></ul></dd>
     
 
@@ -13803,7 +14552,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1081">line 1081</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1079">line 1079</a>
     </li></ul></dd>
     
 
@@ -13947,7 +14696,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1182">line 1182</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1180">line 1180</a>
     </li></ul></dd>
     
 
@@ -14113,7 +14862,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line777">line 777</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line775">line 775</a>
     </li></ul></dd>
     
 
@@ -14281,7 +15030,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line747">line 747</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line745">line 745</a>
     </li></ul></dd>
     
 
@@ -14496,7 +15245,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line685">line 685</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line683">line 683</a>
     </li></ul></dd>
     
 
@@ -14662,7 +15411,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line735">line 735</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line733">line 733</a>
     </li></ul></dd>
     
 
@@ -15021,7 +15770,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line996">line 996</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line994">line 994</a>
     </li></ul></dd>
     
 
@@ -15165,7 +15914,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1005">line 1005</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line1003">line 1003</a>
     </li></ul></dd>
     
 
@@ -15355,7 +16104,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line799">line 799</a>
+        <a href="wallet_MoneroWallet.js.html">wallet/MoneroWallet.js</a>, <a href="wallet_MoneroWallet.js.html#line797">line 797</a>
     </li></ul></dd>
     
 
@@ -15429,7 +16178,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Apr 25 2020 20:36:49 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 10:55:53 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

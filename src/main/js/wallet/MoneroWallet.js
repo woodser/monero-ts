@@ -225,24 +225,24 @@ class MoneroWallet {
   }
   
   /**
-   * Rescan the blockchain for spent outputs.
-   *
-   * Note: this can only be called with a trusted daemon.
-   *
-   * Example use case: peer multisig hex is import when connected to an untrusted daemon,
+   * <p>Rescan the blockchain for spent outputs.</p>
+   * 
+   * <p>Note: this can only be called with a trusted daemon.</p>
+   * 
+   * <p>Example use case: peer multisig hex is import when connected to an untrusted daemon,
    * so the wallet will not rescan spent outputs.  Then the wallet connects to a trusted
-   * daemon.  This method should be manually invoked to rescan outputs.
+   * daemon.  This method should be manually invoked to rescan outputs.</p>
    */
   async rescanSpent() {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Rescan the blockchain from scratch, losing any information which cannot be recovered from
-   * the blockchain itself.
+   * <p>Rescan the blockchain from scratch, losing any information which cannot be recovered from
+   * the blockchain itself.</p>
    * 
-   * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
-   * tx notes, etc.
+   * <p>WARNING: This method discards local wallet data like destination addresses, tx secret keys,
+   * tx notes, etc.</p>
    */
   async rescanBlockchain() {
     throw new MoneroError("Not supported");
@@ -386,16 +386,16 @@ class MoneroWallet {
   }
   
   /**
-   * Get wallet transactions.  Wallet transactions contain one or more
-   * transfers that are either incoming or outgoing to the wallet.
+   * <p>Get wallet transactions.  Wallet transactions contain one or more
+   * transfers that are either incoming or outgoing to the wallet.<p>
    * 
-   * Query results can be filtered by passing in a transaction query.
+   * <p>Query results can be filtered by passing in a transaction query.
    * Transactions must meet every criteria defined in the query in order to
    * be returned.  All filtering is optional and no filtering is applied when
-   * not defined.
+   * not defined.</p>
    * 
-   * Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
-   * array of tx hashes.
+   * <p>Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
+   * array of tx hashes.</p>
    * 
    * @param {(MoneroTxQuery|string[]|object)} query configures the query (optional)
    * @param {boolean} query.isConfirmed gets txs that are confirmed or not (optional)
@@ -422,17 +422,17 @@ class MoneroWallet {
   }
 
   /**
-   * Get incoming and outgoing transfers to and from this wallet.  An outgoing
+   * <p>Get incoming and outgoing transfers to and from this wallet.  An outgoing
    * transfer represents a total amount sent from one or more subaddresses
    * within an account to individual destination addresses, each with their
    * own amount.  An incoming transfer represents a total amount received into
    * a subaddress within an account.  Transfers belong to transactions which
-   * are stored on the blockchain.
+   * are stored on the blockchain.</p>
    * 
-   * Query results can be configured or filtered by passing in a configuration.
+   * <p>Query results can be configured or filtered by passing in a configuration.
    * Transfers must meet every criteria defined in the configuration in order
    * to be returned.  All configuration is optional and no filtering is applied
-   * when not defined.
+   * when not defined.</p>
    * 
    * @param {(MoneroTransferQuery|object)} query configures the query (optional)
    * @param {boolean} query.isOutgoing gets transfers that are outgoing or not (optional)
@@ -502,15 +502,13 @@ class MoneroWallet {
   }
   
   /**
-   * Get outputs created from previous transactions that belong to the wallet
+   * <p>Get outputs created from previous transactions that belong to the wallet
    * (i.e. that the wallet can spend one time).  Outputs are part of
-   * transactions which are stored in blocks on the blockchain.
+   * transactions which are stored in blocks on the blockchain.</p>
    * 
-   * Results can be configured by passing a MoneroOutputQuery.  Outputs must
+   * <p>Results can be configured by passing a MoneroOutputQuery.  Outputs must
    * meet every criteria defined in the query in order to be returned.  All
-   * filtering is optional and no filtering is applied when not defined.
-   * 
-   * TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
+   * filtering is optional and no filtering is applied when not defined.</p>
    * 
    * @param {(MoneroOutputQuery|object)} query configures the query (optional)
    * @param {int} query.accountIndex gets outputs associated with a specific account index
