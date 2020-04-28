@@ -553,6 +553,10 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   doc.SetObject();
   doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
   callback(monero_utils::serialize(doc));
+
+  // delete blocks
+  unconfirmed_block.reset();
+  for (shared_ptr<monero_block>& block : blocks) block.reset();
 }
 
 //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
