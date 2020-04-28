@@ -104,12 +104,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * 
    * <code>
    * let wallet = await MoneroWalletWasm.createWallet({<br>
-   * &nbsp;&nbsp; path: "./test_wallets/wallet1",<br>
+   * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
    * &nbsp;&nbsp; password: "supersecretpassword",<br>
    * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
    * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
    * &nbsp;&nbsp; restoreHeight: 1543218<br>
    * &nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
+   * &nbsp;&nbsp; proxyToWorker: true // if running in a browser, proxy wallet to web worker so main thread is not blocked<br>
    * });
    * </code>
    * 
