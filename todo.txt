@@ -22,7 +22,6 @@ pre-compress wasm file so server is not compressing when requested: https://emsc
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 
 architecture document
-document outputQuery.setMinAmount()
 report issues: keys wallet setDaemonConnection not working with authentication
 js sample code uses js objects instead of send request
 update sample code
