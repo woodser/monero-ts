@@ -8,22 +8,27 @@ class MoneroWalletKeys extends MoneroWallet {
   // --------------------------- STATIC UTILITIES -----------------------------
   
   /**
-   * Create a wallet using WebAssembly bindings to monero-core.
+   * <p>Create a wallet using WebAssembly bindings to monero-core.</p>
    * 
-   * For example:
-   *  let wallet = await MoneroWalletKeys.createWallet({password: "abc123", networkType: MoneroNetworkType.STAGENET, mnemonic: "..."});
+   * <p>Example:</p>
    * 
-   * All supported configuration:
-   *   {string} password - password of the wallet to create
-   *   {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-   *   {string} mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-   *   {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   *   {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   *   {string} privateViewKey - private view key of the wallet to create (optional)
-   *   {string} privateSpendKey - private spend key of the wallet to create (optional)
-   *   {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
-   *  
-   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
+   * <code>
+   * let wallet = await MoneroWalletKeys.createWallet({<br>
+   * &nbsp;&nbsp; password: "abc123",<br>
+   * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+   * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon..."<br>
+   * });
+   * </code>
+   * 
+   * @param {MoneroWalletConfig|object} config - MoneroWalletConfig or equivalent config object
+   * @param {string} config.password - password of the wallet to create
+   * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
+   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
+   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
+   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
    */
   static async createWallet(config) {
     
