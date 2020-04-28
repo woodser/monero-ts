@@ -1,4 +1,4 @@
-# 1. Introduction to the monero-javascript library
+# Introduction to the monero-javascript library
 The monero-javascript library enables web developers to implement Monero functionality in javascript browser and node.js applications, such as interacting with Monero wallets, nodes, and RPC servers.
 
 The library’s object and method hierarchy is derived from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying structure of the Monero software and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
@@ -7,9 +7,9 @@ Monero-javascript features a web assembly (WASM)-based wallet implementation, wh
 
 (software architecture diagram)[./img/monero-javascript-diagram.png] caption:  Monero-javascript can interact with monero both via connection to RPC-servers and daemons and a direct bridge to the native wallet code via the monero c++ wallet implementation
 
-# 2. Initial Setup
+# Initial Setup
 
-## 2.1: Installing node.js and npm
+## Installing node.js and npm
 In order to install and use the monero-javascript library, you need to download and install node.js and the node package manager (npm). 
 
 ### Windows
@@ -35,42 +35,80 @@ In order to install and use the monero-javascript library, you need to download 
   2. Install npm:
     `$ sudo dnf install npm`
 
-## 2.2: Installing the monero-javascript libary
+## Installing the monero-javascript libary
 
 To install the libary, open the command prompt (Windows) or a terminal (linux) and enter the command `npm install monero-javascript`.
 
-# 3. Write a monero-javascript program
+# Write a monero-javascript program
 
-## 3.1: The essential monero-javascript program template
+## The essential monero-javascript program template
 
 Every monero-javascript program must have two essential components:
-1. A "require" statement to import the library
+1. A "require" statement to import the monero-javascript library:
+```require("monero-javascript");```
 2. An asynchronous "main" function to handle all monero-javascript operations
+```async mainFunction() {}```
+
+These requirements inform the design of a basic script template that serves as the foundation of every monero-javascript program. You should create and save a copy of this template program:
+1. Open the text editor or IDE of your choice and create a new, blank file.
+2. Type the following code into the file:
+```
+require("monero-javascript");
+
+mainFunction();
+
+async mainFunction() {
+}
+```
+Save the file under the name "monero-javascript-template.js".
 
 ---
-
 ### Why do monero-javascript methods need to run in an asynchronous function?
+(You can skip ahead to the [next section](creating-an-offline-wallet) if you are already familiar with asynchronous javascript methods)
 
 
----
-
-## 3.2: Creating-an-offline-wallet
-Monero-javascript provides a minimal Monero wallet implementation called a keys-only wallet. We will use the keys-only wallet to program an offline wallet generator. 
 
 ---
-**NOTE**
 
+## Creating an offline wallet
+Monero-javascript provides a minimal Monero wallet implementation called a keys-only wallet. You will use the keys-only wallet to program an offline wallet generator. 
+
+Open monero-javascript-template.js in a text editor or IDE and modify it to match the following program:
+
+```
+require("monero-javascript");
+
+mainFunction();
+
+function mainFunction() {
+  let statusMessage = "";
+  //use a try block to detect whether the keys-only wallet was able to be created without error
+  try {
+    // create a random keys-only (offline) stagenet wallet
+    var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+    statusMessage = "Success!";
+  } catch(e) {
+    statusMessage = "Attempt to create keys-only wallet failed with the following error: " + e;
+  }
+
+  // Print the status message ("Success!" or the error) to the console
+  console.log(statusMessage);
+}
+```
+
+---
+## Keys-only wallet limitations
 Keys-only wallets have the following limitations:
-They do not store and can not import transaction or output data
-They can not connect to nodes or RPC wallet servers
-They can not send XMR
-They can not report their balances
+* They do not store and can not import transaction or output data
+* They can not connect to nodes or RPC wallet servers - this means they can not interact with any of the Monero networks.
+* They can not send XMR
+* They can not report their balances
 
-The tradeoff for these limitations is the keys-only wallet’s small memory footprint, which allows it to load much faster than a full WASM wallet. Use keys-only wallets when your application doesn’t need to make use of any of the aforementioned missing features. One such case is an offline wallet generator, because it does not need to communicate with the blockchain. 
+The tradeoff for these limitations is the keys-only wallet’s small memory footprint, which allows it to load much faster than a full WASM wallet. Use keys-only wallets when your application does not require of any of these missing features. One such case is an offline wallet generator, because it does not need to communicate with the blockchain. 
 
 ---
 
-There are two steps to create a view-only wallet:
+There are two steps to create a keys-only wallet:
 Load the WASM module
 `await MoneroUtils.loadKeysModule();`
 Create the new, random, keys-only wallet
@@ -79,12 +117,6 @@ Create the new, random, keys-only wallet
 It is good practice to error-check any monero-javascript constructor calls, so encase the call to MoneroWalletKeys.createWalletRandom in a try-catch block.
 
 ```
-  // Create a string to print the status (success or failure) of the app
-  let statusMessage = "";
-
-  // load wasm module on main thread
-  await MoneroUtils.loadKeysModule();
-
   try {
     // create a random keys-only (offline) stagenet wallet
     var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
