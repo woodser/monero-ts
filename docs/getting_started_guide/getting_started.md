@@ -70,10 +70,35 @@ Save the file under the name "monero-javascript-template.js".
 
 ---
 
-## Creating an offline wallet
-Monero-javascript provides a minimal Monero wallet implementation called a keys-only wallet. You will use the keys-only wallet to program an offline wallet generator. 
+## Creating an offline wallet generator
 
-Open monero-javascript-template.js in a text editor or IDE and modify it to match the following program:
+An offline Monero wallet generator is a simple program that generates and displays a new wallet address along with that address's associated view and spend keys and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network to accomplish this task. transfer XMR or track a wallet's balance or outputs.  
+
+Monero-javascript provides a minimal, stripped-down implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
+
+### Creating a random keys-only wallet
+
+You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWalletRandom()` method as follows:
+```
+var keysOnlyWallet = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+```
+
+The createWalletRandom method accepts two arguments: the network type and the seed phrase language.
+
+---
+**NOTE**
+There are three Monero networks:
+* mainnet
+* stagenet
+* testnet
+
+*mainnet* is the "real" Monero network. XMR transferred on mainnet has actual monetary value.
+*stagenet* is designed for learning how to use Monero and interact with the blockchain. Use this network for learning, experimentation, and application testing.
+*testnet* is like stagenet for the Monero development team. It is meant for testing updates and addtions to the Monero source code. If you are not a member of the Monero developent team then you probably have no need to use testnet.
+
+---
+
+Your javascript program should now look like this:
 
 ```
 require("monero-javascript");
@@ -81,20 +106,11 @@ require("monero-javascript");
 mainFunction();
 
 function mainFunction() {
-  let statusMessage = "";
-  //use a try block to detect whether the keys-only wallet was able to be created without error
-  try {
-    // create a random keys-only (offline) stagenet wallet
-    var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
-    statusMessage = "Success!";
-  } catch(e) {
-    statusMessage = "Attempt to create keys-only wallet failed with the following error: " + e;
-  }
-
-  // Print the status message ("Success!" or the error) to the console
-  console.log(statusMessage);
+  // create a random keys-only (offline) stagenet wallet
+  var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
 }
 ```
+Save the file as "offline_wallet_generator.js".
 
 ---
 ## Keys-only wallet limitations
@@ -108,30 +124,7 @@ The tradeoff for these limitations is the keys-only wallet’s small memory foot
 
 ---
 
-There are two steps to create a keys-only wallet:
-Load the WASM module
-`await MoneroUtils.loadKeysModule();`
-Create the new, random, keys-only wallet
-`let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");`
-
-It is good practice to error-check any monero-javascript constructor calls, so encase the call to MoneroWalletKeys.createWalletRandom in a try-catch block.
-
-```
-  try {
-    // create a random keys-only (offline) stagenet wallet
-    var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
-    statusMessage = "Success!";
-  } catch(e) {
-    statusMessage = "Attempt to create keys-only wallet failed with the following error: " + e;
-  }
-
-  // Print the status message to the console
-  console.log(statusMessage);
-```
-
-Build the app with “npm install”, run start_dev_browser, and check the console. If you see the “Success!” message then the application successfully created an offline wallet. However, the wallet is useless until you print out it’s essential attributes, so you need to write the code to do so.
-Build an object to store the wallet data
-MoneroWallet implements getter methods for obtaining wallet attributes from a MoneroWallet instance. Use them to create a javascript object containing the attributes needed for an offline wallet, and print the object to the console.
+### Reporting the wallet's attributes
 
 ```
 // Create a JSON object to hold select wallet attributes
@@ -151,9 +144,13 @@ MoneroWallet implements getter methods for obtaining wallet attributes from a Mo
   console.log(walletAttributesString);
 ```
 
-Install and run the application. The output to the browser’s console should resemble the following:
+Run the application:
 ```
-Success!
+node offline_wallet_generator.js
+```
+
+You should see the following output:
+```
 {
 
 "mnemonic": "darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply",
