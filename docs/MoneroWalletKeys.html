@@ -157,7 +157,7 @@ static wallet creation utilities in this class.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletKeys.js.html">wallet/MoneroWalletKeys.js</a>, <a href="wallet_MoneroWalletKeys.js.html#line148">line 148</a>
+        <a href="wallet_MoneroWalletKeys.js.html">wallet/MoneroWalletKeys.js</a>, <a href="wallet_MoneroWalletKeys.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -213,7 +213,7 @@ static wallet creation utilities in this class.
     
 
     
-    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(is)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -221,20 +221,17 @@ static wallet creation utilities in this class.
 
 
 <div class="description">
-    Create a wallet using WebAssembly bindings to monero-core.
+    <p>Create a wallet using WebAssembly bindings to monero-core.</p>
 
-For example:
- let wallet = await MoneroWalletKeys.createWallet({password: "abc123", networkType: MoneroNetworkType.STAGENET, mnemonic: "..."});
+<p>Example:</p>
 
-All supported configuration:
-  {string} password - password of the wallet to create
-  {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-  {string} mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-  {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-  {string} privateViewKey - private view key of the wallet to create (optional)
-  {string} privateSpendKey - private spend key of the wallet to create (optional)
-  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+<code>
+let wallet = await MoneroWalletKeys.createWallet({<br>
+&nbsp;&nbsp; password: "abc123",<br>
+&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon..."<br>
+});
+</code>
 </div>
 
 
@@ -270,7 +267,7 @@ All supported configuration:
 
         <tr>
             
-                <td class="name"><code>is</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
@@ -289,7 +286,220 @@ All supported configuration:
 
             
 
-            <td class="description last">a MoneroWalletConfig or equivalent config object</td>
+            <td class="description last">MoneroWalletConfig or equivalent config object
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to create</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mnemonic</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seedOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>primaryAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">primary address of the wallet to create (only provide if restoring from keys)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateViewKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private view key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateSpendKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private spend key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>language</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -330,7 +540,7 @@ All supported configuration:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletKeys.js.html">wallet/MoneroWalletKeys.js</a>, <a href="wallet_MoneroWalletKeys.js.html#line28">line 28</a>
+        <a href="wallet_MoneroWalletKeys.js.html">wallet/MoneroWalletKeys.js</a>, <a href="wallet_MoneroWalletKeys.js.html#line33">line 33</a>
     </li></ul></dd>
     
 
@@ -2358,7 +2568,7 @@ spend key and can therefore only observe incoming outputs.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 12:16:53 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 12:25:14 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
