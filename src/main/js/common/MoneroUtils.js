@@ -351,7 +351,7 @@ class MoneroUtils {
    * 
    * @param {objectId} identifies the worker object to invoke
    * @param {string} fnName is the name of the function to invoke
-   * @param {[]} args are function arguments to invoke with
+   * @param {Object[]} args are function arguments to invoke with
    * @return {Promise} resolves with response payload from the worker or an error
    */
   static async invokeWorker(objectId, fnName, args) {
