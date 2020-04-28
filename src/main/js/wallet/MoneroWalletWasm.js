@@ -11,7 +11,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * Check if a wallet exists at a given path.
    * 
    * @param {string} path is the path of the wallet on the file system
-   * @param {File System} is a node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
+   * @param {fs} is a node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
   static async walletExists(path, fs) {
@@ -47,7 +47,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {string|number} networkType is the network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection is a daemon URI or MoneroRpcConnection
    * @param {boolean} proxyToWorker proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
-   * @param {File System} fs is a node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {fs} fs is a node-js compatible file system to use (defaults to disk or in-memory FS if browser)
    */
   static async openWallet(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
 
@@ -112,7 +112,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    *   {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    *   {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    *   {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (defaults to false)
-   *   {File System} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   *   {fs} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
    *  
    * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
    */
