@@ -757,6 +757,71 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
+      it("Supports multisig sample code", async function() {
+        await testCreateMultisigWallet(2, 2);
+        await testCreateMultisigWallet(2, 3);
+        await testCreateMultisigWallet(2, 4);
+      });
+      
+      async function testCreateMultisigWallet(M, N) {
+        console.log("Creating " + M + "/" + N + " multisig wallet");
+        
+        // create participating wallets
+        let wallets = []
+        for (let i = 0; i < N; i++) {
+          wallets.push(await that.createWallet());
+        }
+        
+        // prepare and collect multisig hex from each participant
+        let preparedMultisigHexes = []
+        for (let wallet of wallets) preparedMultisigHexes.push(await wallet.prepareMultisig());
+        
+        // make each wallet multsig and collect results
+        let madeMultisigHexes = [];
+        for (let i = 0; i < wallets.length; i++) {
+          
+          // collect prepared multisig hexes from wallet's peers
+          let peerMultisigHexes = [];
+          for (let j = 0; j < wallets.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
+        
+          // make wallet multisig and collect result hex
+          let result = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
+          madeMultisigHexes.push(result.getMultisigHex());
+        }
+        
+        // if wallet is not N/N, exchange multisig keys N-M times
+        if (M !== N) {
+          let multisigHexes = madeMultisigHexes;
+          for (let i = 0; i < N - M; i++) {
+            
+            // exchange multisig keys among participants and collect results for next round if applicable
+            let resultMultisigHexes = [];
+            for (let wallet of wallets) {
+              
+              // import the multisig hex of other participants and collect results
+              let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
+              resultMultisigHexes.push(result.getMultisigHex());
+            }
+            
+            // use resulting multisig hex for next round of exchange if applicable
+            multisigHexes = resultMultisigHexes;
+          }
+        }
+        
+        // wallets are now multisig
+        for (let wallet of wallets) {
+          let primaryAddress = await wallet.getAddress(0, 0);
+          MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
+          let info = await wallet.getMultisigInfo();
+          assert(info.isMultisig());
+          assert(info.isReady());
+          assert.equal(info.getThreshold(), M);
+          assert.equal(info.getNumParticipants(), N);
+          await wallet.close(true);
+        }
+      }
+      
+      if (config.testNonRelays)
       it("Can be saved", async function() {
         
         // create unique path for new test wallet
@@ -1108,7 +1173,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           try { await that.daemon.stopMining(); } catch (e) { }
           
           // created wallet should have notified listeners of received outputs
-          assert(myListener.getOutputsReceived().length > 0);
+          assert(myListener.getOutputsReceived().length > 0, "Listener did not receive outputs");
         } catch (e) {
           err = e;
         }
@@ -1117,70 +1182,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await myWallet.close();
         if (err) throw err;
       });
-      
-      it("Supports multisig sample code", async function() {
-        await testCreateMultisigWallet(2, 2);
-        await testCreateMultisigWallet(2, 3);
-        await testCreateMultisigWallet(2, 4);
-      });
-      
-      async function testCreateMultisigWallet(M, N) {
-        console.log("Creating " + M + "/" + N + " multisig wallet");
-        
-        // create participating wallets
-        let wallets = []
-        for (let i = 0; i < N; i++) {
-          wallets.push(await that.createWallet());
-        }
-        
-        // prepare and collect multisig hex from each participant
-        let preparedMultisigHexes = []
-        for (let wallet of wallets) preparedMultisigHexes.push(await wallet.prepareMultisig());
-        
-        // make each wallet multsig and collect results
-        let madeMultisigHexes = [];
-        for (let i = 0; i < wallets.length; i++) {
-          
-          // collect prepared multisig hexes from wallet's peers
-          let peerMultisigHexes = [];
-          for (let j = 0; j < wallets.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
-        
-          // make wallet multisig and collect result hex
-          let result = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
-          madeMultisigHexes.push(result.getMultisigHex());
-        }
-        
-        // if wallet is not N/N, exchange multisig keys N-M times
-        if (M !== N) {
-          let multisigHexes = madeMultisigHexes;
-          for (let i = 0; i < N - M; i++) {
-            
-            // exchange multisig keys among participants and collect results for next round if applicable
-            let resultMultisigHexes = [];
-            for (let wallet of wallets) {
-              
-              // import the multisig hex of other participants and collect results
-              let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
-              resultMultisigHexes.push(result.getMultisigHex());
-            }
-            
-            // use resulting multisig hex for next round of exchange if applicable
-            multisigHexes = resultMultisigHexes;
-          }
-        }
-        
-        // wallets are now multisig
-        for (let wallet of wallets) {
-          let primaryAddress = await wallet.getAddress(0, 0);
-          MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
-          let info = await wallet.getMultisigInfo();
-          assert(info.isMultisig());
-          assert(info.isReady());
-          assert.equal(info.getThreshold(), M);
-          assert.equal(info.getNumParticipants(), N);
-          await wallet.close(true);
-        }
-      }
     });
   }
   
