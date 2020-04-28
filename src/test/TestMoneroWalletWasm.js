@@ -1025,24 +1025,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
             
         // wait for wallet to send notifications
-        if (listener.getOutputsSpent().length === 0) {
-          errors.push("WARNING: wallet does not notify listeners of outputs when tx sent directly through wallet or when refreshed from the pool; must wait for confirmation to receive notifications and have correct balance");
-          
-          // mine until next block
-          try { await StartMining.startMining(); } catch (e) { }
-          await that.daemon.getNextBlockHeader();  
-          try { await that.daemon.stopMining(); } catch (e) { }
-          
-          // sleep for a moment
-          console.log("Sleeping to test that sync starts automatically...");
-          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
-        }
-        
-        // test sent output notifications
-        if (listener.getOutputsSpent().length === 0) {
-          errors.push("ERROR: did not receive any sent output notifications");
-          return errors;
-        }
+        if (listener.getOutputsSpent().length === 0) errors.push("WARNING: wallet does not notify listeners of outputs when tx sent directly through wallet or when refreshed from the pool; must wait for confirmation to receive notifications and have correct balance");
+        try { await StartMining.startMining(); } catch (e) { }
+        while (listener.getOutputsSpent().length === 0) await that.daemon.getNextBlockHeader();  
+        try { await that.daemon.stopMining(); } catch (e) { }
         
         // test received output notifications
         if (listener.getOutputsReceived().length < 4) {  // 3+ outputs received from transfers + 1 change output (very unlikely to send exact output amount)
@@ -1072,6 +1058,9 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         unlockedBalanceAfter = await wallet.getUnlockedBalance();
         if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
         if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
+        
+        // remove listener
+        await wallet.removeListener(listener);
 
         // return all errors and warnings as single string
         return errors;
@@ -1095,7 +1084,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         return false;
       }
       
-      if (config.testNotifications)  // TODO: re-enable
+      if (config.testNotifications)
       it("Can be created and receive funds", async function() {
         let err;
         let myWallet;
@@ -1113,17 +1102,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
           let sentTx = (await that.wallet.sendTx(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
           
-          // wait until block added to the chain
-          // TODO monero core: notify on refresh from pool instead instead of confirmation
+          // wait for funds to confirm
           try { await StartMining.startMining(); } catch (e) { }
-          await that.daemon.getNextBlockHeader();
+          while (!(await that.wallet.getTx(sentTx.getHash())).isConfirmed()) await that.daemon.getNextBlockHeader();
           try { await that.daemon.stopMining(); } catch (e) { }
-          
-          // give wallets time to observe block
-          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
-
-          // tx is now confirmed
-          assert((await that.wallet.getTx(sentTx.getHash())).isConfirmed()); // TODO: tx is not guaranteed to confirm, which can cause occasional test failure
           
           // created wallet should have notified listeners of received outputs
           assert(myListener.getOutputsReceived().length > 0);
