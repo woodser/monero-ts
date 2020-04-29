@@ -5,7 +5,7 @@ The library’s object and method hierarchy is derived from [The Hidden Model](h
 
 Monero-javascript features a web assembly (WASM)-based wallet implementation, which acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external - and potentially malicious - RPC wallet server in order to manage a wallet. In other words, monero-javascript makes fully client-side wallet operations possible. In addition, monero-javascript allows traditional wallet management via RPC wallet queries as well.
 
-(software architecture diagram)[./img/monero-javascript-diagram.png] caption:  Monero-javascript can interact with monero both via connection to RPC-servers and daemons and a direct bridge to the native wallet code via the monero c++ wallet implementation
+![Monero-javascript hierarchy](img/paste.png?raw=true)Monero-javascript can interact with monero both via connection to RPC-servers and daemons and a direct bridge to the native wallet code via the monero c++ wallet implementation
 
 # Initial Setup
 
