@@ -5,7 +5,7 @@ The library’s object and method hierarchy is derived from [The Hidden Model](h
 
 Monero-javascript features a web assembly (WASM)-based wallet implementation, which acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external - and potentially malicious - RPC wallet server in order to manage a wallet. In other words, monero-javascript makes fully client-side wallet operations possible. In addition, monero-javascript allows traditional wallet management via RPC wallet queries as well.
 
-![Monero-javascript hierarchy](img/paste.png?raw=true)Monero-javascript can interact with monero both via connection to RPC-servers and daemons and a direct bridge to the native wallet code via the monero c++ wallet implementation
+![Monero-javascript hierarchy](img/paste.png?raw=true)*In addition to the traditional method of managing wallets through an RPC wallet server, monero-javascript allows developers to communicate with the core Monero wallet software via a javascript wrapper for the monero-cpp Wasm library.*  
 
 # Initial Setup
 
@@ -43,13 +43,15 @@ To install the libary, open the command prompt (Windows) or a terminal (linux) a
 
 ## The essential monero-javascript program template
 
-Every monero-javascript program must have two essential components:
+Most monero-javascript programs need to have two essential components:
 1. A "require" statement to import the monero-javascript library:
 ```require("monero-javascript");```
 2. An asynchronous "main" function to handle all monero-javascript operations
 ```async mainFunction() {}```
 
-These requirements inform the design of a basic script template that serves as the foundation of every monero-javascript program. You should create and save a copy of this template program:
+Note that the asynchronous "main" function may be uncecessary and undesireble in a few rare cases. However, for the purposes of this guide and under the majority of circumstances, monero-javascript code should run in an asynchronous function, because all of the monero-javascript methods run asynchronously.
+
+Create and save a copy of this template program:
 1. Open the text editor or IDE of your choice and create a new, blank file.
 2. Type the following code into the file:
 ```
@@ -65,8 +67,6 @@ Save the file under the name "monero-javascript-template.js".
 ---
 ### Why do monero-javascript methods need to run in an asynchronous function?
 (You can skip ahead to the [next section](creating-an-offline-wallet) if you are already familiar with asynchronous javascript methods)
-
-
 
 ---
 
