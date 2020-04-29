@@ -79,25 +79,28 @@ An offline Monero wallet generator is a simple program that generates and displa
 
 Monero-javascript provides a minimal, stripped-down implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
 
-### Creating a random keys-only wallet
+### Building a keys-only wallet
 
-You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWalletRandom()` method as follows:
+Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWalletRandom()` method as follows:
 ```
+// create a random keys-only (offline) stagenet wallet
 var keysOnlyWallet = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
 ```
 
-The createWalletRandom method accepts two arguments: the network type and the seed phrase language.
+The createWalletRandom method accepts two arguments: the network type and the seed phrase language. 
 
 ---
-**NOTE**
-There are three Monero networks:
+**The Three Monero Networks**
+There are three distinct Monero networks:
 * mainnet
 * stagenet
 * testnet
 
 *mainnet* is the "real" Monero network. XMR transferred on mainnet has actual monetary value.
 *stagenet* is designed for learning how to use Monero and interact with the blockchain. Use this network for learning, experimentation, and application testing.
-*testnet* is like stagenet for the Monero development team. It is meant for testing updates and addtions to the Monero source code. If you are not a member of the Monero developent team then you probably have no need to use testnet.
+*testnet* is like stagenet for the Monero development team. It is meant for testing updates and additions to the Monero source code. If you are not a member of the Monero developent team then you probably have no need to use testnet.
+
+Note that wallets are not network cross-compatible. Each Monero network uses a unique wallet address format, so any attempt to restore a wallet created for one network on a different network will fail.
 
 ---
 
@@ -115,20 +118,11 @@ function mainFunction() {
 ```
 Save the file as "offline_wallet_generator.js".
 
----
-## Keys-only wallet limitations
-Keys-only wallets have the following limitations:
-* They do not store and can not import transaction or output data
-* They can not connect to nodes or RPC wallet servers - this means they can not interact with any of the Monero networks.
-* They can not send XMR
-* They can not report their balances
-
-The tradeoff for these limitations is the keys-only wallet’s small memory footprint, which allows it to load much faster than a full WASM wallet. Use keys-only wallets when your application does not require of any of these missing features. One such case is an offline wallet generator, because it does not need to communicate with the blockchain. 
-
----
-
 ### Reporting the wallet's attributes
 
+Your program is technically already an offline wallet generator, as it _does_, in fact, generate a wallet without connecting to a Monero network. However, the wallet needs to report its key attributes - address, view key, spend key, and mnemonic seed phrase - to be useful. 
+
+To display the wallets attributes, start by declaring an object that will store the wallet's attributes.
 ```
 // Create a JSON object to hold select wallet attributes
   let walletInfoJson = {
@@ -138,7 +132,10 @@ The tradeoff for these limitations is the keys-only wallet’s small memory foot
     // MoneroWalletKeys.getAddress(address index, subaddress index)
     address: await(walletKeys.getAddress(0,0))
   };
+```
+Next, 
 
+```
   // Convert walletInfoJson object to a string formatted to display
   // in an easy-to-read format
   let walletAttributesString = JSON.stringify(walletInfoJson, undefined, "\n");
@@ -152,7 +149,7 @@ Run the application:
 node offline_wallet_generator.js
 ```
 
-You should see the following output:
+The program's output should look similar to the following:
 ```
 {
 
@@ -165,3 +162,14 @@ You should see the following output:
 "address": "5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg"
 }
 ```
+
+# Next steps
+
+Browse the specialized monero-javascript guides to learn how to perform more advanced tasks with the monero-javascript library.
+* [Getting started with monero-javascript web browser applications](dummy_link)
+* [Connecting to Monero nodes and RPC wallet servers with MoneroRpcConnection](dummy_link)
+* [Initiating transfers](dummy_link)
+* [Building client-side wallets with MoneroWalletWasm](dummy_link)
+* [Managing view-only wallets](dummy_link)
+* [Using multisig wallets](dummy_link)
+* [Analyzing the blockchain](dummy_link)
