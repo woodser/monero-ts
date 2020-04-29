@@ -1,9 +1,12 @@
-# Introduction to the monero-javascript library
-The monero-javascript library enables web developers to implement Monero functionality in javascript browser and node.js applications, such as interacting with Monero wallets, nodes, and RPC servers.
+# Introduction
+Monero-javascript is a javascript library for implementing Monero cryptocurrency functionality in web browser and node.js applications. The library can interact with Monero wallets and networks through:
+* RPC wallet servers
+* RPC Daemon servers (nodes)
+* Monero's native wallet code via WebAssembly(Wasm).
 
-The library’s object and method hierarchy is derived from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying structure of the Monero software and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
+The library’s object and method hierarchy is derived from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying Monero software structure and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
 
-Monero-javascript features a web assembly (WASM)-based wallet implementation, which acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external - and potentially malicious - RPC wallet server in order to manage a wallet. In other words, monero-javascript makes fully client-side wallet operations possible. In addition, monero-javascript allows traditional wallet management via RPC wallet queries as well.
+Monero-javascript features a Wasm-based wallet implementation, which acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external - and potentially malicious - RPC wallet server. The library still provides classes and methods for managing wallets via an RPC server, however.
 
 ![Monero-javascript hierarchy](img/paste.png?raw=true)*In addition to the traditional method of managing wallets through an RPC wallet server, monero-javascript allows developers to communicate with the core Monero wallet software via a javascript wrapper for the monero-cpp Wasm library.*  
 
