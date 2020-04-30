@@ -1,5 +1,7 @@
 /**
  * Models a base transfer of funds to or from the wallet.
+ * 
+ * @class
  */
 class MoneroTransfer {
   

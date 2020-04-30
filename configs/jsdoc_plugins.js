@@ -3,15 +3,15 @@
  */
 'use strict';
 
-const INHERITS = ["MoneroWalletRpc", "MoneroWalletWasm", "MoneroWalletKeys", "MoneroDaemonRpc"] // classes to not override undocumented which will lose jsdoc inheritance
 const GenUtils = require("../src/main/js/common/GenUtils");
+
+// classes to not override undocumented which will lose jsdoc inheritance
+const INHERITS = ["MoneroWalletRpc", "MoneroWalletWasm", "MoneroWalletKeys", "MoneroDaemonRpc", "MoneroWalletListener", "MoneroIncomingTransfer", "MoneroOutgoingTransfer", "MoneroTxWallet", "MoneroOutputWallet", "MoneroTxQuery", "MoneroTransferQuery", "MoneroOutputQuery", "MoneroBlock"];
 
 module.exports.handlers = {
   newDoclet : function(e) {
-    if (e.doclet.undocumented && e.doclet.kind === "function" && 
-        e.doclet.scope === "instance" && 
-        !e.doclet.name.startsWith("_") && 
-        !GenUtils.arrayContains(INHERITS, e.doclet.memberof)) {
+    if (e.doclet.name.startsWith("_")) e.doclet.undocumented = true;
+    else if (e.doclet.undocumented && e.doclet.kind === "function" && e.doclet.scope === "instance" && !GenUtils.arrayContains(INHERITS, e.doclet.memberof)) {
       e.doclet.undocumented = false;
     }
   },

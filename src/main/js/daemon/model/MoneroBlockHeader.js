@@ -1,5 +1,7 @@
 /**
  * Models a Monero block header which contains information about the block.
+ * 
+ * @class
  */
 class MoneroBlockHeader {
   

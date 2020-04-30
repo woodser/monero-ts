@@ -1,5 +1,7 @@
 /**
  * Base filter.
+ * 
+ * @private
  */
 class Filter {
   

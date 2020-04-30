@@ -1,5 +1,7 @@
 /**
  * Models a Monero block in the blockchain.
+ * 
+ * @extends {MoneroBlockHeader}
  */
 class MoneroBlock extends MoneroBlockHeader {
   

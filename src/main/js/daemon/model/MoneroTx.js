@@ -1,5 +1,7 @@
 /**
  * Represents a transaction on the Monero network.
+ * 
+ * @class
  */
 class MoneroTx {
   

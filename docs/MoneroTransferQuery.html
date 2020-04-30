@@ -143,7 +143,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line13">line 13</a>
+        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line15">line 15</a>
     </li></ul></dd>
     
 
@@ -175,6 +175,17 @@ All transfers are returned except those that do not meet the criteria defined in
 
     
     </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="MoneroTransfer.html">MoneroTransfer</a></li>
+    </ul>
+
 
     
 
@@ -227,6 +238,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#copy">MoneroTransfer#copy</a>
+    </li></ul></dd>
+    
 
     
 
@@ -247,7 +263,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line24">line 24</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line26">line 26</a>
     </li></ul></dd>
     
 
@@ -283,7 +299,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="getAddress"><span class="type-signature"></span>getAddress<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getAccountIndex"><span class="type-signature"></span>getAccountIndex<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -311,6 +327,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#getAccountIndex">MoneroTransfer#getAccountIndex</a>
+    </li></ul></dd>
+    
 
     
 
@@ -331,7 +352,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line52">line 52</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -367,7 +388,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="getAddresses"><span class="type-signature"></span>getAddresses<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getAmount"><span class="type-signature"></span>getAmount<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -395,6 +416,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#getAmount">MoneroTransfer#getAmount</a>
+    </li></ul></dd>
+    
 
     
 
@@ -415,7 +441,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line61">line 61</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line65">line 65</a>
     </li></ul></dd>
     
 
@@ -451,12 +477,19 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="getDestinations"><span class="type-signature"></span>getDestinations<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getNumSuggestedConfirmations"><span class="type-signature"></span>getNumSuggestedConfirmations<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
 
 
+
+<div class="description">
+    Return how many confirmations till it's not economically worth re-writing the chain.
+That is, the number of confirmations before the transaction is highly unlikely to be
+double spent or overwritten and may be considered settled, e.g. for a merchant to trust
+as finalized.
+</div>
 
 
 
@@ -479,6 +512,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#getNumSuggestedConfirmations">MoneroTransfer#getNumSuggestedConfirmations</a>
+    </li></ul></dd>
+    
 
     
 
@@ -499,7 +537,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line88">line 88</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -524,6 +562,16 @@ All transfers are returned except those that do not meet the criteria defined in
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Integer is the number of confirmations before it's not worth rewriting the chain
+</div>
+
+
+
+    
 
 
 
@@ -535,7 +583,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="getSubaddressIndex"><span class="type-signature"></span>getSubaddressIndex<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getTx"><span class="type-signature"></span>getTx<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -563,27 +611,9 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line70">line 70</a>
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#getTx">MoneroTransfer#getTx</a>
     </li></ul></dd>
     
 
@@ -592,67 +622,6 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getSubaddressIndices"><span class="type-signature"></span>getSubaddressIndices<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
     
 
@@ -667,175 +636,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line79">line 79</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getTxQuery"><span class="type-signature"></span>getTxQuery<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line106">line 106</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="hasDestinations"><span class="type-signature"></span>hasDestinations<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line97">line 97</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line37">line 37</a>
     </li></ul></dd>
     
 
@@ -899,6 +700,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#isIncoming">MoneroTransfer#isIncoming</a>
+    </li></ul></dd>
+    
 
     
 
@@ -919,7 +725,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line34">line 34</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line52">line 52</a>
     </li></ul></dd>
     
 
@@ -983,6 +789,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#isOutgoing">MoneroTransfer#isOutgoing</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1003,7 +814,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line43">line 43</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -1039,7 +850,170 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="meetsCriteria"><span class="type-signature"></span>meetsCriteria<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="merge"><span class="type-signature"></span>merge<span class="signature">(transfer)</span><span class="type-signature"> &rarr; {<a href="MoneroTransfer.html">MoneroTransfer</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Updates this transaction by merging the latest information from the given
+transaction.
+
+Merging can modify or build references to the transfer given so it
+should not be re-used or it should be copied before calling this method.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>transfer</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">is the transfer to merge into this one</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#merge">MoneroTransfer#merge</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line101">line 101</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the merged transfer
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroTransfer.html">MoneroTransfer</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setAccountIndex"><span class="type-signature"></span>setAccountIndex<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -1067,6 +1041,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#setAccountIndex">MoneroTransfer#setAccountIndex</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1087,7 +1066,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line127">line 127</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -1123,7 +1102,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="setAddress"><span class="type-signature"></span>setAddress<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setAmount"><span class="type-signature"></span>setAmount<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -1151,27 +1130,9 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line56">line 56</a>
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#setAmount">MoneroTransfer#setAmount</a>
     </li></ul></dd>
     
 
@@ -1180,67 +1141,6 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setAddresses"><span class="type-signature"></span>setAddresses<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
     
 
@@ -1255,259 +1155,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line65">line 65</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setDestinations"><span class="type-signature"></span>setDestinations<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line92">line 92</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setHasDestinations"><span class="type-signature"></span>setHasDestinations<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line101">line 101</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setIsIncoming"><span class="type-signature"></span>setIsIncoming<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line38">line 38</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -1639,7 +1287,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line121">line 121</a>
+        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line123">line 123</a>
     </li></ul></dd>
     
 
@@ -1697,7 +1345,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="setIsOutgoing"><span class="type-signature"></span>setIsOutgoing<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setNumSuggestedConfirmations"><span class="type-signature"></span>setNumSuggestedConfirmations<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -1725,6 +1373,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#setNumSuggestedConfirmations">MoneroTransfer#setNumSuggestedConfirmations</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1745,7 +1398,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line47">line 47</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -1781,7 +1434,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="setSubaddressIndex"><span class="type-signature"></span>setSubaddressIndex<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setTx"><span class="type-signature"></span>setTx<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -1809,27 +1462,9 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line74">line 74</a>
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#setTx">MoneroTransfer#setTx</a>
     </li></ul></dd>
     
 
@@ -1838,67 +1473,6 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setSubaddressIndices"><span class="type-signature"></span>setSubaddressIndices<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
     
 
@@ -1913,91 +1487,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line83">line 83</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setTxQuery"><span class="type-signature"></span>setTxQuery<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line110">line 110</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -2061,6 +1551,11 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#toJson">MoneroTransfer#toJson</a>
+    </li></ul></dd>
+    
 
     
 
@@ -2081,7 +1576,96 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line28">line 28</a>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="toString"><span class="type-signature"></span>toString<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTransfer.html#toString">MoneroTransfer#toString</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="wallet_model_MoneroTransfer.js.html">wallet/model/MoneroTransfer.js</a>, <a href="wallet_model_MoneroTransfer.js.html#line127">line 127</a>
     </li></ul></dd>
     
 
@@ -2127,13 +1711,13 @@ All transfers are returned except those that do not meet the criteria defined in
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonRpcProxy.html">MoneroDaemonRpcProxy</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncListener.html">MoneroSyncListener</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="MoneroWalletWasmProxy.html">MoneroWalletWasmProxy</a></li><li><a href="SslOptions.html">SslOptions</a></li><li><a href="SyncListenerWrapper.html">SyncListenerWrapper</a></li><li><a href="WalletWasmListener.html">WalletWasmListener</a></li><li><a href="WalletWorkerHelperListener.html">WalletWorkerHelperListener</a></li><li><a href="WalletWorkerListener.html">WalletWorkerListener</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li><li><a href="global.html#onmessage">onmessage</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonRpcProxy.html">MoneroDaemonRpcProxy</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncListener.html">MoneroSyncListener</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="MoneroWalletWasmProxy.html">MoneroWalletWasmProxy</a></li><li><a href="SslOptions.html">SslOptions</a></li><li><a href="WalletWorkerHelperListener.html">WalletWorkerHelperListener</a></li><li><a href="WalletWorkerListener.html">WalletWorkerListener</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li><li><a href="global.html#onmessage">onmessage</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 12:25:13 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Apr 30 2020 16:14:04 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -2,6 +2,8 @@
  * Configures a query to retrieve transactions.
  * 
  * All transactions are returned except those that do not meet the criteria defined in this query.
+ * 
+ * @extends {MoneroTxWallet}
  */
 class MoneroTxQuery extends MoneroTxWallet {
   

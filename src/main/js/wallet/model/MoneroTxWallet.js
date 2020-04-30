@@ -1,5 +1,8 @@
 /**
  * Models a Monero transaction with wallet extensions.
+ * 
+ * @class
+ * @extends {MoneroTx}
  */
 class MoneroTxWallet extends MoneroTx {
   

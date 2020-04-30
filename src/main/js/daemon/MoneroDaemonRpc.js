@@ -28,11 +28,20 @@
 class MoneroDaemonRpc extends MoneroDaemon {
   
   /**
-   * Construct a daemon RPC client.
+   * <p>Construct a daemon RPC client.<p>
    * 
-   * Examples:
-   *   let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123", ...);
-   *   let daemon = new MoneroDaemonRpc({proxyToWorker: true, server: new MoneroRpcConnection("http://localhost:38081", "superuser", "abctesting123")});
+   * <p>Examples:<p>
+   * 
+   * <code>
+   * let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+   * 
+   * let daemon = new MoneroDaemonRpc({<br>
+   * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
+   * &nbsp;&nbsp; username: "superuser",<br>
+   * &nbsp;&nbsp; password: "abctesting123",<br>
+   * &nbsp;&nbsp; proxyToWorker: true,<br>
+   * });
+   * </code>
    * 
    * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection is the uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
    * @param {string} username is a username to authenticate with monero-daemon-rpc (optional)
