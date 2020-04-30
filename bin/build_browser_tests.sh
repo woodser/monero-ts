@@ -5,8 +5,6 @@ mkdir -p ./browser_build/ || exit 1
 rm -r ./browser_build/ || exit 1
 
 # build browser tests
-./bin/build_wasm_emscripten.sh || exit 1
-./bin/build_web_worker.sh || exit 1
 npm run build_web_tests || exit 1
 
 # copy dependencies to browser build

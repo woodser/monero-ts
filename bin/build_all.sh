@@ -31,5 +31,11 @@ git --git-dir ./external/monero-cpp-library/.git checkout wasm_modifications || 
 # build openssl
 ./bin/build_openssl_emscripten.sh || exit
 
-# build ./dist and browser tests
-./bin/build_browser_tests.sh
+# build webassembly for distribution
+./bin/build_wasm_emscripten.sh || exit
+
+# build web worker
+./bin/build_web_worker.sh || exit
+
+# build browser tests
+./bin/build_browser_tests.sh || exit

@@ -13,7 +13,7 @@ new TestMoneroUtils().runTests();
 
 // test daemon rpc
 new TestMoneroDaemonRpc({
-  liteMode: false,   // skips some lengthy but thorough tests
+  liteMode: false,  // skip lengthy but thorough tests if true
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
   testNotifications: true
