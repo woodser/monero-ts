@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# check for emscripten
+[ -z ${EMSDK} ] \
+  && {
+    echo "Missing EMSDK Environment variable.  Did you remember to run 'source /path/to/emsdk/emsdk_env.sh' ?"
+    [ "$(basename $0)" = "bash" ] \
+    || { 
+      echo "Terminating..."
+      exit 1
+    }
+  }
+
+# update submodules
+./bin/update_submodules.sh || exit
+
+# build monero-core translations directory
+cd ./external/monero-cpp-library/external/monero-core || exit 1
+git submodule update --init --force || exit 1
+git fetch || exit 1
+git checkout wasm_modifications || exit 1
+make release-static -j8		# builds translations directory even if build fails
+cd ../../../../ || exit 1
+
+# checkout monero-cpp-library branh with wasm modifications
+git --git-dir ./external/monero-cpp-library/.git checkout wasm_modifications || exit
+
+# build boost
+./bin/build_boost_emscripten.sh || exit
+
+# build openssl
+./bin/build_openssl_emscripten.sh || exit
+
+# build ./dist and browser tests
+./bin/build_browser_tests.sh

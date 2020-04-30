@@ -4,8 +4,7 @@ EMCC_DEBUG=${EMCC_DEBUG:-0}
 
 [ -z ${EMSDK} ] \
   && {
-    echo "Missing EMSDK Environment variable.."
-    echo "Did you remember to run 'source /path/to/emsdk/emsdk_env.sh' ?"
+    echo "Missing EMSDK Environment variable.  Did you remember to run 'source /path/to/emsdk/emsdk_env.sh' ?"
     [ "$(basename $0)" = "bash" ] \
     || { 
       echo "Terminating..."
@@ -31,7 +30,7 @@ EMCC_DEBUG=${EMCC_DEBUG:-0}
 
 [ ${EMCC_DEBUG} -ge 1 ] \
   && {
-    echo "Running make clean in build directory.."
+    echo "Running make clean in build directory..."
     make -C ./build clean
   }
 
@@ -50,7 +49,7 @@ get_boost_github() {
   echo "Downloading boost from GitHub..."
   git clone --recursive https://github.com/boostorg/boost.git --branch "boost-1.72.0" "${SDK_PATH}/boost-sdk" \
   || {
-    echo "Download failed.."
+    echo "Download failed"
     return 1
   }
   return 0
@@ -78,7 +77,7 @@ get_openssl_github() {
       )
     } \
     || {
-      echo "Download failed.."
+      echo "Download failed"
       return 1
     }
 
@@ -96,7 +95,7 @@ download_source() { # url, destination
       return 0
     } \
     || {
-      echo "wget download failed.. check download location.."
+      echo "wget download failed... check download location..."
       return 1
     }
   }
@@ -110,7 +109,7 @@ download_source() { # url, destination
       return 0
       } \
       || {
-        echo "curl download failed.. check download location.."
+        echo "curl download failed... check download location..."
         return 1
       }
     )

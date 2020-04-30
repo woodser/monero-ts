@@ -33,7 +33,7 @@ class WalletEqualityUtils {
     }
     
     // test that wallets are equal using only on-chain data
-    assert.equal(await w2.getHeight(), await w1.getHeight());
+    assert.equal(await w2.getHeight(), await w1.getHeight(), "Wallet heights are not equal after syncing");
     assert.equal(await w2.getMnemonic(), await w1.getMnemonic());
     assert.equal(await w2.getPrimaryAddress(), await w1.getPrimaryAddress());
     assert.equal(await w2.getPrivateViewKey(), await w1.getPrivateViewKey());
@@ -142,7 +142,7 @@ class WalletEqualityUtils {
           }
           
           // test tx equality by merging
-          assert(TestUtils.txsMergeable(tx1, tx2));
+          assert(TestUtils.txsMergeable(tx1, tx2), "Txs are not mergeable");
           found = true;
           
           // test block equality except txs to ignore order
@@ -150,7 +150,7 @@ class WalletEqualityUtils {
           let blockTxs2 = tx2.getBlock().getTxs();
           tx1.getBlock().setTxs();
           tx2.getBlock().setTxs();
-          assert(GenUtils.equals(tx2.getBlock().toJson(), tx1.getBlock().toJson()));
+          assert(GenUtils.equals(tx2.getBlock().toJson(), tx1.getBlock().toJson()), "Tx blocks are not equal");
           tx1.getBlock().setTxs(blockTxs1);
           tx2.getBlock().setTxs(blockTxs2);
         }
