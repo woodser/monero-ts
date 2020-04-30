@@ -6,6 +6,8 @@ require("../MoneroModel")();
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
 
  * This file must be browserified and placed in the web app root.
+ * 
+ * @private
  */
 onmessage = async function(e) {
   

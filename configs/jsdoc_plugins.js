@@ -6,7 +6,7 @@
 const GenUtils = require("../src/main/js/common/GenUtils");
 
 // classes to not override undocumented which will lose jsdoc inheritance
-const INHERITS = ["MoneroWalletRpc", "MoneroWalletWasm", "MoneroWalletKeys", "MoneroDaemonRpc", "MoneroWalletListener", "MoneroIncomingTransfer", "MoneroOutgoingTransfer", "MoneroTxWallet", "MoneroOutputWallet", "MoneroTxQuery", "MoneroTransferQuery", "MoneroOutputQuery", "MoneroBlock"];
+const INHERITS = ["MoneroWalletRpc", "MoneroWalletWasm", "MoneroWalletKeys", "MoneroDaemonRpc", "MoneroWalletListener", "MoneroIncomingTransfer", "MoneroOutgoingTransfer", "MoneroTxWallet", "MoneroOutputWallet", "MoneroTxQuery", "MoneroTransferQuery", "MoneroOutputQuery", "MoneroBlock", "MoneroCheckTx", "MoneroCheckReserve"];
 
 module.exports.handlers = {
   newDoclet : function(e) {

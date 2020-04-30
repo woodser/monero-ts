@@ -1,5 +1,7 @@
 /**
  * Results from checking a reserve proof.
+ * 
+ * @extends {MoneroCheck}
  */
 class MoneroCheckReserve extends MoneroCheck {
   
