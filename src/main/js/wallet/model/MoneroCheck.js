@@ -1,5 +1,7 @@
 /**
  * Base class for results from checking a transaction or reserve proof.
+ * 
+ * @class
  */
 class MoneroCheck {
   

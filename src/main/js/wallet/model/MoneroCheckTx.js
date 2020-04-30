@@ -1,5 +1,7 @@
 /**
  * Results from checking a transaction key.
+ * 
+ * @extends {MoneroCheck}
  */
 class MoneroCheckTx extends MoneroCheck {
   
