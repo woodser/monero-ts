@@ -169,31 +169,17 @@ Or
 
 ## How to Build WebAssembly Files from Source
 
-This project uses WebAssembly to package and execute monero-project's source code for use in a browser or other WebAssembly-supported environment.
+This project uses WebAssembly to package and execute monero-core's source code for use in a browser or other WebAssembly-supported environment.
 
-For convenience, pre-built WebAssembly files for this project's source code are committed to ./dist, but these files can be built independently from source code with the following steps:
+For convenience, pre-built WebAssembly files are committed to ./dist, but these files can be built independently from source code with the following steps:
 
 1. Install and activate emscripten:
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
-	3. `git pull`
-	4. `./emsdk install latest-upstream`
-	5. `./emsdk activate latest-upstream`
-	6. `source ./emsdk_env.sh`
-	7. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (set for your system)
+	3. `git pull && ./emsdk install latest-upstream && ./emsdk activate latest-upstream && source ./emsdk_env.sh`
+	3. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (set for your system)
 2. `cd /path/to/monero-javascript`
-3. Update submodules: `./bin/update_submodules.sh`
-4. Checkout and build a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with WebAssembly:
-	1. `cd ./external/monero-cpp-library/external/monero-core`
-	2. `git submodule update --init --force`
-	3. `git fetch`
-	4. `git checkout wasm_modifications`
-	5. `make release-static -j8` (builds translations directory even if build does not finish)
-	6. `cd ../../../../`
-5. Checkout branch of monero-cpp-library with modifications for WebAssembly: `git --git-dir ./external/monero-cpp-library/.git checkout wasm_modifications`
-6. Download and build Boost using emscripten: `./bin/build_boost_emscripten.h`
-7. Download and build OpenSSL using emscripten: `./bin/build_openssl_emscripten.sh`
-8. Build WebAssembly files to ./dist/: `./bin/build_dist.sh`
+3. `./bin/build_all.sh`
 
 ## See Also
 
