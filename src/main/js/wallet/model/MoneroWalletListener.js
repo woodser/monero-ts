@@ -1,5 +1,7 @@
 /**
  * Base class to receive wallet notifications.
+ * 
+ * @extends {MoneroSyncListener}
  */
 class MoneroWalletListener extends MoneroSyncListener {
 

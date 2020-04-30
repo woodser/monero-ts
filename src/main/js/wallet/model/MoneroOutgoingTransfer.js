@@ -1,5 +1,7 @@
 /**
  * Models an outgoing transfer of funds from the wallet.
+ * 
+ * @extends {MoneroTransfer}
  */
 class MoneroOutgoingTransfer extends MoneroTransfer {
 

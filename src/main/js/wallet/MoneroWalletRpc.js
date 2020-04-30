@@ -35,8 +35,6 @@ class MoneroWalletRpc extends MoneroWallet {
    * <code>
    * let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
    * 
-   * &sol;&sol; --- or ---<br><br>
-   * 
    * let walletRpc = new MoneroWalletRpc({<br>
    * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
    * &nbsp;&nbsp; username: "superuser",<br>
@@ -271,6 +269,13 @@ class MoneroWalletRpc extends MoneroWallet {
     }
   }
   
+  /**
+   * Set the wallet's daemon connection.
+   * 
+   * @param {string|MoneroRpcConnection} uriOrConnection - the daemon's URI or connection (defaults to offline)
+   * @param {boolean} isTrusted - indicates if the daemon in trusted
+   * @param {SslOptions} sslOptions - custom SSL configuration
+   */
   async setDaemonConnection(daemonUriOrConnection, isTrusted, sslOptions) {
     let daemonConnection = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection : new MoneroRpcConnection(daemonUriOrConnection);
     if (daemonConnection.getUsername()) throw new MoneroError("monero-wallet-rpc does not support setting daemon connection with authentication");

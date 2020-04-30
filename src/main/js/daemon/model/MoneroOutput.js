@@ -1,5 +1,7 @@
 /**
  * Models a Monero transaction output.
+ * 
+ * @class
  */
 class MoneroOutput {
   

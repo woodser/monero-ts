@@ -1682,6 +1682,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
 
 /**
  * Receives notifications directly from wasm c++.
+ * 
+ * @private
  */
 class WalletWasmListener {
   
@@ -1747,6 +1749,8 @@ class WalletWasmListener {
 
 /**
  * Wraps a sync listener as a general wallet listener.
+ * 
+ * @private
  */
 class SyncListenerWrapper extends MoneroWalletListener {
   

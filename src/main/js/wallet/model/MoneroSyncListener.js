@@ -1,5 +1,7 @@
 /**
  * Base class to receive progress notifications as a wallet is synchronized.
+ * 
+ * @class
  */
 class MoneroSyncListener {
 

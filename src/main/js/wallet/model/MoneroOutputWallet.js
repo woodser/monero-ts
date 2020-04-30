@@ -1,5 +1,8 @@
 /**
  * Models a Monero output with wallet extensions.
+ * 
+ * @class
+ * @extends {MoneroOutput}
  */
 class MoneroOutputWallet extends MoneroOutput {
   

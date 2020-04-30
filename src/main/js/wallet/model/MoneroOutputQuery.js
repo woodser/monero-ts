@@ -3,6 +3,8 @@
  * ability to spend).
  * 
  * All outputs are returned except those that do not meet the criteria defined in this query.
+ * 
+ * @extends {MoneroOutputWallet}
  */
 class MoneroOutputQuery extends MoneroOutputWallet {
   

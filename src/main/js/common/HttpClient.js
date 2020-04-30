@@ -3,11 +3,13 @@ const PromiseThrottle = require("promise-throttle");
 
 /**
  * Handles http requests with a uniform interface.
+ * 
+ * @private
  */
 class HttpClient {
   
   /**
-   * Make a http request.
+   * <p>Make a http request.<p>
    * 
    * Request config:
    * {

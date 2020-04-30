@@ -2,6 +2,8 @@
  * Configures a query to retrieve transfers.
  * 
  * All transfers are returned except those that do not meet the criteria defined in this query.
+ * 
+ * @extends {MoneroTransfer}
  */
 class MoneroTransferQuery extends MoneroTransfer {
   
