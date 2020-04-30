@@ -1120,7 +1120,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // wait for wallet to send notifications
         if (listener.getOutputsSpent().length === 0) errors.push("WARNING: wallet does not notify listeners of outputs when tx sent directly through wallet or when refreshed from the pool; must wait for confirmation to receive notifications and have correct balance");
         try { await StartMining.startMining(); } catch (e) { }
-        while (listener.getOutputsSpent().length === 0) await that.daemon.getNextBlockHeader();  
+        while (listener.getOutputsSpent().length === 0) {
+          if (await that.wallet.getTx(tx.getHash()).isFailed()) {
+            try { await that.daemon.stopMining(); } catch (e) { }
+            errors.push("Tx failed in mempool: " + tx.getHash());
+            return errors
+          }
+          await that.daemon.getNextBlockHeader();
+        }
         try { await that.daemon.stopMining(); } catch (e) { }
         
         // test received output notifications
@@ -1197,8 +1204,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // wait for funds to confirm
           try { await StartMining.startMining(); } catch (e) { }
-          while (!(await that.wallet.getTx(sentTx.getHash())).isConfirmed()) await that.daemon.getNextBlockHeader();
-          try { await that.daemon.stopMining(); } catch (e) { }
+          while (!(await that.wallet.getTx(sentTx.getHash())).isConfirmed()) {
+            if (await that.wallet.getTx(sentTx.getHash()).isFailed()) throw new Error("Tx failed in mempool: " + sentTx.getHash());
+            await that.daemon.getNextBlockHeader();
+          }
           
           // created wallet should have notified listeners of received outputs
           assert(myListener.getOutputsReceived().length > 0, "Listener did not receive outputs");
@@ -1207,6 +1216,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
         
         // final cleanup
+        try { await that.daemon.stopMining(); } catch (e) { }
         await myWallet.close();
         if (err) throw err;
       });
