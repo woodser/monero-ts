@@ -731,6 +731,11 @@ namespace monero {
       for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
         listener->on_output_received(*output);
       }
+
+      // free memory
+      monero_utils::free(block);
+      output.reset();
+      tx.reset();
     }
 
     void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx_in, uint64_t amount, const cryptonote::transaction& cn_tx_out, const cryptonote::subaddress_index& subaddr_index) {
@@ -755,6 +760,11 @@ namespace monero {
       for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
         listener->on_output_spent(*output);
       }
+
+      // free memory
+      monero_utils::free(block);
+      output.reset();
+      tx.reset();
 
       // TODO **: to notify or not to notify?
 //        std::string tx_hash = epee::string_tools::pod_to_hex(txid);

@@ -152,5 +152,36 @@ namespace monero_utils
     CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
     return ss.str();
   }
+
+  /**
+   * Free memory of a block.
+   *
+   * @param block is the block to free
+   */
+  static void free(shared_ptr<monero_block> block) {
+    for (shared_ptr<monero_tx>& tx : block->m_txs) {
+      tx->m_block.reset();
+      monero_tx_wallet* tx_wallet = dynamic_cast<monero_tx_wallet*>(tx.get());
+      if (tx_wallet != nullptr) {
+        if (tx_wallet->m_outgoing_transfer != boost::none) tx_wallet->m_outgoing_transfer.get()->m_tx.reset();
+        for (shared_ptr<monero_transfer> transfer : tx_wallet->m_incoming_transfers) transfer->m_tx.reset();
+        for (shared_ptr<monero_output> output : tx_wallet->m_outputs) output->m_tx.reset();
+        for (shared_ptr<monero_output> input : tx_wallet->m_inputs) {
+          input->m_key_image.reset();
+          input->m_tx.reset();
+        }
+      }
+    }
+    block.reset();
+  }
+
+  /**
+   * Free memory of blocks.
+   *
+   * @param blocks are blocks to free
+   */
+  static void free(vector<shared_ptr<monero_block>> blocks) {
+    for (shared_ptr<monero_block>& block : blocks) monero_utils::free(block);
+  }
 }
 #endif /* monero_utils_h */
