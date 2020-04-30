@@ -277,7 +277,7 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(that.daemon);
+        let txHashes = await getConfirmedTxHashes(that.daemon);
         
         // fetch each tx by hash without pruning
         for (let txHash of txHashes) {
@@ -304,7 +304,7 @@ class TestMoneroDaemonRpc {
       it ("Can get transactions by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(that.daemon);
+        let txHashes = await getConfirmedTxHashes(that.daemon);
         
         // fetch txs by hash without pruning
         let txs = await that.daemon.getTxs(txHashes);
@@ -362,7 +362,7 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction hex by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(that.daemon);
+        let txHashes = await getConfirmedTxHashes(that.daemon);
         
         // fetch each tx hex by hash with and without pruning
         let hexes = []
@@ -395,7 +395,7 @@ class TestMoneroDaemonRpc {
       it("Can get transaction hexes by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(that.daemon);
+        let txHashes = await getConfirmedTxHashes(that.daemon);
         
         // fetch tx hexes by hash with and without pruning
         let hexes = await that.daemon.getTxHexes(txHashes);
@@ -581,7 +581,7 @@ class TestMoneroDaemonRpc {
         await that.daemon.flushTxPool(txHashes);
         
         // pool is back to original state
-        assert.equal((await that.daemon.getTxPool()).length, txPoolBefore.length);
+        assert.equal((await that.daemon.getTxPool()).length, txPoolBefore.length, "Tx pool size is different from start");
         await that.wallet.sync();
       });
       
@@ -1733,24 +1733,14 @@ function testUpdateDownloadResult(result, path) {
   }
 }
 
-async function getConfirmedTxIds(daemon) {
-  
-  // get valid height range
+async function getConfirmedTxHashes(daemon) {
+  let numTxs = 5;
+  let txHashes = [];
   let height = await daemon.getHeight();
-  let numBlocks = 50;
-  let numBlocksAgo = 200;
-  assert(numBlocks > 0);
-  assert(numBlocksAgo >= numBlocks);
-  assert(height - numBlocksAgo + numBlocks - 1 < height);
-  let startHeight = height - numBlocksAgo;
-  let endHeight = height - numBlocksAgo + numBlocks - 1;
-  
-  // get blocks
-  let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-  
-  // collect tx hashes
-  let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
-  assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last numBlocks blocks
+  while (txHashes.length < numTxs) {
+    let block = await daemon.getBlockByHeight(--height);
+    for (let txHash of block.getTxHashes()) txHashes.push(txHash);
+  }
   return txHashes;
 }
 
