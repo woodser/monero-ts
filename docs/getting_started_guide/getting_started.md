@@ -1,12 +1,18 @@
+<!--
+use new creation APIs: await MoneroWalletKeys.createWallet({...})
+for sample code, no need to stuff attributes in an object then print it. remove unrelated code and just print attributes?
+consistent capitalization (wallet vs Daemon consistent, WASM, RPC, monero-javascript)
+-->
+
 # Introduction
 Monero-javascript is a javascript library for implementing Monero cryptocurrency functionality in web browser and node.js applications. The library can interact with Monero wallets and networks through:
 * RPC wallet servers
 * RPC Daemon servers (nodes)
 * Monero's native wallet code via WebAssembly(Wasm).
 
-The library’s object and method hierarchy is derived from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying Monero software structure and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
+The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying Monero software structure and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
 
-Monero-javascript features a Wasm-based wallet implementation, which acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external - and potentially malicious - RPC wallet server. The library still provides classes and methods for managing wallets via an RPC server, however.
+Monero-javascript features a Wasm-based wallet implementation. The Wasm wallet acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external RPC wallet server, making fully trustless, client-side wallet operations possible. The library still provides classes and methods for managing wallets via an RPC server, however.
 
 ![Monero-javascript hierarchy](img/paste.png?raw=true)*In addition to the traditional method of managing wallets through an RPC wallet server, monero-javascript allows developers to communicate with the core Monero wallet software via a javascript wrapper for the monero-cpp Wasm library.*  
 
@@ -43,7 +49,7 @@ In order to install and use the monero-javascript library, you need to download 
 To install the libary, open the command prompt (Windows) or a terminal (linux) and enter the command `npm install monero-javascript`.
 
 # Write a monero-javascript program
-
+<!--
 ## The essential monero-javascript program template
 
 Most monero-javascript programs need to have two essential components:
@@ -72,12 +78,22 @@ Save the file under the name "monero-javascript-template.js".
 (You can skip ahead to the [next section](creating-an-offline-wallet) if you are already familiar with asynchronous javascript methods)
 
 ---
-
+-->
 ## Creating an offline wallet generator
 
 An offline Monero wallet generator is a simple program that generates and displays a new wallet address along with that address's associated view and spend keys and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network to accomplish this task. transfer XMR or track a wallet's balance or outputs.  
 
 Monero-javascript provides a minimal, stripped-down implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
+
+## Essential code
+
+This program requires two essential components:
+1. A "require" statement to import the monero-javascript library:
+```require("monero-javascript");```
+2. An asynchronous "main" function
+```async mainFunction() {}```
+
+The asynchronous "main" function allows the program to <u>await</u> the results of the monero-javascript methods that create keys-only wallets.
 
 ### Building a keys-only wallet
 
