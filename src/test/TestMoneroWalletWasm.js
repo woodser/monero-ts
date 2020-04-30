@@ -22,7 +22,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     
     // assign defaults
     config = new MoneroWalletConfig(config);
-    if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+    if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     if (config.getServer() === undefined && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
@@ -37,9 +37,9 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     
     // assign defaults
     config = new MoneroWalletConfig(config);
-    let random = !config.getMnemonic() && !config.getPrimaryAddress();
-    if (!config.getPath()) config.setPath(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID());
-    if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+    let random = config.getMnemonic() === undefined && config.getPrimaryAddress() === undefined;
+    if (config.getPath() === undefined) config.setPath(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID());
+    if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
     if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
@@ -49,6 +49,13 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     let wallet = await MoneroWalletWasm.createWallet(config);
     if (!random) assert.equal(await wallet.getRestoreHeight(), config.getRestoreHeight() === undefined ? 0 : config.getRestoreHeight());
     if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing();
+    return wallet;
+  }
+  
+  async getWalletGt() {
+    let path = TestUtils.TEST_WALLETS_DIR + "/ground_truth";
+    let wallet = await MoneroWalletWasm.walletExists(path) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
+    await wallet.sync();
     return wallet;
   }
   
@@ -77,12 +84,25 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // delete non-main test wallets after each test
       afterEach(async function() {
-        let fs = MoneroUtils.getDefaultFs();
-        let items = fs.readdirSync(TestUtils.TEST_WALLETS_DIR);
+        
+        // remove non-whitelisted wallets
+        let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
+        let items = MoneroUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
         for (let item of items) {
-          if (item === TestUtils.WALLET_NAME || item === TestUtils.WALLET_NAME + ".keys" || item === TestUtils.WALLET_NAME + ".address.txt") continue;
-          fs.unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+          let found = false;
+          for (let whitelisted of whitelist) {
+            if (item === whitelisted || item === whitelisted + ".keys" || item === whitelisted + ".address.txt") {
+              found = true;
+              break;
+            }
+          }
+          if (!found) MoneroUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
         }
+        
+        // measure memory
+        let module = await MoneroUtils.loadCoreModule();
+        console.log("Memory usage: " + module.HEAP8.length);
+        //console.log(process.memoryUsage());
       });
       
       // save wallet after tests
@@ -109,6 +129,16 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     let that = this;
     let config = this.config;
     describe("Tests specific to WebAssembly wallet", function() {
+      
+      if (false && config.testNonRelays)
+      it("Does not leak memory", async function() {
+        let restoreHeight = TestUtils.FIRST_RECEIVE_HEIGHT;
+        //let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight}, false);
+        for (let i = 0; i < 100; i++) {
+          console.log(process.memoryUsage());
+          await _testSyncMnemonic(TestUtils.FIRST_RECEIVE_HEIGHT, undefined, false, true);
+        }
+      });
       
       if (config.testNonRelays)
       it("Can get the daemon's height", async function() {
@@ -485,7 +515,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert(await wallet.isSynced());
           assert.equal(result.getNumBlocksFetched(), await wallet.getDaemonHeight() - startHeightExpected);
           assert(result.getReceivedMoney());
-          assert.equal(await wallet.getHeight(), await that.daemon.getHeight());
+          assert.equal(await wallet.getHeight(), await that.daemon.getHeight());  // TODO: height may not be same after long sync
           assert.equal(await wallet.getDaemonHeight(), await that.daemon.getHeight());
           if (startHeightExpected > TestUtils.FIRST_RECEIVE_HEIGHT) assert((await wallet.getTxs())[0].getHeight() > TestUtils.FIRST_RECEIVE_HEIGHT);  // wallet is partially synced so first tx happens after true restore height
           else assert.equal((await wallet.getTxs())[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);  // wallet should be fully synced so first tx happens on true restore height
@@ -499,8 +529,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // compare with ground truth
           if (!skipGtComparison) {
-            walletGt = await that.createWallet({mnemonic: await wallet.getMnemonic(), restoreHeight: startHeightExpected});
-            await walletGt.sync();
+            walletGt = await that.getWalletGt();
             await TestMoneroWalletWasm._testWalletEqualityOnChain(walletGt, wallet);
           }
           
@@ -552,7 +581,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
         
         // finally
-        if (walletGt !== undefined) await walletGt.close();
+        if (walletGt !== undefined) await walletGt.close(true);
         await wallet.close();
         if (err) throw err;
       }
@@ -564,8 +593,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         let walletKeys = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT}, false);
         
         // create ground truth wallet for comparison
-        let walletGt = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
-        await walletGt.sync();
+        let walletGt = await that.getWalletGt();
         
         // test wallet and close as final step
         let err;
@@ -600,7 +628,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
         
         // finally
-        await walletGt.close();
+        await walletGt.close(true);
         await walletKeys.close();
         if (err) throw err;
       });
