@@ -1,6 +1,5 @@
 <!--
 use new creation APIs: await MoneroWalletKeys.createWallet({...})
-for sample code, no need to stuff attributes in an object then print it. remove unrelated code and just print attributes?
 consistent capitalization (wallet vs Daemon consistent, WASM, RPC, monero-javascript)
 -->
 
@@ -120,63 +119,44 @@ Note that wallets are not network cross-compatible. Each Monero network uses a u
 
 ---
 
-Your javascript program should now look like this:
+The monero-javascript wallet provides straightforward getter methods for obtaining wallet attributes. Log the relevant attributes - the seed phrase, address, spend key, and view key - to the console:
+
+```
+console.log("Seed phrase: " + await(walletKeys.getMnemonic()));
+console.log("Address: " + await(walletKeys.getAddress(0,0))); // MoneroWallet.getAddress(accountIndex, subAddress)
+console.log("Spend key: " + await(walletKeys.getPrivateSpendKey()));
+console.log("View key: " + await(walletKeys.getPrivateViewKey()));
+```
+
+The final program:
 
 ```
 require("monero-javascript");
 
 mainFunction();
 
-function mainFunction() {
+async mainFunction() {
   // create a random keys-only (offline) stagenet wallet
   var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+  
+  console.log("Seed phrase: " + await(walletKeys.getMnemonic()));
+  console.log("Address: " + await(walletKeys.getAddress(0,0))); // MoneroWallet.getAddress(accountIndex, subAddress)
+  console.log("Spend key: " + await(walletKeys.getPrivateSpendKey()));
+  console.log("View key: " + await(walletKeys.getPrivateViewKey()));
 }
 ```
-Save the file as "offline_wallet_generator.js".
+Save the file as "offline_wallet_generator.js" and run the program with node:
 
-### Reporting the wallet's attributes
-
-Your program is technically already an offline wallet generator, as it _does_, in fact, generate a wallet without connecting to a Monero network. However, the wallet needs to report its key attributes - address, view key, spend key, and mnemonic seed phrase - to be useful. 
-
-To display the wallets attributes, start by declaring an object that will store the wallet's attributes.
-```
-// Create a JSON object to hold select wallet attributes
-  let walletInfoJson = {
-    mnemonic: await(walletKeys.getMnemonic()),
-    viewkey: await(walletKeys.getPrivateViewKey()),
-    spendkey: await(walletKeys.getPrivateSpendKey()),
-    // MoneroWalletKeys.getAddress(address index, subaddress index)
-    address: await(walletKeys.getAddress(0,0))
-  };
-```
-Next, 
-
-```
-  // Convert walletInfoJson object to a string formatted to display
-  // in an easy-to-read format
-  let walletAttributesString = JSON.stringify(walletInfoJson, undefined, "\n");
-
-  // Print the wallet attributes to the console
-  console.log(walletAttributesString);
-```
-
-Run the application:
 ```
 node offline_wallet_generator.js
 ```
 
-The program's output should look similar to the following:
+The output should look similar to the following:
 ```
-{
-
-"mnemonic": "darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply",
-
-"viewkey": "b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507",
-
-"spendkey": "7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e",
-
-"address": "5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg"
-}
+Seed phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
+Address: 5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg
+Spend key: 7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e
+View key: b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507
 ```
 
 # Next steps
