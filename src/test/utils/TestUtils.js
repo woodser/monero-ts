@@ -129,6 +129,20 @@ class TestUtils {
     let wallet = await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
     return await wallet.getPrimaryAddress();
   }
+  
+  static txsMergeable(tx1, tx2) {
+    try {
+      let copy1 = tx1.copy();
+      let copy2 = tx2.copy();
+      if (copy1.isConfirmed()) copy1.setBlock(tx1.getBlock().copy().setTxs([copy1]));
+      if (copy2.isConfirmed()) copy2.setBlock(tx2.getBlock().copy().setTxs([copy2]));
+      copy1.merge(copy2);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
 }
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------

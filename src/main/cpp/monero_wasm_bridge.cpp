@@ -516,9 +516,8 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
   callback(monero_utils::serialize(doc));
 
-  // delete blocks
-  unconfirmed_block.reset();
-  for (shared_ptr<monero_block>& block : blocks) block.reset();
+  // free memory
+  monero_utils::free(blocks);
 }
 
 void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_json, emscripten::val callback) {
@@ -554,9 +553,8 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
   callback(monero_utils::serialize(doc));
 
-  // delete blocks
-  unconfirmed_block.reset();
-  for (shared_ptr<monero_block>& block : blocks) block.reset();
+  // free memory
+  monero_utils::free(blocks);
 }
 
 //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
@@ -572,15 +570,15 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
   vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs(*output_query);
 
   // collect unique blocks to preserve model relationships as tree
-  vector<monero_block> blocks;
+  vector<shared_ptr<monero_block>> blocks;
   unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
   for (auto const& output : outputs) {
     shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(output->m_tx);
     if (tx->m_block == boost::none) throw runtime_error("Need to handle unconfirmed output");
     unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(*tx->m_block);
     if (got == seen_block_ptrs.end()) {
-      seen_block_ptrs.insert(*tx->m_block);
-      blocks.push_back(**tx->m_block);
+      seen_block_ptrs.insert(tx->m_block.get());
+      blocks.push_back(tx->m_block.get());
     }
   }
 
@@ -589,6 +587,9 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
   doc.SetObject();
   doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
   callback(monero_utils::serialize(doc));
+
+  // free memory
+  monero_utils::free(blocks);
 }
 
 void monero_wasm_bridge::get_outputs_hex(int handle, emscripten::val callback) {

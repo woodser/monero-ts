@@ -511,7 +511,7 @@ self.removeListener = async function(walletId, listenerId) {
     self.listeners.splice(i, 1);
     return;
   }
-  throw new MoneroError("Listener is not registered to wallet");
+  throw new MoneroError("Listener is not registered with wallet");
 }
 
 self.isSynced = async function(walletId) {
@@ -880,5 +880,5 @@ self.isClosed = async function(walletId) {
 }
 
 self.close = async function(walletId, save) {
-  return self.WORKER_OBJECTS[walletId].close(save);
+  return self.WORKER_OBJECTS[walletId].close(save); // TODO: remove listeners and delete wallet from WORKER_OBJECTS
 }

@@ -141,8 +141,8 @@ class WalletEqualityUtils {
             WalletEqualityUtils._transferDestinationInfo(tx2, tx1);
           }
           
-          // test tx equality
-          assert.deepEqual(JSON.parse(JSON.stringify(tx2.toJson())), JSON.parse(JSON.stringify(tx1.toJson())));
+          // test tx equality by merging
+          assert(TestUtils.txsMergeable(tx1, tx2));
           found = true;
           
           // test block equality except txs to ignore order

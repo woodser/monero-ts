@@ -647,7 +647,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     }
     
     // unregister sync listener wrapper
-    if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
+    if (syncListenerWrapper !== undefined) {
       await this.removeListener(syncListenerWrapper); // unregister sync listener
     }
     
