@@ -7,14 +7,14 @@ class MoneroWalletConfig {
    * Construct a configuration to open or create a wallet.
    * 
    * @param {object|MoneroWalletConfig} config - MoneroWalletConfig or equivalent config object
-   * @param {string} config.path - path of the wallet to open (optional if 'keysData' provided)
+   * @param {string} config.path - path of the wallet to open or create
    * @param {string} config.password - password of the wallet to open
    * @param {string|number} config.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-   * @param {string} config.serverUri - uri of the wallet's daemon (optional)
-   * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
-   * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
+   * @param {string} config.serverUri - uri of the wallet's server (optional)
+   * @param {string} config.serverUsername - username of the wallet's server (optional)
+   * @param {string} config.serverPassword - password of the wallet's server (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
+   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object configuring the server connection (optional)
    * @param {Uint8Array} config.keysData - wallet keys data to open (optional)
    * @param {Uint8Array} config.cacheData - wallet cache data to open (optional)
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
