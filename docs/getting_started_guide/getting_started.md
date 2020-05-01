@@ -82,7 +82,7 @@ Save the file under the name "monero-javascript-template.js".
 
 An offline Monero wallet generator is a simple program that generates and displays a new wallet address along with that address's associated view and spend keys and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network to accomplish this task. transfer XMR or track a wallet's balance or outputs.  
 
-Monero-javascript provides a minimal, stripped-down implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
+Monero-javascript provides a minimal implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
 
 ## Essential code
 
@@ -99,7 +99,7 @@ The asynchronous "main" function allows the program to <u>await</u> the results 
 Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWalletRandom()` method as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
-var keysOnlyWallet = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
 The createWalletRandom method accepts two arguments: the network type and the seed phrase language. 
@@ -137,7 +137,7 @@ mainFunction();
 
 async mainFunction() {
   // create a random keys-only (offline) stagenet wallet
-  var walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+  var walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});;
   
   console.log("Seed phrase: " + await(walletKeys.getMnemonic()));
   console.log("Address: " + await(walletKeys.getAddress(0,0))); // MoneroWallet.getAddress(accountIndex, subAddress)
