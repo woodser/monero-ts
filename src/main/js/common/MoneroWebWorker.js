@@ -435,12 +435,12 @@ self.isConnected = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].isConnected();
 }
 
-self.getRestoreHeight = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getRestoreHeight();
+self.getSyncHeight = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getSyncHeight();
 }
 
-self.setRestoreHeight = async function(walletId, restoreHeight) {
-  return self.WORKER_OBJECTS[walletId].setRestoreHeight(restoreHeight);
+self.setSyncHeight = async function(walletId, syncHeight) {
+  return self.WORKER_OBJECTS[walletId].setSyncHeight(syncHeight);
 }
 
 self.getDaemonHeight = async function(walletId) {
