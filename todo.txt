@@ -5,7 +5,6 @@ wallet rpc multisig test tx rejected when run with other tests
 start a new test wallet, new test wallet before receiving funds breaks tests
 
 MoneroUtils library helpers private?
-favicon for browser tests
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
