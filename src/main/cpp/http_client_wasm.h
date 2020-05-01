@@ -21,7 +21,7 @@ namespace epee
       class http_client_wasm : public abstract_http_client
       {
       public:
-        http_client_wasm() : m_user(boost::none), m_is_connected(false), m_response_info() { }
+        http_client_wasm(const string& reject_unauthorized_fn_id) : m_reject_unauthorized_fn_id(reject_unauthorized_fn_id), m_user(boost::none), m_is_connected(false), m_response_info() { }
         ~http_client_wasm() {
           disconnect();
         }
@@ -41,6 +41,7 @@ namespace epee
         string m_host;
         string m_port;
         boost::optional<login> m_user;
+        string m_reject_unauthorized_fn_id;
         bool m_ssl_enabled;
         bool m_is_connected;
         http_response_info m_response_info;
@@ -56,9 +57,12 @@ namespace epee
       class http_client_wasm_factory : public http_client_factory
       {
       public:
+        http_client_wasm_factory(const string& reject_unauthorized_fn_id) : m_reject_unauthorized_fn_id(reject_unauthorized_fn_id) { }
         std::unique_ptr<abstract_http_client> create() override {
-          return std::unique_ptr<epee::net_utils::http::abstract_http_client>(new http_client_wasm());
+          return std::unique_ptr<epee::net_utils::http::abstract_http_client>(new http_client_wasm(m_reject_unauthorized_fn_id));
         }
+      private:
+        string m_reject_unauthorized_fn_id; // used to look up in JS if unauthorized certificates should be rejected
       };
     }
   }

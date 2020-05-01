@@ -116,38 +116,38 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 
 // -------------------------- STATIC WALLET UTILS -----------------------------
 
-void monero_wasm_bridge::open_core_wallet(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback) {
+void monero_wasm_bridge::open_core_wallet(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::open_wallet_data(password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory()));
+  monero_wallet* wallet = monero_wallet_core::open_wallet_data(password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)));
   callback((int) wallet); // callback with wallet memory address
 #else
   throw runtime_error("monero_wallet_core not built");
 #endif
 }
 
-void monero_wasm_bridge::create_core_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback) {
+void monero_wasm_bridge::create_core_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, const string& language, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::create_wallet_random("", password, static_cast<monero_network_type>(network_type), daemon_connection, language, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory()));
+  monero_wallet* wallet = monero_wallet_core::create_wallet_random("", password, static_cast<monero_network_type>(network_type), daemon_connection, language, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)));
   callback((int) wallet); // callback with wallet memory address
 #else
   throw runtime_error("monero_wallet_core not built");
 #endif
 }
 
-void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& seed_offset, emscripten::val callback) {
+void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& seed_offset, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory()));
+  monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)));
   callback((int) wallet); // callback with wallet memory address
 #endif
 }
 
-void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& language, emscripten::val callback) {
+void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& language, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::create_wallet_from_keys("", password, static_cast<monero_network_type>(network_type), address, view_key, spend_key, daemon_connection, restore_height, language, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory()));
+  monero_wallet* wallet = monero_wallet_core::create_wallet_from_keys("", password, static_cast<monero_network_type>(network_type), address, view_key, spend_key, daemon_connection, restore_height, language, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)));
   callback((int) wallet); // callback with wallet memory address
 #else
   throw runtime_error("monero_wallet_core not built");

@@ -1,10 +1,12 @@
 HIGH (WASM)
+remove http_client_id from http_client_wasm
 test onOuputSent() when swept
-handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 update jni tests to wasm tests (testSyncMnemonic, notification)
 wallet rpc multisig test tx rejected when run with other tests
 start a new test wallet, new test wallet before receiving funds breaks tests
 
+MoneroUtils library helpers private?
+favicon for browser tests
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
@@ -21,7 +23,7 @@ optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.h
 
 report core issues
 update readme architecture, sample code, wasm support 
-update jsdocs
+update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys
 full tests including jni
 release
 
