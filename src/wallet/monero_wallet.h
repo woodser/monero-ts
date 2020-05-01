@@ -351,17 +351,17 @@ namespace monero {
      *
      * @return the height of the first block that the wallet scans
      */
-    virtual uint64_t get_restore_height() const {
-      throw runtime_error("get_restore_height() not supported");
+    virtual uint64_t get_sync_height() const {
+      throw runtime_error("get_sync_height() not supported");
     }
 
     /**
      * Set the height of the first block that the wallet scans.
      *
-     * @param restore_height is the height of the first block that the wallet scans
+     * @param sync_height is the height of the first block that the wallet scans
      */
-    virtual void set_restore_height(uint64_t restore_height) {
-      throw runtime_error("set_restore_height() not supported");
+    virtual void set_sync_height(uint64_t sync_height) {
+      throw runtime_error("set_sync_height() not supported");
     }
 
     /**

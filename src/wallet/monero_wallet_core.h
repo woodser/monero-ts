@@ -194,8 +194,8 @@ namespace monero {
     monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
     monero_integrated_address decode_integrated_address(const string& integrated_address) const;
     uint64_t get_height() const;
-    uint64_t get_restore_height() const;
-    void set_restore_height(uint64_t restore_height);
+    uint64_t get_sync_height() const;
+    void set_sync_height(uint64_t sync_height);
     uint64_t get_daemon_height() const;
     uint64_t get_daemon_max_peer_height() const;
     void add_listener(monero_wallet_listener& listener);
