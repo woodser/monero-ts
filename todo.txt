@@ -1,8 +1,5 @@
 HIGH (WASM)
-rename wallet.getRestoreHeight() to wallet.getSyncHeight(), top-level?
-test syncing from 0
 update jni tests to wasm tests (testSyncMnemonic, notification)
-request 0 wallet-rpc multisig test
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 wallet rpc multisig test tx rejected when run with other tests
@@ -30,6 +27,7 @@ update jsdocs
 full tests including jni
 release
 
+getSyncHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
 don't run non-applicable tests in TestMoneroWalletKeys
