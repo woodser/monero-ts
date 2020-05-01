@@ -144,6 +144,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed
    */
   async createWallet(config) {
     
