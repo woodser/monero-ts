@@ -172,6 +172,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
     let module = await MoneroUtils.loadCoreModule();
@@ -179,15 +180,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs);
+          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
+        module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, language, callbackFn);
       });
     });
     
@@ -208,6 +213,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     if (restoreHeight === undefined) restoreHeight = 0;
     if (seedOffset === undefined) seedOffset = "";
     
@@ -217,15 +223,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs);
+          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_core_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);
+        module.create_core_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, restoreHeight, seedOffset, callbackFn);
       });
     });
     
@@ -249,6 +259,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     if (restoreHeight === undefined) restoreHeight = 0;
     if (language === undefined) language = "English";
     
@@ -258,15 +269,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs);
+          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_core_wallet_from_keys(password, networkType, address, viewKey, spendKey, daemonUri, daemonUsername, daemonPassword, restoreHeight, language, callbackFn);
+        module.create_core_wallet_from_keys(password, networkType, address, viewKey, spendKey, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, restoreHeight, language, callbackFn);
       });
     });
     
@@ -295,8 +310,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {string} path is the path of the wallet instance
    * @param {string} password is the password of the wallet instance
    * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to MoneroUtils.getDefaultFs())
+   * @param {boolean} rejectUnauthorized - specifies if unauthorized requests (e.g. self-signed certificates) should be rejected
+   * @param {string} rejectUnauthorizedFnId - unique identifier for http_client_wasm to query rejectUnauthorized
    */
-  constructor(cppAddress, path, password, fs) {
+  constructor(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId) {
     super(cppAddress);
     this._path = path;
     this._password = password;
@@ -305,6 +322,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._isClosed = false;
     this._wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this._wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
+    this._rejectUnauthorized = rejectUnauthorized;
+    this._rejectUnauthorizedConfigId = rejectUnauthorizedFnId;
+    let that = this;
+    MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return that._rejectUnauthorized }); // register fn informing if unauthorized reqs should be rejected
   }
   
   // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
@@ -462,21 +483,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   // -------------------------- COMMON WALLET METHODS -------------------------
   
-  async setDaemonConnection(uriOrRpcConnection, username, password) {
+  async setDaemonConnection(uriOrRpcConnection, username, password, rejectUnauthorized) {
     this._assertNotClosed();
     
-    // normalize uri, username, and password
-    let uri;
-    if (typeof uriOrRpcConnection == "string") uri = uriOrRpcConnection;
-    else if (uriOrRpcConnection instanceof MoneroRpcConnection) {
-      if (username || password) throw new MoneroError("Cannot specify username or password if first arg is MoneroRpcConnection");
-      uri = uriOrRpcConnection.getUri();
-      username = uriOrRpcConnection.getUsername();
-      password = uriOrRpcConnection.getPassword();
-    }
+    // normalize connection
+    let connection = new MoneroRpcConnection(uriOrRpcConnection, username, password, rejectUnauthorized);
+    let uri = connection.getUri();
+    username = connection.getUsername();
+    password = connection.getPassword();
+    rejectUnauthorized = connection.getRejectUnauthorized();
     if (!uri) uri = "";
     if (!username) username = "";
     if (!password) password = "";
+    this._rejectUnauthorized = rejectUnauthorized;  // persist locally
     
     // set connection in queue
     let that = this;
@@ -485,9 +504,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       return new Promise(function(resolve, reject) {
       
         // define callback for wasm
-        let callbackFn = function(resp) {
-          resolve();
-        }
+        let callbackFn = function(resp) { resolve(); }
         
         // sync wallet in wasm and invoke callback when done
         that._module.set_daemon_connection(that._cppAddress, uri, username, password, callbackFn);
@@ -501,16 +518,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
         let connectionContainerStr = that._module.get_daemon_connection(that._cppAddress);
-        if (!connectionContainerStr) {
-          resolve();
-          return; // TODO: switch to await new Promise
+        if (!connectionContainerStr) resolve();
+        else {
+          let jsonConnection = JSON.parse(connectionContainerStr);
+          resolve(new MoneroRpcConnection(jsonConnection.uri, jsonConnection.username, jsonConnection.password, that._rejectUnauthorized));
         }
-        let connectionContainer = JSON.parse(connectionContainerStr);
-        resolve(new MoneroRpcConnection({
-          uri: connectionContainer.uri,
-          username: connectionContainer.username,
-          password: connectionContainer.password
-        }));
       });
     });
   }
@@ -1500,6 +1512,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     delete this._password;
     delete this._listeners;
     delete this._wasmListener;
+    MoneroUtils.setRejectUnauthorizedFn(this._rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------

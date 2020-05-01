@@ -233,7 +233,7 @@ class MoneroUtils {
     return str.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"');
   }
   
-  // ---------------------------- LIBRARY UTILS -------------------------------
+  // ---------------------------- LIBRARY HELPERS -------------------------------
   
   /**
    * Get a default file system.  Uses an in-memory file system if running in the browser.
@@ -293,7 +293,7 @@ class MoneroUtils {
   }
   
   /**
-   * Private helper to initializes the wasm module with data structures to synchronize access.
+   * Private helper to initialize the wasm module with data structures to synchronize access.
    */
   static _initWasmModule(wasmModule) {
     
@@ -313,6 +313,29 @@ class MoneroUtils {
         });
       });
     }
+  }
+  
+  /**
+   * Register a function by id which informs if unauthorized requests (e.g.
+   * self-signed certificates) should be rejected.
+   * 
+   * @param {string} fnId - unique identifier for the function
+   * @param {function} fn - function to inform if unauthorized requests should be rejected
+   */
+  static setRejectUnauthorizedFn(fnId, fn) {
+    if (!MoneroUtils.REJECT_UNAUTHORIZED_FNS) MoneroUtils.REJECT_UNAUTHORIZED_FNS = [];
+    if (fn === undefined) delete MoneroUtils.REJECT_UNAUTHORIZED_FNS[fnId];
+    else MoneroUtils.REJECT_UNAUTHORIZED_FNS[fnId] = fn;
+  }
+  
+  /**
+   * Indicate if unauthorized requests should be rejected.
+   * 
+   * @param {string} fnId - uniquely identifies the function
+   */
+  static isRejectUnauthorized(fnId) {
+    if (!MoneroUtils.REJECT_UNAUTHORIZED_FNS[fnId]) throw new Error("No function registered with id " + fnId + " to inform if unauthorized reqs should be rejected");
+    return MoneroUtils.REJECT_UNAUTHORIZED_FNS[fnId]();
   }
   
   /**
