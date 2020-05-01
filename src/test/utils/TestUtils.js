@@ -86,7 +86,7 @@ class TestUtils {
         
         // create wallet with connection
         TestUtils.walletWasm = await MoneroWalletWasm.createWallet({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
-        assert.equal(await TestUtils.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        assert.equal(await TestUtils.walletWasm.getSyncHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.save();
         await TestUtils.walletWasm.startSyncing();

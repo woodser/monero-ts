@@ -304,14 +304,14 @@ int monero_wasm_bridge::get_network_type(int handle) {
   return (int) wallet->get_network_type();
 }
 
-long monero_wasm_bridge::get_restore_height(int handle) {
+long monero_wasm_bridge::get_sync_height(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return (long) wallet->get_restore_height();
+  return (long) wallet->get_sync_height();
 }
 
-void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
+void monero_wasm_bridge::set_sync_height(int handle, long sync_height) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_restore_height(restore_height);
+  wallet->set_sync_height(sync_height);
 }
 
 int monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, emscripten::val on_sync_progress, emscripten::val on_new_block, emscripten::val on_output_received, emscripten::val on_output_spent) {

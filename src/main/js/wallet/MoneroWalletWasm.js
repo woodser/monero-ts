@@ -393,24 +393,24 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * 
    * @return {number} the height of the first block that the wallet scans
    */
-  async getRestoreHeight() {
+  async getSyncHeight() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_restore_height(that._cppAddress);
+      return that._module.get_sync_height(that._cppAddress);
     });
   }
   
   /**
    * Set the height of the first block that the wallet scans.
    * 
-   * @param {number} restoreHeight is the height of the first block that the wallet scans
+   * @param {number} syncHeight is the height of the first block that the wallet scans
    */
-  async setRestoreHeight(restoreHeight) {
+  async setSyncHeight(syncHeight) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.set_restore_height(that._cppAddress, restoreHeight);
+      return that._module.set_sync_height(that._cppAddress, syncHeight);
     });
   }
   
@@ -611,7 +611,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
-    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
+    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
     
     // wrap and register sync listener as wallet listener if given
     let syncListenerWrapper = undefined;
@@ -1914,12 +1914,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("isConnected");
   }
   
-  async getRestoreHeight() {
-    return this._invokeWorker("getRestoreHeight");
+  async getSyncHeight() {
+    return this._invokeWorker("getSyncHeight");
   }
   
-  async setRestoreHeight(restoreHeight) {
-    return this._invokeWorker("setRestoreHeight", [restoreHeight]);
+  async setSyncHeight(syncHeight) {
+    return this._invokeWorker("setSyncHeight", [syncHeight]);
   }
   
   async getDaemonHeight() {
@@ -1980,7 +1980,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
-    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
+    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
     
     // wrap and register sync listener as wallet listener if given
     let syncListenerWrapper = undefined;
