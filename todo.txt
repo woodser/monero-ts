@@ -1,5 +1,4 @@
 HIGH (WASM)
-remove http_client_id from http_client_wasm
 test onOuputSent() when swept
 update jni tests to wasm tests (testSyncMnemonic, notification)
 wallet rpc multisig test tx rejected when run with other tests
