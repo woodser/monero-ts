@@ -1,12 +1,13 @@
 HIGH (WASM)
+test onOuputSent() when swept
+handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 update jni tests to wasm tests (testSyncMnemonic, notification)
-update monero-core to master and remove wasm_modifications branches :)
-wallets interchangeable java/js/rpc/native?
 wallet rpc multisig test tx rejected when run with other tests
 start a new test wallet, new test wallet before receiving funds breaks tests
-test onOuputSent() when swept
-jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
 
+update monero-core to master and remove wasm_modifications branches :)
+wallets interchangeable java/js/rpc/native?
+jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
 rename monero_wallet_core.h to monero_wallet_w2.h?
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
@@ -15,14 +16,11 @@ re-enable test reserves or report issue
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 git clone includes .git directory which is 95mbs
 startSynchronizing() should use pre-started loop so it's a random start time like core
-pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
+pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 
-architecture document
-report issues: keys wallet setDaemonConnection not working with authentication
-js sample code uses js objects instead of send request
-update sample code
-update readme with core wasm support
+report core issues
+update readme architecture, sample code, wasm support 
 update jsdocs
 full tests including jni
 release
