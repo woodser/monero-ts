@@ -2544,6 +2544,29 @@ await walletRpc({<br>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>saveCurrent</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">specifies if the current RPC wallet should be saved before being closed</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -2588,7 +2611,7 @@ await walletRpc({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line148">line 148</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line149">line 149</a>
     </li></ul></dd>
     
 
@@ -2846,7 +2869,7 @@ await walletRpc({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line240">line 240</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line241">line 241</a>
     </li></ul></dd>
     
 
@@ -3122,7 +3145,7 @@ closing the currently open wallet if applicable.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line209">line 209</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line210">line 210</a>
     </li></ul></dd>
     
 
@@ -3305,7 +3328,7 @@ closing the currently open wallet if applicable.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line182">line 182</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line183">line 183</a>
     </li></ul></dd>
     
 
@@ -6273,7 +6296,7 @@ given payment ID.  Generates a random payment ID if none is given.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line337">line 337</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line338">line 338</a>
     </li></ul></dd>
     
 
@@ -13533,7 +13556,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line279">line 279</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line280">line 280</a>
     </li></ul></dd>
     
 
@@ -14571,7 +14594,7 @@ wallet according to the given request.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line1434">line 1434</a>
+        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line1435">line 1435</a>
     </li></ul></dd>
     
 
@@ -15583,7 +15606,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
     
 
     
-    <h4 class="name" id="sync"><span class="type-signature">(async) </span>sync<span class="signature">(is, startHeight)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="sync"><span class="type-signature">(async) </span>sync<span class="signature">(listenerOrStartHeight, startHeight)</span><span class="type-signature"></span></h4>
     
 
     
@@ -15627,7 +15650,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
 
         <tr>
             
-                <td class="name"><code>is</code></td>
+                <td class="name"><code>listenerOrStartHeight</code></td>
             
 
             <td class="type">
@@ -15669,7 +15692,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
 
             
 
-            <td class="description last">is the startHeight if not given in first arg (defaults to last synced block)</td>
+            <td class="description last">the startHeight if not given in first arg (defaults to last synced block)</td>
         </tr>
 
     
@@ -16292,7 +16315,7 @@ NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Apr 30 2020 16:34:59 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Apr 30 2020 20:30:30 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

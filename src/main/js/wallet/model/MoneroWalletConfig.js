@@ -3,6 +3,24 @@
  */
 class MoneroWalletConfig {
   
+  /**
+   * Construct a configuration to open or create a wallet.
+   * 
+   * @param {object|MoneroWalletConfig} configOrPath - MoneroWalletConfig or equivalent config object
+   * @param {string} configOrPath.path - path of the wallet to open (optional if 'keysData' provided)
+   * @param {string} configOrPath.password - password of the wallet to open
+   * @param {string|number} configOrPath.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   * @param {string} configOrPath.serverUri - uri of the wallet's daemon (optional)
+   * @param {string} configOrPath.serverUsername - username to authenticate with the daemon (optional)
+   * @param {string} configOrPath.serverPassword - password to authenticate with the daemon (optional)
+   * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
+   * @param {Uint8Array} configOrPath.keysData - wallet keys data to open (optional)
+   * @param {Uint8Array} configOrPath.cacheData - wallet cache data to open (optional)
+   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+   * @param {fs} configOrPath.fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed
+   */
   constructor(config) {
     
     // initialize internal config

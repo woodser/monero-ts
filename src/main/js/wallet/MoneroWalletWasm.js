@@ -45,7 +45,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * });
    * </code>
    * 
-   * @param {MoneroWalletConfig|object|string} configOrPath  -  MoneroWalletConfig or equivalent config object or a path to a wallet to open
+   * @param {MoneroWalletConfig|object|string} configOrPath - MoneroWalletConfig or equivalent config object or a path to a wallet to open
    * @param {string} configOrPath.path - path of the wallet to open (optional if 'keysData' provided)
    * @param {string} configOrPath.password - password of the wallet to open
    * @param {string|number} configOrPath.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)

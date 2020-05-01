@@ -21,7 +21,6 @@ class MoneroWalletKeys extends MoneroWallet {
    * </code>
    * 
    * @param {MoneroWalletConfig|object} config - MoneroWalletConfig or equivalent config object
-   * @param {string} config.password - password of the wallet to create
    * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
    * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
