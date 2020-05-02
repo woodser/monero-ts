@@ -1528,6 +1528,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
     let module = await MoneroUtils.loadCoreModule();
@@ -1535,15 +1536,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // open wallet in queue
     return module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs);
+          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        module.open_core_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);
+        module.open_core_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, callbackFn);
       });
     });
   }
@@ -2397,8 +2402,5 @@ class WalletWorkerListener {
     this._listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
   }
 }
-
-// reject self-signed certificates if true
-MoneroWalletWasm.REJECT_UNAUTHORIZED = false;  // TODO: default to true, allow configuration per instance
 
 module.exports = MoneroWalletWasm;
