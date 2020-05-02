@@ -39,10 +39,26 @@ You need to install node.js and the node package manager (npm) to obtain and use
   2. Install npm:
     `$ sudo dnf install npm`
 
-## Install the monero-javascript libary
+## Install git
 
-To install the libary, open the command prompt (Windows) or a terminal (linux) and enter the command `npm install monero-javascript`.
+## Get the monero-javascript library
 
+## Create a node project for the offline wallet generator
+
+1. Create and enter a new directory to hold the project:
+  ### Windows
+  1. `mkdir C:\offline_wallet_generator`
+  2. `cd C:\offline_wallet_generator`
+
+  ### Linux
+  1. `mkdir ~/offline_wallet_generator`
+  2. `cd ~/offline_wallet_generator`
+  
+2. Create the new project:
+  `npm init`
+  npm will ask you to enter information into a number of fields. Press enter at each prompt to use the default (or empty) value.
+
+3. Install the monero-javascript library as a dependency
 # Write a monero-javascript program
 ## Creating an offline wallet generator
 
