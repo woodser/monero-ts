@@ -1,10 +1,7 @@
 HIGH (WASM)
 start a new test wallet, new test wallet before receiving funds breaks tests
-rpc supports watch-only request failed: 0
 proxyToWorker defaults to true if running in browser
 MoneroUtils library helpers private?
-update monero-core to master and remove wasm_modifications branches :)
-wallets interchangeable java/js/rpc/native?
 jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
 rename monero_wallet_core.h to monero_wallet_w2.h?
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
@@ -17,6 +14,10 @@ startSynchronizing() should use pre-started loop so it's a random start time lik
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 rename spec to Overview of Monero Wallet & Daemon Interfaces & Types?
+
+rpc supports watch-only request failed: 0
+update monero-core to master and remove wasm_modifications branches :)
+wallets interchangeable java/js/rpc/native?
 
 update readme architecture, sample code, wasm support 
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers())
