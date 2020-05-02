@@ -407,8 +407,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           await progressTester.onDone(await wallet.getDaemonHeight());
         
           // test result after syncing
-          walletGt = await that.createWallet({mnemonic: await wallet.getMnemonic(), restoreHeight: restoreHeight});
-          await walletGt.sync();
+          walletGt = await that.getWalletGt();
           assert(await wallet.isConnected());
           assert(await wallet.isSynced());
           assert.equal(result.getNumBlocksFetched(), 0);
@@ -598,12 +597,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // test wallet and close as final step
         let err;
         try {
-          assert.equal(await walletKeys.getMnemonic(), await walletKeys.getMnemonic());
-          assert.equal(await walletKeys.getPrimaryAddress(), await walletKeys.getPrimaryAddress());
-          assert.equal(await walletKeys.getPrivateViewKey(), await walletKeys.getPrivateViewKey());
-          assert.equal(await walletKeys.getPublicViewKey(), await walletKeys.getPublicViewKey());
-          assert.equal(await walletKeys.getPrivateSpendKey(), await walletKeys.getPrivateSpendKey());
-          assert.equal(await walletKeys.getPublicSpendKey(), await walletKeys.getPublicSpendKey());
+          assert.equal(await walletKeys.getMnemonic(), await walletGt.getMnemonic());
+          assert.equal(await walletKeys.getPrimaryAddress(), await walletGt.getPrimaryAddress());
+          assert.equal(await walletKeys.getPrivateViewKey(), await walletGt.getPrivateViewKey());
+          assert.equal(await walletKeys.getPublicViewKey(), await walletGt.getPublicViewKey());
+          assert.equal(await walletKeys.getPrivateSpendKey(), await walletGt.getPrivateSpendKey());
+          assert.equal(await walletKeys.getPublicSpendKey(), await walletGt.getPublicSpendKey());
           assert.equal(await walletKeys.getSyncHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
           assert(await walletKeys.isConnected());
           assert(!(await walletKeys.isSynced()));
@@ -1079,7 +1078,16 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert(!msg.includes("ERROR:"), msg);
       });
       
-      async function testOutputNotifications(sameAccount) {
+      if (!config.liteMode && config.testNotifications)
+        it("Notification test #3: notifies listeners of swept outputs", async function() {
+          let issues = await testOutputNotifications(false, true);
+          if (issues === undefined) return;
+          let msg = "testOutputNotificationsSweep() generated " + issues.length + " issues:\n" + issuesToStr(issues);
+          console.log(msg);
+          assert(!msg.includes("ERROR:"), msg);
+        });
+      
+      async function testOutputNotifications(sameAccount, sweepOutput) {
         
         // collect errors and warnings
         let errors = [];
@@ -1087,14 +1095,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         
         // wait for wallet txs in the pool in case they were sent from another wallet and therefore will not fully sync until confirmed // TODO monero core
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
-        
-        // create send request
-        let request = new MoneroSendRequest();
-        request.setAccountIndex(0);
-        let destinationAccounts = sameAccount ? [0, 1, 2] : [1, 2, 3];
-        for (let destinationAccount of destinationAccounts) {
-          request.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
-        }
         
         // get balances before for later comparison
         let balanceBefore = await wallet.getBalance();
@@ -1108,13 +1108,27 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await wallet.startSyncing();
         
         // send tx
-        let tx = (await wallet.sendTx(request)).getTxs()[0];
+        let tx;
+        let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
+        if (sweepOutput) {
+          let outputs = await wallet.getOutputs({isSpent: false, isLocked: false, accountIdx: 0, minAmount: TestUtils.MAX_FEE.multiply(new BigInteger(5))});
+          if (outputs.length === 0) {
+            errors.push("ERROR: No outputs available to sweep");
+            return errors;
+          }
+          tx = (await wallet.sweepOutput(await wallet.getAddress(destinationAccounts[0], 0), outputs[0].getKeyImage().getHex())).getTxs()[0];
+        } else {
+          let request = new MoneroSendRequest();
+          request.setAccountIndex(0);
+          for (let destinationAccount of destinationAccounts) request.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
+          tx = (await wallet.sendTx(request)).getTxs()[0];
+        }
         
         // test wallet's balance
         let balanceAfter = await wallet.getBalance();
         let unlockedBalanceAfter = await wallet.getUnlockedBalance();
         let balanceAfterExpected = balanceBefore.subtract(tx.getFee());  // txs sent from/to same wallet so only decrease in balance is tx fee
-        if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: wallet balance immediately after send expected to be " + balanceAfterExpected + " but was " + balanceAfter);
+        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: wallet balance immediately after send expected to be " + balanceAfterExpected + " but was " + balanceAfter);
         if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
             
         // wait for wallet to send notifications
@@ -1123,22 +1137,26 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         while (listener.getOutputsSpent().length === 0) {
           if ((await that.wallet.getTx(tx.getHash())).isFailed()) {
             try { await that.daemon.stopMining(); } catch (e) { }
-            errors.push("Tx failed in mempool: " + tx.getHash());
-            return errors
+            errors.push("ERROR: Tx failed in mempool: " + tx.getHash());
+            return errors;
           }
           await that.daemon.getNextBlockHeader();
         }
         try { await that.daemon.stopMining(); } catch (e) { }
         
-        // test received output notifications
-        if (listener.getOutputsReceived().length < 4) {  // 3+ outputs received from transfers + 1 change output (very unlikely to send exact output amount)
-          errors.push("ERROR: received " + listener.getOutputsReceived().length + " output notifications when at least 4 were expected");
+        // test output notifications
+        if (listener.getOutputsReceived().length === 0) {
+          errors.push("ERROR: got " + listener.getOutputsReceived().length + " output received notifications when at least 1 was expected");
+          return errors;
+        }
+        if (listener.getOutputsSpent().length === 0) {
+          errors.push("ERROR: got " + listener.getOutputsSpent().length + " output spent notifications when at least 1 was expected");
           return errors;
         }
         
         // must receive outputs with known subaddresses and amounts
         for (let destinationAccount of destinationAccounts) {
-          if (!hasOutput(listener.getOutputsReceived(), destinationAccount, 0, TestUtils.MAX_FEE)) {
+          if (!hasOutput(listener.getOutputsReceived(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
             errors.push("ERROR: missing expected received output to subaddress [" + destinationAccount + ", 0] of amount " + TestUtils.MAX_FEE);
             return errors;
           }
@@ -1149,14 +1167,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
         for (let outputReceived of listener.getOutputsReceived()) netAmount = netAmount.subtract(outputReceived.getAmount());
         if (tx.getFee().compare(netAmount) !== 0) {
-          errors.push("ERROR: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString());
+          errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
           return errors;
         }
         
         // test wallet's balance
         balanceAfter = await wallet.getBalance();
         unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
+        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
         if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
         
         // remove listener

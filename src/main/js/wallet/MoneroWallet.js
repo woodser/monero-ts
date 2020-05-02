@@ -1298,6 +1298,7 @@ class MoneroWallet {
     assert.equal(request.getSweepEachSubaddress(), undefined);
     assert.equal(request.getBelowAmount(), undefined);
     assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    if (request.getDestinations().length !== 1 || !request.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
     return request;
   }
 }

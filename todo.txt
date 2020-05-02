@@ -1,7 +1,5 @@
 HIGH (WASM)
-test onOuputSent() when swept
-update jni tests to wasm tests (testSyncMnemonic, notification)
-wallet rpc multisig test tx rejected when run with other tests
+remove listeners from wallet worker on close
 start a new test wallet, new test wallet before receiving funds breaks tests
 
 MoneroUtils library helpers private?
@@ -21,7 +19,7 @@ optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.h
 rename spec to Overview of Monero Wallet & Daemon Interfaces & Types?
 
 update readme architecture, sample code, wasm support 
-update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys
+update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers())
 full tests including jni
 release
 report core issues
