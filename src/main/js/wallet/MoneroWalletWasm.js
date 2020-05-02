@@ -2350,8 +2350,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   
   async close(save) {
     if (save) await this.save();
-    await this._invokeWorker("close");
     while (this._wrappedListeners.length) await this.removeListener(this._wrappedListeners[0]);
+    await this._invokeWorker("close");
     delete MoneroUtils.WORKER_OBJECTS[this._walletId];
   }
   
