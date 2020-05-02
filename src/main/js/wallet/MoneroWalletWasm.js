@@ -1789,6 +1789,8 @@ class SyncListenerWrapper extends MoneroWalletListener {
  * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
  * TODO: using MoneroUtils.WORKER_OBJECTS directly
+ * 
+ * @private
  */
 class MoneroWalletWasmProxy extends MoneroWallet {
   
@@ -2368,6 +2370,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
 
 /**
  * Internal listener to bridge notifications to external listeners.
+ * 
+ * @private
  */
 class WalletWorkerListener {
   

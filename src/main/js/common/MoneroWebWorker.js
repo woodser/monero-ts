@@ -465,6 +465,8 @@ self.addListener = async function(walletId, listenerId) {
    * Internal listener to bridge notifications to external listeners.
    * 
    * TODO: MoneroWalletListener is not defined until scripts imported
+   * 
+   * @private
    */
   class WalletWorkerHelperListener extends MoneroWalletListener {
     
