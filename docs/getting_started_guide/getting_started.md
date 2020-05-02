@@ -1,19 +1,15 @@
 <!--
-use new creation APIs: await MoneroWalletKeys.createWallet({...})
 consistent capitalization (wallet vs Daemon consistent, WASM, RPC, monero-javascript)
 -->
 
 # Introduction
-Monero-javascript is a javascript library for implementing Monero cryptocurrency functionality in web browser and node.js applications. The library can interact with Monero wallets and networks through:
-* RPC wallet servers
-* RPC Daemon servers (nodes)
-* Monero's native wallet code via WebAssembly(Wasm).
+Monero-javascript is a javascript library for implementing Monero cryptocurrency functionality in web browser and node.js applications. The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying Monero software structure and the foundation of the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
 
-The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying Monero software structure and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
+In addition to standard wallet manipulation through an RPC server, monero-javascript can manage wallets manage wallet natively via WebAssembly (Wasm). By eliminating the RPC intermediary, monero-javascript's Wasm wallet enables completely trustless, client-side wallet operations.
 
-Monero-javascript features a Wasm-based wallet implementation. The Wasm wallet acts as a direct bridge to the native Monero wallet code and eliminates the need to connect to an external RPC wallet server, making fully trustless, client-side wallet operations possible. The library still provides classes and methods for managing wallets via an RPC server, however.
+Monero-javascript can also communicate with the three Monero networks through an RPC daemon server (node).
 
-![Monero-javascript hierarchy](img/paste.png?raw=true)*In addition to the traditional method of managing wallets through an RPC wallet server, monero-javascript allows developers to communicate with the core Monero wallet software via a javascript wrapper for the monero-cpp Wasm library.*  
+![Monero-javascript hierarchy](img/paste.png?raw=true)*Monero-javascript can communicate through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
 
 # Initial Setup
 
@@ -80,9 +76,9 @@ Save the file under the name "monero-javascript-template.js".
 -->
 ## Creating an offline wallet generator
 
-An offline Monero wallet generator is a simple program that generates and displays a new wallet address along with that address's associated view and spend keys and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network to accomplish this task. transfer XMR or track a wallet's balance or outputs.  
+An offline wallet generator creates and displays a new wallet address along with that address's associated view key, spend key, and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network, transfer XMR or track a wallet's balance or outputs. This makes the keys-only wallet the ideal basis for an offline wallet generator in monero-javascript.
 
-Monero-javascript provides a minimal implementation of its WebAssembly (Wasm) wallet called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or perform any other tasks that require communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. This makes it the ideal basis for an offline wallet generator.
+Monero-javascript provides a minimal Wasm wallet implementation called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. These characteristics make it the ideal basis for an offline wallet.
 
 ## Essential code
 
