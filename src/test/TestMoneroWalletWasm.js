@@ -43,7 +43,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
     if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
-    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER); 
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     
     // create wallet
     let wallet = await MoneroWalletWasm.createWallet(config);
@@ -177,7 +177,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           // set daemon uri
           await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
           assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password);
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password, TestUtils.DAEMON_RPC_CONFIG.rejectUnauthorized);
           assert(await wallet.isConnected());
           
           // nullify daemon connection
