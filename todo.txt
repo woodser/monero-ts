@@ -18,12 +18,13 @@ git clone includes .git directory which is 95mbs
 startSynchronizing() should use pre-started loop so it's a random start time like core
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
+rename spec to Overview of Monero Wallet & Daemon Interfaces & Types?
 
-report core issues
 update readme architecture, sample code, wasm support 
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys
 full tests including jni
 release
+report core issues
 
 getSyncHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight

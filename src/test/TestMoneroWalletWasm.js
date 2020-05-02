@@ -604,7 +604,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert.equal(await walletKeys.getPublicViewKey(), await walletKeys.getPublicViewKey());
           assert.equal(await walletKeys.getPrivateSpendKey(), await walletKeys.getPrivateSpendKey());
           assert.equal(await walletKeys.getPublicSpendKey(), await walletKeys.getPublicSpendKey());
-          assert.equal(await walletKeys.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+          assert.equal(await walletKeys.getSyncHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
           assert(await walletKeys.isConnected());
           assert(!(await walletKeys.isSynced()));
 
@@ -1205,7 +1205,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           // wait for funds to confirm
           try { await StartMining.startMining(); } catch (e) { }
           while (!(await that.wallet.getTx(sentTx.getHash())).isConfirmed()) {
-            if ((await that.wallet.getTx(sentTx.getHash()).isFailed())) throw new Error("Tx failed in mempool: " + sentTx.getHash());
+            if ((await that.wallet.getTx(sentTx.getHash())).isFailed()) throw new Error("Tx failed in mempool: " + sentTx.getHash());
             await that.daemon.getNextBlockHeader();
           }
           
