@@ -1,5 +1,6 @@
 HIGH (WASM)
 start a new test wallet, new test wallet before receiving funds breaks tests
+rpc supports watch-only request failed: 0
 proxyToWorker defaults to true if running in browser
 MoneroUtils library helpers private?
 update monero-core to master and remove wasm_modifications branches :)
