@@ -118,8 +118,8 @@ class HttpClient {
           let digestAuthRequest = new HttpClient.digestAuthRequest(method, uri, username, password);
           digestAuthRequest.request(function(resp) {
             resolve(resp);
-          }, function(errorCode) {
-            reject(new Error("Request error: " + errorCode)); // TODO: throw message
+          }, function(resp) {
+            reject(new Error("Request failed: " + resp.statusText + " " + resp.status + "\n" + method + ", " + uri + ", " + (isBinary ? "" : ", " + body)));
           }, body);
         });
       }.bind(this));
@@ -241,7 +241,7 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
 
   // start here
   // successFn - will be passed JSON data
-  // errorFn - will be passed error status code
+  // errorFn - will be passed the failed authenticatedRequest
   // data - optional, for POSTS
   this.request = function(successFn, errorFn, data) {
     
@@ -367,7 +367,7 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
     self.firstRequest.onerror = function() {
       if (self.firstRequest.status !== 401) {
         self.log('Error ('+self.firstRequest.status+') on unauthenticated request to '+url);
-        self.errorFn(self.firstRequest.status);
+        self.errorFn(self.firstRequest);
       }
     }
   }
@@ -422,14 +422,14 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
       // failure
       else {
         self.nonce = null;
-        self.errorFn(self.authenticatedRequest.status);
+        self.errorFn(self.authenticatedRequest);
       }
     }
     // handle errors
     self.authenticatedRequest.onerror = function() {
       self.log('Error ('+self.authenticatedRequest.status+') on authenticated request to '+url);
       self.nonce = null;
-      self.errorFn(self.authenticatedRequest.status);
+      self.errorFn(self.authenticatedRequest);
     };
     // send
     if (self.post) {
