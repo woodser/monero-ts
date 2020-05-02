@@ -1080,13 +1080,13 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (!config.liteMode && config.testNotifications)
-        it("Notification test #3: notifies listeners of swept outputs", async function() {
-          let issues = await testOutputNotifications(false, true);
-          if (issues === undefined) return;
-          let msg = "testOutputNotificationsSweep() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-          console.log(msg);
-          assert(!msg.includes("ERROR:"), msg);
-        });
+      it("Notification test #3: notifies listeners of swept outputs", async function() {
+        let issues = await testOutputNotifications(false, true);
+        if (issues === undefined) return;
+        let msg = "testOutputNotificationsSweep() generated " + issues.length + " issues:\n" + issuesToStr(issues);
+        console.log(msg);
+        assert(!msg.includes("ERROR:"), msg);
+      });
       
       async function testOutputNotifications(sameAccount, sweepOutput) {
         
