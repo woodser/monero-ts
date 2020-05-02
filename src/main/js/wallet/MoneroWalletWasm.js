@@ -2,6 +2,7 @@
  * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
  * 
  * @implements {MoneroWallet}
+ * @hideconstructor
  */
 class MoneroWalletWasm extends MoneroWalletKeys {
   
