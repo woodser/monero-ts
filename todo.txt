@@ -1,5 +1,4 @@
 HIGH (WASM)
-remove listeners from wallet worker on close
 start a new test wallet, new test wallet before receiving funds breaks tests
 
 MoneroUtils library helpers private?
@@ -24,6 +23,7 @@ full tests including jni
 release
 report core issues
 
+combine MoneroSyncListener and MoneroWalletListener
 getSyncHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
