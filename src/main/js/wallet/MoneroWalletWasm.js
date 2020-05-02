@@ -442,7 +442,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    */
   async addListener(listener) {
     this._assertNotClosed();
-    assert(listener instanceof MoneroWalletListener);
+    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
     this._listeners.push(listener);
     await this._setIsListening(true);
   }
@@ -2351,7 +2351,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   async close(save) {
     if (save) await this.save();
     await this._invokeWorker("close");
-    delete this._wrappedListeners;
+    while (this._wrappedListeners.length) await this.removeListener(this._wrappedListeners[0]);
     delete MoneroUtils.WORKER_OBJECTS[this._walletId];
   }
   
