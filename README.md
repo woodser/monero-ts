@@ -170,7 +170,7 @@ More coming soon...
 
 ### How to Build WebAssembly Source
 
-This project uses WebAssembly to package and execute Monero Core's source code for use in a browser or other WebAssembly-supported environment.
+This project uses WebAssembly to package and execute Monero Core's source code for use in a browser or other WebAssembly-supported environments.
 
 For convenience, pre-built WebAssembly files are committed to ./dist, but these files can be built independently from source code with the following steps:
 
@@ -199,6 +199,6 @@ This project is licensed under MIT.
 If this library brings you value, please consider donating to encourage further development and maintenance.  Thank you!
 
 <p align="center">
-	<img src="donate.png" width="115" height="115"/>
+	<img src="donate.png" width="115" height="115"/><br>
 	<code>46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz</code>
 </p>
