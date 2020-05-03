@@ -1,4 +1,4 @@
-# Monero JavaScript Library
+## Monero JavaScript Library
 
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
@@ -11,16 +11,16 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 - Receive notifications when blocks are added to the chain and when wallets sync, send, or receive
 - Over 230 passing Mocha test cases
 
-## Architecture
 <p align="center">
 	<img src="architecture.png" width="750" height="754"/>
 </p>
+<p align="center">
+	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="http://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
+</p>
 
-Wallet implementations are interchangeable because they conform to a common interface, MoneroWallet.js, with RPC and native WebAssembly bindings to Monero Core.
+### Sample Code
 
-## Sample Code
-
-This code introduces monero-javascript's API.  See the [JsDocs](http://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
+This code introduces the API.  See the [JSDocs](http://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
 
 ```js
 // import library
@@ -138,13 +138,19 @@ assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
 await walletWasm.close(true);
 ```
 
-## How to Use This Library
+### Development Guide
+
+[Getting started](todo)
+
+More coming soon...
+
+### How to Use This Library
 
 1. `cd your/npm/project` or `mkdir your/npm/project && npm init`
 2. `npm install monero-javascript`
 3. Add `require(monero-javascript)` to your code
 
-## How to Run Monero RPC
+### How to Run Monero RPC
 
 1. Download and extract the latest [Monero CLI](https://getmonero.org/downloads/) for your platform.
 2. Start Monero daemon locally: `./monerod --stagenet` (or use a remote daemon).
@@ -155,16 +161,16 @@ await walletWasm.close(true);
 	
 	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
-## How to Run Mocha Tests
+### How to Run Mocha Tests
 
 1. Download this project and install its dependenices.  See [How to Use This Library](#how-to-use-this-library).
 2. Run monero-wallet-rpc and monero-daemon-rpc.  See [How to Run Monero RPC](#how-to-run-monero-rpc). 
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by hash" --timeout 2000000`
 
-## How to Build WebAssembly from Source
+### How to Build WebAssembly Source
 
-This project uses WebAssembly to package and execute monero-core's source code for use in a browser or other WebAssembly-supported environment.
+This project uses WebAssembly to package and execute Monero Core's source code for use in a browser or other WebAssembly-supported environment.
 
 For convenience, pre-built WebAssembly files are committed to ./dist, but these files can be built independently from source code with the following steps:
 
@@ -172,13 +178,11 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
 	3. `git pull && ./emsdk install latest-upstream && ./emsdk activate latest-upstream && source ./emsdk_env.sh`
-	3. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (set for your system)
+	3. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (change for your system)
 2. `cd /path/to/monero-javascript`
 3. `./bin/build_all.sh`
 
-## See Also
-
-[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+### See Also
 
 [monero-java](https://github.com/monero-ecosystem/monero-java)
 
@@ -186,16 +190,17 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 
 [Sample web application](https://github.com/woodser/xmr-sample-app)
 
-## License
+### License
 
 This project is licensed under MIT.
 
-## Donations
+### Donations
 
-If you get value from this library, please consider donating.  Thank you!
+If this library brings you value, please consider donating to encourage further development and maintenance.  Thank you!
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/>
 </p>
-
-`46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
+<p align="center">
+	<code>46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz</code>
+</p>
