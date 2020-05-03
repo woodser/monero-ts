@@ -1,6 +1,6 @@
-Monero-javascript is a library that enables interaction with the Monero blockchain and manipulation of Monero wallets in javascript. 
+Monero-javascript is a Node.js-based Monero library for javascript.
 
-The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, uniform, and intuitive reorganization of the underlying Monero software structure and the foundation of the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
+The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, uniform, and intuitive API specification that also serves as the foundation for [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://github.com/monero-ecosystem/monero-java) libraries.
 
 In addition to traditional RPC wallet management, monero-javascript can control wallets natively with WebAssembly (Wasm). Monero-javascript's Wasm wallet lets developers implement completely trustless, client-side wallet operations by eliminating the need for an intermediary wallet RPC server.
 
@@ -8,17 +8,17 @@ In addition to traditional RPC wallet management, monero-javascript can control 
 
 # Initial Setup
 
-Skip ahead to [Create a new Node project](#create-a-new-node-project) if you already have git installed. 
+Skip ahead to [Create a new Node.js project](#create-a-new-node.js-project) if you already have Node.js and npm installed. 
 
 ## Install Node.js and npm
 You need to install node.js and the node package manager (npm) to obtain and use the monero-javascript library. 
 
 ### Windows
-1. [Download the node.js Windows installer](https://nodejs.org/en/download/) from the node.js website.
+1. [Download the Node.js Windows installer](https://nodejs.org/en/download/) from the Node.js website.
 2. Open the installer.
 3. Click “next”.
 4. Click the checkbox next to “I accept the terms in this license agreement.” and click “next”.
-5. Click “next” to install node.js to the default directory.
+5. Click “next” to install Node.js to the default directory.
 6. Make sure that npm is listed as one of the installation packages, then click “next”.
 7. Click “next”.
 8. Click “Install”.
@@ -36,7 +36,7 @@ You need to install node.js and the node package manager (npm) to obtain and use
   2. Install npm:
     `$ sudo dnf install npm`
 
-## Create a new Node project
+## Create a new Node.js project
 
 1. Create and enter a new directory to hold the project:
   ### Windows
@@ -57,21 +57,33 @@ You need to install node.js and the node package manager (npm) to obtain and use
 # Write a monero-javascript program
 ## Creating an offline wallet generator
 
-An offline wallet generator creates and displays a new wallet address along with that address's associated view key, spend key, and mnemonic seed phrase. Offline wallet generators do not need to communicate with a Monero network, transfer XMR or track a wallet's balance or outputs. This makes the keys-only wallet the ideal basis for an offline wallet generator in monero-javascript.
+An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and mnemonic seed phrase. Offline wallet generators only need to generate and display these wallet attributes; they do not need to communicate with a Monero network, transfer XMR or track a wallet's balance or outputs.
 
-Monero-javascript provides a minimal Wasm wallet implementation called a keys-only wallet. Keys-only wallets can not initiate transfers, report their balances, or communication with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. These characteristics make it the ideal basis for an offline wallet.
+Monero-javascript's keys-only wallet more than meets these requirements and is the ideal basis for a monero-javascript-based offline wallet generator. They keys-only wallet is a minimal Wasm wallet implementation that can not initiate transfers, report its balance, or communicate with a Monero network. The trade off for these limitations is a small file size - just under 1/5 that of a standard Wasm wallet. These characteristics make it the ideal basis for an offline wallet.
 
 ## Essential code
 
-This program needs to have two essential components:
+Open your preferred text editor or IDE and copy the following code to a new, blank file:
+
+```
+require("monero-javascript");
+
+mainFunction();
+
+async mainFunction() {
+}
+```
+
+Note the program's two essential components:
 1. A "require" statement to import the monero-javascript library:
 `require("monero-javascript");`
 2. An asynchronous "main" function so that "await" statements can precede calls to asynchronous monero-javascript methods:
-`async mainFunction() {}`
+`async mainFunction() {}` 
+The asynchronous "main" function is not strictly necessary in all cases, but most applications will need to call monero-javascript methods from an ayschnronous function so that code execution can pause while monero-javascript methods run. 
 
 ### Building a keys-only wallet
 
-Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWallet()` method as follows:
+Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWallet()` method in mainFunction() as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
