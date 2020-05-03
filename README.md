@@ -138,7 +138,7 @@ await walletWasm.close(true);
 
 ### Development Guide
 
-Coming soon...
+[Getting Started](docs/developer_guide/getting_started.md) (wip)
 
 ### How to Use This Library
 
