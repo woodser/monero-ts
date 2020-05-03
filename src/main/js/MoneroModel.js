@@ -12,6 +12,7 @@ module.exports = function() {
   this.Filter = require("./common/Filter");
   this.MoneroError = require("./common/MoneroError");
   this.HttpClient = require("./common/HttpClient");
+  this.LibraryUtils = require("./common/LibraryUtils");
   
   // export daemon models
   this.ConnectionType = require("./daemon/model/ConnectionType");

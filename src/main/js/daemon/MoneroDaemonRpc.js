@@ -48,7 +48,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string} password is a password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} rejectUnauthorized rejects self-signed certificates if true (default true)
    * @param {number} pollInterval is the poll interval to query for updates in ms (default 5000)
-   * @param {boolean} proxyToWorker runs the daemon client in a web worker if true (default false
+   * @param {boolean} proxyToWorker runs the daemon client in a web worker if true (default false)
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     super();
@@ -179,7 +179,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let respBin = await this.rpc.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights});
     
     // load wasm module
-    await MoneroUtils.loadKeysModule();
+    await LibraryUtils.loadKeysModule();
     
     // convert binary blocks to json
     let rpcBlocks = MoneroUtils.binaryBlocksToJson(respBin);
@@ -1394,8 +1394,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   static async connect(config) {
     let daemonId = GenUtils.getUUID();
     config = Object.assign({}, config, {proxyToWorker: false});
-    await MoneroUtils.invokeWorker(daemonId, "connectDaemonRpc", [config]);
-    return new MoneroDaemonRpcProxy(daemonId, MoneroUtils.getWorker());
+    await LibraryUtils.invokeWorker(daemonId, "connectDaemonRpc", [config]);
+    return new MoneroDaemonRpcProxy(daemonId, LibraryUtils.getWorker());
   }
   
   // ---------------------------- INSTANCE METHODS ----------------------------
@@ -1699,7 +1699,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   // TODO: duplicated with MoneroWalletWasmProxy
   async _invokeWorker(fnName, args) {
-    return MoneroUtils.invokeWorker(this.daemonId, fnName, args);
+    return LibraryUtils.invokeWorker(this.daemonId, fnName, args);
   }
 }
 

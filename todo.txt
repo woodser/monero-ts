@@ -1,8 +1,6 @@
 HIGH (WASM)
 rpc supports watch-only request failed: 0
 start a new test wallet, new test wallet before receiving funds breaks tests
-proxyToWorker defaults to true if running in browser
-MoneroUtils library helpers private?
 jsdoc use " - " instead of " is ...", missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve, etc
 rename monero_wallet_core.h to monero_wallet_w2.h?
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)

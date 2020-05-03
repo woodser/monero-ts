@@ -22,7 +22,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       password: UTF8ToString(password),
       body: UTF8ToString(body),
       resolveWithFullResponse: true,
-      rejectUnauthorized: MoneroUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
+      rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
       requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
     }).then(resp => {
 
@@ -64,7 +64,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
   return Asyncify.handleSleep(function(wakeUp) {
 
     // load wasm module then convert from json to binary
-    MoneroUtils.loadCoreModule().then(module => {
+    LibraryUtils.loadCoreModule().then(module => {
 
       // read binary data from heap to Uint8Array
       let ptr = body;
@@ -83,7 +83,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         password: UTF8ToString(password),
         body: view,
         resolveWithFullResponse: true,
-        rejectUnauthorized: MoneroUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
+        rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       }).then(resp => {
 
