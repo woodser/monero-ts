@@ -11,8 +11,9 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 - Receive notifications when blocks are added to the chain and when wallets sync, send, or receive
 - Over 230 passing Mocha test cases
 
-<p align="center">
-	<img src="architecture.png" width="750" height="754"/><br>
+<p align="center">max-width: 100%;
+  height: auto;
+	<img width="100%" height="auto" src="architecture.png"/><br>
 	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="http://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
 </p>
 
