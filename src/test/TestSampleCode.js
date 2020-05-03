@@ -13,7 +13,7 @@ class TestSampleCode {
           TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
           
           // create directory for test wallets if it doesn't exist
-          let fs = MoneroUtils.getDefaultFs();
+          let fs = LibraryUtils.getDefaultFs();
           if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
             if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
             fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);

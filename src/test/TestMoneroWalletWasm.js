@@ -87,7 +87,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         
         // remove non-whitelisted wallets
         let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
-        let items = MoneroUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
+        let items = LibraryUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
         for (let item of items) {
           let found = false;
           for (let whitelisted of whitelist) {
@@ -96,11 +96,11 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
               break;
             }
           }
-          if (!found) MoneroUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+          if (!found) LibraryUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
         }
         
         // measure memory
-        let module = await MoneroUtils.loadCoreModule();
+        let module = await LibraryUtils.loadCoreModule();
         console.log("Memory usage: " + module.HEAP8.length);
         //console.log(process.memoryUsage());
       });

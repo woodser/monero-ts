@@ -17,7 +17,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    */
   static async walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
-    if (!fs) fs = MoneroUtils.getDefaultFs();
+    if (!fs) fs = LibraryUtils.getDefaultFs();
     let exists = fs.existsSync(path); // TODO: look for keys file
     console.log("Wallet exists at " + path + ": " + exists);
     return exists;
@@ -88,7 +88,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // read wallet data from disk if not provided
     if (!config.getKeysData()) {
-      let fs = config.getFs() ? config.getFs() : MoneroUtils.getDefaultFs();
+      let fs = config.getFs() ? config.getFs() : LibraryUtils.getDefaultFs();
       if (!await this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
       config.setKeysData(fs.readFileSync(config.getPath() + ".keys"));
       config.setCacheData(fs.readFileSync(config.getPath()));
@@ -176,7 +176,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
-    let module = await MoneroUtils.loadCoreModule();
+    let module = await LibraryUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -184,7 +184,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         
         // register fn informing if unauthorized reqs should be rejected
         let rejectUnauthorizedFnId = GenUtils.getUUID();
-        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
@@ -219,7 +219,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (seedOffset === undefined) seedOffset = "";
     
     // load wasm module
-    let module = await MoneroUtils.loadCoreModule();
+    let module = await LibraryUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -227,7 +227,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         
         // register fn informing if unauthorized reqs should be rejected
         let rejectUnauthorizedFnId = GenUtils.getUUID();
-        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
@@ -265,7 +265,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.loadCoreModule();
+    let module = await LibraryUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -273,7 +273,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         
         // register fn informing if unauthorized reqs should be rejected
         let rejectUnauthorizedFnId = GenUtils.getUUID();
-        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
@@ -292,7 +292,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async getMnemonicLanguages() {
-    let module = await MoneroUtils.loadCoreModule();
+    let module = await LibraryUtils.loadCoreModule();
     return module.queueTask(async function() {
       return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
     });
@@ -310,7 +310,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {int} cppAddress is the address of the wallet instance in C++
    * @param {string} path is the path of the wallet instance
    * @param {string} password is the password of the wallet instance
-   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to MoneroUtils.getDefaultFs())
+   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to LibraryUtils.getDefaultFs())
    * @param {boolean} rejectUnauthorized - specifies if unauthorized requests (e.g. self-signed certificates) should be rejected
    * @param {string} rejectUnauthorizedFnId - unique identifier for http_client_wasm to query rejectUnauthorized
    */
@@ -319,14 +319,14 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._path = path;
     this._password = password;
     this._listeners = [];
-    this._fs = fs ? fs : (path ? MoneroUtils.getDefaultFs() : undefined);
+    this._fs = fs ? fs : (path ? LibraryUtils.getDefaultFs() : undefined);
     this._isClosed = false;
     this._wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this._wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
     this._rejectUnauthorized = rejectUnauthorized;
     this._rejectUnauthorizedConfigId = rejectUnauthorizedFnId;
     let that = this;
-    MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return that._rejectUnauthorized }); // register fn informing if unauthorized reqs should be rejected
+    LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return that._rejectUnauthorized }); // register fn informing if unauthorized reqs should be rejected
   }
   
   // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
@@ -724,7 +724,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(MoneroUtils.stringifyBIs(balanceStr)).balance);
+      return BigInteger.parse(JSON.parse(GenUtils.stringifyBIs(balanceStr)).balance);
     });
   }
   
@@ -745,7 +745,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(MoneroUtils.stringifyBIs(unlockedBalanceStr)).unlockedBalance);
+      return BigInteger.parse(JSON.parse(GenUtils.stringifyBIs(unlockedBalanceStr)).unlockedBalance);
     });
   }
   
@@ -755,7 +755,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       let accountsStr = that._module.get_accounts(that._cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
       let accounts = [];
-      for (let accountJson of JSON.parse(MoneroUtils.stringifyBIs(accountsStr)).accounts) {
+      for (let accountJson of JSON.parse(GenUtils.stringifyBIs(accountsStr)).accounts) {
         accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson)));
       }
       return accounts;
@@ -767,7 +767,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let accountStr = that._module.get_account(that._cppAddress, accountIdx, includeSubaddresses ? true : false);
-      let accountJson = JSON.parse(MoneroUtils.stringifyBIs(accountStr));
+      let accountJson = JSON.parse(GenUtils.stringifyBIs(accountStr));
       return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
     });
 
@@ -779,7 +779,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let accountStr = that._module.create_account(that._cppAddress, label);
-      let accountJson = JSON.parse(MoneroUtils.stringifyBIs(accountStr));
+      let accountJson = JSON.parse(GenUtils.stringifyBIs(accountStr));
       return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
     });
   }
@@ -789,7 +789,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let subaddressesJson = JSON.parse(MoneroUtils.stringifyBIs(that._module.get_subaddresses(that._cppAddress, JSON.stringify(args)))).subaddresses;
+      let subaddressesJson = JSON.parse(GenUtils.stringifyBIs(that._module.get_subaddresses(that._cppAddress, JSON.stringify(args)))).subaddresses;
       let subaddresses = [];
       for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
       return subaddresses;
@@ -802,7 +802,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let subaddressStr = that._module.create_subaddress(that._cppAddress, accountIdx, label);
-      let subaddressJson = JSON.parse(MoneroUtils.stringifyBIs(subaddressStr));
+      let subaddressJson = JSON.parse(GenUtils.stringifyBIs(subaddressStr));
       return MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
     });
   }
@@ -921,7 +921,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       return new Promise(function(resolve, reject) {
         let callback = function(keyImagesStr) {
           let keyImages = [];
-          for (let keyImageJson of JSON.parse(MoneroUtils.stringifyBIs(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
+          for (let keyImageJson of JSON.parse(GenUtils.stringifyBIs(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
           resolve(keyImages);
         }
         that._module.get_key_images(that._cppAddress, callback);
@@ -935,7 +935,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
         let callback = function(keyImageImportResultStr) {
-          resolve(new MoneroKeyImageImportResult(JSON.parse(MoneroUtils.stringifyBIs(keyImageImportResultStr))));
+          resolve(new MoneroKeyImageImportResult(JSON.parse(GenUtils.stringifyBIs(keyImageImportResultStr))));
         }
         that._module.import_key_images(that._cppAddress, JSON.stringify({keyImages: keyImages.map(keyImage => keyImage.toJson())}), callback);
       });
@@ -984,7 +984,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1008,7 +1008,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1040,7 +1040,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           if (txSetsJson.charAt(0) !== '{') reject(new MoneroError(txSetsJson)); // json expected, else error
           else {
             let txSets = [];
-            for (let txSetJson of JSON.parse(MoneroUtils.stringifyBIs(txSetsJson)).txSets) txSets.push(new MoneroTxSet(txSetJson));
+            for (let txSetJson of JSON.parse(GenUtils.stringifyBIs(txSetsJson)).txSets) txSets.push(new MoneroTxSet(txSetJson));
             resolve(txSets);
           }
         }
@@ -1060,7 +1060,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1073,7 +1073,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(that._module.parse_tx_set(that._cppAddress, JSON.stringify(txSet.toJson())))));
+      return new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(that._module.parse_tx_set(that._cppAddress, JSON.stringify(txSet.toJson())))));
     });
   }
   
@@ -1127,7 +1127,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_tx_key(that._cppAddress, txHash, txKey, address))));
+      return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_key(that._cppAddress, txHash, txKey, address))));
     });
   }
   
@@ -1144,7 +1144,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature))));
+      return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature))));
     });
   }
   
@@ -1187,7 +1187,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckReserve(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature))));
+      return new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature))));
     });
   }
   
@@ -1306,7 +1306,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroSendRequest(JSON.parse(MoneroUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
+        return new MoneroSendRequest(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
       } catch (e) {
         throw new MoneroError(e.message);
       }
@@ -1513,7 +1513,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     delete this._password;
     delete this._listeners;
     delete this._wasmListener;
-    MoneroUtils.setRejectUnauthorizedFn(this._rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
+    LibraryUtils.setRejectUnauthorizedFn(this._rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
@@ -1532,7 +1532,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
-    let module = await MoneroUtils.loadCoreModule();
+    let module = await LibraryUtils.loadCoreModule();
     
     // open wallet in queue
     return module.queueTask(async function() {
@@ -1540,7 +1540,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         
         // register fn informing if unauthorized reqs should be rejected
         let rejectUnauthorizedFnId = GenUtils.getUUID();
-        MoneroUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
@@ -1619,7 +1619,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   static _deserializeBlocks(blocksJsonStr, txType) {
     if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
-    let blocksJson = JSON.parse(MoneroUtils.stringifyBIs(blocksJsonStr));
+    let blocksJson = JSON.parse(GenUtils.stringifyBIs(blocksJsonStr));
     let blocks = [];
     for (let blockJson of blocksJson.blocks) blocks.push(MoneroWalletWasm._sanitizeBlock(new MoneroBlock(blockJson, txType)));
     return blocks
@@ -1800,8 +1800,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, fs) {
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroUtils.invokeWorker(walletId, "openWalletData", [path, password, networkType, keysData, cacheData, daemonUriOrConfig]);
-    let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
+    await LibraryUtils.invokeWorker(walletId, "openWalletData", [path, password, networkType, keysData, cacheData, daemonUriOrConfig]);
+    let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1810,8 +1810,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroUtils.invokeWorker(walletId, "createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
-    let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
+    await LibraryUtils.invokeWorker(walletId, "createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
+    let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1820,8 +1820,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroUtils.invokeWorker(walletId, "createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
-    let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
+    await LibraryUtils.invokeWorker(walletId, "createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
+    let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1830,8 +1830,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroUtils.invokeWorker(walletId, "createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
-    let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
+    await LibraryUtils.invokeWorker(walletId, "createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
+    let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1852,7 +1852,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     this._walletId = walletId;
     this._worker = worker;
     this._path = path;
-    this._fs = fs ? fs : (path ? MoneroUtils.getDefaultFs() : undefined);
+    this._fs = fs ? fs : (path ? LibraryUtils.getDefaultFs() : undefined);
     this._wrappedListeners = [];
   }
   
@@ -2364,7 +2364,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   async _invokeWorker(fnName, args) {
-    return MoneroUtils.invokeWorker(this._walletId, fnName, args);
+    return LibraryUtils.invokeWorker(this._walletId, fnName, args);
   }
 }
 

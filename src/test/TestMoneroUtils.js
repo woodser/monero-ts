@@ -8,7 +8,7 @@ class TestMoneroUtils {
       
       // initialize utils to test
       before(async function() {
-        await MoneroUtils.loadKeysModule();
+        await LibraryUtils.loadKeysModule();
       });
       
       describe("Binary Serialization", function() {

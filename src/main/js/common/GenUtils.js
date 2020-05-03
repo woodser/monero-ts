@@ -1458,6 +1458,17 @@ class GenUtils {
     if (value === undefined && ignoreUndefined) return "";
     return GenUtils.getIndent(indent) + key + ": " + value + (newline ? '\n' : "");
   }
+  
+  /**
+   * Replace big integers (16 or more consecutive digits) with strings in order
+   * to preserve numeric precision.
+   * 
+   * @param {string} str is the string to be modified
+   * @return {string} the modified string with big numbers converted to strings
+   */
+  static stringifyBIs(str) {
+    return str.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"');
+  }
 }
 
 module.exports = GenUtils;

@@ -61,7 +61,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.loadKeysModule();
+    let module = await LibraryUtils.loadKeysModule();
     
     // queue call to wasm module
     return module.queueTask(async function() {
@@ -86,7 +86,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (seedOffset === undefined) seedOffset = "";
     
     // load wasm module
-    let module = await MoneroUtils.loadKeysModule();
+    let module = await LibraryUtils.loadKeysModule();
     
     // queue call to wasm module
     return module.queueTask(async function() {
@@ -113,7 +113,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.loadKeysModule();
+    let module = await LibraryUtils.loadKeysModule();
     
     // queue call to wasm module
     return module.queueTask(async function() {
@@ -132,7 +132,7 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   static async getMnemonicLanguages() {
-    let module = await MoneroUtils.loadKeysModule();
+    let module = await LibraryUtils.loadKeysModule();
     return module.queueTask(async function() {
       return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
     });

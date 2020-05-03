@@ -2,14 +2,14 @@
 
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
-- Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc
-- Supports fully client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core 
-- Supports multisig, offline, and watch-only wallets
-- Conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use
-- Query wallet transactions, transfers, and outputs by their many attributes
-- Fetch and process binary data from the daemon (e.g. raw blocks)
-- Receive notifications when blocks are added to the chain and when wallets sync, send, or receive
-- Over 230 passing Mocha test cases
+- Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
+- Supports fully client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core .
+- Supports multisig, offline, and watch-only wallets.
+- Conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use.
+- Query wallet transactions, transfers, and outputs by their many attributes.
+- Fetch and process binary data from the daemon (e.g. raw blocks).
+- Receive notifications when blocks are added to the chain and when wallets sync, send, or receive.
+- Over 230 passing Mocha test cases.
 
 <p align="center">
 	<img width="100%" height="auto" src="architecture.png"/><br>
@@ -184,7 +184,9 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 
 [monero-cpp-library](https://github.com/woodser/monero-cpp-library)
 
-[Sample web application](https://github.com/woodser/xmr-sample-app)
+[monerostresstester.com](https://github.com/woodser/monerostresstester.com) (sample web app under development)
+
+[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) (sample web app under development)
 
 ### License
 
