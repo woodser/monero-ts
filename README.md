@@ -199,6 +199,6 @@ This project is licensed under MIT.
 If this library brings you value, please consider donating to encourage further development and maintenance.  Thank you!
 
 <p align="center">
-	<img src="donate.png" width="115" height="115"/><br>
+	<img src="donate.png" width="115" height="115"/>
 	<code>46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz</code>
 </p>
