@@ -83,7 +83,7 @@ The asynchronous "main" function is not strictly necessary in all cases, but mos
 
 ### Building a keys-only wallet
 
-Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](monero-ecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method in mainFunction() as follows:
+Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method in mainFunction() as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
