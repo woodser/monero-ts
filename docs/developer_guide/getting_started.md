@@ -4,11 +4,11 @@ The library derives its object and method hierarchy from [The Hidden Model](http
 
 In addition to traditional RPC wallet management, monero-javascript can control wallets natively with WebAssembly (Wasm). Monero-javascript's Wasm wallet lets developers implement completely trustless, client-side wallet operations by eliminating the need for an intermediary wallet RPC server.
 
-![Monero-javascript hierarchy](img/paste.png?raw=true)*Monero-javascript can communicate through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
+![Monero-javascript hierarchy](img/architecture.png?raw=true)*Monero-javascript can communicate through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
 
 # Initial Setup
 
-Skip ahead to [Create a new Node.js project](#create-a-new-node.js-project) if you already have Node.js and npm installed. 
+Skip ahead to [Create a new Node.js project](todo) if you already have Node.js and npm installed. 
 
 ## Install Node.js and npm
 You need to install node.js and the node package manager (npm) to obtain and use the monero-javascript library. 
