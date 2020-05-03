@@ -1,19 +1,16 @@
-<!--
-consistent capitalization (wallet vs Daemon consistent, WASM, RPC, monero-javascript)
--->
+Monero-javascript is a library that enables interaction with the Monero blockchain and manipulation of Monero wallets in javascript. 
 
-# Introduction
-Monero-javascript is a javascript library for implementing Monero cryptocurrency functionality in web browser and node.js applications. The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, uniform, and intuitive reorganization of the underlying Monero software structure and the foundation of the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
+The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, uniform, and intuitive reorganization of the underlying Monero software structure and the foundation of the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
 
-In addition to standard wallet manipulation through an RPC server, monero-javascript can manage wallets natively with WebAssembly (Wasm). By eliminating the RPC wallet intermediary, monero-javascript's Wasm wallet lets developers implement completely trustless, client-side wallet operations.
-
-Monero-javascript can also communicate with the three Monero networks through an RPC daemon server (node).
+In addition to traditional RPC wallet management, monero-javascript can control wallets natively with WebAssembly (Wasm). Monero-javascript's Wasm wallet lets developers implement completely trustless, client-side wallet operations by eliminating the need for an intermediary wallet RPC server.
 
 ![Monero-javascript hierarchy](img/paste.png?raw=true)*Monero-javascript can communicate through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
 
 # Initial Setup
 
-## Install node.js and npm
+Skip ahead to [Create a new Node project](#create-a-new-node-project) if you already have git installed. 
+
+## Install Node.js and npm
 You need to install node.js and the node package manager (npm) to obtain and use the monero-javascript library. 
 
 ### Windows
@@ -39,11 +36,7 @@ You need to install node.js and the node package manager (npm) to obtain and use
   2. Install npm:
     `$ sudo dnf install npm`
 
-## Install git
-
-## Get the monero-javascript library
-
-## Create a node project for the offline wallet generator
+## Create a new Node project
 
 1. Create and enter a new directory to hold the project:
   ### Windows
@@ -58,7 +51,9 @@ You need to install node.js and the node package manager (npm) to obtain and use
   `npm init`
   npm will ask you to enter information into a number of fields. Press enter at each prompt to use the default (or empty) value.
 
-3. Install the monero-javascript library as a dependency
+3. Add the monero-javascript library to the offline_wallet_generator package:
+  `npm install monero-javascript`
+
 # Write a monero-javascript program
 ## Creating an offline wallet generator
 
@@ -68,23 +63,29 @@ Monero-javascript provides a minimal Wasm wallet implementation called a keys-on
 
 ## Essential code
 
-This program requires two essential components:
+This program needs to have two essential components:
 1. A "require" statement to import the monero-javascript library:
-```require("monero-javascript");```
-2. An asynchronous "main" function
-```async mainFunction() {}```
-
-The asynchronous "main" function allows the program to <u>await</u> the results of the monero-javascript methods that create keys-only wallets.
+`require("monero-javascript");`
+2. An asynchronous "main" function so that "await" statements can precede calls to asynchronous monero-javascript methods:
+`async mainFunction() {}`
 
 ### Building a keys-only wallet
 
-Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWalletRandom()` method as follows:
+Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the MoneroWalletKeys class's `createWallet()` method as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-The createWalletRandom method accepts two arguments: the network type and the seed phrase language. 
+
+
+
+
+
+
+
+
+The createWallet method accepts a MoneroWalletConfig argument. A MoneroWalletConfig object 
 
 ---
 ### Why is it necessary to specify a network type for an offline wallet?
