@@ -119,10 +119,8 @@ class HttpClient {
           digestAuthRequest.request(function(resp) {
             resolve(resp);
           }, function(resp) {
-            console.error("Request failed!");
-            console.error(method, uri, (isBinary ? "" : body));
-            console.error(resp);
-            reject(new Error("Request failed: " + resp.statusText + " " + resp.status + "\n" + method + ", " + uri + ", " + (isBinary ? "" : ", " + body)));
+            if (resp.status) resolve(resp);
+            else reject(new Error("Request failed without response: " + method + " " + uri));
           }, body);
         });
       }.bind(this));

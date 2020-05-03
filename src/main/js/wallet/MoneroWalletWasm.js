@@ -1830,7 +1830,6 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    console.log("CREATING WALLET FROM KEYS: " + path);
     await MoneroUtils.invokeWorker(walletId, "createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
     if (path) await wallet.save();
