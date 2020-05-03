@@ -43,12 +43,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * });
    * </code>
    * 
-   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection is the uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
-   * @param {string} username is a username to authenticate with monero-daemon-rpc (optional)
-   * @param {string} password is a password to authenticate with monero-daemon-rpc (optional)
-   * @param {boolean} rejectUnauthorized rejects self-signed certificates if true (default true)
-   * @param {number} pollInterval is the poll interval to query for updates in ms (default 5000)
-   * @param {boolean} proxyToWorker runs the daemon client in a web worker if true (default false)
+   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+   * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
+   * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
+   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
+   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default false)
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     super();
@@ -768,9 +768,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * Get a contiguous chunk of blocks starting from a given height up to a maximum
    * height or amount of block data fetched from the blockchain, whichever comes first.
    * 
-   * @param {number} startHeight is the start height to retrieve blocks (default 0)
-   * @param {number} maxHeight is the maximum end height to retrieve blocks (default blockchain height)
-   * @param {number} maxReqSize is the maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
+   * @param {number} startHeight - start height to retrieve blocks (default 0)
+   * @param {number} maxHeight - maximum end height to retrieve blocks (default blockchain height)
+   * @param {number} maxReqSize - maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
    * @return {MoneroBlock[]} are the resulting chunk of blocks
    */
   async _getMaxBlocks(startHeight, maxHeight, maxReqSize) {
@@ -803,8 +803,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * Retrieves a header by height from the cache or fetches and caches a header
    * range if not already in the cache.
    * 
-   * @param {number} height is the height of the header to retrieve from the cache
-   * @param {number} maxHeight is the maximum height of headers to cache
+   * @param {number} height - height of the header to retrieve from the cache
+   * @param {number} maxHeight - maximum height of headers to cache
    */
   async _getBlockHeaderByHeightCached(height, maxHeight) {
     
@@ -903,9 +903,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * 
    * TODO: switch from safe set
    * 
-   * @param rpcTx is the RPC map containing transaction fields
-   * @param tx is the MoneroTx to populate with values (optional)
-   * @returns tx is the same tx that was passed in or a new one if none given
+   * @param rpcTx - RPC map containing transaction fields
+   * @param tx  - MoneroTx to populate with values (optional)
+   * @returns tx - same tx that was passed in or a new one if none given
    */
   static _convertRpcTx(rpcTx, tx) {
     if (rpcTx === undefined) return undefined;
@@ -1105,7 +1105,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Initializes sync info from RPC sync info.
    * 
-   * @param rpcSyncInfo is the rpc map to initialize the sync info from
+   * @param rpcSyncInfo - rpc map to initialize the sync info from
    * @return {MoneroDaemonSyncInfo} is sync info initialized from the map
    */
   static _convertRpcSyncInfo(rpcSyncInfo) {

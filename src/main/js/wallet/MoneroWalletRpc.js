@@ -176,9 +176,9 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Create and open a new wallet with a randomly generated seed on the RPC server.
    * 
-   * @param {string} name is the name of the wallet file to create
-   * @param {string} password is the wallet's password
-   * @param {string} language is the language for the wallet's mnemonic phrase
+   * @param {string} name - name of the wallet file to create
+   * @param {string} password - wallet's password
+   * @param {string} language - language for the wallet's mnemonic phrase
    */
   async createWalletRandom(name, password, language) {
     if (!name) throw new MoneroError("Name is not initialized");
@@ -199,13 +199,13 @@ class MoneroWalletRpc extends MoneroWallet {
    * Create and open a wallet from an existing mnemonic phrase on the RPC server,
    * closing the currently open wallet if applicable.
    * 
-   * @param {string} name is the name of the wallet to create on the RPC server
-   * @param {string} password is the wallet's password
-   * @param {string} mnemonic is the mnemonic of the wallet to construct
-   * @param {int} restoreHeight is the block height to restore from (default = 0)
-   * @param {string} language is the language of the mnemonic in case the old language is invalid
-   * @param {string} seedOffset is the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
+   * @param {string} name - name of the wallet to create on the RPC server
+   * @param {string} password - wallet's password
+   * @param {string} mnemonic - mnemonic of the wallet to construct
+   * @param {int} restoreHeight - block height to restore from (default = 0)
+   * @param {string} language - language of the mnemonic in case the old language is invalid
+   * @param {string} seedOffset - offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {boolean} saveCurrent - specifies if the current RPC wallet should be saved before being closed
    */
   async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent) {
     try {
@@ -229,14 +229,14 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Create a wallet on the RPC server from an address, view key, and (optionally) spend key.
    * 
-   * @param name is the name of the wallet to create on the RPC server
-   * @param password is the password encrypt the wallet
-   * @param networkType is the wallet's network type
-   * @param address is the address of the wallet to construct
-   * @param viewKey is the view key of the wallet to construct
-   * @param spendKey is the spend key of the wallet to construct or null to create a view-only wallet
-   * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
-   * @param language is the wallet and mnemonic's language (default = "English")
+   * @param name - name of the wallet to create on the RPC server
+   * @param password - password encrypt the wallet
+   * @param networkType - wallet's network type
+   * @param address - address of the wallet to construct
+   * @param viewKey - view key of the wallet to construct
+   * @param spendKey - spend key of the wallet to construct or null to create a view-only wallet
+   * @param restoreHeight - block height to restore (i.e. scan the chain) from (default = 0)
+   * @param language - wallet and mnemonic's language (default = "English")
    */
   async createWalletFromKeys(name, password, address, viewKey, spendKey, restoreHeight, language, saveCurrent) {
     if (restoreHeight === undefined) restoreHeight = 0;
@@ -1481,7 +1481,7 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Common method to get key images.
    * 
-   * @param all specifies to get all xor only new images from last import
+   * @param all - pecifies to get all xor only new images from last import
    * @return {MoneroKeyImage[]} are the key images
    */
   async _rpcExportKeyImages(all) {
@@ -1603,8 +1603,8 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a sent transaction.
    * 
-   * @param {MoneroSendRequest} request is the send request
-   * @param {MoneroTxWallet} is an existing transaction to initialize (optional)
+   * @param {MoneroSendRequest} request - send request
+   * @param {MoneroTxWallet} tx - existing transaction to initialize (optional)
    * @return {MoneroTxWallet} is the initialized send tx
    */
   static _initSentTxWallet(request, tx) {
@@ -1637,8 +1637,8 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a tx set from a RPC map excluding txs.
    * 
-   * @param rpcMap is the map to initialize the tx set from
-   * @return MoneroTxSet is the initialized tx set
+   * @param rpcMap - map to initialize the tx set from
+   * @return MoneroTxSet - initialized tx set
    * @return the resulting tx set
    */
   static _convertRpcTxSet(rpcMap) {
@@ -1655,8 +1655,8 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a MoneroTxSet from from a list of rpc txs.
    * 
-   * @param rpcTxs are sent rpc txs to initialize the set from
-   * @param txs are existing txs to further initialize (optional)
+   * @param rpcTxs - rpc txs to initialize the set from
+   * @param txs - existing txs to further initialize (optional)
    * @return the converted tx set
    */
   static _convertRpcSentTxsToTxSet(rpcTxs, txs) {
@@ -1716,9 +1716,9 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Converts a rpc tx with a transfer to a tx set with a tx and transfer.
    * 
-   * @param rpcTx is the rpc tx to build from
-   * @param tx is an existing tx to continue initializing (optional)
-   * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
+   * @param rpcTx - rpc tx to build from
+   * @param tx - existing tx to continue initializing (optional)
+   * @param isOutgoing - specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
    * @returns the initialized tx set with a tx
    */
   static _convertRpcTxToTxSet(rpcTx, tx, isOutgoing) {
@@ -1730,9 +1730,9 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Builds a MoneroTxWallet from a RPC tx.
    * 
-   * @param rpcTx is the rpc tx to build from
-   * @param tx is an existing tx to continue initializing (optional)
-   * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
+   * @param rpcTx - rpc tx to build from
+   * @param tx - existing tx to continue initializing (optional)
+   * @param isOutgoing - specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
    * @returns {MoneroTxWallet} is the initialized tx
    */
   static _convertRpcTxWithTransfer(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
