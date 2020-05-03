@@ -144,7 +144,7 @@ Coming soon...
 
 1. `cd your/npm/project` or `mkdir your/npm/project && cd your/npm/project && npm init`
 2. `npm install monero-javascript`
-3. Add `require(monero-javascript)` to your code
+3. Add `require("monero-javascript")` to your code
 
 ### How to Run Monero RPC
 
