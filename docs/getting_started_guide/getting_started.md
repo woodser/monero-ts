@@ -83,13 +83,13 @@ The asynchronous "main" function is not strictly necessary in all cases, but mos
 
 ### Building a keys-only wallet
 
-Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/MoneroWalletKeys.html) class's `createWallet()` method in mainFunction() as follows:
+Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](monero-ecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method in mainFunction() as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-The createWallet method accepts a [MoneroWalletConfig](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/MoneroWalletConfig.html) argument. MoneroWalletConfig is a generic class for passing wallet attributes to any monero-javascript wallet creation method. Each wallet class can determine how to create the new wallet by evaluating which MoneroWalletConfig fields are present and which are absent. If the MoneroWalletConfig does not specify any identifying attributes such as an address or seed phrase, the wallet class will generate a random wallet address.
+The createWallet method accepts a [MoneroWalletConfig](monero-ecosystem.org/monero-javascript/MoneroWalletConfig.html) argument. MoneroWalletConfig is a generic class for passing wallet attributes to any monero-javascript wallet creation method. Each wallet class can determine how to create the new wallet by evaluating which MoneroWalletConfig fields are present and which are absent. If the MoneroWalletConfig does not specify any identifying attributes such as an address or seed phrase, the wallet class will generate a random wallet address.
 <!--
 ---
 ### Why is it necessary to specify a network type for an offline wallet?
