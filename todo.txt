@@ -1,4 +1,5 @@
 HIGH (WASM)
+rpc supports watch-only request failed: 0
 start a new test wallet, new test wallet before receiving funds breaks tests
 proxyToWorker defaults to true if running in browser
 MoneroUtils library helpers private?
@@ -15,7 +16,6 @@ pre-compress wasm file so server is not compressing when requested: https://emsc
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 rename spec to Overview of Monero Wallet & Daemon Interfaces & Types?
 
-rpc supports watch-only request failed: 0
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 
