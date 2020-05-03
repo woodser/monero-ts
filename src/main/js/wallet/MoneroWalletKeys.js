@@ -2,6 +2,7 @@
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  * 
  * @implements {MoneroWallet}
+ * @hideconstructor
  */
 class MoneroWalletKeys extends MoneroWallet {
   
@@ -147,7 +148,7 @@ class MoneroWalletKeys extends MoneroWallet {
    * This method should not be called externally but should be called through
    * static wallet creation utilities in this class.
    * 
-   * @param {int} cppAddress is the address of the wallet instance in C++
+   * @param {int} cppAddress - address of the wallet instance in C++
    */
   constructor(cppAddress) {
     super();

@@ -11,8 +11,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Check if a wallet exists at a given path.
    * 
-   * @param {string} path is the path of the wallet on the file system
-   * @param {fs} is a node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
+   * @param {string} path - path of the wallet on the file system
+   * @param {fs} - node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
   static async walletExists(path, fs) {
@@ -307,10 +307,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * This method should not be called externally but should be called through
    * static wallet creation utilities in this class.
    * 
-   * @param {int} cppAddress is the address of the wallet instance in C++
-   * @param {string} path is the path of the wallet instance
-   * @param {string} password is the password of the wallet instance
-   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to LibraryUtils.getDefaultFs())
+   * @param {int} cppAddress - address of the wallet instance in C++
+   * @param {string} path - path of the wallet instance
+   * @param {string} password - password of the wallet instance
+   * @param {FileSystem} fs - provides a minimal file system interface (read, write, delete, exists) (defaults to LibraryUtils.getDefaultFs())
    * @param {boolean} rejectUnauthorized - specifies if unauthorized requests (e.g. self-signed certificates) should be rejected
    * @param {string} rejectUnauthorizedFnId - unique identifier for http_client_wasm to query rejectUnauthorized
    */
@@ -426,7 +426,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Set the height of the first block that the wallet scans.
    * 
-   * @param {number} syncHeight is the height of the first block that the wallet scans
+   * @param {number} syncHeight - height of the first block that the wallet scans
    */
   async setSyncHeight(syncHeight) {
     let that = this;
@@ -439,7 +439,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Register a listener receive wallet notifications.
    * 
-   * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
+   * @param {MoneroWalletListener} listener - listener to receive wallet notifications
    */
   async addListener(listener) {
     this._assertNotClosed();
@@ -451,7 +451,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Unregister a listener to receive wallet notifications.
    * 
-   * @param {MoneroWalletListener} listener is the listener to unregister
+   * @param {MoneroWalletListener} listener - listener to unregister
    */
   async removeListener(listener) {
     this._assertNotClosed();
@@ -1690,7 +1690,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Set the path of the wallet on the browser main thread if run as a web worker.
    * 
-   * @param {string} browserMainPath is the path of the wallet on the browser main thread
+   * @param {string} browserMainPath - path of the wallet on the browser main thread
    */
   _setBrowserMainPath(browserMainPath) {
     this._browserMainPath = browserMainPath;
@@ -1844,8 +1844,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
    * This method should not be called externally but should be called through
    * static wallet creation utilities in this class.
    * 
-   * @param {string} walletId identifies the wallet with the worker
-   * @param {Worker} worker is a web worker to communicate with via messages
+   * @param {string} walletId - identifies the wallet with the worker
+   * @param {Worker} worker - web worker to communicate with via messages
    */
   constructor(walletId, worker, path, fs) {
     super();
