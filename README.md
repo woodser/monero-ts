@@ -138,13 +138,11 @@ await walletWasm.close(true);
 
 ### Development Guide
 
-[Getting started](todo)
-
-More coming soon...
+Coming soon...
 
 ### How to Use This Library
 
-1. `cd your/npm/project` or `mkdir your/npm/project && npm init`
+1. `cd your/npm/project` or `mkdir your/npm/project && cd your/npm/project && npm init`
 2. `npm install monero-javascript`
 3. Add `require(monero-javascript)` to your code
 
