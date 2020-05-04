@@ -3,9 +3,9 @@
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
-- Supports fully client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core .
+- Supports fully client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core.
 - Supports multisig, offline, and watch-only wallets.
-- Conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use.
+- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use.
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
 - Receive notifications when blocks are added to the chain and when wallets sync, send, or receive.
@@ -13,12 +13,12 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 
 <p align="center">
 	<img width="100%" height="auto" src="architecture.png"/><br>
-	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="http://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
+	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
 </p>
 
 ### Sample Code
 
-This code introduces the API.  See the [JSDocs](http://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
+This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
 
 ```js
 // import library
@@ -136,9 +136,9 @@ assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
 await walletWasm.close(true);
 ```
 
-### Development Guide
+### Development Guide (wip)
 
-[Getting Started](docs/developer_guide/getting_started.md) (wip)
+[Getting Started](docs/developer_guide/getting_started.md)
 
 ### How to Use This Library
 
