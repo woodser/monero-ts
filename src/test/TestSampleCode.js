@@ -53,11 +53,11 @@ class TestSampleCode {
         
         // create a wallet from mnemonic phrase using WebAssembly bindings to monero-core
         let walletWasm = await MoneroWalletWasm.createWallet({
-          path: "./test_wallets/" + GenUtils.getUUID(),
+          //path: "./test_wallets/" + GenUtils.getUUID(),
           password: "supersecretpassword123",
           networkType: "stagenet",
-          mnemonic: "biggest duets beware eskimos coexist igloo pamphlet lagoon odometer hounded jukebox enough pride cocoa nylon wolf geometry buzzer vivid federal idols gang semifinal subtly coexist",
-          restoreHeight: 545232,
+          mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual boss vain dyslexic divers among unfit asleep bays ostrich maverick skirting jaunt scenic shuffled spying",
+          restoreHeight: 573936,
           serverUri: "http://localhost:38081",
           serverUsername: "superuser",
           serverPassword: "abctesting123",

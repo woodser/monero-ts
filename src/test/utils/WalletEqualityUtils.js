@@ -128,7 +128,7 @@ class WalletEqualityUtils {
     }
     
     // compare txs
-    assert.equal(txs2.length, txs1.length);
+    assert.equal(txs2.length, txs1.length, "Wallets have different number of txs: " + txs1.length + " vs " + txs2.length);
     for (let tx1 of txs1) {
       let found = false;
       for (let tx2 of txs2) {
