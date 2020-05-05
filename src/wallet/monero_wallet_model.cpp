@@ -1116,7 +1116,14 @@ namespace monero {
         }
       }
       else if (key == string("paymentId")) send_request->m_payment_id = it->second.data();
-      else if (key == string("priority")) throw runtime_error("deserialize_send_request() priority not implemented");
+      else if (key == string("priority")) {
+        uint32_t priority_num = it->second.get_value<uint32_t>();
+        if (priority_num == 0) send_request->m_priority = monero_send_priority::DEFAULT;
+        else if (priority_num == 1) send_request->m_priority = monero_send_priority::UNIMPORTANT;
+        else if (priority_num == 2) send_request->m_priority = monero_send_priority::NORMAL;
+        else if (priority_num == 3) send_request->m_priority = monero_send_priority::ELEVATED;
+        else throw new runtime_error("Invalid priority number: " + std::to_string(priority_num));
+      }
       else if (key == string("ringSize")) send_request->m_ring_size = it->second.get_value<uint32_t>();
       else if (key == string("fee")) send_request->m_fee = it->second.get_value<uint64_t>();
       else if (key == string("accountIndex")) send_request->m_account_index = it->second.get_value<uint32_t>();
