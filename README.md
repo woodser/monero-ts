@@ -12,7 +12,7 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 - Over 230 passing Mocha test cases.
 
 <p align="center">
-	<img width="75%" height="auto" src="architecture.png"/><br>
+	<img width="85%" height="auto" src="architecture.png"/><br>
 	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
 </p>
 
