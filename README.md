@@ -196,7 +196,7 @@ This project is licensed under MIT.
 
 ### Donations
 
-If this library brings you value, please consider donating to encourage further development.  Thank you!
+If this library brings you value, please consider donating.  Thank you!
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/><br>
