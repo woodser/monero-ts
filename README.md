@@ -1,4 +1,4 @@
-## Monero JavaScript Library
+e ## Monero JavaScript Library
 
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
@@ -184,9 +184,11 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 
 [monero-cpp-library](https://github.com/woodser/monero-cpp-library)
 
-[monerostresstester.com](https://github.com/woodser/monerostresstester.com) (sample web app under development)
+[xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
 
-[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) (sample web app under development)
+[monerostresstester.com](https://github.com/woodser/monerostresstester.com) - sends repeated txs to self to stress test the network (under development)
+
+[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) (sample web app under development) - open-source, client-side web wallet (under development)
 
 ### License
 
