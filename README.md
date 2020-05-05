@@ -3,7 +3,7 @@
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
-- Supports fully client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core.
+- Supports client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core.
 - Supports multisig, offline, and watch-only wallets.
 - Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use.
 - Query wallet transactions, transfers, and outputs by their many attributes.
@@ -73,7 +73,6 @@ await walletWasm.startSyncing();  // synchronize the wallet continuously in the 
 // receive notifications when the wallet receives funds
 await walletWasm.addListener(new class extends MoneroWalletListener {
   onOutputReceived(output) {
-    console.log("Wallet received funds!");
     let amount = output.getAmount();
     let txHash = output.getTx().getHash();
   }

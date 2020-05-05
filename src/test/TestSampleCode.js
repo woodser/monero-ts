@@ -75,7 +75,6 @@ class TestSampleCode {
         // receive notifications when the wallet receives funds
         await walletWasm.addListener(new class extends MoneroWalletListener {
           onOutputReceived(output) {
-            console.log("Wallet received funds!");
             let amount = output.getAmount();
             let txHash = output.getTx().getHash();
           }
