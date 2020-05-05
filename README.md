@@ -188,7 +188,7 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 
 [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - sends repeated txs to self to stress test the network (under development)
 
-[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) (sample web app under development) - open-source, client-side web wallet (under development)
+[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
 
 ### License
 
