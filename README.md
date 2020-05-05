@@ -16,6 +16,10 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
 </p>
 
+### Development Guide (wip)
+
+[Getting Started](docs/developer_guide/getting_started.md)
+
 ### Sample Code
 
 This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
@@ -135,10 +139,6 @@ assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
 // save and close the core wallet
 await walletWasm.close(true);
 ```
-
-### Development Guide (wip)
-
-[Getting Started](docs/developer_guide/getting_started.md)
 
 ### How to Use This Library
 
