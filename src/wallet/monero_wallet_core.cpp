@@ -1874,7 +1874,7 @@ namespace monero {
     //MTRACE("monero_send_request: " << request.serialize());
 
     // validate request
-    if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to sweep from");
+    if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to send from");
 
     // prepare parameters for wallet rpc's validate_transfer()
     string payment_id = request.m_payment_id == boost::none ? string("") : request.m_payment_id.get();
