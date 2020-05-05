@@ -35,12 +35,15 @@ describe("Scratchpad", function() {
       serverUri: "http://localhost:38081",
       serverUsername: "superuser",
       serverPassword: "abctesting123",
-      language: "Spanish",
+      mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual boss vain dyslexic divers among unfit asleep bays ostrich maverick skirting jaunt scenic shuffled spying",
+      restoreHeight: 573800,
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
       rejectUnauthorized: false
     });
+    await walletWasm.sync();
     console.log("WASM wallet daemon height: " + await walletWasm.getDaemonHeight());
     console.log("WASM wallet mnemonic: " + await walletWasm.getMnemonic());
+    
     await walletWasm.close();
     
 //    // sleep for a moment

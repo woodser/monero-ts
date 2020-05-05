@@ -935,7 +935,7 @@ class TestMoneroDaemonRpc {
         // get template to mine on
         let template = await that.daemon.getBlockTemplate(TestUtils.ADDRESS);
         
-        // TODO monero rpc: way to get mining nonce when found in order to submit?
+        // TODO test mining and submitting block
         
         // try to submit block hashing blob without nonce
         try {

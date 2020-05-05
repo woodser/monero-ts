@@ -1,5 +1,5 @@
 HIGH (WASM)
-rpc supports watch-only request failed: 0
+rpc supports watch-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 start a new test wallet, new test wallet before receiving funds breaks tests
 update dependencies like xmr-sample-app
@@ -17,6 +17,7 @@ update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 doNotRelay -> relay?
 
+document data model from block
 update readme architecture, sample code, wasm support 
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 full tests including jni
@@ -31,6 +32,7 @@ testCheckForUpdate returns confusing error if offline
 don't run non-applicable tests in TestMoneroWalletKeys
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 sync end height != daemon height for long syncs
+implement Can submit a mined block to the network
 compare sync performance with multithreading vs singlethreading - build both?
 await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
 MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method? copy constructor?
