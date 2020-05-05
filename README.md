@@ -21,54 +21,42 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
 
 ```js
-// import library
 require("monero-javascript");
 
 // connect to a daemon
-let daemon = new MoneroDaemonRpc("http://localhost:38081");
+let daemon = new MoneroDaemonRpc({
+  uri: "http://localhost:38081", 
+  username: "superuser",
+  password: "abctesting123",
+});
 let height = await daemon.getHeight();           // 1523651
 let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
+let txsInPool = await daemon.getTxPool();        // get transactions in the pool
 
-// get transactions in the pool
-let txsInPool = await daemon.getTxPool();
-for (let tx of txsInPool) {
-  let hash = tx.getHash();
-  let fee = tx.getFee();
-  let isDoubleSpendSeen = tx.isDoubleSpendSeen();
-}
-
-// get last 100 blocks as a binary request
-let blocks = await daemon.getBlocksByRange(height - 100, height - 1);
-for (let block of blocks) {
-  let numTxs = block.getTxs().length;
-}
-
-// connect to a monero-wallet-rpc endpoint with authentication
-let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
-
-// open a wallet on the server
-await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
+// create a random wallet using monero-wallet-rpc
+let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");  // connect to monero-wallet-rpc
+await walletRpc.createWallet({
+  path: "sample_wallet",
+  password: "supersecretpassword123"
+});
 let primaryAddress = await walletRpc.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
 let balance = await walletRpc.getBalance();               // 533648366742
-let subaddress = await walletRpc.getSubaddress(1, 0);
-let subaddressBalance = subaddress.getBalance();
+let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
+let transfers = await walletRpc.getTransfers({isIncoming: true, accountIndex: 0});  // get incoming transfers to account 0
+let subaddresses = await walletRpc.getSubaddresses(0);    // get account 0's subaddresses 
 
-// query a transaction by hash
-let tx = await walletRpc.getTx("32088012e68be1c090dc022f7852ca4d7c23066241649cdfaeb14ec1fd5a10f8");
-let txHeight = tx.getHeight();
-let incomingTransfers = tx.getIncomingTransfers();
-let destinations = tx.getOutgoingTransfer().getDestinations();
-
-// query incoming transfers to account 1
-let transferQuery = new MoneroTransferQuery().setIsIncoming(true).setAccountIndex(1);
-let transfers = await walletRpc.getTransfers(transferQuery);
-
-// query unspent outputs
-let outputQuery = new MoneroOutputQuery().setIsSpent(false);
-let outputs = await walletRpc.getOutputs(outputQuery);
-
-// create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
+// create a wallet from mnemonic phrase using WebAssembly bindings to monero-core
+let walletWasm = await MoneroWalletWasm.createWallet({
+  path: "./test_wallets/" + GenUtils.getUUID(),
+  password: "supersecretpassword123",
+  networkType: "stagenet",
+  mnemonic: "biggest duets geometry eskimos coexist igloo pamphlet lagoon...",
+  restoreHeight: 545232,
+  serverUri: "http://localhost:38081",
+  serverUsername: "superuser",
+  serverPassword: "abctesting123",
+  proxyToWorker: GenUtils.isBrowser()
+});
 
 // synchronize the wallet and receive progress notifications
 await walletWasm.sync(new class extends MoneroSyncListener {
@@ -76,63 +64,28 @@ await walletWasm.sync(new class extends MoneroSyncListener {
     // feed a progress bar?
   }
 });
+await walletWasm.startSyncing();  // synchronize the wallet continuously in the background
 
-// start syncing the wallet continuously in the background
-await walletWasm.startSyncing();
-
-// receive notifications when the core wallet receives funds
+// receive notifications when the wallet receives funds
 await walletWasm.addListener(new class extends MoneroWalletListener {
-  
   onOutputReceived(output) {
     console.log("Wallet received funds!");
+    let amount = output.getAmount();
     let txHash = output.getTx().getHash();
-    let accountIdx = output.getAccountIndex();
-    let subaddressIdx = output.getSubaddressIndex();
-    TestSampleCode.CORE_OUTPUT_RECEIVED = true;
   }
 });
 
-// send funds from the RPC wallet to the core wallet
-let txSet = await walletRpc.sendTx(0, await walletWasm.getPrimaryAddress(), BigInteger.parse("50000"));
+// send funds to self
+let txSet = await walletWasm.sendTx({
+  accountIndex: 0,
+  address: "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2",
+  amount: new BigInteger("500000"), // in atomic units
+  priority: MoneroSendPriority.NORMAL
+});
 let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
-assert(sentTx.inTxPool());
+assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
 
-// mine with 7 threads to push the network along
-let numThreads = 7;
-let isBackground = false;
-let ignoreBattery = false;
-await walletRpc.startMining(numThreads, isBackground, ignoreBattery);
-
-// wait for the next block to be added to the chain
-let nextBlockHeader = await daemon.getNextBlockHeader();
-let nextNumTxs = nextBlockHeader.getNumTxs();
-
-// stop mining
-await walletRpc.stopMining();
-
-// the transaction is (probably) confirmed
-await new Promise(function(resolve) { setTimeout(resolve, 10000); });  // wait 10s for auto refresh
-let isConfirmed = (await walletRpc.getTx(sentTx.getHash())).isConfirmed();
-
-// create a request to send funds from the RPC wallet to multiple destinations in the core wallet
-let request = new MoneroSendRequest()
-        .setAccountIndex(1)                           // send from account 1
-        .setSubaddressIndices([0, 1])                 // send from subaddresses in account 1
-        .setPriority(MoneroSendPriority.UNIMPORTANT)  // no rush
-        .setDestinations([
-                new MoneroDestination(await walletWasm.getAddress(1, 0), BigInteger.parse("50000")),
-                new MoneroDestination(await walletWasm.getAddress(2, 0), BigInteger.parse("50000"))]);
-
-// create the transaction, confirm with the user, and relay to the network
-let createdTx = (await walletRpc.createTx(request)).getTxs()[0];
-let fee = createdTx.getFee();  // "Are you sure you want to send ...?"
-await walletRpc.relayTx(createdTx); // submit the transaction which will notify the core wallet
-
-// core wallet will receive notification of incoming output after a moment
-await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
-
-// save and close the core wallet
+// save and close the wasm wallet
 await walletWasm.close(true);
 ```
 

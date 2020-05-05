@@ -14,6 +14,7 @@ pre-compress wasm file so server is not compressing when requested: https://emsc
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
+doNotRelay -> relay?
 
 update readme architecture, sample code, wasm support 
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
