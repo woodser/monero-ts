@@ -24,7 +24,81 @@ class TestSampleCode {
       });
       
       // TODO: wrap test in try...catch and close wasm wallet
-      it("Can be demonstrated with sample code", async function() {
+      it("Short sample code demonstration", async function() {
+        
+        // import library
+        //require("monero-javascript"); // *** USE IN README.MD ***
+        
+        // connect to a daemon
+        let daemon = new MoneroDaemonRpc({
+          uri: "http://localhost:38081", 
+          username: "superuser",
+          password: "abctesting123",
+        });
+        let height = await daemon.getHeight();           // 1523651
+        let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
+        let txsInPool = await daemon.getTxPool();        // get transactions in the pool
+        
+        // create a random wallet using monero-wallet-rpc
+        let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");  // connect to monero-wallet-rpc
+        await walletRpc.createWallet({
+          path: "sample_wallet_" + GenUtils.getUUID(),            // *** CHANGE README TO "sample_wallet" ***
+          password: "supersecretpassword123"
+        });
+        let primaryAddress = await walletRpc.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
+        let balance = await walletRpc.getBalance();               // 533648366742
+        let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
+        let transfers = await walletRpc.getTransfers({isIncoming: true, accountIndex: 0});  // get incoming transfers to account 0
+        let subaddresses = await walletRpc.getSubaddresses(0);    // get account 0's subaddresses 
+        
+        // create a wallet from mnemonic phrase using WebAssembly bindings to monero-core
+        let walletWasm = await MoneroWalletWasm.createWallet({
+          path: "./test_wallets/" + GenUtils.getUUID(),
+          password: "supersecretpassword123",
+          networkType: "stagenet",
+          mnemonic: "biggest duets beware eskimos coexist igloo pamphlet lagoon odometer hounded jukebox enough pride cocoa nylon wolf geometry buzzer vivid federal idols gang semifinal subtly coexist",
+          restoreHeight: 545232,
+          serverUri: "http://localhost:38081",
+          serverUsername: "superuser",
+          serverPassword: "abctesting123",
+          proxyToWorker: GenUtils.isBrowser()
+        });
+        
+        // synchronize the wallet and receive progress notifications
+        await walletWasm.sync(new class extends MoneroSyncListener {
+          onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+            // feed a progress bar?
+          }
+        });
+        await walletWasm.startSyncing();  // synchronize the wallet continuously in the background
+        
+        // receive notifications when the wallet receives funds
+        await walletWasm.addListener(new class extends MoneroWalletListener {
+          onOutputReceived(output) {
+            console.log("Wallet received funds!");
+            let amount = output.getAmount();
+            let txHash = output.getTx().getHash();
+          }
+        });
+        
+        // send funds to self
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
+        let txSet = await walletWasm.sendTx({
+          accountIndex: 0,
+          address: "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2",
+          amount: new BigInteger("500000"), // in atomic units
+          priority: MoneroSendPriority.NORMAL
+        });
+        let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
+        assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
+        
+        // save and close the wasm wallet
+        await walletWasm.close(true);
+      });
+      
+      // TODO: wrap test in try...catch and close wasm wallet
+      if (false)
+      it("Long sample code demonstration", async function() {
         
         // import library
         //require("monero-javascript"); // *** USE IN README.MD ***
