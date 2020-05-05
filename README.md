@@ -136,7 +136,7 @@ assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
 await walletWasm.close(true);
 ```
 
-### Development Guide (wip)
+### Developer Guide (wip)
 
 [Getting Started](docs/developer_guide/getting_started.md)
 
