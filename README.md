@@ -1,4 +1,4 @@
-e ## Monero JavaScript Library
+## Monero JavaScript Library
 
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
