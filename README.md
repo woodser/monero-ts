@@ -4,10 +4,10 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
-- Supports offline, and watch-only, and multisig wallets.
+- Supports offline, watch-only, and multisig wallets.
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
-- Receive notifications when blocks are added to the chain and when wallets sync, send, or receive.
+- Receive notifications when blocks are added to the chain or when wallets sync, send, and receive.
 - Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 - Over 230 passing Mocha test cases.
 
@@ -58,7 +58,7 @@ let txs = await walletRpc.getTxs();                       // get transactions co
 let transfers = await walletRpc.getTransfers({isIncoming: true, accountIndex: 0});  // get incoming transfers to account 0
 let subaddresses = await walletRpc.getSubaddresses(0);    // get account 0's subaddresses 
 
-// create a wallet from mnemonic phrase using WebAssembly bindings to monero-core
+// create a wallet from mnemonic phrase using WebAssembly bindings to Monero Core
 let walletWasm = await MoneroWalletWasm.createWallet({
   path: "./test_wallets/" + GenUtils.getUUID(),
   password: "supersecretpassword123",
@@ -87,7 +87,7 @@ await walletWasm.addListener(new class extends MoneroWalletListener {
   }
 });
 
-// send funds to self
+// transfer funds
 let txSet = await walletWasm.sendTx({
   accountIndex: 0,
   address: "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2",

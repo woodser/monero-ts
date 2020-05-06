@@ -1,7 +1,8 @@
 HIGH (WASM)
 proxied daemon block listener
-proxied txs, transfers, outputs are unnecessariliy stringified then parsed - profile
-wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
+proxyToWorker defaults to true in browser
+java "Wallet already exists" vs "file already exists"
+profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
 startSynchronizing() should use pre-started loop so it's a random start time like core
@@ -20,6 +21,7 @@ full tests including jni
 release
 report core issues
 
+wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 rpc supports watch-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 profile performance of getTxs() stack

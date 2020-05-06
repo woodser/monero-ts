@@ -51,7 +51,7 @@ class TestSampleCode {
         let transfers = await walletRpc.getTransfers({isIncoming: true, accountIndex: 0});  // get incoming transfers to account 0
         let subaddresses = await walletRpc.getSubaddresses(0);    // get account 0's subaddresses 
         
-        // create a wallet from mnemonic phrase using WebAssembly bindings to monero-core
+        // create a wallet from mnemonic phrase using WebAssembly bindings to Monero Core
         let walletWasm = await MoneroWalletWasm.createWallet({
           //path: "./test_wallets/" + GenUtils.getUUID(),
           password: "supersecretpassword123",
