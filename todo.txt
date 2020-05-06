@@ -10,13 +10,14 @@ optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.h
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 rename txQuery txHashes to hashes to be consistent with parents
+merge functions can be private
 
 rename bin to script? configs to config?
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 document data model from block
 update readme architecture, sample code, wasm support
 update java readme sample
-update jsdocs (MoneroSendRequest, HttpClient, inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
+update jsdocs (HttpClient, MoneroRpcConnection, inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 full tests including jni
 release
 report core issues

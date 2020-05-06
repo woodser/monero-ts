@@ -4,45 +4,37 @@ const PromiseThrottle = require("promise-throttle");
 /**
  * Handles http requests with a uniform interface.
  * 
- * @private
+ * @hideconstructor
  */
 class HttpClient {
   
   /**
    * <p>Make a http request.<p>
    * 
-   * Request config:
-   * {
-   *   method {string} the http method to invoke (default "GET")
-   *   uri {string} the uri to request
-   *   username {string} the username to authenticate the request (optional)
-   *   password {string} the password to authentication the request (optional)
-   *   body {string|object|Uint8Array} the request body (optional)
-   *   headers {object} a map of headers to add to the request (optional)
-   *   requestApi {string} one of "fetch" or "xhr" (default "fetch")
-   *   resolveWithFullResponse {boolean} return full response if true, else body only (default false)
-   *   rejectUnauthorized {boolean} whether or not to reject self-signed certificates (default true)
-   * }
-   * 
-   * Response object:
-   * {
-   *   body {string|object|Uint8Array} the response body if given
-   *   statusCode {string} the response status code
-   *   statusText {string} the response status text
-   *   headers {object} a map of the response headers
-   * }
-   * 
-   * @param {object} req the request object
-   * @return {object} the response object
+   * @param {object} request - configures the request to make
+   * @param {string} request.method - HTTP method ("GET", "PUT", "POST", "DELETE", etc)
+   * @param {string} request.uri - uri to request
+   * @param {string|object|Uint8Array} request.body - request body
+   * @param {string} request.username - username to authenticate the request (optional)
+   * @param {string} request.password - password to authenticate the request (optional)
+   * @param {object} request.headers - headers to add to the request (optional)
+   * @param {string} request.requestApi - one of "fetch" or "xhr" (default "fetch")
+   * @param {boolean} request.resolveWithFullResponse - return full response if true, else body only (default false)
+   * @param {boolean} request.rejectUnauthorized - whether or not to reject self-signed certificates (default true)
+   * @returns {object} response - the response object
+   * @returns {string|object|Uint8Array} response.body - the response body
+   * @returns {number} response.statusCode - the response code
+   * @returns {number} response.statusText - the response message
+   * @returns {object} response.headers - the response headers
    */
-  static async request(req) {
+  static async request(request) {
     
     // assign defaults
-    req = Object.assign(HttpClient.DEFAULT_REQUEST, req);
+    request = Object.assign(HttpClient.DEFAULT_REQUEST, request);
     
     // validate request
-    try { new URL(req.uri); } catch (e) { throw new Error("Invalid request URL: " + req.uri); }
-    if (req.body && !(typeof req.body === "string" || typeof req.body === "object")) {
+    try { new URL(request.uri); } catch (e) { throw new Error("Invalid request URL: " + request.uri); }
+    if (request.body && !(typeof request.body === "string" || typeof request.body === "object")) {
       throw new Error("Request body type is not string or object");
     }
     
@@ -55,7 +47,7 @@ class HttpClient {
     }
     
     // request using fetch or xhr
-    return req.requestApi === "fetch" ? HttpClient._requestFetch(req) : HttpClient._requestXhr(req);
+    return request.requestApi === "fetch" ? HttpClient._requestFetch(request) : HttpClient._requestXhr(request);
   }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
