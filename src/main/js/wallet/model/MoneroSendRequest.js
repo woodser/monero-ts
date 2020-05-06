@@ -1,28 +1,45 @@
 /**
  * Configures a request to send/sweep funds or create a payment URI.
- * 
- * TODO: allow setAddress(), setAmount() for default destination?
  */
 class MoneroSendRequest {
   
   /**
-   * Construct the request.
+   * <p>Generic request to transfer funds from a wallet.</p>
    * 
-   * Examples of invoking this constructor:
+   * <p>Examples:</p>
    * 
-   *  new MoneroSendRequest();
-   *  new MoneroSendRequest({accountIndex: 0, address: "59aZULsUF3YN...", amount: BigInteger.parse("5"), priority: MoneroSendPriority.NORMAL});
-   *  new MoneroSendRequest(0);  // create request with account 0
-   *  new MoneroSendRequest("59aZULsUF3YN..."); // create request with destination with address
-   *  new MoneroSendRequest(0, "59aZULsUF3YN...", BigInteger.parse("5"));
-   *  new MoneroSendRequest(0, "59aZULsUF3YN...", BigInteger.parse("5"), MoneroSendPriority.NORMAL);
-   *  new MoneroSendRequest("59aZULsUF3YN...", BigInteger.parse("5"));
-   *  new MoneroSendRequest("59aZULsUF3YN...", BigInteger.parse("5"), MoneroSendPriority.NORMAL);
+   * <code>
+   * let request1 = new MoneroSendRequest({<br>
+   * &nbsp;&nbsp; accountIndex: 0,<br>
+   * &nbsp;&nbsp; address: "59aZULsUF3YN...",<br>
+   * &nbsp;&nbsp; amount: new BigInteger("500000"),<br>
+   * &nbsp;&nbsp; priority: MoneroSendPriority.NORMAL<br>
+   * });<br><br>
    * 
-   * @param {json|uint|string| param1 is request json, an account index, a string address
-   * @param {string|BigInteger} param2 is an address to send to or the requested amount to send
-   * @param {BigInteger|int} param3  is the requested amount to send if not already given or priority
-   * @param {int} param4 priority is the requested priority
+   * let request2 = new MoneroSendRequest(0, "59aZULsUF3YN...", new BigInteger("500000"), MoneroSendPriority.NORMAL);
+   * request2.setDoNotRelay(true);  // do not relay transaction to the network
+   * </code>
+   * 
+   * @param {object|number|string} param1 - request configuration, source account index, or destination address
+   * @param {int} param1.accountIndex - source account index to transfer funds from
+   * @param {string} param1.address - single destination address (required unless destinations config given separately)
+   * @param {BigInteger} param1.amount - single destination amount (required unless destination config given separately or sweep request)
+   * @param {int} param1.priority - transaction priority (optional, default MoneroSendPriority.NORMAL)
+   * @param {int[]} param1.subaddressIndices - source subaddress indices to transfer funds from (optional)
+   * @param {MoneroDestination[]} param1.destinations - transfer destinations with addresses and amounts (required unless address/amount given separately)
+   * @param {string} param1.paymentId - transaction payment ID (optional)
+   * @param {BigInteger} param1.fee - transaction fee (optional, note: currently ignored)
+   * @param {boolean} param1.doNotRelay - do not relay the transaction to the network if true
+   * @param {int} param1.unlockTime - number of confirmations before the recipient can spend the funds
+   * @param {boolean} param1.canSplit - allow funds to be transferred using multiple transactions (optional)
+   * @param {string} param1.note - note for the transaction saved in the wallet (optional)
+   * @param {string} param1.recipientName - recipient name for the transaction saved in the wallet (optional)
+   * @param {BigInteger} param1.belowAmount - for sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds (optional) 
+   * @param {boolean} param1.sweepEachSubaddress - for sweep requests, sweep each subaddress individually instead of together if true (optional)
+   * @param {string} param1.keyImage - key image to sweep (ignored except in sweepOutput() requests)
+   * @param {string|BigInteger} param2 - destination address or send amount
+   * @param {BigInteger|number} param3 - send amount or transaction priority
+   * @param {number} param4 - transaction priority
    */
   constructor(param1, param2, param3, param4) {
     

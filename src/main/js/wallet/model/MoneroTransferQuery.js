@@ -1,26 +1,46 @@
 /**
- * Configures a query to retrieve transfers.
- * 
- * All transfers are returned except those that do not meet the criteria defined in this query.
+ * Configuration to query wallet transfers.
  * 
  * @extends {MoneroTransfer}
  */
 class MoneroTransferQuery extends MoneroTransfer {
   
   /**
-   * Constructs the query.
+   * <p>Construct the transfer query.</p>
    * 
-   * @param state is model state or json to initialize from (optional)
+   * <p>Example:</p>
+   * 
+   * <code>
+   * &sol;&sol; get incoming transfers to account 0, subaddress 1<br>
+   * let transfers = await wallet.getTransfers({<br>
+   * &nbsp;&nbsp; accountIndex: 0,<br>
+   * &nbsp;&nbsp; subaddressIndex: 0<br>
+   * });
+   * </code>
+   * 
+   * <p>All configuration is optional.  All transfers are returned except those that don't meet criteria defined in this query.</p>
+   * 
+   * @param {object} config - transfer query configuration (optional)
+   * @param {BigInteger} config.amount - get transfers with this amount
+   * @param {int} config.accountIndex - get transfers to/from this account index
+   * @param {int} config.subaddressIndex - get transfers to/from this subaddress index
+   * @param {int[]} config.subaddressIndices - get transfers to/from these subaddress indices
+   * @param {string} config.address - get transfers to/from this wallet address
+   * @param {string[]} config.addresses - get transfers to/from these wallet addresses
+   * @param {boolean} config.isIncoming - get transfers which are incoming if true
+   * @param {boolean} config.isOutgoing - get transfers which are outgoing if true
+   * @param {boolean} config.hasDestinations - get transfers with known destinations if true (destinations are only stored locally with the wallet)
+   * @param {object|MoneroTxQuery} config.txQuery - get transfers whose tx match this tx query
    */
-  constructor(state) {
-    super(state);
-    state = this.state;
+  constructor(config) {
+    super(config);
+    config = this.state;
     
     // deserialize if necessary
-    if (state.txQuery && !(state.txQuery instanceof MoneroTxQuery)) state.txQuery = new MoneroTxQuery(state.transferQuery);
+    if (config.txQuery && !(config.txQuery instanceof MoneroTxQuery)) config.txQuery = new MoneroTxQuery(config.transferQuery);
     
     // alias isOutgoing to isIncoming
-    if (state.isOutgoing !== undefined) state.isIncoming = !state.isOutgoing;
+    if (config.isOutgoing !== undefined) config.isIncoming = !config.isOutgoing;
   }
   
   copy() {
