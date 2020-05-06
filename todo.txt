@@ -1,4 +1,5 @@
 HIGH (WASM)
+proxied daemon block listener
 rpc supports watch-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 rename monero_wallet_core.h to monero_wallet_w2.h?
@@ -15,8 +16,9 @@ update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 doNotRelay -> relay?
 
-document data model from block
-update readme architecture, sample code, wasm support 
+document data model from block, document MoneroSendRequest
+update readme architecture, sample code, wasm support
+update java readme sample
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 full tests including jni
 release

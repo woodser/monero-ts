@@ -85,7 +85,7 @@ let txSet = await walletWasm.sendTx({
   amount: new BigInteger("500000"), // in atomic units
   priority: MoneroSendPriority.NORMAL
 });
-let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
+let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
 assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
 
 // save and close the wasm wallet
