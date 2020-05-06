@@ -31,7 +31,7 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 
 ### Sample Code
 
-This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
+This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more information.
 
 ```js
 require("monero-javascript");
@@ -95,7 +95,7 @@ let txSet = await walletWasm.sendTx({
   priority: MoneroSendPriority.NORMAL
 });
 let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
-assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
+let txHash = sentTx.getHash();
 
 // save and close the wasm wallet
 await walletWasm.close(true);

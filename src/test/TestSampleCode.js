@@ -89,7 +89,7 @@ class TestSampleCode {
           priority: MoneroSendPriority.NORMAL
         });
         let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
-        assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
+        let txHash = sentTx.getHash();
         
         // save and close the wasm wallet
         await walletWasm.close(true);
