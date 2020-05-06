@@ -28,11 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroTransferQuery<span class="signature">(state)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroTransferQuery<span class="signature">(config)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Configures a query to retrieve transfers.
-
-All transfers are returned except those that do not meet the criteria defined in this query.</div>
+            <div class="class-description">Configuration to query wallet transfers.</div>
         
     
 </header>
@@ -47,7 +45,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
 
     
-    <h4 class="name" id="MoneroTransferQuery"><span class="type-signature"></span>new MoneroTransferQuery<span class="signature">(state)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MoneroTransferQuery"><span class="type-signature"></span>new MoneroTransferQuery<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -55,7 +53,19 @@ All transfers are returned except those that do not meet the criteria defined in
 
 
 <div class="description">
-    Constructs the query.
+    <p>Construct the transfer query.</p>
+
+<p>Example:</p>
+
+<code>
+&sol;&sol; get incoming transfers to account 0, subaddress 1<br>
+let transfers = await wallet.getTransfers({<br>
+&nbsp;&nbsp; accountIndex: 0,<br>
+&nbsp;&nbsp; subaddressIndex: 0<br>
+});
+</code>
+
+<p>All configuration is optional.  All transfers are returned except those that don't meet criteria defined in this query.</p>
 </div>
 
 
@@ -91,10 +101,15 @@ All transfers are returned except those that do not meet the criteria defined in
 
         <tr>
             
-                <td class="name"><code>state</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
             
             </td>
 
@@ -102,7 +117,266 @@ All transfers are returned except those that do not meet the criteria defined in
 
             
 
-            <td class="description last">is model state or json to initialize from (optional)</td>
+            <td class="description last">transfer query configuration (optional)
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers with this amount</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers to/from this account index</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers to/from this subaddress index</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndices</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;int></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers to/from these subaddress indices</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers to/from this wallet address</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>addresses</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers to/from these wallet addresses</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isIncoming</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers which are incoming if true</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isOutgoing</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers which are outgoing if true</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hasDestinations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers with known destinations if true (destinations not stored on-chain so must be saved by wallet)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>txQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroTxQuery.html">MoneroTxQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers whose tx match this tx query</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -143,7 +417,7 @@ All transfers are returned except those that do not meet the criteria defined in
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line15">line 15</a>
+        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -1287,7 +1561,7 @@ should not be re-used or it should be copied before calling this method.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line123">line 123</a>
+        <a href="wallet_model_MoneroTransferQuery.js.html">wallet/model/MoneroTransferQuery.js</a>, <a href="wallet_model_MoneroTransferQuery.js.html#line143">line 143</a>
     </li></ul></dd>
     
 
@@ -1717,7 +1991,7 @@ should not be re-used or it should be copied before calling this method.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun May 03 2020 15:21:56 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 06 2020 13:22:47 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

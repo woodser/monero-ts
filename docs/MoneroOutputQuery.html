@@ -28,12 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroOutputQuery<span class="signature">(state)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroOutputQuery<span class="signature">(config)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Configures a query to retrieve wallet outputs (i.e. outputs that the wallet has or had the
-ability to spend).
-
-All outputs are returned except those that do not meet the criteria defined in this query.</div>
+            <div class="class-description">Configuration to query wallet outputs.</div>
         
     
 </header>
@@ -48,7 +45,7 @@ All outputs are returned except those that do not meet the criteria defined in t
     
 
     
-    <h4 class="name" id="MoneroOutputQuery"><span class="type-signature"></span>new MoneroOutputQuery<span class="signature">(state)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MoneroOutputQuery"><span class="type-signature"></span>new MoneroOutputQuery<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -56,7 +53,21 @@ All outputs are returned except those that do not meet the criteria defined in t
 
 
 <div class="description">
-    Constructs the query.
+    <p>Construct the output query.</p>
+
+<p>Example:</p>
+
+<code>
+&sol;&sol; get available outputs in account 0 with a minimum amount<br>
+let outputs = await wallet.getOutputs({<br>
+&nbsp;&nbsp; isSpent: false,<br>
+&nbsp;&nbsp; isLocked: false,<br>
+&nbsp;&nbsp; accountIndex: 0,<br>
+&nbsp;&nbsp; minAmount: new BigInteger("750000")<br>
+});
+</code>
+
+<p>All configuration is optional.  All outputs are returned except those that don't meet criteria defined in this query.</p>
 </div>
 
 
@@ -92,10 +103,15 @@ All outputs are returned except those that do not meet the criteria defined in t
 
         <tr>
             
-                <td class="name"><code>state</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
             
             </td>
 
@@ -103,7 +119,341 @@ All outputs are returned except those that do not meet the criteria defined in t
 
             
 
-            <td class="description last">is model state or json to initialize from (optional)</td>
+            <td class="description last">output query configuration (optional)
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>accountIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs in this account index</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs in this subaddress index</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndices</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;int></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs in these subaddress indices</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with this amount</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>minAmount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with amount greater than or equal to this amount</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxAmount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with amount less than or equal to this amount</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLocked</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get locked xor unlocked outputs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isSpent</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get spent xor unspent outputs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keyImage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroKeyImage.html">MoneroKeyImage</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with a key image matching fields defined in this key image
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with this key image hex</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>signature</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs with this key image signature</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>txQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroTxQuery.html">MoneroTxQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outputs whose tx match this tx query</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -144,7 +494,7 @@ All outputs are returned except those that do not meet the criteria defined in t
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line16">line 16</a>
+        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line39">line 39</a>
     </li></ul></dd>
     
 
@@ -990,7 +1340,7 @@ not be spent by the wallet.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line78">line 78</a>
+        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line101">line 101</a>
     </li></ul></dd>
     
 
@@ -1451,7 +1801,7 @@ should not be re-used or it should be copied before calling this method.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line89">line 89</a>
+        <a href="wallet_model_MoneroOutputQuery.js.html">wallet/model/MoneroOutputQuery.js</a>, <a href="wallet_model_MoneroOutputQuery.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -2059,7 +2409,7 @@ should not be re-used or it should be copied before calling this method.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun May 03 2020 15:21:56 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 06 2020 13:22:47 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

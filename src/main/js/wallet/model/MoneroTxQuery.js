@@ -1,19 +1,51 @@
 /**
- * Configures a query to retrieve transactions.
- * 
- * All transactions are returned except those that do not meet the criteria defined in this query.
+ * <p>Configuration to query transactions.</p>
  * 
  * @extends {MoneroTxWallet}
  */
 class MoneroTxQuery extends MoneroTxWallet {
   
   /**
-   * Constructs the query.
+   * <p>Construct the transaction query.</p>
    * 
-   * @param state is model state or json to initialize from (optional)
+   * <p>Example:</p>
+   * 
+   * <code>
+   * &sol;&sol; get transactions with unlocked incoming transfers to account 0<br>
+   * let txs = await wallet.getTxs({<br>
+   * &nbsp;&nbsp; isLocked: false,<br>
+   * &nbsp;&nbsp; transferQuery: {<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp; isIncoming: true,<br>
+   * &nbsp;&nbsp;&nbsp;&nbsp; accountIndex: 0<br>
+   * &nbsp;&nbsp; }<br>
+   * });
+   * </code>
+   * 
+   * <p>All configuration is optional.  All transactions are returned except those that don't meet criteria defined in this query.</p>
+   * 
+   * @param {object} config - tx query configuration
+   * @param {string} config.hash - get a tx with this hash
+   * @param {string[]} config.txHashes - get txs with these hashes
+   * @param {int} config.height - get txs with this height
+   * @param {int} config.minHeight - get txs with height greater than or equal to this height
+   * @param {int} config.maxHeight - get txs with height less than or equal to this height
+   * @param {boolean} config.isConfirmed - get confirmed or unconfirmed txs
+   * @param {boolean} config.inTxPool - get txs in or out of the tx pool
+   * @param {boolean} config.doNotRelay - get txs with the same "do not relay" status
+   * @param {boolean} config.isRelayed - get relayed or non-relayed txs
+   * @param {boolean} config.isFailed - get failed or non-failed txs
+   * @param {boolean} config.isMinerTx - get miner or non-miner txs
+   * @param {boolean} config.isLocked - get locked or unlocked txs
+   * @param {boolean} config.isIncoming - get txs with or without incoming transfers
+   * @param {boolean} config.isOutgoing - get txs with or without outgoing transfers
+   * @param {string} config.paymentId - get txs with this payment ID
+   * @param {string} config.paymentIds - get txs with a payment ID among these payment IDs
+   * @param {boolean} config.hasPaymentId - get txs with or without payment IDs
+   * @param {object|MoneroTransferQuery} config.transferQuery - get txs with transfers matching this transfer query
+   * @param {object|MoneroOutputQuery} config.outputQuery - get txs with outputs matching this output query
    */
-  constructor(state) {
-    super(state);
+  constructor(config) {
+    super(config);
     
     // deserialize if necessary
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);

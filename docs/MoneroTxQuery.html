@@ -28,11 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroTxQuery<span class="signature">(state)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>MoneroTxQuery<span class="signature">(config)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Configures a query to retrieve transactions.
-
-All transactions are returned except those that do not meet the criteria defined in this query.</div>
+            <div class="class-description"><p>Configuration to query transactions.</p></div>
         
     
 </header>
@@ -47,7 +45,7 @@ All transactions are returned except those that do not meet the criteria defined
     
 
     
-    <h4 class="name" id="MoneroTxQuery"><span class="type-signature"></span>new MoneroTxQuery<span class="signature">(state)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MoneroTxQuery"><span class="type-signature"></span>new MoneroTxQuery<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -55,7 +53,22 @@ All transactions are returned except those that do not meet the criteria defined
 
 
 <div class="description">
-    Constructs the query.
+    <p>Construct the transaction query.</p>
+
+<p>Example:</p>
+
+<code>
+&sol;&sol; get transactions with unlocked incoming transfers to account 0<br>
+let txs = await wallet.getTxs({<br>
+&nbsp;&nbsp; isLocked: false,<br>
+&nbsp;&nbsp; transferQuery: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp; isIncoming: true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp; accountIndex: 0<br>
+&nbsp;&nbsp; }<br>
+});
+</code>
+
+<p>All configuration is optional.  All transactions are returned except those that don't meet criteria defined in this query.</p>
 </div>
 
 
@@ -91,10 +104,15 @@ All transactions are returned except those that do not meet the criteria defined
 
         <tr>
             
-                <td class="name"><code>state</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
             
             </td>
 
@@ -102,7 +120,476 @@ All transactions are returned except those that do not meet the criteria defined
 
             
 
-            <td class="description last">is model state or json to initialize from (optional)</td>
+            <td class="description last">tx query configuration
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get a tx with this hash</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>txHashes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with these hashes</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with this height</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>minHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with height greater than or equal to this height</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with height less than or equal to this height</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isConfirmed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get confirmed or unconfirmed txs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>inTxPool</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs in or out of the tx pool</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>doNotRelay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with the same "do not relay" status</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isRelayed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get relayed or non-relayed txs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isFailed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get failed or non-failed txs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isMinerTx</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get miner or non-miner txs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isLocked</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get locked or unlocked txs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isIncoming</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with or without incoming transfers</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isOutgoing</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with or without outgoing transfers</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>transferQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with transfers matching this transfer query</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>outputQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with outputs matching this output query</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>paymentId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with this payment ID</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>paymentIds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with a payment ID among these payment IDs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hasPaymentId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get txs with or without payment IDs</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -143,7 +630,7 @@ All transactions are returned except those that do not meet the criteria defined
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_model_MoneroTxQuery.js.html">wallet/model/MoneroTxQuery.js</a>, <a href="wallet_model_MoneroTxQuery.js.html#line15">line 15</a>
+        <a href="wallet_model_MoneroTxQuery.js.html">wallet/model/MoneroTxQuery.js</a>, <a href="wallet_model_MoneroTxQuery.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
@@ -7388,7 +7875,7 @@ should not be re-used or it should be copied before calling this method.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun May 03 2020 15:21:56 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 06 2020 13:22:47 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
