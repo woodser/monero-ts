@@ -1,16 +1,16 @@
 HIGH (WASM)
 proxied daemon block listener
 proxyToWorker defaults to true in browser
+startSynchronizing() syncs immediately
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
-startSynchronizing() should use pre-started loop so it's a random start time like core
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
-doNotRelay -> relay?
 
+rename bin to script? configs to config?
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 document data model from block
 update readme architecture, sample code, wasm support
@@ -20,6 +20,8 @@ full tests including jni
 release
 report core issues
 
+startSynchronizing() uses pre-started loop for random start time like core wallet?
+real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 rpc supports watch-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
