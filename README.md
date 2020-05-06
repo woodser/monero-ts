@@ -3,22 +3,31 @@
 This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
-- Supports client-side wallets in NodeJS and web apps via WebAssembly bindings to Monero Core.
-- Supports multisig, offline, and watch-only wallets.
-- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use.
+- Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
+- Supports offline, and watch-only, and multisig wallets.
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
 - Receive notifications when blocks are added to the chain and when wallets sync, send, or receive.
+- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 - Over 230 passing Mocha test cases.
+
+### Architecture
 
 <p align="center">
 	<img width="85%" height="auto" src="architecture.png"/><br>
-	<i>Wallet implementations are interchangeable because they conform to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>, with RPC and native WebAssembly bindings to Monero Core.</i>
+	<i>Wallet implementations use RPC or WebAssembly bindings to Monero Core and are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
 ### Developer Guide (wip)
 
-[Getting Started](docs/developer_guide/getting_started.md)
+* [Getting Started](docs/developer_guide/getting_started.md)
+* Getting started with monero-javascript web browser applications
+* Connecting to Monero nodes and RPC wallet servers
+* Initiating transfers
+* Building client-side wallets with MoneroWalletWasm
+* Managing view-only wallets
+* Using multisig wallets
+* Analyzing the blockchain
 
 ### Sample Code
 
@@ -132,15 +141,11 @@ For convenience, pre-built WebAssembly files are committed to ./dist, but these 
 
 ### See Also
 
-[monero-java](https://github.com/monero-ecosystem/monero-java)
-
-[monero-cpp-library](https://github.com/woodser/monero-cpp-library)
-
-[xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
-
-[monerostresstester.com](https://github.com/woodser/monerostresstester.com) - sends repeated txs to self to stress test the network (under development)
-
-[monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
+* [monero-java](https://github.com/monero-ecosystem/monero-java)
+* [monero-cpp-library](https://github.com/woodser/monero-cpp-library)
+* [xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
+* [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - sends repeated txs to self to stress test the network (under development)
+* [monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
 
 ### License
 
