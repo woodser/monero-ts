@@ -1,8 +1,6 @@
 HIGH (WASM)
 rpc supports watch-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
-start a new test wallet, new test wallet before receiving funds breaks tests
-update dependencies like xmr-sample-app
 rename monero_wallet_core.h to monero_wallet_w2.h?
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
