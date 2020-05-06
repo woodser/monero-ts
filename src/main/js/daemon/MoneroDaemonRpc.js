@@ -1386,6 +1386,8 @@ MoneroDaemonRpc.NUM_HEADERS_PER_REQ = "750";  // number of headers to fetch and 
 
 /**
  * Implements a MoneroDaemon by proxying requests to a web worker.
+ * 
+ * @private
  */
 class MoneroDaemonRpcProxy extends MoneroDaemon {
   
