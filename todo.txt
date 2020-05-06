@@ -1,7 +1,6 @@
 HIGH (WASM)
 proxied daemon block listener
 proxyToWorker defaults to true in browser
-java "Wallet already exists" vs "file already exists"
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
