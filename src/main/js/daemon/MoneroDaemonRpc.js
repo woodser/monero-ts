@@ -1406,6 +1406,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     super();
     this.daemonId = daemonId;
     this.worker = worker;
+    this.wrappedListeners = [];
   }
   
   async getRpcConnection() {
@@ -1682,6 +1683,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async stop() {
+    while (this.wrappedListeners.length) await this.removeBlockListener(this.wrappedListeners[0].getListener());
     return this._invokeWorker("daemonStop");
   }
   
@@ -1690,11 +1692,24 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async addBlockListener(listener) {
-    throw new MoneroError("Not implemented");
+    let wrappedListener = new DaemonWorkerListener(listener);
+    let listenerId = wrappedListener.getId();
+    MoneroUtils.WORKER_OBJECTS[this.daemonId].callbacks["onNewBlockHeader_" + listenerId] = [wrappedListener.onNewBlockHeader, wrappedListener];
+    this.wrappedListeners.push(wrappedListener);
+    return this._invokeWorker("daemonAddBlockListener", [listenerId]);
   }
-
+  
   async removeBlockListener(listener) {
-    throw new MoneroError("Not implemented");
+    for (let i = 0; i < this.wrappedListeners.length; i++) {
+      if (this.wrappedListeners[i].getListener() === listener) {
+        let listenerId = this.wrappedListeners[i].getId();
+        await this._invokeWorker("daemonRemoveBlockListener", [listenerId]);
+        delete MoneroUtils.WORKER_OBJECTS[this.daemonId].callbacks["onNewBlockHeader_" + listenerId];
+        this.wrappedListeners.splice(i, 1);
+        return;
+      }
+    }
+    throw new MoneroError("Listener is not registered with wallet");
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
@@ -1702,6 +1717,33 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   // TODO: duplicated with MoneroWalletWasmProxy
   async _invokeWorker(fnName, args) {
     return LibraryUtils.invokeWorker(this.daemonId, fnName, args);
+  }
+}
+
+/**
+ * Internal listener to bridge notifications to external listeners.
+ * 
+ * @private
+ */
+class DaemonWorkerListener {
+  
+  constructor(listener) {
+    this._id = GenUtils.getUUID();
+    this._listener = listener;
+  }
+  
+  getId() {
+    return this._id;
+  }
+  
+  getListener() {
+    return this._listener;
+  }
+  
+  onNewBlockHeader(headerJson) {
+    console.log("Received block header json!!!");
+    console.log(headerJson)
+    this._listener(new MoneroBlockHeader(headerJson));
   }
 }
 

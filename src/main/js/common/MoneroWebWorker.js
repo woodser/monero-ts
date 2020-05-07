@@ -330,14 +330,21 @@ self.daemonGetNextBlockHeader = async function(daemonId) {
   return (await self.WORKER_OBJECTS[daemonId].getNextBlockHeader()).toJson();
 }
 
-//
-//addBlockListener(listener) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//removeBlockListener(listener) {
-//  throw new MoneroError("Not implemented");
-//}
+self.daemonAddBlockListener = async function(daemonId, listenerId) {
+  let listener = function(blockHeader) {
+    self.postMessage([daemonId, "onNewBlockHeader_" + listenerId, blockHeader.toJson()]);
+  }
+  if (!self.daemonListeners) self.daemonListeners = {};
+  self.daemonListeners[listenerId] = listener;
+  await self.WORKER_OBJECTS[daemonId].addBlockListener(listener);
+}
+
+self.daemonRemoveBlockListener = async function(daemonId, listenerId) {
+  console.log("daemonRemoveBlockListener");
+  if (!self.daemonListeners[listenerId]) throw new MoneroError("No daemon worker listener registered with id: " + listenerId);
+  await self.WORKER_OBJECTS[daemonId].removeBlockListener(self.daemonListeners[listenerId]);
+  delete self.daemonListeners[listenerId];
+}
 
 //------------------------------ WALLET METHODS -------------------------------
 

@@ -1,5 +1,4 @@
 HIGH (WASM)
-proxied daemon block listener
 proxyToWorker defaults to true in browser
 startSynchronizing() syncs immediately
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed

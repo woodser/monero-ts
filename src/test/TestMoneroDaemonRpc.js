@@ -1121,12 +1121,13 @@ class TestMoneroDaemonRpc {
       
       if (!config.liteMode && config.testNotifications)
       it("Can notify listeners when a new block is added to the chain", async function() {
+        let err;
         try {
           
           // start mining if possible to help push the network along
           let address = await that.wallet.getPrimaryAddress();
           try { await that.daemon.startMining(address, 8, false, true); }
-          catch (e) { }
+          catch (e) { if ("BUSY" === e.message) throw e; }
           
           // register a listener
           let listenerHeader;
@@ -1143,13 +1144,13 @@ class TestMoneroDaemonRpc {
           // test that listener was called with equivalent header
           assert.deepEqual(listenerHeader, header);
         } catch (e) {
-          throw e;
-        } finally {
-          
-          // stop mining
-          try { await that.daemon.stopMining(); }
-          catch (e) { }
+          err = e;
         }
+        
+        // finally
+        try { await that.daemon.stopMining(); }
+        catch (e) { }
+        if (err) throw err;
       });
     });
   }
