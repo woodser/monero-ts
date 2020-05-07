@@ -1,6 +1,6 @@
 HIGH (WASM)
 proxyToWorker defaults to true in browser
-startSynchronizing() syncs immediately
+print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs

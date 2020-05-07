@@ -42,7 +42,7 @@ class TestSampleCode {
         // create a random wallet using monero-wallet-rpc
         let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");  // connect to monero-wallet-rpc
         await walletRpc.createWallet({
-          path: "sample_wallet_" + GenUtils.getUUID(),            // *** CHANGE README TO "sample_wallet" ***
+          path: "sample_wallet_" + GenUtils.getUUID(),            // *** CHANGE README TO "sample_wallet_rpc" ***
           password: "supersecretpassword123"
         });
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
@@ -53,7 +53,7 @@ class TestSampleCode {
         
         // create a wallet from mnemonic phrase using WebAssembly bindings to Monero Core
         let walletWasm = await MoneroWalletWasm.createWallet({
-          //path: "./test_wallets/" + GenUtils.getUUID(),
+          path: "./test_wallets/" + GenUtils.getUUID(),           // *** CHANGE README TO "sample_wallet_wasm"
           password: "supersecretpassword123",
           networkType: "stagenet",
           mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual boss vain dyslexic divers among unfit asleep bays ostrich maverick skirting jaunt scenic shuffled spying",
