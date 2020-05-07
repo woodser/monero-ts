@@ -77,6 +77,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       if (typeof daemonUriOrConnection === "object") config.setServer(daemonUriOrConnection);
       else config.setServerUri(daemonUriOrConnection);
     }
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(GenUtils.isBrowser());
     if (config.getMnemonic() !== undefined) throw new MoneroError("Cannot specify mnemonic when opening wallet");
     if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when opening wallet");
     if (config.getPrimaryAddress() !== undefined) throw new MoneroError("Cannot specify primary address when opening wallet");
@@ -161,6 +162,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
@@ -203,6 +205,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
     
     // validate and normalize params
@@ -246,6 +249,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
     
     // validate and normalize params
@@ -1491,7 +1495,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         
     // path must be set
     let path = await this.getPath();
-    if (path === "") throw new MoneroError("Wallet path is not set");
+    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
     
     // write address file
     this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
@@ -1563,7 +1567,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
     while (true) {
       if (this._syncingThreadDone) break;
-      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
       if (this._syncingEnabled) {
         try {
           console.log("Background synchronizing " + label);
@@ -1572,6 +1575,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
         }
       }
+      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
   }
   
@@ -2339,7 +2343,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     
     // path must be set
     let path = await this.getPath();
-    if (path === "") throw new MoneroError("Wallet path is not set");
+    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
     
     // write address file
     this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());

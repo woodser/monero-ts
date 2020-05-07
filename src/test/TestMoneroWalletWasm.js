@@ -277,10 +277,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert.equal(await wallet.getHeight(), 1);
         assert.equal(await wallet.getSyncHeight(), 0);
         try { await wallet.startSyncing(); } catch (e) { assert.equal(e.message, "Wallet is not connected to daemon"); }
-        wallet.close();
+        await wallet.close();
         
         // create wallet without restore height
-        wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC});
+        wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC}, false);
         assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
         assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(TestUtils.NETWORK_TYPE, await wallet.getNetworkType());
@@ -528,7 +528,8 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // compare with ground truth
           if (!skipGtComparison) {
-            walletGt = await that.getWalletGt();
+            walletGt = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: startHeightExpected});
+            await walletGt.sync();
             await TestMoneroWalletWasm._testWalletEqualityOnChain(walletGt, wallet);
           }
           
@@ -664,12 +665,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert.notEqual(wallet.getMnemonic(), undefined);
           assert(!await wallet.isConnected());
           await wallet.setDaemonConnection(await that.daemon.getRpcConnection());
-          await wallet.startSyncing();
           assert.equal(await wallet.getHeight(), 1);
-          let chainHeight = await wallet.getDaemonHeight();
           assert(!await wallet.isSynced());
           assert.equal((await wallet.getBalance()).compare(new BigInteger(0)), 0);
+          let chainHeight = await wallet.getDaemonHeight();
           await wallet.setSyncHeight(chainHeight - 3);
+          await wallet.startSyncing();
           assert.equal(await wallet.getSyncHeight(), chainHeight - 3);
           assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri()); // TODO: replace with config comparison
           assert.equal((await wallet.getDaemonConnection()).getUsername(), (await that.daemon.getRpcConnection()).getUsername());
@@ -687,16 +688,15 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // test that sync starts automatically
         let restoreHeight = await that.daemon.getHeight() - 100;
         path = TestMoneroWalletWasm._getRandomWalletPath();
-        wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: await that.daemon.getRpcConnection(), restoreHeight: restoreHeight});
+        wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: await that.daemon.getRpcConnection(), restoreHeight: restoreHeight}, false);
         try {
           
           // start syncing
           assert.equal(await wallet.getHeight(), 1);
           assert.equal(await wallet.getSyncHeight(), restoreHeight);
-          await wallet.startSyncing();
-          let chainHeight = await wallet.getDaemonHeight();
           assert(!(await wallet.isSynced()));
           assert.equal(await wallet.getBalance(), new BigInteger(0));
+          await wallet.startSyncing();
           
           // sleep for a moment
           await new Promise(function(resolve) { setTimeout(resolve, 15000); }); // in ms
@@ -728,8 +728,8 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // create 2 wallets with a recent restore height
         let height = await that.daemon.getHeight();
         let restoreHeight = height - 5;
-        let wallet1 = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight});
-        let wallet2 = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight});
+        let wallet1 = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight}, false);
+        let wallet2 = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight}, false);
         
         // track notifications of each wallet
         let tester1 = new SyncProgressTester(wallet1, restoreHeight, height);
