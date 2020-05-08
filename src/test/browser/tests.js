@@ -24,8 +24,8 @@ function runTests() {
   });
   mocha.checkLeaks();
   
-  // configure tests to use web worker to not lock main browser thread
-  TestUtils.PROXY_TO_WORKER = true;
+  // override default to run daemon and wallets on main thread
+  //TestUtils.PROXY_TO_WORKER = false;
   
   // run tests
   require("../TestAll");

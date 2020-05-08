@@ -839,6 +839,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       config = Object.assign(config, new MoneroRpcConnection(config.server).getConfig());
       delete config.server;
     }
+    if (config.proxyToWorker === undefined) config.proxyToWorker = GenUtils.isBrowser();
     return config;
   }
   
