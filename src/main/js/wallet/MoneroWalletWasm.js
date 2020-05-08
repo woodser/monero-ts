@@ -77,7 +77,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       if (typeof daemonUriOrConnection === "object") config.setServer(daemonUriOrConnection);
       else config.setServerUri(daemonUriOrConnection);
     }
-    //if (config.getProxyToWorker() === undefined) config.setProxyToWorker(GenUtils.isBrowser());
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(GenUtils.isBrowser());
     if (config.getMnemonic() !== undefined) throw new MoneroError("Cannot specify mnemonic when opening wallet");
     if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when opening wallet");
     if (config.getPrimaryAddress() !== undefined) throw new MoneroError("Cannot specify primary address when opening wallet");
@@ -162,7 +162,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
-    //if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
@@ -205,7 +205,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
-    //if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
     
     // validate and normalize params
@@ -249,7 +249,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
-    //if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
     
     // validate and normalize params

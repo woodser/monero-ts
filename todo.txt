@@ -1,5 +1,4 @@
 HIGH (WASM)
-proxyToWorker defaults to true in browser
 print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue

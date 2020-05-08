@@ -187,6 +187,6 @@ TestUtils.DAEMON_RPC_CONFIG = {
 //};
 
 TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker(); // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
-TestUtils.PROXY_TO_WORKER = false;
+TestUtils.PROXY_TO_WORKER = undefined;  // default to true if browser, false otherwise
 
 module.exports = TestUtils;
