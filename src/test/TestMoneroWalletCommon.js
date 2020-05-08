@@ -2768,7 +2768,7 @@ class TestMoneroWalletCommon {
           
           // sign tx using offline wallet
           await watchOnlyWallet.close(true);
-          offlineWallet = await that.openWallet({path: offlineWalletPath});
+          offlineWallet = await that.openWallet({path: offlineWalletPath, serverUri: ""});
           let signedTxHex = await offlineWallet.signTxs(unsignedTxSet.getUnsignedTxHex());
           assert(signedTxHex.length > 0);
           
