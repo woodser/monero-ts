@@ -1742,8 +1742,6 @@ class DaemonWorkerListener {
   }
   
   onNewBlockHeader(headerJson) {
-    console.log("Received block header json!!!");
-    console.log(headerJson)
     this._listener(new MoneroBlockHeader(headerJson));
   }
 }
