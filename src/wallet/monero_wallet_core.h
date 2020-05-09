@@ -202,9 +202,9 @@ namespace monero {
     void remove_listener(monero_wallet_listener& listener);
     set<monero_wallet_listener*> get_listeners();
     monero_sync_result sync();
-    monero_sync_result sync(monero_sync_listener& listener);
+    monero_sync_result sync(monero_wallet_listener& listener);
     monero_sync_result sync(uint64_t start_height);
-    monero_sync_result sync(uint64_t start_height, monero_sync_listener& listener);
+    monero_sync_result sync(uint64_t start_height, monero_wallet_listener& listener);
     void start_syncing();
     void stop_syncing();
     void rescan_spent();

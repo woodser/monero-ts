@@ -65,11 +65,9 @@ namespace monero {
   // --------------------------------- LISTENERS ------------------------------
 
   /**
-   * Receives progress notifications as a wallet is synchronized.
-   *
-   * TODO: make these interfaces and provide default implementation
+   * Interface to receive wallet notifications..
    */
-  class monero_sync_listener {
+  class monero_wallet_listener {
   public:
 
     /**
@@ -82,13 +80,6 @@ namespace monero {
      * @param message - human-readable description of the current progress
      */
     virtual void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {}
-  };
-
-  /**
-   * Receives notifications as a wallet is updated.
-   */
-  class monero_wallet_listener : public monero_sync_listener {
-  public:
 
     /**
      * Invoked when a new block is processed.
@@ -419,10 +410,10 @@ namespace monero {
     /**
      * Synchronize the wallet with the daemon as a one-time synchronous process.
      *
-     * @param listener is invoked as sync progress is made
+     * @param listener - listener to receive notifications during synchronization
      * @return the sync result
      */
-    virtual monero_sync_result sync(monero_sync_listener& listener) {
+    virtual monero_sync_result sync(monero_wallet_listener& listener) {
       throw runtime_error("sync() not supported");
     }
 
@@ -439,11 +430,11 @@ namespace monero {
     /**
      * Synchronizes the wallet with the blockchain.
      *
-     * @param start_height is the start height to sync from (ignored if less than last processed block)
-     * @param listener is invoked as sync progress is made
+     * @param start_height - start height to sync from (ignored if less than last processed block)
+     * @param listener - listener to receive notifications during synchronization
      * @return the sync result
      */
-    virtual monero_sync_result sync(uint64_t start_height, monero_sync_listener& listener) {
+    virtual monero_sync_result sync(uint64_t start_height, monero_wallet_listener& listener) {
       throw runtime_error("sync() not supported");
     }
 

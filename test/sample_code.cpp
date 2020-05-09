@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
   );
 
   // synchronize the wallet and receive progress notifications
-  struct : monero_sync_listener {
+  struct : monero_wallet_listener {
     void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
       // feed a progress bar?
     }
