@@ -210,7 +210,7 @@ class MoneroWallet {
   /**
    * Synchronize the wallet with the daemon as a one-time synchronous process.
    * 
-   * @param {MoneroSyncListener|number} listenerOrStartHeight - sync listener xor start height (defaults to no sync listener, the last synced block)
+   * @param {MoneroWalletListener|number} listenerOrStartHeight - listener xor start height (defaults to no sync listener, the last synced block)
    * @param {number} startHeight - startHeight if not given in first arg (defaults to last synced block)
    */
   async sync(listenerOrStartHeight, startHeight) {

@@ -626,16 +626,12 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
     // normalize params
-    startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
-    let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
+    startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
+    let listener = listenerOrStartHeight instanceof MoneroWalletListener ? listenerOrStartHeight : undefined;
     if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
     
-    // wrap and register sync listener as wallet listener if given
-    let syncListenerWrapper = undefined;
-    if (listener !== undefined) {
-      syncListenerWrapper = new SyncListenerWrapper(listener);
-      await this.addListener(syncListenerWrapper);
-    }
+    // register listener if given
+    if (listener) await this.addListener(listener);
     
     // sync wallet
     let err;
@@ -663,10 +659,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       err = e;
     }
     
-    // unregister sync listener wrapper
-    if (syncListenerWrapper !== undefined) {
-      await this.removeListener(syncListenerWrapper); // unregister sync listener
-    }
+    // unregister listener
+    if (listener) await this.removeListener(listener);
     
     // throw error or return
     if (err) throw err;
@@ -1741,9 +1735,15 @@ class WalletWasmListener {
       let block = new MoneroBlock().setHeight(height);
       block.setTxs([tx]);
       tx.setBlock(block);
+      tx.setIsConfirmed(true);
+      tx.setInTxPool(false);
+      tx.setIsFailed(false);
+    } else {
+      tx.setIsConfirmed(false);
+      tx.setInTxPool(true);
     }
     
-    // notify wallet listeners
+    // announce output
     for (let listener of this._wallet.getListeners()) listener.onOutputReceived(tx.getOutputs()[0]);
   }
   
@@ -1763,6 +1763,12 @@ class WalletWasmListener {
       let block = new MoneroBlock().setHeight(height);
       block.setTxs([tx]);
       tx.setBlock(block);
+      tx.setIsConfirmed(true);
+      tx.setInTxPool(false);
+      tx.setIsFailed(false);
+    } else {
+      tx.setIsConfirmed(false);
+      tx.setInTxPool(true);
     }
     
     // notify wallet listeners
@@ -2002,16 +2008,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   async sync(listenerOrStartHeight, startHeight) {
     
     // normalize params
-    startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
-    let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
+    startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
+    let listener = listenerOrStartHeight instanceof MoneroWalletListener ? listenerOrStartHeight : undefined;
     if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
     
-    // wrap and register sync listener as wallet listener if given
-    let syncListenerWrapper = undefined;
-    if (listener !== undefined) {
-      syncListenerWrapper = new SyncListenerWrapper(listener);
-      await this.addListener(syncListenerWrapper);
-    }
+    // register listener if given
+    if (listener) await this.addListener(listener);
     
     // sync wallet in worker 
     let err;
@@ -2023,10 +2025,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
       err = e;
     }
     
-    // unregister sync listener wrapper
-    if (syncListenerWrapper !== undefined) {
-      await this.removeListener(syncListenerWrapper); // unregister sync listener
-    }
+    // unregister listener
+    if (listener) await this.removeListener(listener);
     
     // throw error or return
     if (err) throw err;
