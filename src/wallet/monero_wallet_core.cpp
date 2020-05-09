@@ -709,6 +709,29 @@ namespace monero {
       }
     }
 
+    void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {
+      MTRACE("wallet2_listener::on_unconfirmed_money_received()");
+
+      // create library tx
+      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx, true));
+      tx->m_hash = epee::string_tools::pod_to_hex(txid);
+      shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
+      tx->m_outputs.push_back(output);
+      output->m_tx = tx;
+      output->m_amount = amount;
+      output->m_account_index = subaddr_index.major;
+      output->m_subaddress_index = subaddr_index.minor;
+
+      // notify listeners of output
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_output_received(*output);
+      }
+
+      // free memory
+      output.reset();
+      tx.reset();
+    }
+
     void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
       MTRACE("wallet2_listener::on_money_received()");
 

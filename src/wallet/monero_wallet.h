@@ -75,11 +75,11 @@ namespace monero {
     /**
      * Invoked when sync progress is made.
      *
-     * @param height is the height of the synced block
-     * @param start_height is the starting height of the sync request
-     * @param end_height is the ending height of the sync request
-     * @param percent_done is the sync progress as a percentage
-     * @param message is a human-readable description of the current progress
+     * @param height - height of the synced block
+     * @param start_height - starting height of the sync request
+     * @param end_height - ending height of the sync request
+     * @param percent_done - sync progress as a percentage
+     * @param message - human-readable description of the current progress
      */
     virtual void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {}
   };
@@ -93,21 +93,21 @@ namespace monero {
     /**
      * Invoked when a new block is processed.
      *
-     * @param block is the newly processed block
+     * @param block - the newly processed block
      */
     virtual void on_new_block(uint64_t height) {};
 
     /**
      * Invoked when the wallet receives an output.
      *
-     * @param output is the incoming output to the wallet
+     * @param output - the received output
      */
     virtual void on_output_received(const monero_output_wallet& output) {};
 
     /**
      * Invoked when the wallet spends an output.
      *
-     * @param output the outgoing transfer from the wallet
+     * @param output - the spent output
      */
     virtual void on_output_spent(const monero_output_wallet& output) {};
   };
