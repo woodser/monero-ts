@@ -1192,13 +1192,13 @@ namespace monero {
     MTRACE("sync(listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
 
-    // wrap and register sync listener as wallet listener
+    // register listener
     add_listener(listener);
 
     // sync wallet
     monero_sync_result result = lock_and_sync(boost::none);
 
-    // unregister sync listener
+    // unregister listener
     remove_listener(listener);
 
     // return sync result
