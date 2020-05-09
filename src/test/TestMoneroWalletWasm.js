@@ -1048,6 +1048,53 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // ----------------------------- NOTIFICATION TESTS -------------------------
       
+      if (config.testRelays)
+      it("Receives funds within 10 seconds", async function() {
+        await testReceivesFundsWithin10Seconds(false);
+      });
+      
+      if (config.testRelays)
+      it("Receives funds within 10 seconds to the same account", async function() {
+        await testReceivesFundsWithin10Seconds(true);
+      });
+      
+      async function testReceivesFundsWithin10Seconds(sameAccount) {
+        let err;
+        let receiver;
+        try {
+          
+          // assign wallet to receive funds
+          receiver = sameAccount ? that.wallet : await that.createWallet(new MoneroWalletConfig());
+          
+          // listen for received funds
+          let receiverListener = new OutputNotificationCollector();
+          await receiver.addListener(receiverListener);
+          
+          // listen for sent funds
+          let sender = that.wallet;
+          let senderListener = new OutputNotificationCollector();
+          await sender.addListener(senderListener);
+          
+          // send funds
+          let txSet = await sender.sendTx(0, await receiver.getPrimaryAddress(), TestUtils.MAX_FEE);
+          let txHash = txSet.getTxs()[0].getHash();
+          await sender.getTx(txHash);
+          if (senderListener.getOutputsSpent().length === 0) console.log("WARNING: no notification on send");
+          
+          // funds received within 10 seconds
+          await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+          await receiver.getTx(txHash);
+          assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds within 10 seconds in " + (sameAccount ? "same account" : "different wallets"));
+          for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
+        } catch (e) {
+          err = e;
+        }
+        
+        // finally
+        if (!sameAccount && receiver !== undefined) await receiver.close();
+        if (err) throw err;
+      }
+    
       /**
        * 4 output notification tests are considered when transferring within one wallet.  // TODO: multi-wallet tests
        * 

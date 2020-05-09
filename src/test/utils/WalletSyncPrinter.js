@@ -1,7 +1,7 @@
 /**
  * Print sync progress every X blocks.
  */
-class WalletSyncPrinter extends MoneroSyncListener {
+class WalletSyncPrinter extends MoneroWalletListener {
   
   constructor(blockResolution) {
     super();
