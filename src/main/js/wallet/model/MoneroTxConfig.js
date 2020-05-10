@@ -1,7 +1,7 @@
 /**
- * Configures a request to send/sweep funds or create a payment URI.
+ * Configures a transaction to send, sweep, or create a payment URI.
  */
-class MoneroSendRequest {
+class MoneroTxConfig {
   
   /**
    * <p>Generic request to transfer funds from a wallet.</p>
@@ -9,22 +9,22 @@ class MoneroSendRequest {
    * <p>Examples:</p>
    * 
    * <code>
-   * let request1 = new MoneroSendRequest({<br>
+   * let config1 = new MoneroTxConfig({<br>
    * &nbsp;&nbsp; accountIndex: 0,<br>
    * &nbsp;&nbsp; address: "59aZULsUF3YN...",<br>
    * &nbsp;&nbsp; amount: new BigInteger("500000"),<br>
-   * &nbsp;&nbsp; priority: MoneroSendPriority.NORMAL<br>
+   * &nbsp;&nbsp; priority: MoneroTxPriority.NORMAL<br>
    * });<br><br>
    * 
-   * let request2 = new MoneroSendRequest(0, "59aZULsUF3YN...", new BigInteger("500000"), MoneroSendPriority.NORMAL);
-   * request2.setDoNotRelay(true);  // do not relay transaction to the network
+   * let config2 = new MoneroTxConfig(0, "59aZULsUF3YN...", new BigInteger("500000"), MoneroTxPriority.NORMAL);
+   * config2.setDoNotRelay(true);  // do not relay transaction to the network
    * </code>
    * 
-   * @param {object|number|string} param1 - request configuration, source account index, or destination address
+   * @param {object|number|string} param1 - tx configuration, source account index, or destination address
    * @param {int} param1.accountIndex - source account index to transfer funds from
    * @param {string} param1.address - single destination address (required unless destinations config given separately)
    * @param {BigInteger} param1.amount - single destination amount (required unless destination config given separately or sweep request)
-   * @param {int} param1.priority - transaction priority (optional, default MoneroSendPriority.NORMAL)
+   * @param {int} param1.priority - transaction priority (optional, default MoneroTxPriority.NORMAL)
    * @param {int[]} param1.subaddressIndices - source subaddress indices to transfer funds from (optional)
    * @param {MoneroDestination[]} param1.destinations - transfer destinations with addresses and amounts (required unless address/amount given separately)
    * @param {string} param1.paymentId - transaction payment ID (optional)
@@ -46,17 +46,17 @@ class MoneroSendRequest {
     // handle if first parameter is json
     if (typeof param1 === "object") {
       this.state = Object.assign({}, param1);
-      assert.equal(arguments.length, 1, "Send request must be constructed with json or parameters but not both");
+      assert.equal(arguments.length, 1, "Tx configuration must be constructed with json or parameters but not both");
       
       // deserialize if necessary
       if (this.state.destinations) {
-        assert(this.state.address === undefined && this.state.amount === undefined, "Send request may specify destinations or an address/amount but not both");
+        assert(this.state.address === undefined && this.state.amount === undefined, "Tx configuration may specify destinations or an address/amount but not both");
         this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
       }
       
       // alias 'address' and 'amount' to single destination to support e.g. sendTx({address: "..."})
       if (this.state.address || this.state.amount) {
-        assert(!this.state.destinations, "Send configuration may specify destinations or an address/amount but not both");
+        assert(!this.state.destinations, "Tx configuration may specify destinations or an address/amount but not both");
         this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
         delete this.state.address;
         delete this.state.amount;
@@ -71,7 +71,7 @@ class MoneroSendRequest {
     
     // otherwise map parameters to request values
     else {
-      assert(arguments.length <= 4, "MoneroSendRequest constructor accepts at most 4 parameters");
+      assert(arguments.length <= 4, "MoneroTxConfig constructor accepts at most 4 parameters");
       this.state = {};
       if (param1 === undefined || typeof param1 === "number") {
         assert(param2 === undefined || typeof param2 === "string", "Second parameter must be the address or undefined");
@@ -87,13 +87,13 @@ class MoneroSendRequest {
         this.setDestinations([new MoneroDestination(param1, param2)])
         this.setPriority(param3);
       } else {
-        throw new MoneroError("First parameter of MoneroSendRequest constructor must be an object, number, string, or undefined: " + param1);
+        throw new MoneroError("First parameter of MoneroTxConfig constructor must be an object, number, string, or undefined: " + param1);
       }
     }
   }
   
   copy() {
-    return new MoneroSendRequest(this.state);
+    return new MoneroTxConfig(this.state);
   }
   
   toJson() {
@@ -264,4 +264,4 @@ class MoneroSendRequest {
   }
 }
 
-module.exports = MoneroSendRequest
+module.exports = MoneroTxConfig

@@ -6,8 +6,8 @@ const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
  */
 class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
-  constructor(config) {
-    super(config);
+  constructor(testConfig) {
+    super(testConfig);
   }
   
   async getTestWallet() {
@@ -56,7 +56,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 
   runTests() {
     let that = this;
-    let config = this.config;
+    let testConfig = this.testConfig;
     describe("TEST MONERO WALLET RPC", function() {
       
       // initialize wallet
@@ -67,10 +67,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       // run tests specific to wallet rpc
-      that._testWalletRpc(config);
+      that._testWalletRpc(testConfig);
       
       // run common tests
-      that.runCommonTests(config);
+      that.runCommonTests(testConfig);
     });
   }
   

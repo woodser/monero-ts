@@ -1,4 +1,6 @@
 HIGH (WASM)
+createPaymentUri should support object
+MoneroTxConfig().setAddress().setAmount()
 print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
@@ -13,12 +15,13 @@ rename bin to script? configs to config?
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 document data model from block
 update readme architecture, sample code, wasm support
-update java readme sample
+update java readme sample, architecture
 update jsdocs (HttpClient, proxyToWorker default, MoneroRpcConnection, inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 full tests including jni
 release
 report core issues
 
+rpc mutisig test failing when run with other tests
 startSynchronizing() uses pre-started loop for random start time like core wallet?
 real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()

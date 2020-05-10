@@ -11,8 +11,8 @@ const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, ctx
  */
 class TestMoneroDaemonRpc {
   
-  constructor(config) {
-    this.config = config;
+  constructor(testConfig) {
+    this.testConfig = testConfig;
     TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
   
@@ -21,7 +21,7 @@ class TestMoneroDaemonRpc {
    */
   runTests() {
     let that = this;
-    let config = this.config;
+    let testConfig = this.testConfig;
     describe("TEST MONERO DAEMON RPC", function() {
       
       // initialize wallet before all tests
@@ -38,27 +38,27 @@ class TestMoneroDaemonRpc {
       
       // -------------------------- TEST NON RELAYS ---------------------------
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the daemon's version", async function() {
         let version = await that.daemon.getVersion();
         assert(version.getNumber() > 0);
         assert.equal(typeof version.isRelease(), "boolean");
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can indicate if it's trusted", async function() {
         let isTrusted = await that.daemon.isTrusted();
         assert.equal(typeof isTrusted, "boolean");
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the blockchain height", async function() {
         let height = await that.daemon.getHeight();
         assert(height, "Height must be initialized");
         assert(height > 0, "Height must be greater than 0");
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block hash by height", async function() {
         let lastHeader = await that.daemon.getLastBlockHeader();
         let hash = await that.daemon.getBlockHash(lastHeader.getHeight());
@@ -66,19 +66,19 @@ class TestMoneroDaemonRpc {
         assert.equal(hash.length, 64);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block template", async function() {
         let template = await that.daemon.getBlockTemplate(TestUtils.ADDRESS, 2);
         testBlockTemplate(template);
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the last block's header", async function() {
         let lastHeader = await that.daemon.getLastBlockHeader();
         testBlockHeader(lastHeader, true);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block header by hash", async function() {
         
         // retrieve by hash of last block
@@ -95,7 +95,7 @@ class TestMoneroDaemonRpc {
         assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block header by height", async function() {
         
         // retrieve by height of last block
@@ -111,7 +111,7 @@ class TestMoneroDaemonRpc {
       });
       
       // TODO: test start with no end, vice versa, inclusivity
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get block headers by range", async function() {
         
         // determine start and end height based on number of blocks and how many blocks ago
@@ -133,7 +133,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block by hash", async function() {
         
         // context for testing blocks
@@ -155,12 +155,12 @@ class TestMoneroDaemonRpc {
         assert(block.getTxs() === undefined);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get blocks by hash which includes transactions (binary)", async function() {
         throw new Error("Not implemented");
       })
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a block by height", async function() {
         
         // context for testing blocks
@@ -178,7 +178,7 @@ class TestMoneroDaemonRpc {
         assert.deepEqual(block.getHeight(), lastHeader.getHeight() - 1);
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get blocks by height which includes transactions (binary)", async function() {
         
         // set number of blocks to test
@@ -207,7 +207,7 @@ class TestMoneroDaemonRpc {
         assert(txFound, "No transactions found to test");
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get blocks by range in a single request", async function() {
         
         // get height range
@@ -231,7 +231,7 @@ class TestMoneroDaemonRpc {
       });
       
       // Can get blocks by range using chunked requests
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get blocks by range using chunked requests", async function() {
         
         // get long height range
@@ -267,13 +267,13 @@ class TestMoneroDaemonRpc {
         }
       }
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get block hashes (binary)", async function() {
         //get_hashes.bin
         throw new Error("Not implemented");
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a transaction by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
@@ -300,7 +300,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it ("Can get transactions by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
@@ -330,7 +330,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get transactions by hashes that are in the transaction pool", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet); // wait for wallet's txs in the pool to clear to ensure reliable sync
         
@@ -358,7 +358,7 @@ class TestMoneroDaemonRpc {
         await that.wallet.sync();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a transaction hex by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
@@ -391,7 +391,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get transaction hexes by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
@@ -421,19 +421,19 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the miner transaction sum", async function() {
         let sum = await that.daemon.getMinerTxSum(0, 50000);
         testMinerTxSum(sum);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get a fee estimate", async function() {
         let fee = await that.daemon.getFeeEstimate();
         TestUtils.testUnsignedBigInteger(fee, true);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get all transactions in the transaction pool", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -458,19 +458,19 @@ class TestMoneroDaemonRpc {
         await that.wallet.sync();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get hashes of transactions in the transaction pool (binary)", async function() {
         // TODO: get_transaction_pool_hashes.bin
         throw new Error("Not implemented");
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the transaction pool backlog (binary)", async function() {
         // TODO: get_txpool_backlog
         throw new Error("Not implemented");
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get transaction pool statistics (binary)", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -494,7 +494,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can flush all transactions from the pool", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -526,7 +526,7 @@ class TestMoneroDaemonRpc {
         await that.wallet.sync();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can flush a transaction from the pool by hash", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -560,7 +560,7 @@ class TestMoneroDaemonRpc {
         await that.wallet.sync();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can flush transactions from the pool by hashes", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -585,7 +585,7 @@ class TestMoneroDaemonRpc {
         await that.wallet.sync();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the spent status of key images", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
@@ -641,17 +641,17 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get output indices given a list of transaction hashes (binary)", async function() {
         throw new Error("Not implemented"); // get_o_indexes.bin
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get outputs given a list of output amounts and indices (binary)", async function() {
         throw new Error("Not implemented"); // get_outs.bin
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get an output histogram (binary)", async function() {
         let entries = await that.daemon.getOutputHistogram();
         assert(Array.isArray(entries));
@@ -661,7 +661,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get an output distribution (binary)", async function() {
         let amounts = [];
         amounts.push(new BigInteger(0));
@@ -678,25 +678,25 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get general information", async function() {
         let info = await that.daemon.getInfo();
         testInfo(info);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get sync information", async function() {
         let syncInfo = await that.daemon.getSyncInfo();
         testSyncInfo(syncInfo);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get hard fork information", async function() {
         let hardForkInfo = await that.daemon.getHardForkInfo();
         testHardForkInfo(hardForkInfo);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get alternative chains", async function() {
         let altChains = await that.daemon.getAltChains();
         assert(Array.isArray(altChains) && altChains.length >= 0);
@@ -705,7 +705,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get alternative block hashes", async function() {
         let altBlockHashes = await that.daemon.getAltBlockHashes();
         assert(Array.isArray(altBlockHashes) && altBlockHashes.length >= 0);
@@ -715,7 +715,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get, set, and reset a download bandwidth limit", async function() {
         let initVal = await that.daemon.getDownloadLimit();
         assert(initVal > 0);
@@ -747,7 +747,7 @@ class TestMoneroDaemonRpc {
         assert.equal(await that.daemon.getDownloadLimit(), initVal);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get, set, and reset an upload bandwidth limit", async function() {
         let initVal = await that.daemon.getUploadLimit();
         assert(initVal > 0);
@@ -779,7 +779,7 @@ class TestMoneroDaemonRpc {
         assert.equal(await that.daemon.getUploadLimit(), initVal);
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get known peers which may be online or offline", async function() {
         let peers = await that.daemon.getKnownPeers();
         assert(peers.length > 0, "Daemon has no known peers to test");
@@ -788,7 +788,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get incoming and outgoing peer connections", async function() {
         let connections = await that.daemon.getConnections();
         assert(Array.isArray(connections));
@@ -798,7 +798,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can limit the number of outgoing peers", async function() {
         await that.daemon.setOutgoingPeerLimit(0);
         await that.daemon.setOutgoingPeerLimit(8);
@@ -811,7 +811,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can limit the number of incoming peers", async function() {
         await that.daemon.setIncomingPeerLimit(0);
         await that.daemon.setIncomingPeerLimit(8);
@@ -824,7 +824,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can ban a peer", async function() {
         
         // set ban
@@ -844,7 +844,7 @@ class TestMoneroDaemonRpc {
         assert(found);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can ban peers", async function() {
         
         // set bans
@@ -874,7 +874,7 @@ class TestMoneroDaemonRpc {
         assert(found2);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can start and stop mining", async function() {
         
         // stop mining at beginning of test
@@ -891,7 +891,7 @@ class TestMoneroDaemonRpc {
         await that.daemon.stopMining();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get mining status", async function() {
         
         try {
@@ -929,7 +929,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can submit a mined block to the network", async function() {
         
         // get template to mine on
@@ -947,13 +947,13 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can check for an update", async function() {
         let result = await that.daemon.checkForUpdate();
         testUpdateCheckResult(result);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can download an update", async function() {
         
         // download to default path
@@ -977,7 +977,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can be stopped", async function() {
         return; // test is disabled to not interfere with other tests
         
@@ -1002,7 +1002,7 @@ class TestMoneroDaemonRpc {
       
       // ---------------------------- TEST RELAYS -----------------------------
       
-      if (config.testRelays)
+      if (testConfig.testRelays)
       it("Can submit a tx in hex format to the pool and relay in one call", async function() {
         
         // wait one time for wallet txs in the pool to clear
@@ -1053,14 +1053,14 @@ class TestMoneroDaemonRpc {
         TestUtils.TX_POOL_WALLET_TRACKER.reset();
       });
       
-      if (config.testRelays && !config.liteMode)
+      if (testConfig.testRelays && !testConfig.liteMode)
       it("Can submit a tx in hex format to the pool then relay", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         let tx = await getUnrelayedTx(that.wallet, 1);
         await testSubmitThenRelay([tx]);
       });
       
-      if (config.testRelays && !config.liteMode)
+      if (testConfig.testRelays && !testConfig.liteMode)
       it("Can submit txs in hex format to the pool then relay", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         let txs = [];
@@ -1119,7 +1119,7 @@ class TestMoneroDaemonRpc {
       
       // ------------------------ TEST NOTIFICATIONS --------------------------
       
-      if (!config.liteMode && config.testNotifications)
+      if (!testConfig.liteMode && testConfig.testNotifications)
       it("Can notify listeners when a new block is added to the chain", async function() {
         let err;
         try {
@@ -1605,9 +1605,9 @@ function testTxPoolStats(stats) {
 }
 
 async function getUnrelayedTx(wallet, accountIdx) {
-  let request = new MoneroSendRequest(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
-  request.setDoNotRelay(true);
-  let tx = (await wallet.sendTx(request)).getTxs()[0];
+  let config = new MoneroTxConfig(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
+  config.setDoNotRelay(true);
+  let tx = (await wallet.sendTx(config)).getTxs()[0];
   assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;

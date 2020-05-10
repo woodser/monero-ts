@@ -963,15 +963,15 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     });
   }
   
-  async sendTxs(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(configOrAccountIndex, address, amount, priority) {
     this._assertNotClosed();
     
-    // validate, copy, and normalize request
-    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
-    if (request.getCanSplit() === undefined) request.setCanSplit(true);
+    // validate, copy, and normalize config
+    let config = MoneroWallet._normalizeTxConfig(configOrAccountIndex, address, amount, priority);
+    if (config.getCanSplit() === undefined) config.setCanSplit(true);
     
     // check for payment id to avoid error in wasm 
-    if (request.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead"); // TODO: this should no longer be necessary, remove and re-test
+    if (config.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead"); // TODO: this should no longer be necessary, remove and re-test
     
     // return promise which resolves on callback
     let that = this;
@@ -986,16 +986,16 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         }
         
         // sync wallet in wasm and invoke callback when done
-        that._module.send_txs(that._cppAddress, JSON.stringify(request.toJson()), callbackFn);
+        that._module.send_txs(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  async sweepOutput(requestOrAddress, keyImage, priority) {
+  async sweepOutput(configOrAddress, keyImage, priority) {
     this._assertNotClosed();
     
-    // normalize and validate request
-    let request = MoneroWallet._normalizeSweepOutputRequest(requestOrAddress, keyImage, priority);
+    // normalize and validate config
+    let config = MoneroWallet._normalizeSweepOutputConfig(configOrAddress, keyImage, priority);
     
     // return promise which resolves on callback
     let that = this;
@@ -1010,22 +1010,22 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         }
         
         // sync wallet in wasm and invoke callback when done
-        that._module.sweep_output(that._cppAddress, JSON.stringify(request.toJson()), callbackFn);
+        that._module.sweep_output(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
 
-  async sweepUnlocked(request) {
+  async sweepUnlocked(config) {
     this._assertNotClosed();
     
-    // validate request // TODO: this is copied from MoneroWalletRpc.sweepUnlocked(), factor to super class which calls this with normalized request?
-    if (request === undefined) throw new MoneroError("Must specify sweep request");
-    if (request.getDestinations() === undefined || request.getDestinations().length != 1) throw new MoneroError("Must specify exactly one destination to sweep to");
-    if (request.getDestinations()[0].getAddress() === undefined) throw new MoneroError("Must specify destination address to sweep to");
-    if (request.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep request");
-    if (request.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
-    if (request.getSubaddressIndices() !== undefined && request.getSubaddressIndices().length === 0) request.setSubaddressIndices(undefined);
-    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified");
+    // validate config // TODO: this is copied from MoneroWalletRpc.sweepUnlocked(), factor to super class which calls this with normalized config?
+    if (config === undefined) throw new MoneroError("Must specify sweep config");
+    if (config.getDestinations() === undefined || config.getDestinations().length != 1) throw new MoneroError("Must specify exactly one destination to sweep to");
+    if (config.getDestinations()[0].getAddress() === undefined) throw new MoneroError("Must specify destination address to sweep to");
+    if (config.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep config");
+    if (config.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
+    if (config.getSubaddressIndices() !== undefined && config.getSubaddressIndices().length === 0) config.setSubaddressIndices(undefined);
+    if (config.getAccountIndex() === undefined && config.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified");
     
     // return promise which resolves on callback
     let that = this;
@@ -1044,7 +1044,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         }
         
         // sync wallet in wasm and invoke callback when done
-        that._module.sweep_unlocked(that._cppAddress, JSON.stringify(request.toJson()), callbackFn);
+        that._module.sweep_unlocked(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
@@ -1287,12 +1287,12 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     });
   }
   
-  async createPaymentUri(request) {
+  async createPaymentUri(config) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return that._module.create_payment_uri(that._cppAddress, JSON.stringify(request.toJson()));
+        return that._module.create_payment_uri(that._cppAddress, JSON.stringify(config.toJson()));
       } catch (e) {
         throw new MoneroError("Cannot make URI from supplied parameters");
       }
@@ -1304,7 +1304,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroSendRequest(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
+        return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
       } catch (e) {
         throw new MoneroError(e.message);
       }
@@ -1799,7 +1799,7 @@ class SyncListenerWrapper extends MoneroWalletListener {
  * TODO: sort these methods according to master sort in MoneroWallet.js
  * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
- * TODO: using MoneroUtils.WORKER_OBJECTS directly
+ * TODO: using MoneroUtils.WORKER_OBJECTS directly breaks encapsulation
  * 
  * @private
  */
@@ -2138,25 +2138,25 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("relayTxs", [txMetadatas]);
   }
   
-  async sendTxs(requestOrAccountIndex, address, amount, priority) {
-    if (requestOrAccountIndex instanceof MoneroSendRequest) requestOrAccountIndex = requestOrAccountIndex.toJson();
-    else if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex).toJson();
-    let txSetJson = await this._invokeWorker("sendTxs", [requestOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
+  async sendTxs(configOrAccountIndex, address, amount, priority) {
+    if (configOrAccountIndex instanceof MoneroTxConfig) configOrAccountIndex = configOrAccountIndex.toJson();
+    else if (typeof configOrAccountIndex === "object") configOrAccountIndex = new MoneroTxConfig(configOrAccountIndex).toJson();
+    let txSetJson = await this._invokeWorker("sendTxs", [configOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
     return new MoneroTxSet(txSetJson);
   }
   
-  async sweepOutput(requestOrAddress, keyImage, priority) {
-    if (requestOrAddress instanceof MoneroSendRequest) requestOrAddress = requestOrAddress.toJson();
-    else if (typeof requestOrAddress === "object") requestOrAddress = new MoneroSendRequest(requestOrAddress).toJson();
-    let txSetJson = await this._invokeWorker("sweepOutput", [requestOrAddress, keyImage, priority]);
+  async sweepOutput(configOrAddress, keyImage, priority) {
+    if (configOrAddress instanceof MoneroTxConfig) configOrAddress = configOrAddress.toJson();
+    else if (typeof configOrAddress === "object") configOrAddress = new MoneroTxConfig(configOrAddress).toJson();
+    let txSetJson = await this._invokeWorker("sweepOutput", [configOrAddress, keyImage, priority]);
     return new MoneroTxSet(txSetJson);
   }
 
-  async sweepUnlocked(request) {
-    if (request instanceof MoneroSendRequest) request = request.toJson();
-    else if (typeof request === "object") request = new MoneroSendRequest(request).toJson();
+  async sweepUnlocked(config) {
+    if (config instanceof MoneroTxConfig) config = config.toJson();
+    else if (typeof config === "object") config = new MoneroTxConfig(config).toJson();
     let txSets = [];
-    for (let txSetJson of await this._invokeWorker("sweepUnlocked", [request])) txSets.push(new MoneroTxSet(txSetJson));
+    for (let txSetJson of await this._invokeWorker("sweepUnlocked", [config])) txSets.push(new MoneroTxSet(txSetJson));
     return txSets;
   }
   
@@ -2265,12 +2265,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("setAccountTagLabel", Array.from(arguments));
   }
   
-  async createPaymentUri(request) {
-    return this._invokeWorker("createPaymentUri", [request.toJson()]);
+  async createPaymentUri(config) {
+    return this._invokeWorker("createPaymentUri", [config.toJson()]);
   }
   
   async parsePaymentUri(uri) {
-    return new MoneroSendRequest(await this._invokeWorker("parsePaymentUri", Array.from(arguments)));
+    return new MoneroTxConfig(await this._invokeWorker("parsePaymentUri", Array.from(arguments)));
   }
   
   async getAttribute(key) {

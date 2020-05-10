@@ -648,15 +648,15 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
   }
 }
 
-void monero_wasm_bridge::send_txs(int handle, const string& send_request_json, emscripten::val callback) {
+void monero_wasm_bridge::send_txs(int handle, const string& config_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
 
-    // deserialize send request
-    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
 
-    // submit send request
-    monero_tx_set tx_set = wallet->send_txs(*send_request);
+    // send txs
+    monero_tx_set tx_set = wallet->send_txs(*config);
 
     // serialize and return tx set
     callback(tx_set.serialize());
@@ -665,15 +665,15 @@ void monero_wasm_bridge::send_txs(int handle, const string& send_request_json, e
   }
 }
 
-void monero_wasm_bridge::sweep_output(int handle, const string& send_request_json, emscripten::val callback) {
+void monero_wasm_bridge::sweep_output(int handle, const string& config_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
 
-    // deserialize send request
-    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
 
-    // submit send request
-    monero_tx_set tx_set = wallet->sweep_output(*send_request);
+    // sweep output
+    monero_tx_set tx_set = wallet->sweep_output(*config);
 
     // serialize and return tx set
     callback(tx_set.serialize());
@@ -682,15 +682,15 @@ void monero_wasm_bridge::sweep_output(int handle, const string& send_request_jso
   }
 }
 
-void monero_wasm_bridge::sweep_unlocked(int handle, const string& send_request_json, emscripten::val callback) {
+void monero_wasm_bridge::sweep_unlocked(int handle, const string& config_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
 
-    // deserialize send request
-    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
 
-    // submit send request
-    vector<monero_tx_set> tx_sets = wallet->sweep_unlocked(*send_request);
+    // sweep unlocked
+    vector<monero_tx_set> tx_sets = wallet->sweep_unlocked(*config);
 
     // wrap and serialize tx sets
     rapidjson::Document doc;
@@ -898,10 +898,10 @@ void monero_wasm_bridge::set_account_tag_label(int handle, const string& tag, co
   throw runtime_error("Not implemented");
 }
 
-string monero_wasm_bridge::create_payment_uri(int handle, const string& request_str) {
+string monero_wasm_bridge::create_payment_uri(int handle, const string& config_json) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(request_str);
-  return wallet->create_payment_uri(*send_request);
+  shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
+  return wallet->create_payment_uri(*config);
 }
 
 string monero_wasm_bridge::parse_payment_uri(int handle, const string& uri) {

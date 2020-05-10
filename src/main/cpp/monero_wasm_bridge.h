@@ -86,9 +86,9 @@ namespace monero_wasm_bridge
   void import_key_images(int handle, const string& key_images_str, emscripten::val callback);
   //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
   void relay_txs(int handle, const string& args, emscripten::val callback);
-  void send_txs(int handle, const string& send_request_json, emscripten::val callback);
-  void sweep_output(int handle, const string& send_requet_json, emscripten::val callback);
-  void sweep_unlocked(int handle, const string& send_requet_json, emscripten::val callback);
+  void send_txs(int handle, const string& config_json, emscripten::val callback);
+  void sweep_output(int handle, const string& config_json, emscripten::val callback);
+  void sweep_unlocked(int handle, const string& config_json, emscripten::val callback);
   void sweep_dust(int handle, bool doNotRelay, emscripten::val callback);
   string parse_tx_set(int handle, const string& tx_set_str);
   string sign_txs(int handle, const string& unsigned_tx_hex);
@@ -114,7 +114,7 @@ namespace monero_wasm_bridge
   void untag_accounts(int handle, const string& args);
   string get_account_tags(int handle);
   void set_account_tag_label(int handle, const string& tag, const string& label);
-  string create_payment_uri(int handle, const string& request_str);
+  string create_payment_uri(int handle, const string& config_json);
   string parse_payment_uri(int handle, const string& uri);
   string get_attribute(int handle, const string& key);
   void set_attribute(int handle, const string& key, const string& val);

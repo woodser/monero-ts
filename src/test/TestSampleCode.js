@@ -86,7 +86,7 @@ class TestSampleCode {
           accountIndex: 0,
           address: await walletWasm.getAddress(1, 0),
           amount: new BigInteger("50000"),  // amount to transfer in atomic units
-          priority: MoneroSendPriority.NORMAL
+          priority: MoneroTxPriority.NORMAL
         });
         let sentTx = txSet.getTxs()[0];     // send methods return tx set(s) which contain sent txs
         let txHash = sentTx.getHash();
@@ -219,17 +219,17 @@ class TestSampleCode {
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });  // wait 10s for auto refresh
         let isConfirmed = (await walletRpc.getTx(sentTx.getHash())).isConfirmed();
         
-        // create a request to send funds from the RPC wallet to multiple destinations in the wasm wallet
-        let request = new MoneroSendRequest()
+        // configure a config to send funds from RPC wallet to multiple destinations in the WASM wallet
+        let config = new MoneroTxConfig()
                 .setAccountIndex(1)                           // send from account 1
                 .setSubaddressIndices([0, 1])                 // send from subaddresses in account 1
-                .setPriority(MoneroSendPriority.UNIMPORTANT)  // no rush
+                .setPriority(MoneroTxPriority.UNIMPORTANT)  // no rush
                 .setDestinations([
                         new MoneroDestination(await walletWasm.getAddress(1, 0), BigInteger.parse("50000")),
                         new MoneroDestination(await walletWasm.getAddress(2, 0), BigInteger.parse("50000"))]);
         
         // create the transaction, confirm with the user, and relay to the network
-        let createdTx = (await walletRpc.createTx(request)).getTxs()[0];
+        let createdTx = (await walletRpc.createTx(config)).getTxs()[0];
         let fee = createdTx.getFee();  // "Are you sure you want to send ...?"
         await walletRpc.relayTx(createdTx); // submit the transaction which will notify the JNI wallet
         

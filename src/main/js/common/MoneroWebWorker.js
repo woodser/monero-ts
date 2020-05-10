@@ -699,20 +699,20 @@ self.relayTxs = async function(walletId, txMetadatas) {
   return self.WORKER_OBJECTS[walletId].relayTxs(txMetadatas);
 }
 
-self.sendTxs = async function(walletId, requestOrAccountIndex, address, amountStr, priority) {
-  if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
-  return (await self.WORKER_OBJECTS[walletId].sendTxs(requestOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
+self.sendTxs = async function(walletId, configOrAccountIndex, address, amountStr, priority) {
+  if (typeof configOrAccountIndex === "object") configOrAccountIndex = new MoneroTxConfig(configOrAccountIndex);
+  return (await self.WORKER_OBJECTS[walletId].sendTxs(configOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
 }
 
-self.sweepOutput = async function(walletId, requestOrAddress, keyImage, priority) {
-  if (typeof requestOrAddress === "object") requestOrAddress = new MoneroSendRequest(requestOrAddress);
-  return (await self.WORKER_OBJECTS[walletId].sweepOutput(requestOrAddress, keyImage, priority)).toJson();
+self.sweepOutput = async function(walletId, configOrAddress, keyImage, priority) {
+  if (typeof configOrAddress === "object") configOrAddress = new MoneroTxConfig(configOrAddress);
+  return (await self.WORKER_OBJECTS[walletId].sweepOutput(configOrAddress, keyImage, priority)).toJson();
 }
 
-self.sweepUnlocked = async function(walletId, request) {
-  if (typeof request === "object") request = new MoneroSendRequest(request);
+self.sweepUnlocked = async function(walletId, config) {
+  if (typeof config === "object") config = new MoneroTxConfig(config);
   let txSetsJson = [];
-  for (let txSet of await self.WORKER_OBJECTS[walletId].sweepUnlocked(request)) txSetsJson.push(txSet.toJson());
+  for (let txSet of await self.WORKER_OBJECTS[walletId].sweepUnlocked(config)) txSetsJson.push(txSet.toJson());
   return txSetsJson;
 }
 
@@ -818,8 +818,8 @@ self.setAccountTagLabel = async function(walletId, tag, label) {
   throw new Error("Not implemented");
 }
 
-self.createPaymentUri = async function(walletId, requestJson) {
-  return self.WORKER_OBJECTS[walletId].createPaymentUri(new MoneroSendRequest(requestJson));
+self.createPaymentUri = async function(walletId, configJson) {
+  return self.WORKER_OBJECTS[walletId].createPaymentUri(new MoneroTxConfig(configJson));
 }
 
 self.parsePaymentUri = async function(walletId, uri) {
