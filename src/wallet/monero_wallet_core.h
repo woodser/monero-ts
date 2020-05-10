@@ -229,20 +229,20 @@ namespace monero {
     int import_outputs_hex(const string& outputs_hex);
     vector<shared_ptr<monero_key_image>> get_key_images() const;
     shared_ptr<monero_key_image_import_result> import_key_images(const vector<shared_ptr<monero_key_image>>& key_images);
-    monero_tx_set create_tx(monero_send_request& request);
+    monero_tx_set create_tx(monero_tx_config& config);
     monero_tx_set create_tx(uint32_t account_index, string address, uint64_t amount);
-    monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority);
-    monero_tx_set create_txs(monero_send_request& request);
+    monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_tx_priority priority);
+    monero_tx_set create_txs(monero_tx_config& config);
     string relay_tx(const string& tx_metadata);
     string relay_tx(const monero_tx_wallet& tx);
     vector<string> relay_txs(const vector<string>& tx_metadatas);
     vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs);
-    monero_tx_set send_tx(const monero_send_request& request);
+    monero_tx_set send_tx(const monero_tx_config& config);
     monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount);
-    monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
-    monero_tx_set send_txs(const monero_send_request& request);
-    vector<monero_tx_set> sweep_unlocked(const monero_send_request& request);
-    monero_tx_set sweep_output(const monero_send_request& request);
+    monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_tx_priority priority);
+    monero_tx_set send_txs(const monero_tx_config& config);
+    vector<monero_tx_set> sweep_unlocked(const monero_tx_config& config);
+    monero_tx_set sweep_output(const monero_tx_config& config);
     monero_tx_set sweep_dust(bool do_not_relay = false);
     monero_tx_set parse_tx_set(const monero_tx_set& tx_set);
     string sign_txs(const string& unsigned_tx_hex);
@@ -266,8 +266,8 @@ namespace monero {
     uint64_t add_address_book_entry(const string& address, const string& description);
     void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description);
     void delete_address_book_entry(uint64_t index);
-    string create_payment_uri(const monero_send_request& request) const;
-    shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const;
+    string create_payment_uri(const monero_tx_config& config) const;
+    shared_ptr<monero_tx_config> parse_payment_uri(const string& uri) const;
     bool get_attribute(const string& key, string& value) const;
     void set_attribute(const string& key, const string& val);
     void start_mining(boost::optional<uint64_t> num_threads, boost::optional<bool> background_mining, boost::optional<bool> ignore_battery);
@@ -302,7 +302,7 @@ namespace monero {
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
-    monero_tx_set sweep_account(const monero_send_request& request);  // sweeps unlocked funds within an account; private helper to sweep_unlocked()
+    monero_tx_set sweep_account(const monero_tx_config& config);  // sweeps unlocked funds within an account; private helper to sweep_unlocked()
 
     // blockchain sync management
     mutable std::atomic<bool> m_is_synced;       // whether or not wallet is synced

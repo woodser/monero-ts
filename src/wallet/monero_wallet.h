@@ -476,13 +476,6 @@ namespace monero {
       throw runtime_error("rescan_blockchain() not supported");
     }
 
-//    /**
-//     * Indicates if importing multisig data is needed for returning a correct balance.
-//     *
-//     * @return true if importing multisig data is needed for returning a correct balance, false otherwise
-//     */
-//    public boolean isMultisigImportNeeded();
-
     /**
      * Get the wallet's balance.
      *
@@ -657,14 +650,6 @@ namespace monero {
       throw runtime_error("create_subaddress() not supported");
     }
 
-//    /**
-//     * Get a wallet transaction by hash.
-//     *
-//     * @param tx_hash is a hash of a transaction to get
-//     * @return monero_tx_wallet is the identified transactions
-//     */
-//    public monero_tx_wallet getTx(string tx_hash);
-
     /**
      * Get all wallet transactions.  Wallet transactions contain one or more
      * transfers that are either incoming or outgoing to the wallet.
@@ -674,14 +659,6 @@ namespace monero {
     virtual vector<shared_ptr<monero_tx_wallet>> get_txs() const {
       throw runtime_error("get_txs() not supported");
     }
-
-//    /**
-//     * Get wallet transactions by hash.
-//     *
-//     * @param tx_hashes are hashes of transactions to get
-//     * @return the identified transactions
-//     */
-//    public List<monero_tx_wallet> get_txs(Collection<string> tx_hashes);
 
     /**
      * Get wallet transactions.  Wallet transactions contain one or more
@@ -700,55 +677,16 @@ namespace monero {
     }
 
     /**
-     * Same as get_txs(request) but collects missing tx hashes instead of throwing an error.
+     * Same as get_txs(query) but collects missing tx hashes instead of throwing an error.
      * This method is separated because WebAssembly does not support exception handling.
      *
-     * @param request filters query results (optional)
+     * @param query filters results (optional)
      * @param missing_tx_hashes are populated with requested tx hashes that are not part of the wallet
      * @return wallet transactions per the request
      */
     virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query, vector<string>& missing_tx_hashes) const {
       throw runtime_error("get_txs(query, missing_tx_hashes) not supported");
     }
-
-//    /**
-//     * Get all incoming and outgoing transfers to and from this wallet.  An
-//     * outgoing transfer represents a total amount sent from one or more
-//     * subaddresses within an account to individual destination addresses, each
-//     * with their own amount.  An incoming transfer represents a total amount
-//     * received into a subaddress within an account.  Transfers belong to
-//     * transactions which are stored on the blockchain.
-//     *
-//     * @return all wallet transfers
-//     */
-//    public List<monero_transfer> get_transfers();
-//
-//    /**
-//     * Get incoming and outgoing transfers to and from an account.  An outgoing
-//     * transfer represents a total amount sent from one or more subaddresses
-//     * within an account to individual destination addresses, each with their
-//     * own amount.  An incoming transfer represents a total amount received into
-//     * a subaddress within an account.  Transfers belong to transactions which
-//     * are stored on the blockchain.
-//     *
-//     * @param account_idx is the index of the account to get transfers from
-//     * @return transfers to/from the account
-//     */
-//    public List<monero_transfer> get_transfers(int account_idx);
-//
-//    /**
-//     * Get incoming and outgoing transfers to and from a subaddress.  An outgoing
-//     * transfer represents a total amount sent from one or more subaddresses
-//     * within an account to individual destination addresses, each with their
-//     * own amount.  An incoming transfer represents a total amount received into
-//     * a subaddress within an account.  Transfers belong to transactions which
-//     * are stored on the blockchain.
-//     *
-//     * @param account_idx is the index of the account to get transfers from
-//     * @param subaddress_idx is the index of the subaddress to get transfers from
-//     * @return transfers to/from the subaddress
-//     */
-//    public List<monero_transfer> get_transfers(int account_idx, int subaddress_idx);
 
     /**
      * Get incoming and outgoing transfers to and from this wallet.  An outgoing
@@ -769,15 +707,6 @@ namespace monero {
     virtual vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const {
       throw runtime_error("get_transfers() not supported");
     }
-
-//    /**
-//     * Get outputs created from previous transactions that belong to the wallet
-//     * (i.e. that the wallet can spend one time).  Outputs are part of
-//     * transactions which are stored in blocks on the blockchain.
-//     *
-//     * @return List<monero_output_wallet> are all wallet outputs
-//     */
-//    public List<monero_output_wallet> get_outputs();
 
     /**
      * Get outputs created from previous transactions that belong to the wallet
@@ -833,21 +762,14 @@ namespace monero {
       throw runtime_error("import_key_images() not supported");
     }
 
-//    /**
-//     * Get new key images from the last imported outputs.
-//     *
-//     * @return the key images from the last imported outputs
-//     */
-//    public List<monero_key_image> getNewKeyImagesFromLastImport();
-
     /**
      * Create a transaction to transfer funds from this wallet according to the
-     * given request.  The transaction may be relayed later.
+     * given config.  The transaction may be relayed later.
      *
-     * @param request configures the transaction to create
+     * @param config configures the transaction to create
      * @return a tx set for the requested transaction if possible
      */
-    virtual monero_tx_set create_tx(monero_send_request& request) {
+    virtual monero_tx_set create_tx(monero_tx_config& config) {
       throw runtime_error("create_tx() not supported");
     }
 
@@ -874,18 +796,18 @@ namespace monero {
      * @param priority is the send priority (default normal)
      * @return a tx set for the requested transaction if possible
      */
-    virtual monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
+    virtual monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_tx_priority priority) {
       throw runtime_error("create_tx() not supported");
     }
 
     /**
      * Create one or more transactions to transfer funds from this wallet
-     * according to the given request.  The transactions may later be relayed.
+     * according to the given config.  The transactions may later be relayed.
      *
-     * @param request configures the transactions to create
+     * @param config configures the transactions to create
      * @return a tx set for the requested transactions if possible
      */
-    virtual monero_tx_set create_txs(monero_send_request& request) {
+    virtual monero_tx_set create_txs(monero_tx_config& config) {
       throw runtime_error("create_txs() not supported");
     }
 
@@ -931,12 +853,12 @@ namespace monero {
 
     /**
      * Create and relay a transaction to transfer funds from this wallet
-     * according to the given request.
+     * according to the given config.
      *
-     * @param request configures the transaction
+     * @param config configures the transaction
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set send_tx(const monero_send_request& request) {
+    virtual monero_tx_set send_tx(const monero_tx_config& config) {
       throw runtime_error("send_tx() not supported");
     }
 
@@ -963,7 +885,7 @@ namespace monero {
      * @param priority is the send priority (default normal)
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_tx_priority priority) {
       throw runtime_error("send_tx() not supported");
     }
 
@@ -971,118 +893,32 @@ namespace monero {
      * Create one or more transactions which transfer funds from this wallet to
      * one or more destinations depending on the given configuration.
      *
-     * @param request configures the transaction
+     * @param config configures the transaction
      * @return a tx set with the requested transactions if possible
      */
-    virtual monero_tx_set send_txs(const monero_send_request& request) {
+    virtual monero_tx_set send_txs(const monero_tx_config& config) {
       throw runtime_error("send_txs() not supported");
     }
 
-    //    /**
-    //     * Create and relay one or more transactions which transfer funds from this
-    //     * wallet to one or more destination.
-    //     *
-    //     * @param account_index is the index of the account to draw funds from
-    //     * @param address is the destination address to send funds to
-    //     * @param sendAmount is the amount being sent
-    //     * @return the resulting transactions
-    //     */
-    //    public List<monero_tx_wallet> send_txs(int account_index, string address, BigInteger sendAmount);
-    //
-    //    /**
-    //     * Create and relay one or more transactions which transfer funds from this
-    //     * wallet to one or more destination.
-    //     *
-    //     * @param account_index is the index of the account to draw funds from
-    //     * @param address is the destination address to send funds to
-    //     * @param sendAmount is the amount being sent
-    //     * @param priority is the send priority (default normal)
-    //     * @return the resulting transactions
-    //     */
-    //    public List<monero_tx_wallet> send_txs(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
-
     /**
-     * Sweep unlocked funds according to the given request.
+     * Sweep unlocked funds according to the given config.
      *
-     * @param request is the sweep configuration
+     * @param config is the sweep configuration
      * @return the tx sets with the requested transactions
      */
-    virtual vector<monero_tx_set> sweep_unlocked(const monero_send_request& request) {
+    virtual vector<monero_tx_set> sweep_unlocked(const monero_tx_config& config) {
       throw runtime_error("sweep_unlocked() not supported");
     }
 
     /**
      * Sweep an output with a given key image.
      *
-     * @param request configures the sweep transaction
+     * @param config configures the sweep transaction
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set sweep_output(const monero_send_request& request) {
+    virtual monero_tx_set sweep_output(const monero_tx_config& config) {
       throw runtime_error("sweep_output() not supported");
     }
-
-//    /**
-//     * Sweep an output with a given key image.
-//     *
-//     * @param address is the destination address to send to
-//     * @param key_image is the key image hex of the output to sweep
-//     * @return the resulting transaction from sweeping an output
-//     */
-//    public monero_tx_wallet sweep_output(string address, string key_image);
-//
-//    /**
-//     * Sweep an output with a given key image.
-//     *
-//     * @param address is the destination address to send to
-//     * @param key_image is the key image hex of the output to sweep
-//     * @param priority is the transaction priority (optional)
-//     * @return the resulting transaction from sweeping an output
-//     */
-//    public monero_tx_wallet sweep_output(string address, string key_image, monero_send_priority priority);
-//
-//    /**
-//     * Sweep a subaddress's unlocked funds to an address.
-//     *
-//     * @param account_idx is the index of the account
-//     * @param subaddress_idx is the index of the subaddress
-//     * @param address is the address to sweep the subaddress's funds to
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> sweepSubaddress(int account_idx, int subaddress_idx, string address);
-//
-//    /**
-//     * Sweep an acount's unlocked funds to an address.
-//     *
-//     * @param account_idx is the index of the account
-//     * @param address is the address to sweep the account's funds to
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> sweepAccount(int account_idx, string address);
-//
-//    /**
-//     * Sweep the wallet's unlocked funds to an address.
-//     *
-//     * @param address is the address to sweep the wallet's funds to
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> sweepWallet(string address);
-//
-//    /**
-//     * Sweep all unlocked funds according to the given request.
-//     *
-//     * @param request is the sweep configuration
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> sweepAllUnlocked(monero_send_request request);
-//
-//    /**
-//     * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
-//     *
-//     * NOTE: Dust only exists pre RCT, so this method will return "no dust to sweep" on new wallets.
-//     *
-//     * @return the resulting transactions from sweeping dust
-//     */
-//    public List<monero_tx_wallet> sweep_dust();
 
     /**
      * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
@@ -1333,53 +1169,23 @@ namespace monero {
       throw runtime_error("delete_address_book_entry() not supported");
     }
 
-//    /**
-//     * Tag accounts.
-//     *
-//     * @param tag is the tag to apply to the specified accounts
-//     * @param accountIndices are the indices of the accounts to tag
-//     */
-//    public void tagAccounts(string tag, Collection<Integer> accountIndices);
-//
-//    /**
-//     * Untag acconts.
-//     *
-//     * @param accountIndices are the indices of the accounts to untag
-//     */
-//    public void untagAccounts(Collection<Integer> accountIndices);
-//
-//    /**
-//     * Return all account tags.
-//     *
-//     * @return the wallet's account tags
-//     */
-//    public List<MoneroAccountTag> getAccountTags();
-//
-//    /**
-//     * Sets a human-readable description for a tag.
-//     *
-//     * @param tag is the tag to set a description for
-//     * @param label is the label to set for the tag
-//     */
-//    public void setAccountTagLabel(string tag, string label);
-
     /**
-     * Creates a payment URI from a send configuration.
+     * Creates a payment URI from a tx configuration.
      *
-     * @param request specifies configuration for a potential tx
+     * @param config specifies configuration for a potential tx
      * @return is the payment uri
      */
-    virtual string create_payment_uri(const monero_send_request& request) const {
+    virtual string create_payment_uri(const monero_tx_config& config) const {
       throw runtime_error("create_payment_uri() not supported");
     }
 
     /**
-     * Parses a payment URI to a send request.
+     * Parses a payment URI to a tx configuration.
      *
      * @param uri is the payment uri to parse
-     * @return the send request parsed from the uri
+     * @return the tx configuration parsed from the uri
      */
-    virtual shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const {
+    virtual shared_ptr<monero_tx_config> parse_payment_uri(const string& uri) const {
       throw runtime_error("parse_payment_uri() not supported");
     }
 

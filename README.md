@@ -121,19 +121,19 @@ uint64_t next_height = wallet_random->wait_for_next_block();
 wallet_restored->stop_mining();
 
 // create a request to send funds to multiple destinations in the random wallet
-monero_send_request send_request = monero_send_request();
-send_request.m_account_index = 1;                // withdraw funds from this account
-send_request.m_subaddress_indices = vector<uint32_t>();
-send_request.m_subaddress_indices.push_back(0);
-send_request.m_subaddress_indices.push_back(1);  // withdraw funds from these subaddresses within the account
-send_request.m_priority = monero_send_priority::UNIMPORTANT;  // no rush
+monero_tx_config config = monero_tx_config();
+config.m_account_index = 1;                // withdraw funds from this account
+config.m_subaddress_indices = vector<uint32_t>();
+config.m_subaddress_indices.push_back(0);
+config.m_subaddress_indices.push_back(1);  // withdraw funds from these subaddresses within the account
+config.m_priority = monero_tx_priority::UNIMPORTANT;  // no rush
 vector<shared_ptr<monero_destination>> destinations;  // specify the recipients and their amounts
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(1, 0), 50000));
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
-send_request.m_destinations = destinations;
+config.m_destinations = destinations;
 
 // create the transaction, confirm with the user, and relay to the network
-shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request).m_txs[0];
+shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(config).m_txs[0];
 uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
 wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 ```

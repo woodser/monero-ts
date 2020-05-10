@@ -1041,29 +1041,29 @@ namespace monero {
 
   // ------------------------- MONERO SEND REQUEST ----------------------------
 
-  monero_send_request::monero_send_request(const monero_send_request& request) {
-    if (request.m_destinations.size() > 0) {
-      for (const shared_ptr<monero_destination>& destination : request.m_destinations) {
+  monero_tx_config::monero_tx_config(const monero_tx_config& config) {
+    if (config.m_destinations.size() > 0) {
+      for (const shared_ptr<monero_destination>& destination : config.m_destinations) {
         m_destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
       }
     }
-    m_payment_id = request.m_payment_id;
-    m_priority = request.m_priority;
-    m_ring_size = request.m_ring_size;
-    m_fee = request.m_fee;
-    m_account_index = request.m_account_index;
-    m_subaddress_indices = request.m_subaddress_indices;
-    m_unlock_time = request.m_unlock_time;
-    m_can_split = request.m_can_split;
-    m_do_not_relay = request.m_do_not_relay;
-    m_note = request.m_note;
-    m_recipient_name = request.m_recipient_name;
-    m_below_amount = request.m_below_amount;
-    m_sweep_each_subaddress = request.m_sweep_each_subaddress;
-    m_key_image = request.m_key_image;
+    m_payment_id = config.m_payment_id;
+    m_priority = config.m_priority;
+    m_ring_size = config.m_ring_size;
+    m_fee = config.m_fee;
+    m_account_index = config.m_account_index;
+    m_subaddress_indices = config.m_subaddress_indices;
+    m_unlock_time = config.m_unlock_time;
+    m_can_split = config.m_can_split;
+    m_do_not_relay = config.m_do_not_relay;
+    m_note = config.m_note;
+    m_recipient_name = config.m_recipient_name;
+    m_below_amount = config.m_below_amount;
+    m_sweep_each_subaddress = config.m_sweep_each_subaddress;
+    m_key_image = config.m_key_image;
   }
 
-  rapidjson::Value monero_send_request::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
+  rapidjson::Value monero_tx_config::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
 
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
@@ -1096,15 +1096,15 @@ namespace monero {
     return root;
   }
 
-  shared_ptr<monero_send_request> monero_send_request::deserialize(const string& send_request_json) {
+  shared_ptr<monero_tx_config> monero_tx_config::deserialize(const string& config_json) {
 
-    // deserialize send request json to property node
-    std::istringstream iss = send_request_json.empty() ? std::istringstream() : std::istringstream(send_request_json);
+    // deserialize config json to property node
+    std::istringstream iss = config_json.empty() ? std::istringstream() : std::istringstream(config_json);
     boost::property_tree::ptree node;
     boost::property_tree::read_json(iss, node);
 
-    // convert request property tree to monero_send_request
-    shared_ptr<monero_send_request> send_request = make_shared<monero_send_request>();
+    // convert config property tree to monero_tx_config
+    shared_ptr<monero_tx_config> config = make_shared<monero_tx_config>();
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       string key = it->first;
       if (key == string("destinations")) {
@@ -1112,37 +1112,37 @@ namespace monero {
         for (boost::property_tree::ptree::const_iterator it2 = destinationsNode.begin(); it2 != destinationsNode.end(); ++it2) {
           shared_ptr<monero_destination> destination = make_shared<monero_destination>();
           monero_destination::from_property_tree(it2->second, destination);
-          send_request->m_destinations.push_back(destination);
+          config->m_destinations.push_back(destination);
         }
       }
-      else if (key == string("paymentId")) send_request->m_payment_id = it->second.data();
+      else if (key == string("paymentId")) config->m_payment_id = it->second.data();
       else if (key == string("priority")) {
         uint32_t priority_num = it->second.get_value<uint32_t>();
-        if (priority_num == 0) send_request->m_priority = monero_send_priority::DEFAULT;
-        else if (priority_num == 1) send_request->m_priority = monero_send_priority::UNIMPORTANT;
-        else if (priority_num == 2) send_request->m_priority = monero_send_priority::NORMAL;
-        else if (priority_num == 3) send_request->m_priority = monero_send_priority::ELEVATED;
+        if (priority_num == 0) config->m_priority = monero_tx_priority::DEFAULT;
+        else if (priority_num == 1) config->m_priority = monero_tx_priority::UNIMPORTANT;
+        else if (priority_num == 2) config->m_priority = monero_tx_priority::NORMAL;
+        else if (priority_num == 3) config->m_priority = monero_tx_priority::ELEVATED;
         else throw new runtime_error("Invalid priority number: " + std::to_string(priority_num));
       }
-      else if (key == string("ringSize")) send_request->m_ring_size = it->second.get_value<uint32_t>();
-      else if (key == string("fee")) send_request->m_fee = it->second.get_value<uint64_t>();
-      else if (key == string("accountIndex")) send_request->m_account_index = it->second.get_value<uint32_t>();
-      else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) send_request->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-      else if (key == string("unlockTime")) send_request->m_unlock_time = it->second.get_value<uint64_t>();
-      else if (key == string("canSplit")) send_request->m_can_split = it->second.get_value<bool>();
-      else if (key == string("doNotRelay")) send_request->m_do_not_relay = it->second.get_value<bool>();
-      else if (key == string("note")) send_request->m_note = it->second.data();
-      else if (key == string("recipientName")) send_request->m_recipient_name = it->second.data();
-      else if (key == string("belowAmount")) send_request->m_below_amount = it->second.get_value<uint64_t>();
-      else if (key == string("sweepEachSubaddress")) send_request->m_sweep_each_subaddress = it->second.get_value<bool>();
-      else if (key == string("keyImage")) send_request->m_key_image = it->second.data();
+      else if (key == string("ringSize")) config->m_ring_size = it->second.get_value<uint32_t>();
+      else if (key == string("fee")) config->m_fee = it->second.get_value<uint64_t>();
+      else if (key == string("accountIndex")) config->m_account_index = it->second.get_value<uint32_t>();
+      else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) config->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+      else if (key == string("unlockTime")) config->m_unlock_time = it->second.get_value<uint64_t>();
+      else if (key == string("canSplit")) config->m_can_split = it->second.get_value<bool>();
+      else if (key == string("doNotRelay")) config->m_do_not_relay = it->second.get_value<bool>();
+      else if (key == string("note")) config->m_note = it->second.data();
+      else if (key == string("recipientName")) config->m_recipient_name = it->second.data();
+      else if (key == string("belowAmount")) config->m_below_amount = it->second.get_value<uint64_t>();
+      else if (key == string("sweepEachSubaddress")) config->m_sweep_each_subaddress = it->second.get_value<bool>();
+      else if (key == string("keyImage")) config->m_key_image = it->second.data();
     }
 
-    return send_request;
+    return config;
   }
 
-  monero_send_request monero_send_request::copy() const {
-    return monero_send_request(*this);
+  monero_tx_config monero_tx_config::copy() const {
+    return monero_tx_config(*this);
   }
 
   // ---------------------- MONERO INTEGRATED ADDRESS -------------------------

@@ -328,7 +328,7 @@ namespace monero {
   /**
    * Enumerates Monero network types.
    */
-  enum monero_send_priority : uint8_t {
+  enum monero_tx_priority : uint8_t {
     DEFAULT = 0,
     UNIMPORTANT,
     NORMAL,
@@ -336,12 +336,12 @@ namespace monero {
   };
 
   /**
-   * Configures a request to send/sweep funds or create a payment URI.
+   * Configures a transaction to send, sweep, or create a payment URI.
    */
-  struct monero_send_request : public serializable_struct {
+  struct monero_tx_config : public serializable_struct {
     vector<shared_ptr<monero_destination>> m_destinations;
     boost::optional<string> m_payment_id;
-    boost::optional<monero_send_priority> m_priority;
+    boost::optional<monero_tx_priority> m_priority;
     boost::optional<uint32_t> m_ring_size;
     boost::optional<uint64_t> m_fee;
     boost::optional<uint32_t> m_account_index;
@@ -355,11 +355,11 @@ namespace monero {
     boost::optional<bool> m_sweep_each_subaddress;
     boost::optional<string> m_key_image;
 
-    monero_send_request() {}
-    monero_send_request(const monero_send_request& request);
+    monero_tx_config() {}
+    monero_tx_config(const monero_tx_config& config);
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    static shared_ptr<monero_send_request> deserialize(const string& send_request_json);
-    monero_send_request copy() const;
+    static shared_ptr<monero_tx_config> deserialize(const string& config_json);
+    monero_tx_config copy() const;
   };
 
   /**
