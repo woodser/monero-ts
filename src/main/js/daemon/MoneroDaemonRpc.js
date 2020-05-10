@@ -38,8 +38,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * let daemon = new MoneroDaemonRpc({<br>
    * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
    * &nbsp;&nbsp; username: "superuser",<br>
-   * &nbsp;&nbsp; password: "abctesting123",<br>
-   * &nbsp;&nbsp; proxyToWorker: true,<br>
+   * &nbsp;&nbsp; password: "abctesting123"<br>
    * });
    * </code>
    * 
@@ -48,7 +47,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default false)
+   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     super();

@@ -2,14 +2,14 @@ const Request = require("request-promise");
 const PromiseThrottle = require("promise-throttle");
 
 /**
- * Handles http requests with a uniform interface.
+ * Handle HTTP requests with a uniform interface.
  * 
  * @hideconstructor
  */
 class HttpClient {
   
   /**
-   * <p>Make a http request.<p>
+   * <p>Make a HTTP request.<p>
    * 
    * @param {object} request - configures the request to make
    * @param {string} request.method - HTTP method ("GET", "PUT", "POST", "DELETE", etc)

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: daemon/model/MoneroMiningStatus.js</title>
+    <title>JSDoc: Source: wallet/model/MoneroTxPriority.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: daemon/model/MoneroMiningStatus.js</h1>
+    <h1 class="page-title">Source: wallet/model/MoneroTxPriority.js</h1>
 
     
 
@@ -27,69 +27,16 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Models daemon mining status.
+ * Enumerates send priorities.
  */
-class MoneroMiningStatus {
-  
-  constructor(state) {
-    if (!state) state = {};
-    else if (state instanceof MoneroMiningStatus) state = state.toJson();
-    else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new MoneroError("state must be a MoneroMiningStatus or JavaScript object");
-    this.state = state;
-  }
-  
-  toJson() {
-    return Object.assign({}, this.state);
-  }
-  
-  isActive() {
-    return this.state.isActive;
-  }
-  
-  setIsActive(isActive) {
-    this.state.isActive = isActive;
-    return this;
-  }
-  
-  getAddress() {
-    return this.state.address;
-  }
-  
-  setAddress(address) {
-    this.state.address = address;
-    return this;
-  }
-  
-  getSpeed() {
-    return this.state.speed;
-  }
-  
-  setSpeed(speed) {
-    this.state.speed = speed;
-    return this;
-  }
-  
-  getNumThreads() {
-    return this.state.numThreads;
-  }
-  
-  setNumThreads(numThreads) {
-    this.state.numThreads = numThreads;
-    return this;
-  }
-  
-  isBackground() {
-    return this.state.isBackground;
-  }
-  
-  setIsBackground(isBackground) {
-    this.state.isBackground = isBackground;
-    return this;
-  }
+MoneroTxPriority = {
+    DEFAULT: 0,
+    UNIMPORTANT: 1,
+    NORMAL: 2,
+    ELEVATED: 3
 }
 
-module.exports = MoneroMiningStatus;</code></pre>
+module.exports = MoneroTxPriority;</code></pre>
         </article>
     </section>
 

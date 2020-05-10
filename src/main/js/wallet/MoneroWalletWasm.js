@@ -57,12 +57,12 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {string} configOrPath.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
-   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
    * @param {fs} configOrPath.fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {string} password - password of the wallet to open
    * @param {string|number} networkType - network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
-   * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+   * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
    * @param {fs} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
    */
   static async openWallet(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
@@ -110,9 +110,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * &nbsp;&nbsp; password: "supersecretpassword",<br>
    * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
    * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
-   * &nbsp;&nbsp; restoreHeight: 1543218<br>
+   * &nbsp;&nbsp; restoreHeight: 1543218,<br>
    * &nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
-   * &nbsp;&nbsp; proxyToWorker: true // if running in a browser, proxy wallet to web worker so main thread is not blocked<br>
    * });
    * </code>
    * 
@@ -133,7 +132,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-   * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (defaults to false)
+   * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
    * @param {fs} config.fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
    */
   static async createWallet(config) {

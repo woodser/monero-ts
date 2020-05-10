@@ -14,12 +14,29 @@ const MoneroRpcConfigDefault = {
 class MoneroRpcConnection {
   
   /**
-   * Construct a RPC connection.
+   * <p>Construct a RPC connection.</p>
    * 
-   * @param {string|object|uriOrConfigOrConnection} uriOrConfigOrConnection is the rpc endpoint uri or MoneroRpcConnection or equivalent JS object
-   * @param {string} username is the username to authenticate with the rpc endpoint (optional)
-   * @param {string} password is the password to authenticate with the rpc endpoint (optional)
-   * @param {boolean} rejectUnauthorized rejects self-signed certificates if true
+   * <p>Examples:</p>
+   * 
+   * <code>
+   * let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123")<br><br>
+   * 
+   * let connection2 = new MoneroRpcConnection({<br>
+   * &nbsp;&nbsp; uri: http://localhost:38081,<br>
+   * &nbsp;&nbsp; username: "daemon_user",<br>
+   * &nbsp;&nbsp; password: "daemon_password_123",<br>
+   * &nbsp;&nbsp; rejectUnauthorized: false // accept self-signed certificates e.g. for local development<br>
+   * });
+   * </code>
+   * 
+   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - RPC endpoint URI, MoneroRpcConnection, or equivalent JS object
+   * @param {string} uriOrConfigOrConnection.uri - URI of the RPC endpoint
+   * @param {string} uriOrConfigOrConnection.username - username to authenticate with the RPC endpoint (optional)
+   * @param {string} uriOrConfigOrConnection.password - password to authenticate with the RPC endpoint (optional)
+   * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string} username - username to authenticate with the RPC endpoint (optional)
+   * @param {string} password - password to authenticate with the RPC endpoint (optional)
+   * @param {boolean} rejectUnauthorized - reject self-signed certificates if true (default true)
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
     
