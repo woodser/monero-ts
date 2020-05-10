@@ -6,8 +6,8 @@ const MoneroWalletWasm = require("../main/js/wallet/MoneroWalletWasm");
  */
 class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   
-  constructor(config) {
-    super(config);
+  constructor(testConfig) {
+    super(testConfig);
   }
   
   async getTestWallet() {
@@ -67,6 +67,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   
   runTests() {
     let that = this;
+    let testConfig = this.testConfig;
     describe("TEST MONERO WALLET WASM", function() {
       
       // initialize wallet
@@ -118,19 +119,19 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       // run tests specific to wallet wasm
-      that._testWalletCore();
+      that._testWalletWasm();
       
       // run common tests
       that.runCommonTests();
     });
   }
   
-  _testWalletCore() {
+  _testWalletWasm() {
     let that = this;
-    let config = this.config;
+    let testConfig = this.testConfig;
     describe("Tests specific to WebAssembly wallet", function() {
       
-      if (false && config.testNonRelays)
+      if (false && testConfig.testNonRelays)
       it("Does not leak memory", async function() {
         let restoreHeight = TestUtils.FIRST_RECEIVE_HEIGHT;
         //let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight}, false);
@@ -140,14 +141,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the daemon's height", async function() {
         assert(await that.wallet.isConnected());
         let daemonHeight = await that.wallet.getDaemonHeight();
         assert(daemonHeight > 0);
       });
       
-      if (config.testNonRelays && !config.liteMode)
+      if (testConfig.testNonRelays && !testConfig.liteMode)
       it("Can open, sync, and close wallets repeatedly", async function() {
         let wallets = [];
         for (let i = 0; i < 4; i++) {
@@ -158,13 +159,13 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         for (let wallet of wallets) await wallet.close();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can get the daemon's max peer height", async function() {
         let height = await that.wallet.getDaemonMaxPeerHeight();
         assert(height > 0);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can set the daemon connection", async function() {
         let err;
         let wallet;
@@ -214,7 +215,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can create a random WASM wallet", async function() {
         
         // create unconnected random wallet
@@ -262,7 +263,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await wallet.close();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can create a WASM wallet from mnemonic", async function() {
         
         // create unconnected wallet with mnemonic
@@ -334,7 +335,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await wallet.close();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can create a WASM wallet from keys", async function() {
         
         // recreate test wallet from keys
@@ -359,7 +360,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       // TODO monero core: cannot re-sync from lower block height after wallet saved
-      if (config.testNonRelays && !config.liteMode && false)
+      if (testConfig.testNonRelays && !testConfig.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {
         let wallet = await that.openWallet({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.STAGENET});  // wallet must already exist
         await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
@@ -379,7 +380,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await wallet.close();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can sync a wallet with a randomly generated seed", async function() {
         assert(await that.daemon.isConnected(), "Not connected to daemon");
 
@@ -449,27 +450,27 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (false && config.testNonRelays && !config.liteMode) // TODO: re-enable before release
+      if (false && testConfig.testNonRelays && !testConfig.liteMode) // TODO: re-enable before release
       it("Can sync a wallet created from mnemonic from the genesis", async function() {
         await _testSyncMnemonic(undefined, undefined, true, false);
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can sync a wallet created from mnemonic from a restore height", async function() {
         await _testSyncMnemonic(undefined, TestUtils.FIRST_RECEIVE_HEIGHT);
       });
       
-      if (config.testNonRelays && !config.liteMode)
+      if (testConfig.testNonRelays && !testConfig.liteMode)
       it("Can sync a wallet created from mnemonic from a start height.", async function() {
         await _testSyncMnemonic(TestUtils.FIRST_RECEIVE_HEIGHT, undefined, false, true);
       });
       
-      if (config.testNonRelays && !config.liteMode)
+      if (testConfig.testNonRelays && !testConfig.liteMode)
       it("Can sync a wallet created from mnemonic from a start height less than the restore height", async function() {
         await _testSyncMnemonic(TestUtils.FIRST_RECEIVE_HEIGHT, TestUtils.FIRST_RECEIVE_HEIGHT + 3);
       });
       
-      if (config.testNonRelays && !config.liteMode)
+      if (testConfig.testNonRelays && !testConfig.liteMode)
       it("Can sync a wallet created from mnemonic from a start height greater than the restore height", async function() {
         await _testSyncMnemonic(TestUtils.FIRST_RECEIVE_HEIGHT + 3, TestUtils.FIRST_RECEIVE_HEIGHT);
       });
@@ -586,7 +587,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       }
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can sync a wallet created from keys", async function() {
         
         // recreate test wallet from keys
@@ -634,7 +635,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       // TODO: test start syncing, notification of syncs happening, stop syncing, no notifications, etc
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can start and stop syncing", async function() {
         
         // test unconnected wallet
@@ -722,7 +723,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Does not interfere with other wallet notifications", async function() {
         
         // create 2 wallets with a recent restore height
@@ -754,12 +755,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await wallet2.close();
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Is equal to the RPC wallet.", async function() {
         await WalletEqualityUtils.testWalletEqualityOnChain(await TestUtils.getWalletRpc(), that.wallet);
       });
 
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Is equal to the RPC wallet with a seed offset", async function() {
         
         // use common offset to compare wallet implementations
@@ -783,7 +784,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Supports multisig sample code", async function() {
         await testCreateMultisigWallet(2, 2);
         await testCreateMultisigWallet(2, 3);
@@ -848,7 +849,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
       }
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can be saved", async function() {
         
         // create unique path for new test wallet
@@ -942,7 +943,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (config.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can be moved", async function() {
         let err;
         let wallet;
@@ -1000,7 +1001,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-    if (config.testNonRelays)
+    if (testConfig.testNonRelays)
       it("Can be closed", async function() {
         let err;
         let wallet;
@@ -1048,12 +1049,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // ----------------------------- NOTIFICATION TESTS -------------------------
       
-      if (config.testRelays)
+      if (testConfig.testRelays)
       it("Receives funds within 10 seconds", async function() {
         await testReceivesFundsWithin10Seconds(false);
       });
       
-      if (config.testRelays)
+      if (testConfig.testRelays)
       it("Receives funds within 10 seconds to the same account", async function() {
         await testReceivesFundsWithin10Seconds(true);
       });
@@ -1107,7 +1108,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
        * so neither is privy to the local wallet data of the other.
        */
     
-      if (!config.liteMode && config.testNotifications)
+      if (!testConfig.liteMode && testConfig.testNotifications)
       it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
         let issues = await testOutputNotifications(true);
         if (issues === undefined) return;
@@ -1116,7 +1117,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert(!msg.includes("ERROR:"), msg);
       });
       
-      if (!config.liteMode && config.testNotifications)
+      if (!testConfig.liteMode && testConfig.testNotifications)
       it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
         let issues = await testOutputNotifications(false);
         if (issues === undefined) return;
@@ -1125,7 +1126,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert(!msg.includes("ERROR:"), msg);
       });
       
-      if (!config.liteMode && config.testNotifications)
+      if (!testConfig.liteMode && testConfig.testNotifications)
       it("Notification test #3: notifies listeners of swept outputs", async function() {
         let issues = await testOutputNotifications(false, true);
         if (issues === undefined) return;
@@ -1165,10 +1166,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           }
           tx = (await wallet.sweepOutput(await wallet.getAddress(destinationAccounts[0], 0), outputs[0].getKeyImage().getHex())).getTxs()[0];
         } else {
-          let request = new MoneroSendRequest();
-          request.setAccountIndex(0);
-          for (let destinationAccount of destinationAccounts) request.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
-          tx = (await wallet.sendTx(request)).getTxs()[0];
+          let config = new MoneroTxConfig();
+          config.setAccountIndex(0);
+          for (let destinationAccount of destinationAccounts) config.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
+          tx = (await wallet.sendTx(config)).getTxs()[0];
         }
         
         // test wallet's balance
@@ -1249,7 +1250,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         return false;
       }
       
-      if (config.testNotifications)
+      if (testConfig.testNotifications)
       it("Can be created and receive funds", async function() {
         let err;
         let myWallet;

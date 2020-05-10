@@ -78,7 +78,7 @@ class MoneroRpcConnection {
     //console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
     
     try {
-      // send request
+      // tx config
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/json_rpc',
@@ -113,7 +113,7 @@ class MoneroRpcConnection {
     //console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     try {
-      // send request
+      // tx config
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,
@@ -152,7 +152,7 @@ class MoneroRpcConnection {
     let paramsBin = MoneroUtils.jsonToBinary(params);
     
     try {
-      // send request
+      // tx config
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,

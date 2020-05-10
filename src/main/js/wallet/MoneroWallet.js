@@ -577,42 +577,42 @@ class MoneroWallet {
    * Create a transaction to transfers funds from this wallet to a destination address.
    * The transaction may be relayed later.
    * 
-   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex - send request as an object or json or a source account index
+   * @param {MoneroTxConfig|json|uint} configOrAccountIndex - tx config as an object or json or a source account index
    * @param {string} address - destination address to send funds to
    * @param {BigInteger} amount - amount being sent
-   * @param {MoneroSendPriority} priority - send priority (default normal)
+   * @param {MoneroTxPriority} priority - send priority (default normal)
    * @return {MoneroTxSet} a tx set for the requested transaction if possible
    */
-  async createTx(requestOrAccountIndex, address, amount, priority) {
-    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
-    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with createTx() which prevents splitting; use createTxs() instead");
-    request.setCanSplit(false);
-    return await this.createTxs(request);
+  async createTx(configOrAccountIndex, address, amount, priority) {
+    let config = MoneroWallet._normalizeTxConfig(configOrAccountIndex, address, amount, priority);
+    if (config.getCanSplit() !== undefined) assert.equal(config.getCanSplit(), false, "Cannot config split transactions with createTx() which prevents splitting; use createTxs() instead");
+    config.setCanSplit(false);
+    return await this.createTxs(config);
   }
   
   /**
    * Create one or more transactions to transfer funds from this wallet
    * according to the given request.  The transactions may later be relayed.
    *  
-   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex - send request as an object or json or a source account index
+   * @param {MoneroTxConfig|json|uint} configOrAccountIndex - tx config as an object or json or a source account index
    * @param {string} address - destination address to send to (required iff no request given)
    * @param {BigInteger} sendAmount - amount to send (required iff no request given)
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
-  async createTxs(requestOrAccountIndex, address, amount, priority) {
+  async createTxs(configOrAccountIndex, address, amount, priority) {
     
-    // normalize send request
-    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    // normalize tx config
+    let config = MoneroWallet._normalizeTxConfig(configOrAccountIndex, address, amount, priority);
     
-    // modify request to not relay
-    let requestedDoNotRelay = request.getDoNotRelay();
-    request.setDoNotRelay(true);
+    // modify config to not relay
+    let requestedDoNotRelay = config.getDoNotRelay();
+    config.setDoNotRelay(true);
     
     // invoke common method which doesn't relay
-    let txSet = await this.sendTxs(request);
+    let txSet = await this.sendTxs(config);
     
-    // restore doNotRelay of request and txs
-    request.setDoNotRelay(requestedDoNotRelay);
+    // restore doNotRelay of config and txs
+    config.setDoNotRelay(requestedDoNotRelay);
     if (txSet.getTxs() !== undefined) {
       for (let tx of txSet.getTxs()) tx.setDoNotRelay(requestedDoNotRelay);
     }
@@ -645,44 +645,44 @@ class MoneroWallet {
    * Create and relay a transaction to transfers funds from this wallet to
    * a destination address.
    *  
-   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex - send request as an object or json or a source account index
+   * @param {MoneroTxConfig|json|uint} configOrAccountIndex - tx config as an object or json or a source account index
    * @param {string} address - destination address to send to (required iff no request given)
    * @param {BigInteger} sendAmount - amount to send (required iff no request given)
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
-  async sendTx(requestOrAccountIndex, address, amount, priority) {
+  async sendTx(configOrAccountIndex, address, amount, priority) {
     
-    // normalize send request
-    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
-    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with sendTx() which prevents splitting; use sendTxs() instead");
-    request = request.setCanSplit(false);
+    // normalize tx config
+    let config = MoneroWallet._normalizeTxConfig(configOrAccountIndex, address, amount, priority);
+    if (config.getCanSplit() !== undefined) assert.equal(config.getCanSplit(), false, "Cannot config split transactions with sendTx() which prevents splitting; use sendTxs() instead");
+    config = config.setCanSplit(false);
     
     // call common send function
-    return await this.sendTxs(request);
+    return await this.sendTxs(config);
   }
   
   /**
    * Create and relay one or more transactions to transfer funds from this
    * wallet according to the given request.
    *  
-   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex - send request as an object or json or a source account index
+   * @param {MoneroTxConfig|json|uint} configOrAccountIndex - tx config as an object or json or a source account index
    * @param {string} address - destination address to send to (required iff no request given)
    * @param {BigInteger} sendAmount - amount to send (required iff no request given)
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
-  async sendTxs(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(configOrAccountIndex, address, amount, priority) {
     throw new MoneroError("Not supported");
   }
   
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {(MoneroSendRequest|string)} requestOrAddress - send request or destination address
+   * @param {(MoneroTxConfig|string)} configOrAddress - tx config or destination address
    * @param {string} keyImage - key image hex of the output to sweep
-   * @param {int} priority - sets a transaction priority as an integer between 0 and 3 (see) {MoneroSendPriority})
+   * @param {int} priority - sets a transaction priority as an integer between 0 and 3 (see) {MoneroTxPriority})
    * @return {MoneroTxSet} a tx set with the requested transaction
    */
-  async sweepOutput(requestOrAddress, keyImage, priority) {
+  async sweepOutput(configOrAddress, keyImage, priority) {
     throw new MoneroError("Not supported");
   }
   
@@ -695,10 +695,10 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions if possible
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
-    let request = new MoneroSendRequest(address);
-    request.setAccountIndex(accountIdx);
-    request.setSubaddressIndices([subaddressIdx]);
-    let txSets = await this.sweepUnlocked(request);
+    let config = new MoneroTxConfig(address);
+    config.setAccountIndex(accountIdx);
+    config.setSubaddressIndices([subaddressIdx]);
+    let txSets = await this.sweepUnlocked(config);
     return txSets[0];
   }
   
@@ -710,9 +710,9 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions if possible
    */
   async sweepAccount(accountIdx, address) {
-    let request = new MoneroSendRequest(address);
-    request.setAccountIndex(accountIdx);
-    let txSets = await this.sweepUnlocked(request);
+    let config = new MoneroTxConfig(address);
+    config.setAccountIndex(accountIdx);
+    let txSets = await this.sweepUnlocked(config);
     return txSets[0]
   }
   
@@ -723,16 +723,16 @@ class MoneroWallet {
    * @return {MoneroTxSet[]} the tx sets with the transactions which sweep the wallet
    */
   async sweepWallet(address) {
-    return await this.sweepUnlocked(new MoneroSendRequest(address));
+    return await this.sweepUnlocked(new MoneroTxConfig(address));
   }
 
   /**
-   * Sweep all unlocked funds according to the given request.
+   * Sweep all unlocked funds according to the given config.
    * 
-   * @param {MoneroSendRequest} request - sweep configuration
+   * @param {MoneroTxConfig} config - sweep configuration
    * @return {MoneroTxSet[]} the tx sets with the requested transactions
    */
-  async sweepUnlocked(request) {
+  async sweepUnlocked(config) {
     throw new MoneroError("Not supported");
   }
   
@@ -1028,18 +1028,18 @@ class MoneroWallet {
   /**
    * Creates a payment URI from a send configuration.
    * 
-   * @param {MoneroSendRequest} request - specifies configuration for a potential tx
+   * @param {MoneroTxConfig} config - specifies configuration for a potential tx
    * @return {string} the payment uri
    */
-  async createPaymentUri(request) {
+  async createPaymentUri(config) {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Parses a payment URI to a send request.
+   * Parses a payment URI to a tx config.
    * 
    * @param {string} uri - payment uri to parse
-   * @return {MoneroSendRequest} the send configuration parsed from the uri
+   * @return {MoneroTxConfig} the send configuration parsed from the uri
    */
   async parsePaymentUri(uri) {
     throw new MoneroError("Not supported");
@@ -1270,39 +1270,39 @@ class MoneroWallet {
     return query;
   }
   
-  static _normalizeSendRequest(requestOrAccountIndex, address, amount, priority) {
-    if (requestOrAccountIndex === undefined) throw new MoneroError("First argument cannot be undefined");
-    let request;
-    if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
-      request = requestOrAccountIndex.copy();
+  static _normalizeTxConfig(configOrAccountIndex, address, amount, priority) {
+    if (configOrAccountIndex === undefined) throw new MoneroError("First argument cannot be undefined");
+    let config;
+    if (configOrAccountIndex instanceof MoneroTxConfig) {
+      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a tx config or parameters but not both");
+      config = configOrAccountIndex.copy();
     } else {
-      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
-      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
+      if (configOrAccountIndex instanceof Object) config = new MoneroTxConfig(configOrAccountIndex);
+      else config = new MoneroTxConfig(configOrAccountIndex, address, amount, priority);
     }
-    assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    return request;
+    assert.notEqual(config.getDestinations(), undefined, "Must specify destinations");
+    assert.equal(config.getSweepEachSubaddress(), undefined);
+    assert.equal(config.getBelowAmount(), undefined);
+    return config;
   }
   
-  static _normalizeSweepOutputRequest(requestOrAddress, keyImage, priority) {
-    let request;
-    if (requestOrAddress instanceof MoneroSendRequest) {
-      assert(keyImage === undefined && priority === undefined, "sweepOutput() requires a send request or parameters but not both");
-      request = requestOrAddress;
+  static _normalizeSweepOutputConfig(configOrAddress, keyImage, priority) {
+    let config;
+    if (configOrAddress instanceof MoneroTxConfig) {
+      assert(keyImage === undefined && priority === undefined, "sweepOutput() requires a tx config or parameters but not both");
+      config = configOrAddress;
     } else {
-      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
+      if (configOrAddress instanceof Object) config = new MoneroTxConfig(configOrAddress);
       else {
-        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
-        request.setKeyImage(keyImage);
+        config = new MoneroTxConfig(configOrAddress, undefined, priority);
+        config.setKeyImage(keyImage);
       }
     }
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
-    if (request.getDestinations().length !== 1 || !request.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
-    return request;
+    assert.equal(config.getSweepEachSubaddress(), undefined);
+    assert.equal(config.getBelowAmount(), undefined);
+    assert.equal(config.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    if (config.getDestinations().length !== 1 || !config.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
+    return config;
   }
 }
 

@@ -92,7 +92,7 @@ let txSet = await walletWasm.sendTx({
   accountIndex: 0,
   address: "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2",
   amount: new BigInteger("500000"), // in atomic units
-  priority: MoneroSendPriority.NORMAL
+  priority: MoneroTxPriority.NORMAL
 });
 let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
 let txHash = sentTx.getHash();

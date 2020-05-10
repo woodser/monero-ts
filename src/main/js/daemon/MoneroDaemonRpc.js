@@ -569,7 +569,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getKnownPeers() {
     if (this.config.proxyToWorker) return (await this._getDaemonProxy()).getKnownPeers();
     
-    // send request
+    // tx config
     let resp = await this.rpc.sendPathRequest("get_peer_list");
     MoneroDaemonRpc._checkResponseStatus(resp);
     
