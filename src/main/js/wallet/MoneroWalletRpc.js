@@ -1288,6 +1288,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async createPaymentUri(config) {
+    if (typeof config === "object" && !(config instanceof MoneroTxConfig)) config = new MoneroTxConfig(config);
     assert(config, "Must provide tx config to create a payment URI");
     let resp = await this.rpc.sendJsonRequest("make_uri", {
       address: config.getDestinations()[0].getAddress(),

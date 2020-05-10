@@ -1288,6 +1288,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   async createPaymentUri(config) {
+    if (typeof config === "object" && !(config instanceof MoneroTxConfig)) config = new MoneroTxConfig(config);
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
