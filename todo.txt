@@ -1,12 +1,10 @@
 HIGH (WASM)
-fix daemon flush tests
 print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
-update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 rename txQuery txHashes to hashes to be consistent with parents
 merge functions can be private
