@@ -53,10 +53,10 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
     if (this.state.outputQuery) this.state.outputQuery.setTxQuery(this);
     
-    // alias 'txHash' to txHashes
-    if (this.state.txHash) {
-      this.setTxHashes([this.state.txHash]);
-      delete this.state.txHash;
+    // alias 'hash' to hashes
+    if (this.state.hash) {
+      this.setHashes([this.state.hash]);
+      delete this.state.hash;
     }
   }
   
@@ -90,19 +90,19 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
 
-  getTxHashes() {
-    return this.state.txHashes;
+  getHashes() {
+    return this.state.hashes;
   }
 
-  setTxHashes(txHashes) {
-    this.state.txHashes = txHashes;
+  setHashes(hashes) {
+    this.state.hashes = hashes;
     return this;
   }
   
-  setTxHash(txHash) {
-    if (txHash === undefined) return this.setTxHashes(undefined);
-    assert(typeof txHash === "string");
-    return this.setTxHashes([txHash]);
+  setHash(hash) {
+    if (hash === undefined) return this.setHashes(undefined);
+    assert(typeof hash === "string");
+    return this.setHashes([hash]);
   }
   
   hasPaymentId() {
@@ -246,7 +246,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // filter on remaining fields
     let txHeight = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
-    if (this.getTxHashes() !== undefined && !this.getTxHashes().includes(tx.getHash())) return false;
+    if (this.getHashes() !== undefined && !this.getHashes().includes(tx.getHash())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     if (this.getHeight() !== undefined && (txHeight === undefined || txHeight !== this.getHeight())) return false;
     if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;

@@ -1639,11 +1639,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     }
   
     // re-sort txs which is lost over wasm serialization  // TODO: confirm that order is lost
-    if (query.getTxHashes() !== undefined) {
+    if (query.getHashes() !== undefined) {
       let txMap = new Map();
       for (let tx of txs) txMap[tx.getHash()] = tx;
       let txsSorted = [];
-      for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
+      for (let txHash of query.getHashes()) txsSorted.push(txMap[txHash]);
       txs = txsSorted;
     }
     

@@ -726,14 +726,14 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let randomTx of randomTxs) {
           txHashes.push(randomTx.getHash());
-          let txs = await that._getAndTestTxs(that.wallet, {txHash: randomTx.getHash()}, true);
+          let txs = await that._getAndTestTxs(that.wallet, {hash: randomTx.getHash()}, true);
           assert.equal(txs.length, 1);
           let merged = txs[0].merge(randomTx.copy()); // txs change with chain so check mergeability
           await that._testTxWallet(merged);
         }
         
         // get transactions by hashes
-        let txs = await that._getAndTestTxs(that.wallet, {txHashes: txHashes});
+        let txs = await that._getAndTestTxs(that.wallet, {hashes: txHashes});
         assert.equal(txs.length, randomTxs.length);
         for (let tx of txs) assert(txHashes.includes(tx.getHash()));
         
@@ -951,7 +951,7 @@ class TestMoneroWalletCommon {
             
             // fetch tx with filtering
             let filteredTxs = await that.wallet.getTxs({transferQuery: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
-            let filteredTx = Filter.apply(new MoneroTxQuery().setTxHashes([tx.getHash()]), filteredTxs)[0];
+            let filteredTx = Filter.apply(new MoneroTxQuery().setHashes([tx.getHash()]), filteredTxs)[0];
             
             // txs should be the same (mergeable)
             assert.equal(filteredTx.getHash(), tx.getHash());
@@ -1156,12 +1156,12 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let tx of txs) {
           txHashes.push(tx.getHash());
-          transfers = await that._getAndTestTransfers(that.wallet, {txHash: tx.getHash()}, true);
+          transfers = await that._getAndTestTransfers(that.wallet, {hash: tx.getHash()}, true);
           for (let transfer of transfers) assert.equal(transfer.getTx().getHash(), tx.getHash());
         }
         
         // get transfers with tx hashes
-        transfers = await that._getAndTestTransfers(that.wallet, {txHashes: txHashes}, true);
+        transfers = await that._getAndTestTransfers(that.wallet, {hashes: txHashes}, true);
         for (let transfer of transfers) assert(txHashes.includes(transfer.getTx().getHash()));
         
         // TODO: test that transfers with the same txHash have the same tx reference
@@ -1190,7 +1190,7 @@ class TestMoneroWalletCommon {
         
         // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
-        transfers = await that.wallet.getTransfers({txHashes: [randomTxs[0].getHash(), "invalid_id"]});
+        transfers = await that.wallet.getTransfers({hashes: [randomTxs[0].getHash(), "invalid_id"]});
         assert(transfers.length > 0);
         let tx = transfers[0].getTx();
         for (let transfer of transfers) assert(tx === transfer.getTx());
@@ -1334,12 +1334,12 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let tx of txs) {
           txHashes.push(tx.getHash());
-          outputs = await that._getAndTestOutputs(that.wallet, {txHash: tx.getHash()}, true);
+          outputs = await that._getAndTestOutputs(that.wallet, {hash: tx.getHash()}, true);
           for (let output of outputs) assert.equal(output.getTx().getHash(), tx.getHash());
         }
         
         // get outputs with tx hashes
-        outputs = await that._getAndTestOutputs(that.wallet, {txHashes: txHashes}, true);
+        outputs = await that._getAndTestOutputs(that.wallet, {hashes: txHashes}, true);
         for (let output of outputs) assert(txHashes.includes(output.getTx().getHash()));
         
         // get confirmed outputs to specific subaddress with pre-built query
@@ -1373,7 +1373,7 @@ class TestMoneroWalletCommon {
         
         // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, {isConfirmed: true, includeOutputs: true}, 3, 5);
-        outputs = await that.wallet.getOutputs({txHashes: [randomTxs[0].getHash(), "invalid_id"]});
+        outputs = await that.wallet.getOutputs({hashes: [randomTxs[0].getHash(), "invalid_id"]});
         assert(outputs.length > 0);
         assert.equal(randomTxs[0].getOutputs().length, outputs.length);
         let tx = outputs[0].getTx();
@@ -2182,7 +2182,7 @@ class TestMoneroWalletCommon {
             
             // get incoming/outgoing txs with sent hashes
             let txQuery = new MoneroTxQuery();
-            txQuery.setTxHashes(sentTxs.map(sentTx => sentTx.getHash())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+            txQuery.setHashes(sentTxs.map(sentTx => sentTx.getHash())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
             let fetchedTxs = await that._getAndTestTxs(that.wallet, txQuery, true);
             assert(fetchedTxs.length > 0);
             
@@ -2516,7 +2516,7 @@ class TestMoneroWalletCommon {
           for (let txHash of txHashes) assert(typeof txHash === "string" && txHash.length === 64);
           
           // fetch txs for testing
-          txs = await that.wallet.getTxs({txHashes: txHashes});
+          txs = await that.wallet.getTxs({hashes: txHashes});
         }
         
         // test that balance and unlocked balance decreased
@@ -2872,7 +2872,7 @@ class TestMoneroWalletCommon {
         for (let txHash of txHashes) assert.equal(txHash.length, 64);
         
         // fetch and test txs
-        txs = wallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        txs = wallet.getTxs(new MoneroTxQuery().setHashes(txHashes));
         ctx.config.setDoNotRelay(false);
         for (let tx of txs) {
           await that._testTxWallet(tx, ctx);
@@ -3192,7 +3192,7 @@ class TestMoneroWalletCommon {
     let txs = await wallet.getTxs(query);
     assert(Array.isArray(txs));
     if (isExpected === false) assert.equal(txs.length, 0);
-    if (isExpected === true) assert(txs.length > 0);
+    if (isExpected === true) assert(txs.length > 0, "Transactions were expected but not found; run send tests?");
     for (let tx of txs) await this._testTxWallet(tx, Object.assign({wallet: wallet}, query));
     testGetTxsStructure(txs, query);
     if (query !== undefined) {
@@ -3214,7 +3214,7 @@ class TestMoneroWalletCommon {
     let transfers = await wallet.getTransfers(query);
     assert(Array.isArray(transfers));
     if (isExpected === false) assert.equal(transfers.length, 0);
-    if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
+    if (isExpected === true) assert(transfers.length > 0, "Transfers were expected but not found; run send tests?");
     for (let transfer of transfers) await this._testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, query));
     if (query !== undefined) {
       if (query instanceof MoneroTransferQuery) assert.deepEqual(query.toJson(), copy.toJson());
@@ -3761,7 +3761,7 @@ class TestMoneroWalletCommon {
         curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
         
         // fetch the wallet's multisig txs
-        let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setHashes(txHashes));
         assert.equal(txHashes.length, multisigTxs.length);
         
         // sweep an output from subaddress [1,1]
@@ -3796,7 +3796,7 @@ class TestMoneroWalletCommon {
         curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
         
         // fetch the wallet's multisig txs
-        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setHashes(txHashes));
         assert.equal(txHashes.length, multisigTxs.length);
         
         // sweep remaining balance
@@ -3836,7 +3836,7 @@ class TestMoneroWalletCommon {
         curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
         
         // fetch the wallet's multisig txs
-        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setHashes(txHashes));
         assert.equal(txHashes.length, multisigTxs.length);
         
         await curWallet.close(true);
@@ -4186,10 +4186,10 @@ function testGetTxsStructure(txs, query = undefined) {
   }
   
   // tx hashes must be in order if requested
-  if (query.getTxHashes() !== undefined) {
-    assert.equal(txs.length, query.getTxHashes().length);
-    for (let i = 0; i < query.getTxHashes().length; i++) {
-      assert.equal(txs[i].getHash(), query.getTxHashes()[i]);
+  if (query.getHashes() !== undefined) {
+    assert.equal(txs.length, query.getHashes().length);
+    for (let i = 0; i < query.getHashes().length; i++) {
+      assert.equal(txs[i].getHash(), query.getHashes()[i]);
     }
   }
   
@@ -4198,10 +4198,10 @@ function testGetTxsStructure(txs, query = undefined) {
   let prevBlockHeight = undefined;
   for (let block of blocks) {
     if (prevBlockHeight === undefined) prevBlockHeight = block.getHeight();
-    else if (query.getTxHashes() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
+    else if (query.getHashes() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
     for (let tx of block.getTxs()) {
       assert(tx.getBlock() === block);
-      if (query.getTxHashes() === undefined) { 
+      if (query.getHashes() === undefined) { 
         assert.equal(tx.getHash(), txs[index].getHash()); // verify tx order is self-consistent with blocks unless txs manually re-ordered by requesting by hash
         assert(tx === txs[index]);
       }
