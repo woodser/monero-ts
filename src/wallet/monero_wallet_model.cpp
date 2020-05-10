@@ -308,7 +308,7 @@ namespace monero {
     if (m_include_outputs != boost::none) monero_utils::addJsonMember("includeOutputs", m_include_outputs.get(), allocator, root);
 
     // set sub-arrays
-    if (!m_tx_hashes.empty()) root.AddMember("txHashes", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
+    if (!m_hashes.empty()) root.AddMember("hashes", monero_utils::to_rapidjson_val(allocator, m_hashes), allocator);
     if (!m_payment_ids.empty()) root.AddMember("paymentIds", monero_utils::to_rapidjson_val(allocator, m_payment_ids), allocator);
 
     // set sub-objects
@@ -326,7 +326,7 @@ namespace monero {
       string key = it->first;
       if (key == string("isOutgoing")) tx_query->m_is_outgoing = it->second.get_value<bool>();
       else if (key == string("isIncoming")) tx_query->m_is_incoming = it->second.get_value<bool>();
-      else if (key == string("txHashes")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_tx_hashes.push_back(it2->second.data());
+      else if (key == string("hashes")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_hashes.push_back(it2->second.data());
       else if (key == string("hasPaymentId")) tx_query->m_has_payment_id = it->second.get_value<bool>();
       else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_payment_ids.push_back(it2->second.data());
       else if (key == string("height")) tx_query->m_height = it->second.get_value<uint64_t>();
@@ -379,7 +379,7 @@ namespace monero {
     // copy query extensions
     tgt->m_is_outgoing = src->m_is_outgoing;
     tgt->m_is_incoming = src->m_is_incoming;
-    if (!src->m_tx_hashes.empty()) tgt->m_tx_hashes = vector<string>(src->m_tx_hashes);
+    if (!src->m_hashes.empty()) tgt->m_hashes = vector<string>(src->m_hashes);
     tgt-> m_has_payment_id = src->m_has_payment_id;
     if (!src->m_payment_ids.empty()) tgt->m_payment_ids = vector<string>(src->m_payment_ids);
     tgt->m_height = src->m_height;
@@ -447,7 +447,7 @@ namespace monero {
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->get_height();
-    if (!m_tx_hashes.empty() && find(m_tx_hashes.begin(), m_tx_hashes.end(), *tx->m_hash) == m_tx_hashes.end()) return false;
+    if (!m_hashes.empty() && find(m_hashes.begin(), m_hashes.end(), *tx->m_hash) == m_hashes.end()) return false;
     if (!m_payment_ids.empty() && (tx->m_payment_id == boost::none || find(m_payment_ids.begin(), m_payment_ids.end(), *tx->m_payment_id) == m_payment_ids.end())) return false;
     if (m_height != boost::none && (txHeight == boost::none || *txHeight != *m_height)) return false;
     if (m_min_height != boost::none && (txHeight == boost::none || *txHeight < *m_min_height)) return false;

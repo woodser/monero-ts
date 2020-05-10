@@ -1473,9 +1473,9 @@ namespace monero {
     }
 
     // if tx hashes requested, order txs and collect missing hashes
-    if (!_query->m_tx_hashes.empty()) {
+    if (!_query->m_hashes.empty()) {
       txs.clear();
-      for (const string& tx_hash : _query->m_tx_hashes) {
+      for (const string& tx_hash : _query->m_hashes) {
         map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(tx_hash);
         if (tx_iter != tx_map.end()) txs.push_back(tx_iter->second);
         else missing_tx_hashes.push_back(tx_hash);
