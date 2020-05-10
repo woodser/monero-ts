@@ -649,8 +649,8 @@ class MoneroWalletRpc extends MoneroWallet {
     txs = txsQueried;
     
     // verify all specified tx hashes found
-    if (query.getTxHashes()) {
-      for (let txHash of query.getTxHashes()) {
+    if (query.getHashes()) {
+      for (let txHash of query.getHashes()) {
         let found = false;
         for (let tx of txs) {
           if (txHash === tx.getHash()) {
@@ -668,11 +668,11 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // order txs if tx hashes given then return
-    if (query.getTxHashes() && query.getTxHashes().length > 0) {
+    if (query.getHashes() && query.getHashes().length > 0) {
       let txsById = new Map()  // store txs in temporary map for sorting
       for (let tx of txs) txsById.set(tx.getHash(), tx);
       let orderedTxs = [];
-      for (let txHash of query.getTxHashes()) if (txsById.get(txHash)) orderedTxs.push(txsById.get(txHash));
+      for (let hash of query.getHashes()) if (txsById.get(hash)) orderedTxs.push(txsById.get(hash));
       txs = orderedTxs;
     }
     return txs;

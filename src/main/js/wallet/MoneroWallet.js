@@ -404,8 +404,7 @@ class MoneroWallet {
    * @param {boolean} query.isFailed - get txs that are failed or not (optional)
    * @param {boolean} query.isMinerTx - get miner txs or not (optional)
    * @param {string} query.hash - get a tx with the hash (optional)
-   * @param {string} query.txHash - get a tx with the hash (alias of hash) (optional)
-   * @param {string[]} query.txHashes - get txs with the hashes (optional)
+   * @param {string[]} query.hashes - get txs with the hashes (optional)
    * @param {string} query.paymentId - get transactions with the payment id (optional)
    * @param {string[]} query.paymentIds - get transactions with the payment ids (optional)
    * @param {boolean} query.hasPaymentId - get transactions with a payment id or not (optional)
@@ -1213,7 +1212,7 @@ class MoneroWallet {
   
   static _normalizeTxQuery(query) {
     if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setHashes(query);
     else {
       query = Object.assign({}, query);
       query = new MoneroTxQuery(query);
