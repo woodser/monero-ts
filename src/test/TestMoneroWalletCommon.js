@@ -2028,7 +2028,7 @@ class TestMoneroWalletCommon {
         config1.setPaymentId("03284e41c342f03603284e41c342f03603284e41c342f03603284e41c342f036");
         config1.setRecipientName("John Doe");
         config1.setNote("OMZG XMR FTW");
-        uri = await that.wallet.createPaymentUri(config1);
+        uri = await that.wallet.createPaymentUri(config1.toJson());
         config2 = await that.wallet.parsePaymentUri(uri);
         GenUtils.deleteUndefinedKeys(config1);
         GenUtils.deleteUndefinedKeys(config2);

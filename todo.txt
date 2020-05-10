@@ -1,5 +1,4 @@
 HIGH (WASM)
-createPaymentUri should support object
 MoneroTxConfig().setAddress().setAmount()
 print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
