@@ -38,7 +38,7 @@ class TestSampleCode {
         
         // open wallet on monero-wallet-rpc
         let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
-        await walletRpc.openWallet("test_wallet_1", "supersecretpassword123"                  // *** CHANGE README TO "sample_wallet_rpc" ***
+        await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
         let balance = await walletRpc.getBalance();               // 533648366742
         let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
@@ -80,10 +80,10 @@ class TestSampleCode {
         let txSet = await walletRpc.sendTx({
           accountIndex: 0,
           address: await walletWasm.getAddress(1, 0),
-          amount: new BigInteger("50000"),  // amount to transfer in atomic units
-          priority: MoneroTxPriority.NORMAL
+          amount: new BigInteger("50000"),        // amount to transfer in atomic units
+          priority: MoneroTxPriority.UNIMPORTANT  // no hurry
         });
-        let sentTx = txSet.getTxs()[0];     // send methods return tx set(s) which contain sent txs
+        let sentTx = txSet.getTxs()[0]; // send methods return tx set which contain sent tx(s)
         let txHash = sentTx.getHash();
         
         // wallet receives unconfirmed funds within 10 seconds

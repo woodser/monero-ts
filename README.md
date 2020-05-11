@@ -34,70 +34,69 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more information.
 
 ```js
+// import library
 require("monero-javascript");
 
 // connect to a daemon
-let daemon = new MoneroDaemonRpc({
-  uri: "http://localhost:38081", 
-  username: "superuser",
-  password: "abctesting123",
-});
-let height = await daemon.getHeight();           // 1523651
-let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
-let txsInPool = await daemon.getTxPool();        // get transactions in the pool
+let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123"); 
+let height = await daemon.getHeight();            // 1523651
+let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
+let txsInPool = await daemon.getTxPool();         // get transactions in the pool
 
-// create a random wallet using monero-wallet-rpc
-let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");  // connect to monero-wallet-rpc
-await walletRpc.createWallet({
-  path: "sample_wallet",
-  password: "supersecretpassword123"
-});
-let primaryAddress = await walletRpc.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
+// open wallet on monero-wallet-rpc
+let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+await walletRpc.openWallet("sample_wallet_rpc", "supersecretpassword123");
+let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
 let balance = await walletRpc.getBalance();               // 533648366742
 let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
-let transfers = await walletRpc.getTransfers({isIncoming: true, accountIndex: 0});  // get incoming transfers to account 0
-let subaddresses = await walletRpc.getSubaddresses(0);    // get account 0's subaddresses 
 
-// create a wallet from mnemonic phrase using WebAssembly bindings to Monero Core
+// create wallet from mnemonic phrase using WebAssembly bindings to Monero Core
 let walletWasm = await MoneroWalletWasm.createWallet({
-  path: "./test_wallets/" + GenUtils.getUUID(),
+  path: "sample_wallet_wasm",
   password: "supersecretpassword123",
   networkType: "stagenet",
-  mnemonic: "biggest duets geometry eskimos coexist igloo pamphlet lagoon...",
-  restoreHeight: 545232,
   serverUri: "http://localhost:38081",
   serverUsername: "superuser",
   serverPassword: "abctesting123",
-  proxyToWorker: GenUtils.isBrowser()
+  mnemonic: ""hefty value scenic..."",
+  restoreHeight: 573936,
 });
 
-// synchronize the wallet and receive progress notifications
-await walletWasm.sync(new class extends MoneroSyncListener {
+// synchronize with progress notifications
+await walletWasm.sync(new class extends MoneroWalletListener {
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
     // feed a progress bar?
   }
 });
-await walletWasm.startSyncing();  // synchronize the wallet continuously in the background
 
-// receive notifications when the wallet receives funds
+// synchronize in the background
+await walletWasm.startSyncing();
+
+// listen for incoming transfers
+let fundsReceived = false;
 await walletWasm.addListener(new class extends MoneroWalletListener {
   onOutputReceived(output) {
     let amount = output.getAmount();
     let txHash = output.getTx().getHash();
+    fundsReceived = true;
   }
 });
 
-// transfer funds
-let txSet = await walletWasm.sendTx({
+// send funds from RPC wallet to WebAssembly wallet
+let txSet = await walletRpc.sendTx({
   accountIndex: 0,
-  address: "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2",
-  amount: new BigInteger("500000"), // in atomic units
-  priority: MoneroTxPriority.NORMAL
+  address: await walletWasm.getAddress(1, 0),
+  amount: new BigInteger("50000"),       // amount to transfer in atomic units
+  priority: MoneroTxPriority.UNIMPORTANT	// no hurry
 });
-let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
+let sentTx = txSet.getTxs()[0]; // send methods return tx set which contain sent tx(s)
 let txHash = sentTx.getHash();
 
-// save and close the wasm wallet
+// wallet receives unconfirmed funds within 10 seconds
+await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+assert(fundsReceived);
+
+// save and close WebAssembly wallet
 await walletWasm.close(true);
 ```
 
