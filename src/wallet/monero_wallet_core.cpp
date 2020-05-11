@@ -1397,8 +1397,8 @@ namespace monero {
     if (_query->m_output_query == boost::none) _query->m_output_query = make_shared<monero_output_query>();
 
 //    // log query
-//    if (_query->m_block != boost::none) MTRACE("Tx query's rooted at [block]: " << _query->m_block.get()->serialize());
-//    else MTRACE("Tx _query: " << _query->serialize());
+//    if (_query->m_block != boost::none) cout << "Tx query's rooted at [block]: " << _query->m_block.get()->serialize() << endl;
+//    else cout << "Tx _query: " << _query->serialize() << endl;
 
     // temporarily disable transfer and output queries in order to collect all tx information
     shared_ptr<monero_transfer_query> transfer_query = _query->m_transfer_query.get();
