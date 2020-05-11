@@ -1,7 +1,6 @@
 HIGH (WASM)
 merge functions can be private
 print memory used in web worker
-profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
 add project names to main architecture boxes

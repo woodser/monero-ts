@@ -99,6 +99,10 @@ class TestUtils {
         await TestUtils.walletWasm.startSyncing();
       }
     }
+    
+    // ensure we're testing the right wallet
+    assert.equal(await TestUtils.walletWasm.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await TestUtils.walletWasm.getPrimaryAddress(), TestUtils.ADDRESS);
     return TestUtils.walletWasm;
   }
   
