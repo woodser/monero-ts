@@ -726,7 +726,7 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let randomTx of randomTxs) {
           txHashes.push(randomTx.getHash());
-          let txs = await that._getAndTestTxs(that.wallet, {hash: randomTx.getHash()}, true);
+          let txs = await that._getAndTestTxs(that.wallet, {txQuery: {hash: randomTx.getHash()}}, true);
           assert.equal(txs.length, 1);
           let merged = txs[0].merge(randomTx.copy()); // txs change with chain so check mergeability
           await that._testTxWallet(merged);
@@ -988,7 +988,7 @@ class TestMoneroWalletCommon {
         
         // fetch unknown tx hash using query
         try {
-          await that.wallet.getTxs(new MoneroTxQuery().setTxHash(unknownId1));
+          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownId1));
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
@@ -1156,12 +1156,12 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let tx of txs) {
           txHashes.push(tx.getHash());
-          transfers = await that._getAndTestTransfers(that.wallet, {hash: tx.getHash()}, true);
+          transfers = await that._getAndTestTransfers(that.wallet, {txQuery: {hash: tx.getHash()}}, true);
           for (let transfer of transfers) assert.equal(transfer.getTx().getHash(), tx.getHash());
         }
         
         // get transfers with tx hashes
-        transfers = await that._getAndTestTransfers(that.wallet, {hashes: txHashes}, true);
+        transfers = await that._getAndTestTransfers(that.wallet, {txQuery: {hashes: txHashes}}, true);
         for (let transfer of transfers) assert(txHashes.includes(transfer.getTx().getHash()));
         
         // TODO: test that transfers with the same txHash have the same tx reference
@@ -1185,12 +1185,12 @@ class TestMoneroWalletCommon {
       it("Validates inputs when getting transfers", async function() {
         
         // test with invalid hash
-        let transfers = await that.wallet.getTransfers({txHash: "invalid_id"});
+        let transfers = await that.wallet.getTransfers({txQuery: {hash: "invalid_id"}});
         assert.equal(transfers.length, 0);
         
         // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
-        transfers = await that.wallet.getTransfers({hashes: [randomTxs[0].getHash(), "invalid_id"]});
+        transfers = await that.wallet.getTransfers({txQuery: {hashes: [randomTxs[0].getHash(), "invalid_id"]}});
         assert(transfers.length > 0);
         let tx = transfers[0].getTx();
         for (let transfer of transfers) assert(tx === transfer.getTx());
@@ -1334,12 +1334,12 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let tx of txs) {
           txHashes.push(tx.getHash());
-          outputs = await that._getAndTestOutputs(that.wallet, {hash: tx.getHash()}, true);
+          outputs = await that._getAndTestOutputs(that.wallet, {txQuery: {hash: tx.getHash()}}, true);
           for (let output of outputs) assert.equal(output.getTx().getHash(), tx.getHash());
         }
         
         // get outputs with tx hashes
-        outputs = await that._getAndTestOutputs(that.wallet, {hashes: txHashes}, true);
+        outputs = await that._getAndTestOutputs(that.wallet, {txQuery: {hashes: txHashes}}, true);
         for (let output of outputs) assert(txHashes.includes(output.getTx().getHash()));
         
         // get confirmed outputs to specific subaddress with pre-built query
@@ -1368,12 +1368,12 @@ class TestMoneroWalletCommon {
       it("Validates inputs when getting outputs", async function() {
         
         // test with invalid hash
-        let outputs = await that.wallet.getOutputs({txHash: "invalid_id"});
+        let outputs = await that.wallet.getOutputs({txQuery: {hash: "invalid_id"}});
         assert.equal(outputs.length, 0);
         
         // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, {isConfirmed: true, includeOutputs: true}, 3, 5);
-        outputs = await that.wallet.getOutputs({hashes: [randomTxs[0].getHash(), "invalid_id"]});
+        outputs = await that.wallet.getOutputs({txQuery: {hashes: [randomTxs[0].getHash(), "invalid_id"]}});
         assert(outputs.length > 0);
         assert.equal(randomTxs[0].getOutputs().length, outputs.length);
         let tx = outputs[0].getTx();

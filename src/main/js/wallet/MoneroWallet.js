@@ -1238,7 +1238,7 @@ class MoneroWallet {
       }
     } else {
       query = Object.assign({}, query);
-      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
+      query = new MoneroTransferQuery(query);
     }
     if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
     query.getTxQuery().setTransferQuery(query);
@@ -1261,7 +1261,7 @@ class MoneroWallet {
       }
     } else {
       query = Object.assign({}, query);
-      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
+      query = new MoneroOutputQuery(query);
     }
     if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
     query.getTxQuery().setOutputQuery(query);
