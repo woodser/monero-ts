@@ -89,7 +89,7 @@ let txSet = await walletRpc.sendTx({
   amount: new BigInteger("50000"),       // amount to transfer in atomic units
   priority: MoneroTxPriority.UNIMPORTANT	// no hurry
 });
-let sentTx = txSet.getTxs()[0]; // send methods return tx set which contain sent tx(s)
+let sentTx = txSet.getTxs()[0]; // send methods return tx set which contains sent tx(s)
 let txHash = sentTx.getHash();
 
 // wallet receives unconfirmed funds within 10 seconds
