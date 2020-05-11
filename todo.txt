@@ -4,7 +4,9 @@ print memory used in web worker
 profile time getting txs, transfers, outputs; unnecessariliy stringified then parsed
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
+add project names to main architecture boxes
 
+separate keys tests?
 rename bin to script? configs to config?
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 document data model from block
