@@ -1,6 +1,6 @@
 ## Monero JavaScript Library
 
-This project is a JavaScript library for using a Monero wallet and daemon with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
+This project is a JavaScript library for using Monero with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
@@ -20,7 +20,7 @@ This project is a JavaScript library for using a Monero wallet and daemon with R
 
 ### Sample Code
 
-This code introduces the API.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more information.
+This code introduces the API.  See the [JSDoc](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more information.
 
 ```js
 // import library
@@ -152,7 +152,7 @@ This project is licensed under MIT.
 
 ### Donations
 
-If this library brings you value, please consider donating.  Thank you!
+If this library brings you value, please consider donating.
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/><br>
