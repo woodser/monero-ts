@@ -123,7 +123,6 @@ class MoneroWalletRpc extends MoneroWallet {
    * await walletRpc({<br>
    * &nbsp;&nbsp; path: "mywallet",<br>
    * &nbsp;&nbsp; password: "abc123",<br>
-   * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
    * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
    * &nbsp;&nbsp; restoreHeight: 1543218l<br>
    * });
