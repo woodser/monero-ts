@@ -726,7 +726,7 @@ class TestMoneroWalletCommon {
         let txHashes = [];
         for (let randomTx of randomTxs) {
           txHashes.push(randomTx.getHash());
-          let txs = await that._getAndTestTxs(that.wallet, {txQuery: {hash: randomTx.getHash()}}, true);
+          let txs = await that._getAndTestTxs(that.wallet, {hash: randomTx.getHash()}, true);
           assert.equal(txs.length, 1);
           let merged = txs[0].merge(randomTx.copy()); // txs change with chain so check mergeability
           await that._testTxWallet(merged);
