@@ -37,7 +37,7 @@ class MoneroTransferQuery extends MoneroTransfer {
     config = this.state;
     
     // deserialize if necessary
-    if (config.txQuery && !(config.txQuery instanceof MoneroTxQuery)) config.txQuery = new MoneroTxQuery(config.transferQuery);
+    if (config.txQuery && !(config.txQuery instanceof MoneroTxQuery)) config.txQuery = new MoneroTxQuery(config.txQuery);
     
     // alias isOutgoing to isIncoming
     if (config.isOutgoing !== undefined) config.isIncoming = !config.isOutgoing;

@@ -31,21 +31,14 @@ class TestSampleCode {
         //require("monero-javascript"); // *** USE IN README.MD ***
         
         // connect to a daemon
-        let daemon = new MoneroDaemonRpc({
-          uri: "http://localhost:38081", 
-          username: "superuser",
-          password: "abctesting123",
-        });
+        let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123"); 
         let height = await daemon.getHeight();            // 1523651
         let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
         let txsInPool = await daemon.getTxPool();         // get transactions in the pool
         
         // open wallet on monero-wallet-rpc
-        let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");  // connect to monero-wallet-rpc
-        await walletRpc.openWallet({
-          path: "test_wallet_1",                          // *** CHANGE README TO "sample_wallet_rpc" ***
-          password: "supersecretpassword123",
-        });
+        let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+        await walletRpc.openWallet("test_wallet_1", "supersecretpassword123"                  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
         let balance = await walletRpc.getBalance();               // 533648366742
         let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
@@ -68,7 +61,9 @@ class TestSampleCode {
             // feed a progress bar?
           }
         });
-        await walletWasm.startSyncing();  // sync in background
+        
+        // synchronize in the background
+        await walletWasm.startSyncing();
         
         // listen for incoming transfers
         let fundsReceived = false;
@@ -80,7 +75,7 @@ class TestSampleCode {
           }
         });
         
-        // sends funds from RPC to WebAssembly wallet
+        // send funds from RPC wallet to WebAssembly wallet
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
         let txSet = await walletRpc.sendTx({
           accountIndex: 0,
@@ -91,10 +86,9 @@ class TestSampleCode {
         let sentTx = txSet.getTxs()[0];     // send methods return tx set(s) which contain sent txs
         let txHash = sentTx.getHash();
         
-        // wallet receives funds within 10 seconds
+        // wallet receives unconfirmed funds within 10 seconds
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-        assert(fundsReceived, "Output not received");
-        await walletWasm.getTx(txHash);
+        assert(fundsReceived);
         
         // save and close WebAssembly wallet
         await walletWasm.close(true);
