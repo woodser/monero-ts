@@ -316,7 +316,6 @@ namespace monero {
     boost::thread m_syncing_thread;              // thread for auto sync loop
     boost::mutex m_syncing_mutex;                // synchronize auto sync loop
     void run_sync_loop();                        // run the sync loop in a thread
-    void sync_loop_func();                       // function to run thread with syncing loop
     monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none);  // internal function to synchronize request to sync and rescan
     monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none);       // internal function to immediately block, sync, and report progress
   };

@@ -3308,29 +3308,25 @@ namespace monero {
 
     // start sync loop thread
     m_syncing_thread = boost::thread([this]() {
-      this->sync_loop_func();
+
+      // sync while enabled
+      while (m_syncing_enabled) {
+        try {
+          lock_and_sync();
+        } catch (...) {
+          cout << "monero_wallet_core failed to background synchronize" << endl;
+        }
+
+        // only wait if syncing still enabled
+        if (m_syncing_enabled) {
+          boost::mutex::scoped_lock lock(m_syncing_mutex);
+          boost::posix_time::milliseconds wait_for_ms(m_syncing_interval.load());
+          m_sync_cv.timed_wait(lock, wait_for_ms);
+        }
+      }
+
+      m_sync_loop_running = false;
     });
-  }
-
-  void monero_wallet_core::sync_loop_func() {
-
-    // sync while enabled
-    while (m_syncing_enabled) {
-      try {
-        lock_and_sync();
-      } catch (...) {
-        cout << "monero_wallet_core failed to background synchronize" << endl;
-      }
-
-      // only wait if syncing still enabled
-      if (m_syncing_enabled) {
-        boost::mutex::scoped_lock lock(m_syncing_mutex);
-        boost::posix_time::milliseconds wait_for_ms(m_syncing_interval.load());
-        m_sync_cv.timed_wait(lock, wait_for_ms);
-      }
-    }
-
-    m_sync_loop_running = false;
   }
 
   monero_sync_result monero_wallet_core::lock_and_sync(boost::optional<uint64_t> start_height) {
