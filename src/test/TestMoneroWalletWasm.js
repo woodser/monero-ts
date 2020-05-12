@@ -1054,35 +1054,39 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await testReceivesFundsWithin10Seconds(false);
       });
       
-      if (testConfig.testRelays)
+      if (testConfig.testRelays && !testConfig.liteMode)
       it("Receives funds within 10 seconds to the same account", async function() {
         await testReceivesFundsWithin10Seconds(true);
       });
       
       async function testReceivesFundsWithin10Seconds(sameAccount) {
-        let err;
+        let sender = that.wallet;
         let receiver;
+        let receiverListener;
+        let senderListener;
+        let err;
         try {
           
           // assign wallet to receive funds
           receiver = sameAccount ? that.wallet : await that.createWallet(new MoneroWalletConfig());
           
-          // listen for received funds
-          let receiverListener = new OutputNotificationCollector();
-          await receiver.addListener(receiverListener);
-          
           // listen for sent funds
           let sender = that.wallet;
-          let senderListener = new OutputNotificationCollector();
+          senderListener = new OutputNotificationCollector();
           await sender.addListener(senderListener);
           
+          // listen for received funds
+          receiverListener = new OutputNotificationCollector();
+          await receiver.addListener(receiverListener);
+          
           // send funds
+          await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(sender);
           let txSet = await sender.sendTx(0, await receiver.getPrimaryAddress(), TestUtils.MAX_FEE);
           let txHash = txSet.getTxs()[0].getHash();
           await sender.getTx(txHash);
           if (senderListener.getOutputsSpent().length === 0) console.log("WARNING: no notification on send");
           
-          // funds received within 10 seconds
+          // unconfirmed funds received within 10 seconds
           await new Promise(function(resolve) { setTimeout(resolve, 10000); });
           await receiver.getTx(txHash);
           assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds within 10 seconds in " + (sameAccount ? "same account" : "different wallets"));
@@ -1092,6 +1096,8 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
         
         // finally
+        await sender.removeListener(senderListener);
+        await receiver.removeListener(receiverListener);
         if (!sameAccount && receiver !== undefined) await receiver.close();
         if (err) throw err;
       }
@@ -1451,8 +1457,8 @@ class WalletSyncTester extends SyncProgressTester {
     // extra is not sent over the wasm bridge
     assert.equal(output.getTx().getExtra(), undefined);
     
-    // add incoming amount to running total
-    this.incomingTotal = this.incomingTotal.add(output.getAmount());
+    // add incoming amount to running total if confirmed
+    if (output.getTx().isConfirmed()) this.incomingTotal = this.incomingTotal.add(output.getAmount());
   }
 
   onOutputSpent(output) {

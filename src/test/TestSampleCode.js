@@ -10,8 +10,13 @@ class TestSampleCode {
       // initialize wallet
       before(async function() {
         try {
-          TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
-          await TestUtils.getWalletRpc(); // open test wallet
+          
+          // all wallets need to wait for txs to confirm to reliably sync
+          TestUtils.TX_POOL_WALLET_TRACKER.reset();
+          
+          // pre-create test wallet
+          let wallet = await TestUtils.getWalletRpc();
+          await wallet.close();
           
           // create directory for test wallets if it doesn't exist
           let fs = LibraryUtils.getDefaultFs();

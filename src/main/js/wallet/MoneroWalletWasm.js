@@ -671,15 +671,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     if (!this._syncingEnabled) {
       this._syncingEnabled = true;
-      if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
+      this._runSyncLoop();  // sync wallet on loop in background
     }
   }
     
   async stopSyncing() {
     this._assertNotClosed();
-    if (!this._syncingThreadDone) {
-      this._syncingEnabled = false;
-    }
+    this._syncingEnabled = false;
   }
   
   async rescanSpent() {
@@ -1501,8 +1499,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   async close(save) {
-    if (this._isClosed || this._syncingThreadDone) return; // closing a closed wallet has no effect
-    this._syncingThreadDone = true;
+    if (this._isClosed) return; // no effect if closed
     this._syncingEnabled = false;
     await this._setIsListening(false);
     await this.stopSyncing();
@@ -1553,24 +1550,27 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   /**
-   * Loop until this._syncingThreadDone = true.
+   * Loop while syncing enabled.
    */
-  async _startSyncLoop() {
-    if (this._syncLoopStarted) return;
-    this._syncLoopStarted = true;
+  async _runSyncLoop() {
+    if (this._syncLoopRunning) return;  // only run one loop at a time
+    this._syncLoopRunning = true;
+    
+    // sync while enabled
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
-    while (true) {
-      if (this._syncingThreadDone) break;
-      if (this._syncingEnabled) {
-        try {
-          console.log("Background synchronizing " + label);
-          await this.sync();
-        } catch (e) {
-          if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
-        }
+    while (this._syncingEnabled) {
+      try {
+        console.log("Background synchronizing " + label);
+        await this.sync();
+      } catch (e) {
+        if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
       }
-      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+      
+      // only wait if syncing still enabled
+      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
+    
+    this._syncLoopRunning = false;
   }
   
   /**
