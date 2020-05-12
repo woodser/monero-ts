@@ -691,6 +691,7 @@ namespace monero {
     }
 
     void on_new_block(uint64_t height, const cryptonote::block& cn_block) {
+      if (m_wallet.get_listeners().empty()) return;
 
       // ignore notifications before sync start height, irrelevant to clients
       if (m_sync_start_height == boost::none || height < *m_sync_start_height) return;
@@ -710,7 +711,7 @@ namespace monero {
     }
 
     void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {
-      MTRACE("wallet2_listener::on_unconfirmed_money_received()");
+      if (m_wallet.get_listeners().empty()) return;
 
       // create library tx
       shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx, true));
@@ -733,7 +734,7 @@ namespace monero {
     }
 
     void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
-      MTRACE("wallet2_listener::on_money_received()");
+      if (m_wallet.get_listeners().empty()) return;
 
       // create native library tx
       shared_ptr<monero_block> block = make_shared<monero_block>();
@@ -762,7 +763,7 @@ namespace monero {
     }
 
     void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx_in, uint64_t amount, const cryptonote::transaction& cn_tx_out, const cryptonote::subaddress_index& subaddr_index) {
-      MTRACE("wallet2_listener::on_money_spent()");
+      if (m_wallet.get_listeners().empty()) return;
       if (&cn_tx_in != &cn_tx_out) throw runtime_error("on_money_spent() in tx is different than out tx");
 
       // create native library tx
@@ -1174,7 +1175,7 @@ namespace monero {
   void monero_wallet_core::remove_listener(monero_wallet_listener& listener) {
     MTRACE("remove_listener()");
     m_listeners.erase(&listener);
-    m_w2_listener->update_listening();
+    if (!m_sync_loop_running) m_w2_listener->update_listening();  // listener is unregistered after sync to avoid segfault
   }
 
   set<monero_wallet_listener*> monero_wallet_core::get_listeners() {
@@ -1235,7 +1236,7 @@ namespace monero {
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
     if (!m_syncing_enabled) {
       m_syncing_enabled = true;
-      m_sync_cv.notify_one();
+      run_sync_loop();  // sync wallet on loop in background
     }
   }
 
@@ -1243,9 +1244,7 @@ namespace monero {
    * Stop automatic syncing as its own thread.
    */
   void monero_wallet_core::stop_syncing() {
-    if (!m_syncing_thread_done) {
-      m_syncing_enabled = false;
-    }
+    m_syncing_enabled = false;
   }
 
   void monero_wallet_core::rescan_spent() {
@@ -3233,18 +3232,16 @@ namespace monero {
 
   void monero_wallet_core::close(bool save) {
     MTRACE("close()");
-    if (save) this->save();
-    m_w2->callback(NULL);
     stop_syncing(); // prevent sync thread from starting again
-    m_w2->stop();
-    m_w2->deinit();
-    if (!m_syncing_thread_done) {
-      m_syncing_enabled = false;
-      m_syncing_thread_done = true;
+    if (save) this->save();
+    if (m_sync_loop_running) {
       m_sync_cv.notify_one();
       std::this_thread::sleep_for(std::chrono::milliseconds(1));  // TODO: in emscripten, m_sync_cv.notify_one() returns without waiting, so sleep; bug in emscripten upstream llvm?
       m_syncing_thread.join();
     }
+    m_w2->stop();
+    m_w2->deinit();
+    m_w2->callback(nullptr);  // unregister listener after sync
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
@@ -3256,15 +3253,11 @@ namespace monero {
     m_is_synced = false;
     m_rescan_on_sync = false;
     m_syncing_enabled = false;
-    m_syncing_thread_done = false;
+    m_sync_loop_running = false;
     m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
-    // start auto sync loop unless single-threaded emscripten
-    #if !defined(__EMSCRIPTEN__) || defined(__EMSCRIPTEN_PTHREADS__)
-      m_syncing_thread = boost::thread([this]() {
-        this->sync_thread_func();
-      });
-    #else
+    // single-threaded if emscripten
+    #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
       tools::set_max_concurrency(1);  // TODO: single-threaded emscripten tools::get_max_concurrency() correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
     #endif
   }
@@ -3309,21 +3302,35 @@ namespace monero {
     return subaddresses;
   }
 
-  void monero_wallet_core::sync_thread_func() {
-    MTRACE("sync_thread_func()");
-    while (true) {
-      boost::mutex::scoped_lock lock(m_syncing_mutex);
-      if (m_syncing_thread_done) break;
+  void monero_wallet_core::run_sync_loop() {
+    if (m_sync_loop_running) return;  // only run one loop at a time
+    m_sync_loop_running = true;
+
+    // start sync loop thread
+    m_syncing_thread = boost::thread([this]() {
+      this->sync_loop_func();
+    });
+  }
+
+  void monero_wallet_core::sync_loop_func() {
+
+    // sync while enabled
+    while (m_syncing_enabled) {
+      try {
+        lock_and_sync();
+      } catch (...) {
+        cout << "monero_wallet_core failed to background synchronize" << endl;
+      }
+
+      // only wait if syncing still enabled
       if (m_syncing_enabled) {
+        boost::mutex::scoped_lock lock(m_syncing_mutex);
         boost::posix_time::milliseconds wait_for_ms(m_syncing_interval.load());
         m_sync_cv.timed_wait(lock, wait_for_ms);
-      } else {
-        m_sync_cv.wait(lock);
-      }
-      if (m_syncing_enabled) {
-        lock_and_sync();
       }
     }
+
+    m_sync_loop_running = false;
   }
 
   monero_sync_result monero_wallet_core::lock_and_sync(boost::optional<uint64_t> start_height) {
@@ -3336,15 +3343,11 @@ namespace monero {
       // skip if daemon is not connected or synced
       if (m_is_connected && is_daemon_synced()) {
 
-        // lock is lost on is_daemon_synced() so syncing could be disabled
-        if (!m_syncing_thread_done) {
+        // rescan blockchain if requested
+        if (rescan) m_w2->rescan_blockchain(false);
 
-          // rescan blockchain if requested
-          if (rescan) m_w2->rescan_blockchain(false);
-
-          // sync wallet
-          result = sync_aux(start_height);
-        }
+        // sync wallet
+        result = sync_aux(start_height);
       }
     } while (!rescan && (rescan = m_rescan_on_sync.exchange(false))); // repeat if not rescanned and rescan was requested
     return result;
@@ -3365,6 +3368,7 @@ namespace monero {
     try {
       m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
       if (!m_is_synced) m_is_synced = true;
+      m_w2_listener->update_listening();  // cannot unregister during sync which would segfault
     } catch (exception& e) {
       m_w2_listener->on_sync_end(); // signal end of sync to reset listener's start and end heights
       throw;

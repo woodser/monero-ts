@@ -311,11 +311,12 @@ namespace monero {
     boost::mutex m_sync_mutex;                   // synchronize sync() and syncAsync() requests
     std::atomic<bool> m_rescan_on_sync;          // whether or not to rescan on sync
     std::atomic<bool> m_syncing_enabled;         // whether or not auto sync is enabled
+    std::atomic<bool> m_sync_loop_running;       // whether or not the syncing thread is shut down
     std::atomic<int> m_syncing_interval;         // auto sync loop interval in milliseconds
     boost::thread m_syncing_thread;              // thread for auto sync loop
     boost::mutex m_syncing_mutex;                // synchronize auto sync loop
-    std::atomic<bool> m_syncing_thread_done;     // whether or not the syncing thread is shut down
-    void sync_thread_func();                     // function to run thread with syncing loop
+    void run_sync_loop();                        // run the sync loop in a thread
+    void sync_loop_func();                       // function to run thread with syncing loop
     monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none);  // internal function to synchronize request to sync and rescan
     monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none);       // internal function to immediately block, sync, and report progress
   };
