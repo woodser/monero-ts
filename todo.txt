@@ -1,5 +1,7 @@
 HIGH (WASM)
+createTx(), createTxs() with relay true|false
 getBlockTemplate() getNextSeedHash not null
+not waiting for tx to clear pool
 print memory used in web worker
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
@@ -15,6 +17,7 @@ full tests including jni
 release
 report core issues
 
+wallet2 1128 ::move() causes warning
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 rpc mutisig test failing when run with other tests
