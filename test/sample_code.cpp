@@ -22,13 +22,16 @@ int main(int argc, const char* argv[]) {
   // create a wallet from a mnemonic phrase
   string mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
   monero_wallet* wallet_restored = monero_wallet_core::create_wallet_from_mnemonic(
-      "MyWalletRestored",                                       // wallet path and name
-      "supersecretpassword123",                                 // wallet password
-      monero_network_type::STAGENET,                            // network type
-      mnemonic,                                                 // mnemonic phrase
-      monero_rpc_connection(string("http://localhost:38081")),  // daemon connection
-      380104,                                                   // restore height
-      ""                                                        // seed offset
+      "MyWalletRestored",                   // wallet path and name
+      "supersecretpassword123",             // wallet password
+      monero_network_type::STAGENET,        // network type
+      mnemonic,                             // mnemonic phrase
+      monero_rpc_connection(                // daemon connection
+          string("http://localhost:38081"),
+          string("superuser"),
+          string("abctesting123")),
+      380104,                               // restore height
+      ""                                    // seed offset
   );
 
   // synchronize the wallet and receive progress notifications
@@ -70,12 +73,14 @@ int main(int argc, const char* argv[]) {
 
   // create and sync a new wallet with a random mnemonic phrase
   monero_wallet* wallet_random = monero_wallet_core::create_wallet_random(
-      "MyWalletRandom",                                         // wallet path and name
-      "supersecretpassword123",                                 // wallet password
-      monero_network_type::STAGENET,                            // network type
-      monero_rpc_connection(string("http://localhost:38081")),  // daemon connection
-      "English"
-  );
+      "MyWalletRandom",                     // wallet path and name
+      "supersecretpassword123",             // wallet password
+      monero_network_type::STAGENET,        // network type
+      monero_rpc_connection(                // daemon connection
+          string("http://localhost:38081"),
+          string("superuser"),
+          string("abctesting123")),
+      "English");
   wallet_random->sync();
 
   // continuously synchronize the wallet in the background
@@ -100,7 +105,12 @@ int main(int argc, const char* argv[]) {
   wallet_random->add_listener(my_listener);
 
   // send funds from the restored wallet to the random wallet
-  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send_tx(0, wallet_random->get_address(1, 0), 50000).m_txs[0];
+  monero_tx_config config;
+  config.m_account_index = 0;
+  config.m_address = wallet_random->get_address(1, 0);
+  config.m_amount = 50000;
+  config.m_relay = true;
+  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->create_tx(config);
   bool in_pool = sent_tx->m_in_tx_pool.get();  // true
 
   // mine with 7 threads to push the network along
@@ -115,20 +125,21 @@ int main(int argc, const char* argv[]) {
   // stop mining
   wallet_restored->stop_mining();
 
-  // create a request to send funds to multiple destinations in the random wallet
-  monero_tx_config config = monero_tx_config();
+  // create config to send funds to multiple destinations in the random wallet
+  config = monero_tx_config();
   config.m_account_index = 1;                // withdraw funds from this account
   config.m_subaddress_indices = vector<uint32_t>();
   config.m_subaddress_indices.push_back(0);
   config.m_subaddress_indices.push_back(1);  // withdraw funds from these subaddresses within the account
   config.m_priority = monero_tx_priority::UNIMPORTANT;  // no rush
+  config.m_relay = true;
   vector<shared_ptr<monero_destination>> destinations;  // specify the recipients and their amounts
   destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(1, 0), 50000));
   destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
   config.m_destinations = destinations;
 
   // create the transaction, confirm with the user, and relay to the network
-  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(config).m_txs[0];
+  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(config);
   uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
   wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 

@@ -275,7 +275,7 @@ namespace monero {
 
     // set bool values
     if (m_is_miner_tx != boost::none) monero_utils::addJsonMember("isMinerTx", m_is_miner_tx.get(), allocator, root);
-    if (m_do_not_relay != boost::none) monero_utils::addJsonMember("doNotRelay", m_do_not_relay.get(), allocator, root);
+    if (m_relay != boost::none) monero_utils::addJsonMember("relay", m_relay.get(), allocator, root);
     if (m_is_relayed != boost::none) monero_utils::addJsonMember("isRelayed", m_is_relayed.get(), allocator, root);
     if (m_is_confirmed != boost::none) monero_utils::addJsonMember("isConfirmed", m_is_confirmed.get(), allocator, root);
     if (m_in_tx_pool != boost::none) monero_utils::addJsonMember("inTxPool", m_in_tx_pool.get(), allocator, root);
@@ -305,7 +305,7 @@ namespace monero {
       else if (key == string("paymentId")) tx->m_payment_id = it->second.data();
       else if (key == string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
       else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
-      else if (key == string("doNotRelay")) tx->m_do_not_relay = it->second.get_value<bool>();
+      else if (key == string("relay")) tx->m_relay = it->second.get_value<bool>();
       else if (key == string("isRelayed")) tx->m_is_relayed = it->second.get_value<bool>();
       else if (key == string("isConfirmed")) tx->m_is_confirmed = it->second.get_value<bool>();
       else if (key == string("inTxPool")) tx->m_in_tx_pool = it->second.get_value<bool>();
@@ -347,7 +347,7 @@ namespace monero {
     tgt->m_payment_id = src->m_payment_id;
     tgt->m_fee = src->m_fee;
     tgt->m_ring_size = src->m_ring_size;
-    tgt->m_do_not_relay = src->m_do_not_relay;
+    tgt->m_relay = src->m_relay;
     tgt->m_is_relayed = src->m_is_relayed;
     tgt->m_is_confirmed = src->m_is_confirmed;
     tgt->m_in_tx_pool = src->m_in_tx_pool;
@@ -427,7 +427,7 @@ namespace monero {
     m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx fee");
     m_ring_size = gen_utils::reconcile(m_ring_size, other->m_ring_size, "tx m_ring_size");
     m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed);
-    m_do_not_relay = gen_utils::reconcile(m_do_not_relay, other->m_do_not_relay);
+    m_relay = gen_utils::reconcile(m_relay, other->m_relay);
     m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed);
     m_is_double_spend_seen = gen_utils::reconcile(m_is_double_spend_seen, other->m_is_double_spend_seen);
     m_key = gen_utils::reconcile(m_key, other->m_key);

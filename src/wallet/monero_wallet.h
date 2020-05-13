@@ -763,52 +763,56 @@ namespace monero {
     }
 
     /**
-     * Create a transaction to transfer funds from this wallet according to the
-     * given config.  The transaction may be relayed later.
+     * Create a transaction to transfer funds from this wallet.
      *
      * @param config configures the transaction to create
-     * @return a tx set for the requested transaction if possible
+     * @return the created transaction
      */
-    virtual monero_tx_set create_tx(monero_tx_config& config) {
-      throw runtime_error("create_tx() not supported");
+    virtual shared_ptr<monero_tx_wallet> create_tx(const monero_tx_config& config) {
+      if (config.m_can_split != boost::none && config.m_can_split.get()) throw runtime_error("Cannot split transactions with create_tx(); use create_txs() instead");
+      monero_tx_config config_copy = monero_tx_config(config);
+      config_copy.m_can_split = false;
+      return create_txs(config_copy)[0];
     }
 
     /**
-     * Create a transaction to transfers funds from this wallet to a destination address.
-     * The transaction may be relayed later.
-     *
-     * @param accountIndex is the index of the account to withdraw funds from
-     * @param address is the destination address to send funds to
-     * @param amount is the amount being sent
-     * @return a tx set for the requested transaction if possible
-     */
-    virtual monero_tx_set create_tx(uint32_t account_index, string address, uint64_t amount) {
-      throw runtime_error("create_tx() not supported");
-    }
-
-    /**
-     * Create a transaction to transfers funds from this wallet to a destination address.
-     * The transaction may be relayed later.
-     *
-     * @param accountIndex is the index of the account to withdraw funds from
-     * @param address is the destination address to send funds to
-     * @param amount is the amount being sent
-     * @param priority is the send priority (default normal)
-     * @return a tx set for the requested transaction if possible
-     */
-    virtual monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_tx_priority priority) {
-      throw runtime_error("create_tx() not supported");
-    }
-
-    /**
-     * Create one or more transactions to transfer funds from this wallet
-     * according to the given config.  The transactions may later be relayed.
+     * Create one or more transactions to transfer funds from this wallet.
      *
      * @param config configures the transactions to create
-     * @return a tx set for the requested transactions if possible
+     * @return the created transactions
      */
-    virtual monero_tx_set create_txs(monero_tx_config& config) {
+    virtual vector<shared_ptr<monero_tx_wallet>> create_txs(const monero_tx_config& config) {
       throw runtime_error("create_txs() not supported");
+    }
+
+    /**
+     * Sweep unlocked funds according to the given config.
+     *
+     * @param config is the sweep configuration
+     * @return the created transactions
+     */
+    virtual vector<shared_ptr<monero_tx_wallet>> sweep_unlocked(const monero_tx_config& config) {
+      throw runtime_error("sweep_unlocked() not supported");
+    }
+
+    /**
+     * Sweep an output with a given key image.
+     *
+     * @param config configures the sweep transaction
+     * @return the created transaction
+     */
+    virtual shared_ptr<monero_tx_wallet> sweep_output(const monero_tx_config& config) {
+      throw runtime_error("sweep_output() not supported");
+    }
+
+    /**
+     * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
+     *
+     * @param relay specifies if the resulting transaction should be relayed (default false)
+     * @return the created transactions
+     */
+    virtual vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool relay = false) {
+      throw runtime_error("sweep_dust() not supported");
     }
 
     /**
@@ -818,7 +822,9 @@ namespace monero {
      * @return string is the hash of the relayed tx
      */
     virtual string relay_tx(const string& tx_metadata) {
-      throw runtime_error("relay_tx() not supported");
+      vector<string> tx_metadatas;
+      tx_metadatas.push_back(tx_metadata);
+      return relay_txs(tx_metadatas)[0];
     }
 
     /**
@@ -828,7 +834,19 @@ namespace monero {
      * @return the hash of the relayed tx
      */
     virtual string relay_tx(const monero_tx_wallet& tx) {
-      throw runtime_error("relay_tx() not supported");
+      return relay_tx(tx.m_metadata.get());
+    }
+
+    /**
+     * Relay previously created transactions.
+     *
+     * @param txs are the transactions to relay
+     * @return the hashes of the relayed txs
+     */
+    virtual vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
+      vector<string> tx_hexes;
+      for (const shared_ptr<monero_tx_wallet>& tx : txs) tx_hexes.push_back(tx->m_metadata.get());
+      return relay_txs(tx_hexes);
     }
 
     /**
@@ -839,95 +857,6 @@ namespace monero {
      */
     virtual vector<string> relay_txs(const vector<string>& tx_metadatas) {
       throw runtime_error("relay_txs() not supported");
-    }
-
-    /**
-     * Relay previously created transactions.
-     *
-     * @param txs are the transactions to relay
-     * @return the hashes of the relayed txs
-     */
-    virtual vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
-      throw runtime_error("relay_txs() not supported");
-    }
-
-    /**
-     * Create and relay a transaction to transfer funds from this wallet
-     * according to the given config.
-     *
-     * @param config configures the transaction
-     * @return a tx set with the requested transaction if possible
-     */
-    virtual monero_tx_set send_tx(const monero_tx_config& config) {
-      throw runtime_error("send_tx() not supported");
-    }
-
-    /**
-     * Create and relay a transaction to transfers funds from this wallet to
-     * a destination address.
-     *
-     * @param account_index is the index of the account to withdraw funds from
-     * @param address is the destination address to send funds to
-     * @param amount is the amount being sent
-     * @return a tx set with the requested transaction if possible
-     */
-    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount) {
-      throw runtime_error("send_tx() not supported");
-    }
-
-    /**
-     * Create and relay a transaction to transfers funds from this wallet to
-     * a destination address.
-     *
-     * @param account_index is the index of the account to withdraw funds from
-     * @param address is the destination address to send funds to
-     * @param amount is the amount being sent
-     * @param priority is the send priority (default normal)
-     * @return a tx set with the requested transaction if possible
-     */
-    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_tx_priority priority) {
-      throw runtime_error("send_tx() not supported");
-    }
-
-    /**
-     * Create one or more transactions which transfer funds from this wallet to
-     * one or more destinations depending on the given configuration.
-     *
-     * @param config configures the transaction
-     * @return a tx set with the requested transactions if possible
-     */
-    virtual monero_tx_set send_txs(const monero_tx_config& config) {
-      throw runtime_error("send_txs() not supported");
-    }
-
-    /**
-     * Sweep unlocked funds according to the given config.
-     *
-     * @param config is the sweep configuration
-     * @return the tx sets with the requested transactions
-     */
-    virtual vector<monero_tx_set> sweep_unlocked(const monero_tx_config& config) {
-      throw runtime_error("sweep_unlocked() not supported");
-    }
-
-    /**
-     * Sweep an output with a given key image.
-     *
-     * @param config configures the sweep transaction
-     * @return a tx set with the requested transaction if possible
-     */
-    virtual monero_tx_set sweep_output(const monero_tx_config& config) {
-      throw runtime_error("sweep_output() not supported");
-    }
-
-    /**
-     * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
-     *
-     * @param do_not_relay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-     * @return a tx set with the requested transactions if possible
-     */
-    virtual monero_tx_set sweep_dust(bool do_not_relay = false) {
-      throw runtime_error("sweep_dust() not supported");
     }
 
     /**

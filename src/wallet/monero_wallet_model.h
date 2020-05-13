@@ -112,8 +112,7 @@ namespace monero {
     boost::optional<string> m_address;
     boost::optional<uint64_t> m_amount;
 
-    monero_destination() {}
-    monero_destination(const string& address, uint64_t amount) : m_address(address), m_amount(amount) {}
+    monero_destination(boost::optional<string> address = boost::none, boost::optional<uint64_t> amount = boost::none) : m_address(address), m_amount(amount) {}
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_destination>& destination);
     shared_ptr<monero_destination> copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt) const;
@@ -339,6 +338,8 @@ namespace monero {
    * Configures a transaction to send, sweep, or create a payment URI.
    */
   struct monero_tx_config : public serializable_struct {
+    boost::optional<string> m_address;
+    boost::optional<uint64_t> m_amount;
     vector<shared_ptr<monero_destination>> m_destinations;
     boost::optional<string> m_payment_id;
     boost::optional<monero_tx_priority> m_priority;
@@ -348,7 +349,7 @@ namespace monero {
     vector<uint32_t> m_subaddress_indices;
     boost::optional<uint64_t> m_unlock_time;
     boost::optional<bool> m_can_split;
-    boost::optional<bool> m_do_not_relay;
+    boost::optional<bool> m_relay;
     boost::optional<string> m_note;
     boost::optional<string> m_recipient_name;
     boost::optional<uint64_t> m_below_amount;
@@ -357,9 +358,10 @@ namespace monero {
 
     monero_tx_config() {}
     monero_tx_config(const monero_tx_config& config);
+    monero_tx_config copy() const;
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static shared_ptr<monero_tx_config> deserialize(const string& config_json);
-    monero_tx_config copy() const;
+    vector<shared_ptr<monero_destination>> get_normalized_destinations() const;
   };
 
   /**

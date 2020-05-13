@@ -116,24 +116,24 @@ namespace monero {
     /**
      * Supported wallet methods.
      */
-    bool is_watch_only() const { return m_is_watch_only; }
-    monero_version get_version() const;
-    monero_network_type get_network_type() const { return m_network_type; }
-    string get_mnemonic() const { return m_mnemonic; }
-    string get_mnemonic_language() const { return m_language; }
-    string get_private_view_key() const { return m_prv_view_key; }
-    string get_private_spend_key() const { return m_prv_spend_key; }
-    string get_public_view_key() const { return m_pub_view_key; }
-    string get_public_spend_key() const { return m_pub_spend_key; }
-    string get_primary_address() const { return m_primary_address; }
-    string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const;
-    monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
-    monero_integrated_address decode_integrated_address(const string& integrated_address) const;
-    monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
-    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
-    string sign_message(const string& msg) const;
-    bool verify_message(const string& msg, const string& address, const string& signature) const;
-    void close(bool save = false);
+    bool is_watch_only() const override { return m_is_watch_only; }
+    monero_version get_version() const override;
+    monero_network_type get_network_type() const override { return m_network_type; }
+    string get_mnemonic() const override { return m_mnemonic; }
+    string get_mnemonic_language() const override { return m_language; }
+    string get_private_view_key() const override { return m_prv_view_key; }
+    string get_private_spend_key() const override { return m_prv_spend_key; }
+    string get_public_view_key() const override { return m_pub_view_key; }
+    string get_public_spend_key() const override { return m_pub_spend_key; }
+    string get_primary_address() const override { return m_primary_address; }
+    string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const override;
+    monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const override;
+    monero_integrated_address decode_integrated_address(const string& integrated_address) const override;
+    monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const override;
+    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const override;
+    string sign_message(const string& msg) const override;
+    bool verify_message(const string& msg, const string& address, const string& signature) const override;
+    void close(bool save = false) override;
 
     // --------------------------------- PRIVATE --------------------------------
 

@@ -176,7 +176,7 @@ namespace monero {
     boost::optional<string> m_payment_id;
     boost::optional<uint64_t> m_fee;
     boost::optional<uint32_t> m_ring_size;
-    boost::optional<bool> m_do_not_relay;
+    boost::optional<bool> m_relay;
     boost::optional<bool> m_is_relayed;
     boost::optional<bool> m_is_confirmed;
     boost::optional<bool> m_in_tx_pool;

@@ -399,7 +399,7 @@ namespace monero {
     if (m_payment_id != boost::none && m_payment_id != tx->m_payment_id) return false;
     if (m_is_confirmed != boost::none && m_is_confirmed != tx->m_is_confirmed) return false;
     if (m_in_tx_pool != boost::none && m_in_tx_pool != tx->m_in_tx_pool) return false;
-    if (m_do_not_relay != boost::none && m_do_not_relay != tx->m_do_not_relay) return false;
+    if (m_relay != boost::none && m_relay != tx->m_relay) return false;
     if (m_is_failed != boost::none && m_is_failed != tx->m_is_failed) return false;
     if (m_is_miner_tx != boost::none && m_is_miner_tx != tx->m_is_miner_tx) return false;
     if (m_is_locked != boost::none && m_is_locked != tx->m_is_locked) return false;
@@ -1039,9 +1039,11 @@ namespace monero {
     return true;
   }
 
-  // ------------------------- MONERO SEND REQUEST ----------------------------
+  // --------------------------- MONERO TX CONFIG -----------------------------
 
   monero_tx_config::monero_tx_config(const monero_tx_config& config) {
+    m_address = config.m_address;
+    m_amount = config.m_amount;
     if (config.m_destinations.size() > 0) {
       for (const shared_ptr<monero_destination>& destination : config.m_destinations) {
         m_destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
@@ -1055,12 +1057,16 @@ namespace monero {
     m_subaddress_indices = config.m_subaddress_indices;
     m_unlock_time = config.m_unlock_time;
     m_can_split = config.m_can_split;
-    m_do_not_relay = config.m_do_not_relay;
+    m_relay = config.m_relay;
     m_note = config.m_note;
     m_recipient_name = config.m_recipient_name;
     m_below_amount = config.m_below_amount;
     m_sweep_each_subaddress = config.m_sweep_each_subaddress;
     m_key_image = config.m_key_image;
+  }
+
+  monero_tx_config monero_tx_config::copy() const {
+    return monero_tx_config(*this);
   }
 
   rapidjson::Value monero_tx_config::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
@@ -1085,7 +1091,7 @@ namespace monero {
 
     // set bool values
     if (m_can_split != boost::none) monero_utils::addJsonMember("canSplit", m_can_split.get(), allocator, root);
-    if (m_do_not_relay != boost::none) monero_utils::addJsonMember("doNotRelay", m_do_not_relay.get(), allocator, root);
+    if (m_relay != boost::none) monero_utils::addJsonMember("relay", m_relay.get(), allocator, root);
     if (m_sweep_each_subaddress != boost::none) monero_utils::addJsonMember("sweepEachSubaddress", m_sweep_each_subaddress.get(), allocator, root);
 
     // set sub-arrays
@@ -1130,7 +1136,7 @@ namespace monero {
       else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) config->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
       else if (key == string("unlockTime")) config->m_unlock_time = it->second.get_value<uint64_t>();
       else if (key == string("canSplit")) config->m_can_split = it->second.get_value<bool>();
-      else if (key == string("doNotRelay")) config->m_do_not_relay = it->second.get_value<bool>();
+      else if (key == string("relay")) config->m_relay = it->second.get_value<bool>();
       else if (key == string("note")) config->m_note = it->second.data();
       else if (key == string("recipientName")) config->m_recipient_name = it->second.data();
       else if (key == string("belowAmount")) config->m_below_amount = it->second.get_value<uint64_t>();
@@ -1141,8 +1147,18 @@ namespace monero {
     return config;
   }
 
-  monero_tx_config monero_tx_config::copy() const {
-    return monero_tx_config(*this);
+  vector<shared_ptr<monero_destination>> monero_tx_config::get_normalized_destinations() const {
+    if (m_address == boost::none && m_amount == boost::none) return m_destinations;
+    else if (m_destinations.empty()) {
+      vector<shared_ptr<monero_destination>> destinations;
+      destinations.push_back(std::make_shared<monero_destination>(m_address, m_amount));
+      return destinations;
+    } else {
+      if (m_destinations.size() > 1) throw runtime_error("Invalid tx configuration: single destination address/amount incompatible with multiple destinations");
+      if (m_address != m_destinations[0]->m_address) throw runtime_error("Invalid tx configuration: single destination address does not match first destination address");
+      if (m_amount != m_destinations[0]->m_amount) throw runtime_error("Invalid tx configuration: single destination amount does not match first destination amount");
+      return m_destinations;
+    }
   }
 
   // ---------------------- MONERO INTEGRATED ADDRESS -------------------------
