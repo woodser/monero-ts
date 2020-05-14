@@ -1,5 +1,4 @@
 HIGH (WASM)
-createTx(), createTxs() with relay true|false
 getBlockTemplate() getNextSeedHash not null
 not waiting for tx to clear pool
 print memory used in web worker
@@ -24,7 +23,7 @@ rpc mutisig test failing when run with other tests
 startSynchronizing() uses pre-started loop for random start time like core wallet?
 real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
-rpc supports watch-only request failed: 0, or error after previously called
+rpc supports view-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 profile performance of getTxs() stack
 combine MoneroSyncListener and MoneroWalletListener

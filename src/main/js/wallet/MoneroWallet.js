@@ -28,12 +28,12 @@
 class MoneroWallet {
   
   /**
-   * Indicates if the wallet is watch-only, meaning it does have the private
+   * Indicates if the wallet is view-only, meaning it does have the private
    * spend key and can therefore only observe incoming outputs.
    * 
-   * @return {bool} true if the wallet is watch-only, false otherwise
+   * @return {bool} true if the wallet is view-only, false otherwise
    */
-  async isWatchOnly() {
+  async isViewOnly() {
     throw new MoneroError("Not supported");
   }
   
@@ -582,7 +582,7 @@ class MoneroWallet {
    * @param {int} config.subaddressIndex - source subaddress index to transfer funds from (optional)
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from (optional)
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain (default false)
-   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {string} config.paymentId - transaction payment ID (optional)
    * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds (default 0)
@@ -605,7 +605,7 @@ class MoneroWallet {
    * @param {int} config.subaddressIndex - source subaddress index to transfer funds from (optional)
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from (optional)
    * @param {boolean} config.relay - relay the transactions to peers to commit to the blockchain (default false)
-   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {string} config.paymentId - transaction payment ID (optional)
    * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds (default 0)
@@ -624,7 +624,7 @@ class MoneroWallet {
    * @param {string} config.keyImage - key image to sweep (required)
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain (default false)
    * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds (default 0)
-   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @return {MoneroTxWallet} the created transaction
    */
   async sweepOutput(config) {
@@ -640,7 +640,7 @@ class MoneroWallet {
    * @param {int} config.subaddressIndex - source subaddress index to sweep from (optional)
    * @param {int[]} config.subaddressIndices - source subaddress indices to sweep from (optional)
    * @param {boolean} config.relay - relay the transactions to peers to commit to the blockchain (default false)
-   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds (default 0)
    * @return {MoneroTxWallet[]} the created transactions
    */
@@ -691,7 +691,7 @@ class MoneroWallet {
   }
   
   /**
-   * Sign unsigned transactions from a watch-only wallet.
+   * Sign unsigned transactions from a view-only wallet.
    * 
    * @param {string} unsignedTxHex - unsigned transaction hex from when the transactions were created
    * @return {string} the signed transaction hex
@@ -701,7 +701,7 @@ class MoneroWallet {
   }
   
   /**
-   * Submit signed transactions from a watch-only wallet.
+   * Submit signed transactions from a view-only wallet.
    * 
    * @param {string} signedTxHex - signed transaction hex from signTxs()
    * @return {string[]} the resulting transaction hashes

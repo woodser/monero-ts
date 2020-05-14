@@ -372,8 +372,8 @@ self.createWalletFromKeys = async function(walletId, path, password, networkType
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
-self.isWatchOnly = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].isWatchOnly();
+self.isViewOnly = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isViewOnly();
 }
 
 self.getNetworkType = async function(walletId) {

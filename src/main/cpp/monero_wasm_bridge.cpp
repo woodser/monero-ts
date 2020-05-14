@@ -189,9 +189,9 @@ string monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
 
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
-bool monero_wasm_bridge::is_watch_only(int handle) {
+bool monero_wasm_bridge::is_view_only(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->is_watch_only();
+  return wallet->is_view_only();
 }
 
 void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback) {
@@ -1043,13 +1043,13 @@ void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) 
   callback();
 }
 
-string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {
+string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool view_only) {
 #if defined BUILD_CORE_WALLET
   // get wallet
   monero_wallet_core* wallet = (monero_wallet_core*) handle;
 
   // get keys buffer
-  string keys_buf = wallet->get_keys_file_buffer(password, watch_only);
+  string keys_buf = wallet->get_keys_file_buffer(password, view_only);
 
   // copy keys buffer to heap and keep pointer
   std::string* keys_buf_ptr = new std::string(keys_buf.c_str(), keys_buf.length());

@@ -34,7 +34,7 @@ namespace monero_wasm_bridge
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
-  bool is_watch_only(int handle);
+  bool is_view_only(int handle);
   void set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback);
   string get_daemon_connection(int handle);
   void is_connected(int handle, emscripten::val callback);
@@ -128,7 +128,7 @@ namespace monero_wasm_bridge
   string sign_multisig_tx_hex(int handle, const string& multisig_tx_hex);
   void submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex, emscripten::val callback);
   void close(int handle, bool save, emscripten::val callback);
-  string get_keys_file_buffer(int handle, string password, bool watch_only);
+  string get_keys_file_buffer(int handle, string password, bool view_only);
   string get_cache_file_buffer(int handle, string password);
 }
 

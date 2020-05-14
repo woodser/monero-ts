@@ -1437,7 +1437,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // queue call to wasm module
-    let watchOnly = await this.isWatchOnly();
+    let viewOnly = await this.isViewOnly();
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1461,7 +1461,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       views.push(Buffer.from(view.buffer));
       
       // malloc keys buffer and get buffer location in c++ heap
-      let keysBufferLoc = JSON.parse(that._module.get_keys_file_buffer(that._cppAddress, that._password, watchOnly));
+      let keysBufferLoc = JSON.parse(that._module.get_keys_file_buffer(that._cppAddress, that._password, viewOnly));
       
       // read binary data from heap to DataView
       view = new DataView(new ArrayBuffer(keysBufferLoc.length));
@@ -1862,8 +1862,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     this._wrappedListeners = [];
   }
   
-  async isWatchOnly() {
-    return this._invokeWorker("isWatchOnly");
+  async isViewOnly() {
+    return this._invokeWorker("isViewOnly");
   }
   
   async getNetworkType() {
