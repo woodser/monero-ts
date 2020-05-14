@@ -350,7 +350,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
       return resp.result.key;
     } catch (e) {
-      if (e.getCode() === -29 && e.message.indexOf("view-only") !== -1) return undefined; // return undefined if wallet is view-only
+      if (e.getCode() === -29 && e.message.indexOf("watch-only") !== -1) return undefined; // return undefined if wallet is view-only
       throw e;
     }
   }

@@ -1,27 +1,22 @@
 HIGH (WASM)
-getBlockTemplate() getNextSeedHash not null
-user guide document model with json / diagram
-only get failed synchronize message for 1 wallet when multiple wallets fail to sync
-not waiting for tx to clear pool
 print memory used in web worker
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
-add project names to main architecture boxes
-
-separate keys tests?
-rename bin to script? configs to config?
-/Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 document data model from block
-update readme sample code
+/Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 full tests including jni
 release
 report core issues
 
+only get failed synchronize message for one wallet when multiple wallet syncs fail
+separate keys tests?
+test saving tx note when creating tx
+getBlockTemplate() getNextSeedHash sometimes not null
 free tx set, tx, transfer, outputs from getTxs(), createTxs(), etc
 why not waiting for tx pool?
 error when wallet alread open?
-inherit tx config in transfer, output configs?
+inherit tx config fields in transfer, output configs?
 check for unrecognized tx config
 wallet2 1128 ::move() causes warning
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
@@ -32,12 +27,9 @@ real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 rpc supports view-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
-profile performance of getTxs() stack
-combine MoneroSyncListener and MoneroWalletListener
 getSyncHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
-don't run non-applicable tests in TestMoneroWalletKeys
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 sync end height != daemon height for long syncs
 implement Can submit a mined block to the network
