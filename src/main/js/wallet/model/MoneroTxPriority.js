@@ -1,5 +1,10 @@
 /**
- * Enumerates send priorities.
+ * Enumerates send priorities:<br><br>
+ * 
+ * &nbsp;&nbsp; DEFAULT (NORMAL)<br>
+ * &nbsp;&nbsp; UNIMPORTANT<br>
+ * &nbsp;&nbsp; NORMAL<br>
+ * &nbsp;&nbsp; ELEVATED<br>
  */
 MoneroTxPriority = {
     DEFAULT: 0,
