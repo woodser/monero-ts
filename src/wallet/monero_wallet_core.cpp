@@ -1489,8 +1489,8 @@ namespace monero {
 
 //    // log query
 //    if (query.m_tx_query != boost::none) {
-//      if ((*query.m_tx_query)->m_block == boost::none) MTRACE("Transfer query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize());
-//      else MTRACE("Transfer query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize());
+//      if ((*query.m_tx_query)->m_block == boost::none) cout << "Transfer query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize() << endl;
+//      else cout << "Transfer query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize() << endl;
 //    }
 
     // copy and normalize query
