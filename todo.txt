@@ -1,4 +1,5 @@
 HIGH (WASM)
+testGetReserveProofAccount() exception
 print memory used in web worker
 re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs

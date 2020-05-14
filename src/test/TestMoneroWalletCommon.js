@@ -1768,7 +1768,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (testConfig.testNonRelays && false)  // TODO: re-enable this after 14.x point release which fixes this
+      if (testConfig.testNonRelays)
       it("Can prove reserves in an account", async function() {
         
         // test proofs of accounts
