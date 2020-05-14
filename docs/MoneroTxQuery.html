@@ -307,7 +307,7 @@ let txs = await wallet.getTxs({<br>
 
         <tr>
             
-                <td class="name"><code>doNotRelay</code></td>
+                <td class="name"><code>relay</code></td>
             
 
             <td class="type">
@@ -323,7 +323,7 @@ let txs = await wallet.getTxs({<br>
 
             
 
-            <td class="description last">get txs with the same "do not relay" status</td>
+            <td class="description last">get txs with the same relay status</td>
         </tr>
 
     
@@ -840,95 +840,6 @@ let txs = await wallet.getTxs({<br>
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line44">line 44</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getDoNotRelay"><span class="type-signature"></span>getDoNotRelay<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="MoneroTxWallet.html#getDoNotRelay">MoneroTxWallet#getDoNotRelay</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -3090,6 +3001,95 @@ transaction. Full hex = pruned hex + prunable hex.
     
 
     
+    <h4 class="name" id="getRelay"><span class="type-signature"></span>getRelay<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTxWallet.html#getRelay">MoneroTxWallet#getRelay</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line111">line 111</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getRingSize"><span class="type-signature"></span>getRingSize<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
@@ -4442,95 +4442,6 @@ should not be re-used or it should be copied before calling this method.
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line48">line 48</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setDoNotRelay"><span class="type-signature"></span>setDoNotRelay<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="MoneroTxWallet.html#setDoNotRelay">MoneroTxWallet#setDoNotRelay</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line115">line 115</a>
     </li></ul></dd>
     
 
@@ -7147,6 +7058,95 @@ should not be re-used or it should be copied before calling this method.
     
 
     
+    <h4 class="name" id="setRelay"><span class="type-signature"></span>setRelay<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="MoneroTxWallet.html#setRelay">MoneroTxWallet#setRelay</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="daemon_model_MoneroTx.js.html">daemon/model/MoneroTx.js</a>, <a href="daemon_model_MoneroTx.js.html#line115">line 115</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="setRingSize"><span class="type-signature"></span>setRingSize<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
@@ -7875,7 +7875,7 @@ should not be re-used or it should be copied before calling this method.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun May 10 2020 22:48:31 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu May 14 2020 12:18:38 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

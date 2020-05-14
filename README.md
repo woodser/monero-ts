@@ -4,7 +4,7 @@ This project is a JavaScript library for using Monero with RPC and native bindin
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
-- Supports offline, watch-only, and multisig wallets.
+- Supports view-only, offline, and multisig wallets.
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
 - Receive notifications when blocks are added to the chain or when wallets sync, send, and receive.
@@ -72,13 +72,12 @@ await walletWasm.addListener(new class extends MoneroWalletListener {
 });
 
 // send funds from RPC wallet to WebAssembly wallet
-let txSet = await walletRpc.sendTx({
+let sentTx = await walletRpc.createTx({
   accountIndex: 0,
   address: await walletWasm.getAddress(1, 0),
-  amount: new BigInteger("50000"),       // amount to transfer in atomic units
-  priority: MoneroTxPriority.UNIMPORTANT	// no hurry
+  amount: new BigInteger("50000"), // amount to transfer in atomic units
+  relay: true
 });
-let sentTx = txSet.getTxs()[0]; // send methods return tx set which contains sent tx(s)
 let txHash = sentTx.getHash();
 
 // wallet receives unconfirmed funds within 10 seconds

@@ -258,13 +258,13 @@ class MoneroWalletRpc extends MoneroWallet {
     this.path = name;
   }
   
-  async isWatchOnly() {
+  async isViewOnly() {
     try {
       await this.rpc.sendJsonRequest("query_key", {key_type: "mnemonic"});
-      return false; // key retrieval succeeds if not watch only
+      return false; // key retrieval succeeds if not view only
     } catch (e) {
-      if (e.getCode() === -29) return true;  // wallet is watch-only
-      if (e.getCode() === -1) return false;  // wallet is offline but not watch-only
+      if (e.getCode() === -29) return true;  // wallet is view only
+      if (e.getCode() === -1) return false;  // wallet is offline but not view only
       throw e;
     }
   }
@@ -319,7 +319,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
       return resp.result.key;
     } catch (e) {
-      if (e.getCode() === -29) return undefined;  // wallet is watch-only
+      if (e.getCode() === -29) return undefined;  // wallet is view-only
       throw e;
     }
   }
@@ -345,12 +345,12 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getPrivateSpendKey() {
     
-    // get private spend key which will throw error if wallet is watch-only
+    // get private spend key which will throw error if wallet is view-only
     try {
       let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
       return resp.result.key;
     } catch (e) {
-      if (e.getCode() === -29 && e.message.indexOf("watch-only") !== -1) return undefined; // return undefined if wallet is watch-only
+      if (e.getCode() === -29 && e.message.indexOf("view-only") !== -1) return undefined; // return undefined if wallet is view-only
       throw e;
     }
   }
@@ -940,7 +940,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.rpc.sendJsonRequest(config.getCanSplit() ? "transfer_split" : "transfer", params);
     let result = resp.result;
     
-    // pre-initialize txs iff present.  multisig and watch-only wallets will have tx set without transactions
+    // pre-initialize txs iff present.  multisig and view-only wallets will have tx set without transactions
     let txs;
     let numTxs = config.getCanSplit() ? (result.fee_list !== undefined ? result.fee_list.length : 0) : (result.fee !== undefined ? 1 : 0);
     if (numTxs > 0) txs = [];

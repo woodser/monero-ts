@@ -25,7 +25,7 @@ class MoneroTxConfig {
    * @param {int} config.subaddressIndex - source subaddress index to transfer funds from
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain
-   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
    * @param {string} config.paymentId - transaction payment ID
    * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds

@@ -28,7 +28,7 @@ EMSCRIPTEN_BINDINGS(module)
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
-  emscripten::function("is_watch_only", &monero_wasm_bridge::is_watch_only);
+  emscripten::function("is_view_only", &monero_wasm_bridge::is_view_only);
   emscripten::function("set_daemon_connection", &monero_wasm_bridge::set_daemon_connection);
   emscripten::function("get_daemon_connection", &monero_wasm_bridge::get_daemon_connection);
   emscripten::function("is_connected", &monero_wasm_bridge::is_connected);

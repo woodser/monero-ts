@@ -699,15 +699,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     if (!this._syncingEnabled) {
       this._syncingEnabled = true;
-      if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
+      this._runSyncLoop();  // sync wallet on loop in background
     }
   }
     
   async stopSyncing() {
     this._assertNotClosed();
-    if (!this._syncingThreadDone) {
-      this._syncingEnabled = false;
-    }
+    this._syncingEnabled = false;
   }
   
   async rescanSpent() {
@@ -972,29 +970,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     throw new MoneroError("Not implemented");
   }
   
-  async relayTxs(txsOrMetadatas) {
-    this._assertNotClosed();
-    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
-    let txMetadatas = [];
-    for (let txOrMetadata of txsOrMetadatas) txMetadatas.push(txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata);
-    let that = this;
-    return that._module.queueTask(async function() {
-      that._assertNotClosed();
-      return new Promise(function(resolve, reject) {
-        let callback = function(txHashesJson) {
-          if (txHashesJson.charAt(0) !== "{") reject(new MoneroError(txHashesJson));
-          else resolve(JSON.parse(txHashesJson).txHashes);
-        }
-        that._module.relay_txs(that._cppAddress, JSON.stringify({txMetadatas: txMetadatas}), callback);
-      });
-    });
-  }
-  
-  async sendTxs(configOrAccountIndex, address, amount, priority) {
+  async createTxs(config) {
     this._assertNotClosed();
     
     // validate, copy, and normalize config
-    let config = MoneroWallet._normalizeTxConfig(configOrAccountIndex, address, amount, priority);
+    config = MoneroWallet._normalizeCreateTxsConfig(config);
     if (config.getCanSplit() === undefined) config.setCanSplit(true);
     
     // check for payment id to avoid error in wasm 
@@ -1009,20 +989,20 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))).getTxs());
         }
         
-        // sync wallet in wasm and invoke callback when done
-        that._module.send_txs(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
+        // create txs in wasm and invoke callback when done
+        that._module.create_txs(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  async sweepOutput(configOrAddress, keyImage, priority) {
+  async sweepOutput(config) {
     this._assertNotClosed();
     
     // normalize and validate config
-    let config = MoneroWallet._normalizeSweepOutputConfig(configOrAddress, keyImage, priority);
+    config = MoneroWallet._normalizeSweepOutputConfig(config);
     
     // return promise which resolves on callback
     let that = this;
@@ -1033,10 +1013,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))).getTxs()[0]);
         }
         
-        // sync wallet in wasm and invoke callback when done
+        // sweep output in wasm and invoke callback when done
         that._module.sweep_output(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
@@ -1045,14 +1025,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   async sweepUnlocked(config) {
     this._assertNotClosed();
     
-    // validate config // TODO: this is copied from MoneroWalletRpc.sweepUnlocked(), factor to super class which calls this with normalized config?
-    if (config === undefined) throw new MoneroError("Must specify sweep config");
-    if (config.getDestinations() === undefined || config.getDestinations().length != 1) throw new MoneroError("Must specify exactly one destination to sweep to");
-    if (config.getDestinations()[0].getAddress() === undefined) throw new MoneroError("Must specify destination address to sweep to");
-    if (config.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep config");
-    if (config.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
-    if (config.getSubaddressIndices() !== undefined &amp;&amp; config.getSubaddressIndices().length === 0) config.setSubaddressIndices(undefined);
-    if (config.getAccountIndex() === undefined &amp;&amp; config.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified");
+    // validate and normalize config
+    config = MoneroWallet._normalizeSweepUnlockedConfig(config);
     
     // return promise which resolves on callback
     let that = this;
@@ -1066,17 +1040,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           else {
             let txSets = [];
             for (let txSetJson of JSON.parse(GenUtils.stringifyBIs(txSetsJson)).txSets) txSets.push(new MoneroTxSet(txSetJson));
-            resolve(txSets);
+            let txs = [];
+            for (let txSet of txSets) for (let tx of txSet.getTxs()) txs.push(tx);
+            resolve(txs);
           }
         }
         
-        // sync wallet in wasm and invoke callback when done
+        // sweep unlocked in wasm and invoke callback when done
         that._module.sweep_unlocked(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  async sweepDust(doNotRelay) {
+  async sweepDust(relay) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1085,11 +1061,29 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))));
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))).getTxs());
         }
         
         // sync wallet in wasm and invoke callback when done
-        that._module.sweep_dust(that._cppAddress, doNotRelay, callbackFn);
+        that._module.sweep_dust(that._cppAddress, relay, callbackFn);
+      });
+    });
+  }
+  
+  async relayTxs(txsOrMetadatas) {
+    this._assertNotClosed();
+    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
+    let txMetadatas = [];
+    for (let txOrMetadata of txsOrMetadatas) txMetadatas.push(txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata);
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        let callback = function(txHashesJson) {
+          if (txHashesJson.charAt(0) !== "{") reject(new MoneroError(txHashesJson));
+          else resolve(JSON.parse(txHashesJson).txHashes);
+        }
+        that._module.relay_txs(that._cppAddress, JSON.stringify({txMetadatas: txMetadatas}), callback);
       });
     });
   }
@@ -1315,7 +1309,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   async createPaymentUri(config) {
-    if (typeof config === "object" &amp;&amp; !(config instanceof MoneroTxConfig)) config = new MoneroTxConfig(config);
+    config = MoneroWallet._normalizeCreateTxsConfig(config);
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1471,7 +1465,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // queue call to wasm module
-    let watchOnly = await this.isWatchOnly();
+    let viewOnly = await this.isViewOnly();
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1495,7 +1489,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       views.push(Buffer.from(view.buffer));
       
       // malloc keys buffer and get buffer location in c++ heap
-      let keysBufferLoc = JSON.parse(that._module.get_keys_file_buffer(that._cppAddress, that._password, watchOnly));
+      let keysBufferLoc = JSON.parse(that._module.get_keys_file_buffer(that._cppAddress, that._password, viewOnly));
       
       // read binary data from heap to DataView
       view = new DataView(new ArrayBuffer(keysBufferLoc.length));
@@ -1529,8 +1523,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   async close(save) {
-    if (this._isClosed || this._syncingThreadDone) return; // closing a closed wallet has no effect
-    this._syncingThreadDone = true;
+    if (this._isClosed) return; // no effect if closed
     this._syncingEnabled = false;
     await this._setIsListening(false);
     await this.stopSyncing();
@@ -1581,24 +1574,27 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   /**
-   * Loop until this._syncingThreadDone = true.
+   * Loop while syncing enabled.
    */
-  async _startSyncLoop() {
-    if (this._syncLoopStarted) return;
-    this._syncLoopStarted = true;
+  async _runSyncLoop() {
+    if (this._syncLoopRunning) return;  // only run one loop at a time
+    this._syncLoopRunning = true;
+    
+    // sync while enabled
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
-    while (true) {
-      if (this._syncingThreadDone) break;
-      if (this._syncingEnabled) {
-        try {
-          console.log("Background synchronizing " + label);
-          await this.sync();
-        } catch (e) {
-          if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
-        }
+    while (this._syncingEnabled) {
+      try {
+        console.log("Background synchronizing " + label);
+        await this.sync();
+      } catch (e) {
+        if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
       }
-      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+      
+      // only wait if syncing still enabled
+      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
+    
+    this._syncLoopRunning = false;
   }
   
   /**
@@ -1894,8 +1890,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     this._wrappedListeners = [];
   }
   
-  async isWatchOnly() {
-    return this._invokeWorker("isWatchOnly");
+  async isViewOnly() {
+    return this._invokeWorker("isViewOnly");
   }
   
   async getNetworkType() {
@@ -2159,37 +2155,35 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
+  async createTxs(config) {
+    config = MoneroWallet._normalizeCreateTxsConfig(config);
+    let txSetJson = await this._invokeWorker("createTxs", [config.toJson()]);
+    return new MoneroTxSet(txSetJson).getTxs();
+  }
+  
+  async sweepOutput(config) {
+    config = MoneroWallet._normalizeSweepOutputConfig(config);
+    let txSetJson = await this._invokeWorker("sweepOutput", [config.toJson()]);
+    return new MoneroTxSet(txSetJson).getTxs()[0];
+  }
+
+  async sweepUnlocked(config) {
+    config = MoneroWallet._normalizeSweepUnlockedConfig(config);
+    let txSetsJson = await this._invokeWorker("sweepUnlocked", [config.toJson()]);
+    let txs = [];
+    for (let txSetJson of txSetsJson) for (let tx of new MoneroTxSet(txSetJson).getTxs()) txs.push(tx);
+    return txs;
+  }
+  
+  async sweepDust(relay) {
+    return new MoneroTxSet(await this._invokeWorker("sweepDust", [relay])).getTxs();
+  }
+  
   async relayTxs(txsOrMetadatas) {
     assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
     let txMetadatas = [];
     for (let txOrMetadata of txsOrMetadatas) txMetadatas.push(txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata);
     return this._invokeWorker("relayTxs", [txMetadatas]);
-  }
-  
-  async sendTxs(configOrAccountIndex, address, amount, priority) {
-    if (configOrAccountIndex instanceof MoneroTxConfig) configOrAccountIndex = configOrAccountIndex.toJson();
-    else if (typeof configOrAccountIndex === "object") configOrAccountIndex = new MoneroTxConfig(configOrAccountIndex).toJson();
-    let txSetJson = await this._invokeWorker("sendTxs", [configOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
-    return new MoneroTxSet(txSetJson);
-  }
-  
-  async sweepOutput(configOrAddress, keyImage, priority) {
-    if (configOrAddress instanceof MoneroTxConfig) configOrAddress = configOrAddress.toJson();
-    else if (typeof configOrAddress === "object") configOrAddress = new MoneroTxConfig(configOrAddress).toJson();
-    let txSetJson = await this._invokeWorker("sweepOutput", [configOrAddress, keyImage, priority]);
-    return new MoneroTxSet(txSetJson);
-  }
-
-  async sweepUnlocked(config) {
-    if (config instanceof MoneroTxConfig) config = config.toJson();
-    else if (typeof config === "object") config = new MoneroTxConfig(config).toJson();
-    let txSets = [];
-    for (let txSetJson of await this._invokeWorker("sweepUnlocked", [config])) txSets.push(new MoneroTxSet(txSetJson));
-    return txSets;
-  }
-  
-  async sweepDust(doNotRelay) {
-    return new MoneroTxSet(await this._invokeWorker("sweepDust", [doNotRelay]));
   }
   
   async parseTxSet(txSet) {
@@ -2294,6 +2288,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   }
   
   async createPaymentUri(config) {
+    config = MoneroWallet._normalizeCreateTxsConfig(config);
     return this._invokeWorker("createPaymentUri", [config.toJson()]);
   }
   
@@ -2455,7 +2450,7 @@ module.exports = MoneroWalletWasm;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun May 10 2020 22:48:30 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu May 14 2020 12:18:36 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
