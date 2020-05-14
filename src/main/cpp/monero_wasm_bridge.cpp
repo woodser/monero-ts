@@ -621,6 +621,80 @@ void monero_wasm_bridge::import_key_images(int handle, const string& key_images_
 
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
 
+void monero_wasm_bridge::create_txs(int handle, const string& config_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
+
+    // create txs
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->create_txs(*config);
+
+    // serialize and return tx set
+    callback(txs[0]->m_tx_set.get()->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::sweep_output(int handle, const string& config_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
+
+    // sweep output
+    shared_ptr<monero_tx_wallet> tx = wallet->sweep_output(*config);
+
+    // serialize and return tx set
+    callback(tx->m_tx_set.get()->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::sweep_unlocked(int handle, const string& config_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize tx config
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
+
+    // sweep unlocked
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->sweep_unlocked(*config);
+
+    // collect tx sets
+    vector<shared_ptr<monero_tx_set>> tx_sets;
+    for (int i = 0; i < txs.size(); i++) {
+      if (std::find(tx_sets.begin(), tx_sets.end(), txs[i]->m_tx_set) == tx_sets.end()) {
+        tx_sets.push_back(txs[i]->m_tx_set.get());
+      }
+    }
+
+    // wrap and serialize tx sets
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txSets", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_sets), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::sweep_dust(int handle, bool relay, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->sweep_dust(relay);
+
+    // serialize and return tx set
+    callback(txs[0]->m_tx_set.get()->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
@@ -643,72 +717,6 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
     doc.SetObject();
     doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
     callback(monero_utils::serialize(doc));
-  } catch (exception& e) {
-    callback(string(e.what()));
-  }
-}
-
-void monero_wasm_bridge::send_txs(int handle, const string& config_json, emscripten::val callback) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  try {
-
-    // deserialize tx config
-    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
-
-    // send txs
-    monero_tx_set tx_set = wallet->send_txs(*config);
-
-    // serialize and return tx set
-    callback(tx_set.serialize());
-  } catch (exception& e) {
-    callback(string(e.what()));
-  }
-}
-
-void monero_wasm_bridge::sweep_output(int handle, const string& config_json, emscripten::val callback) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  try {
-
-    // deserialize tx config
-    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
-
-    // sweep output
-    monero_tx_set tx_set = wallet->sweep_output(*config);
-
-    // serialize and return tx set
-    callback(tx_set.serialize());
-  } catch (exception& e) {
-    callback(string(e.what()));
-  }
-}
-
-void monero_wasm_bridge::sweep_unlocked(int handle, const string& config_json, emscripten::val callback) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  try {
-
-    // deserialize tx config
-    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
-
-    // sweep unlocked
-    vector<monero_tx_set> tx_sets = wallet->sweep_unlocked(*config);
-
-    // wrap and serialize tx sets
-    rapidjson::Document doc;
-    doc.SetObject();
-    doc.AddMember("txSets", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_sets), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
-  } catch (exception& e) {
-    callback(string(e.what()));
-  }
-}
-
-void monero_wasm_bridge::sweep_dust(int handle, bool doNotRelay, emscripten::val callback) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  try {
-    monero_tx_set tx_set = wallet->sweep_dust(doNotRelay);
-
-    // serialize and return tx set
-    callback(tx_set.serialize());
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -970,7 +978,7 @@ string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args
   vector<string> multisig_hexes;
   boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
   for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
-  
+
   // get password from args
   string password = node.get_child("password").get_value<string>();
 

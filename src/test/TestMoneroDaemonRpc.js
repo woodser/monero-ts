@@ -1281,7 +1281,7 @@ function testTx(tx, ctx) {
     assert.equal(tx.isRelayed(), true);
     assert.equal(tx.isFailed(), false);
     assert.equal(tx.inTxPool(), false);
-    assert.equal(tx.getDoNotRelay(), false);
+    assert.equal(tx.getRelay(), true);
     assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getNumConfirmations(), undefined); // client must compute
   } else {
@@ -1322,11 +1322,11 @@ function testTx(tx, ctx) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer); // TODO: MoneroTx does not have getOutgoingTransfer() but this doesn't fail?
     assert(tx.getReceivedTimestamp() > 0)
   } else {
-    if (tx.isRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
+    if (tx.isRelayed() === undefined) assert.equal(tx.getRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
     else if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
     else {
       assert.equal(tx.isRelayed(), false);
-      assert.equal(tx.getDoNotRelay(), true);
+      assert.equal(tx.getRelay(), false);
       assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
     }
   }
@@ -1337,14 +1337,6 @@ function testTx(tx, ctx) {
   if (tx.getReceivedTimestamp() !== undefined) {
     assert(tx.inTxPool() || tx.isFailed());
   }
-  
-  // test relayed tx
-  // this is not strictly correct because a tx can be submitted then relayed
-//  if (tx.isRelayed()) assert.equal(tx.getDoNotRelay(), false);
-//  if (tx.getDoNotRelay()) {
-//    assert(!tx.isRelayed());
-//    assert(!tx.isConfirmed());
-//  }
   
   // test inputs and outputs
   assert(tx.getInputs() && Array.isArray(tx.getInputs()) && tx.getInputs().length >= 0);
@@ -1605,11 +1597,10 @@ function testTxPoolStats(stats) {
 }
 
 async function getUnrelayedTx(wallet, accountIdx) {
-  let config = new MoneroTxConfig(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
-  config.setDoNotRelay(true);
-  let tx = (await wallet.sendTx(config)).getTxs()[0];
+  let config = new MoneroTxConfig({accountIndex: accountIdx, address: await wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE}); 
+  let tx = await wallet.createTx(config);
   assert(tx.getFullHex());
-  assert.equal(tx.getDoNotRelay(), true);
+  assert.equal(tx.getRelay(), false);
   return tx;
 }
 

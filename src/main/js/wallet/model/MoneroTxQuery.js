@@ -31,7 +31,7 @@ class MoneroTxQuery extends MoneroTxWallet {
    * @param {int} config.maxHeight - get txs with height less than or equal to this height
    * @param {boolean} config.isConfirmed - get confirmed or unconfirmed txs
    * @param {boolean} config.inTxPool - get txs in or out of the tx pool
-   * @param {boolean} config.doNotRelay - get txs with the same "do not relay" status
+   * @param {boolean} config.relay - get txs with the same relay status
    * @param {boolean} config.isRelayed - get relayed or non-relayed txs
    * @param {boolean} config.isFailed - get failed or non-failed txs
    * @param {boolean} config.isMinerTx - get miner or non-miner txs
@@ -192,7 +192,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.getPaymentId() !== undefined && this.getPaymentId() !== tx.getPaymentId()) return false;
     if (this.isConfirmed() !== undefined && this.isConfirmed() !== tx.isConfirmed()) return false;
     if (this.inTxPool() !== undefined && this.inTxPool() !== tx.inTxPool()) return false;
-    if (this.getDoNotRelay() !== undefined && this.getDoNotRelay() !== tx.getDoNotRelay()) return false;
+    if (this.getRelay() !== undefined && this.getRelay() !== tx.getRelay()) return false;
     if (this.isRelayed() !== undefined && this.isRelayed() !== tx.isRelayed()) return false;
     if (this.isFailed() !== undefined && this.isFailed() !== tx.isFailed()) return false;
     if (this.isMinerTx() !== undefined && this.isMinerTx() !== tx.isMinerTx()) return false;

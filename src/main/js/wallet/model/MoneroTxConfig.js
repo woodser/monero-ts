@@ -13,87 +13,61 @@ class MoneroTxConfig {
    * &nbsp;&nbsp; accountIndex: 0,<br>
    * &nbsp;&nbsp; address: "59aZULsUF3YN...",<br>
    * &nbsp;&nbsp; amount: new BigInteger("500000"),<br>
-   * &nbsp;&nbsp; priority: MoneroTxPriority.NORMAL<br>
+   * &nbsp;&nbsp; priority: MoneroTxPriority.NORMAL,<br>
+   * &nbsp;&nbsp; relay: true<br>
    * });<br><br>
-   * 
-   * let config2 = new MoneroTxConfig(0, "59aZULsUF3YN...", new BigInteger("500000"), MoneroTxPriority.NORMAL);
-   * config2.setDoNotRelay(true);  // do not relay transaction to the network
    * </code>
    * 
-   * @param {object|number|string} param1 - tx configuration, source account index, or destination address
-   * @param {int} param1.accountIndex - source account index to transfer funds from
-   * @param {string} param1.address - single destination address (required unless destinations config given separately)
-   * @param {BigInteger} param1.amount - single destination amount (required unless destination config given separately or sweep request)
-   * @param {int} param1.priority - transaction priority (optional, default MoneroTxPriority.NORMAL)
-   * @param {int[]} param1.subaddressIndices - source subaddress indices to transfer funds from (optional)
-   * @param {MoneroDestination[]} param1.destinations - transfer destinations with addresses and amounts (required unless address/amount given separately)
-   * @param {string} param1.paymentId - transaction payment ID (optional)
-   * @param {BigInteger} param1.fee - transaction fee (optional, note: currently ignored)
-   * @param {boolean} param1.doNotRelay - do not relay the transaction to the network if true
-   * @param {int} param1.unlockTime - number of confirmations before the recipient can spend the funds
-   * @param {boolean} param1.canSplit - allow funds to be transferred using multiple transactions (optional)
-   * @param {string} param1.note - note for the transaction saved in the wallet (optional)
-   * @param {string} param1.recipientName - recipient name for the transaction saved in the wallet (optional)
-   * @param {BigInteger} param1.belowAmount - for sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds (optional) 
-   * @param {boolean} param1.sweepEachSubaddress - for sweep requests, sweep each subaddress individually instead of together if true (optional)
-   * @param {string} param1.keyImage - key image to sweep (ignored except in sweepOutput() requests)
-   * @param {string|BigInteger} param2 - destination address or send amount
-   * @param {BigInteger|number} param3 - send amount or transaction priority
-   * @param {number} param4 - transaction priority
+   * @param {MoneroTxConfig|object} config - configures the transaction to create (optional)
+   * @param {string} config.address - single destination address
+   * @param {BigInteger} config.amount - single destination amount
+   * @param {int} config.accountIndex - source account index to transfer funds from
+   * @param {int} config.subaddressIndex - source subaddress index to transfer funds from
+   * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from
+   * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain
+   * @param {enum} config.priority - transaction priority (default {MoneroTxPriority}.NORMAL)
+   * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
+   * @param {string} config.paymentId - transaction payment ID
+   * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds
+   * @param {string} config.note - transaction note saved locally with the wallet
+   * @param {string} config.recipientName - recipient name saved locally with the wallet
+   * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions
+   * @param {BigInteger} config.belowAmount - for sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds 
+   * @param {boolean} config.sweepEachSubaddress - for sweep requests, sweep each subaddress individually instead of together if true
+   * @param {string} config.keyImage - key image to sweep (ignored except in sweepOutput() requests)
    */
-  constructor(param1, param2, param3, param4) {
+  constructor(config) {
+    if (arguments.length > 1) throw new MoneroError("MoneroTxConfig can be constructed with only one parameter but was given " + arguments.length)
     
-    // handle if first parameter is json
-    if (typeof param1 === "object") {
-      this.state = Object.assign({}, param1);
-      assert.equal(arguments.length, 1, "Tx configuration must be constructed with json or parameters but not both");
-      
-      // deserialize if necessary
-      if (this.state.destinations) {
-        assert(this.state.address === undefined && this.state.amount === undefined, "Tx configuration may specify destinations or an address/amount but not both");
-        this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
-      }
-      
-      // alias 'address' and 'amount' to single destination to support e.g. sendTx({address: "..."})
-      if (this.state.address || this.state.amount) {
-        assert(!this.state.destinations, "Tx configuration may specify destinations or an address/amount but not both");
-        this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
-        delete this.state.address;
-        delete this.state.amount;
-      }
-      
-      // alias 'subaddressIndex' to subaddress indices
-      if (this.state.subaddressIndex !== undefined) {
-        this.setSubaddressIndices([this.state.subaddressIndex]);
-        delete this.state.subaddressIndex;
-      }
+    // initialize internal state
+    if (!config) this.state = {};
+    else if (config instanceof MoneroTxConfig) this.state = config.toJson();
+    else if (typeof config === "object") this.state = Object.assign({}, config);
+    else throw new MoneroError("Invalid argument given to MoneroTxConfig: " + typeof config);
+    
+    // deserialize if necessary
+    if (this.state.destinations) {
+      assert(this.state.address === undefined && this.state.amount === undefined, "Tx configuration may specify destinations or an address/amount but not both");
+      this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
     }
     
-    // otherwise map parameters to request values
-    else {
-      assert(arguments.length <= 4, "MoneroTxConfig constructor accepts at most 4 parameters");
-      this.state = {};
-      if (param1 === undefined || typeof param1 === "number") {
-        assert(param2 === undefined || typeof param2 === "string", "Second parameter must be the address or undefined");
-        assert(param3 === undefined || param3 instanceof BigInteger, "Third parameter must be the amount or undefined");
-        assert(param4 === undefined || typeof param4 === "number", "Fourth parameter must the priority or undefined");
-        this.setAccountIndex(param1);
-        if (param2 !== undefined) this.setDestinations([new MoneroDestination(param2, param3)])
-        this.setPriority(param4);
-      } else if (typeof param1 === "string") {
-        assert(param2 === undefined || param2 instanceof BigInteger, "Second parameter must be the amount or undefined");
-        assert(param3 === undefined || typeof param3 === "number", "Third parameter must be the priority or undefined");
-        assert(param4 === undefined, "Fourth parameter must be undefined because first parameter is address");
-        this.setDestinations([new MoneroDestination(param1, param2)])
-        this.setPriority(param3);
-      } else {
-        throw new MoneroError("First parameter of MoneroTxConfig constructor must be an object, number, string, or undefined: " + param1);
-      }
+    // alias 'address' and 'amount' to single destination to support e.g. createTx({address: "..."})
+    if (this.state.address || this.state.amount) {
+      assert(!this.state.destinations, "Tx configuration may specify destinations or an address/amount but not both");
+      this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
+      delete this.state.address;
+      delete this.state.amount;
+    }
+    
+    // alias 'subaddressIndex' to subaddress indices
+    if (this.state.subaddressIndex !== undefined) {
+      this.setSubaddressIndices([this.state.subaddressIndex]);
+      delete this.state.subaddressIndex;
     }
   }
   
   copy() {
-    return new MoneroTxConfig(this.state);
+    return new MoneroTxConfig(this);
   }
   
   toJson() {
@@ -234,12 +208,12 @@ class MoneroTxConfig {
     return this;
   }
   
-  getDoNotRelay() {
-    return this.state.doNotRelay;
+  getRelay() {
+    return this.state.relay;
   }
   
-  setDoNotRelay(doNotRelay) {
-    this.state.doNotRelay = doNotRelay;
+  setRelay(relay) {
+    this.state.relay = relay;
     return this;
   }
   

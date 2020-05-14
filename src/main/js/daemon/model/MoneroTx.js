@@ -108,12 +108,12 @@ class MoneroTx {
     return this;
   }
   
-  getDoNotRelay() {
-    return this.state.doNotRelay;
+  getRelay() {
+    return this.state.relay;
   }
   
-  setDoNotRelay(doNotRelay) {
-    this.state.doNotRelay = doNotRelay;
+  setRelay(relay) {
+    this.state.relay = relay;
     return this;
   }
   
@@ -448,8 +448,8 @@ class MoneroTx {
     this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
     this.setRingSize(GenUtils.reconcile(this.getRingSize(), tx.getRingSize()));
     this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
-    this.setDoNotRelay(GenUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
-    this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
+    this.setRelay(GenUtils.reconcile(this.getRelay(), tx.getRelay(), {resolveTrue: true}));       // tx can become relayed
+    this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true})); // tx can become relayed
     this.setIsDoubleSpend(GenUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
     this.setKey(GenUtils.reconcile(this.getKey(), tx.getKey()));
     this.setFullHex(GenUtils.reconcile(this.getFullHex(), tx.getFullHex()));
@@ -660,7 +660,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
     str += GenUtils.kvLine("Fee", this.getFee(), indent);
     str += GenUtils.kvLine("Ring size", this.getRingSize(), indent);
-    str += GenUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
+    str += GenUtils.kvLine("Relay", this.getRelay(), indent);
     str += GenUtils.kvLine("Is relayed", this.isRelayed(), indent);
     str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
     str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);

@@ -82,13 +82,12 @@ class TestSampleCode {
         
         // send funds from RPC wallet to WebAssembly wallet
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
-        let txSet = await walletRpc.sendTx({
+        let sentTx = await walletRpc.createTx({
           accountIndex: 0,
           address: await walletWasm.getAddress(1, 0),
-          amount: new BigInteger("50000"),        // amount to transfer in atomic units
-          priority: MoneroTxPriority.UNIMPORTANT  // no hurry
+          amount: new BigInteger("50000"), // amount to transfer in atomic units
+          relay: true
         });
-        let sentTx = txSet.getTxs()[0]; // send methods return tx set which contains sent tx(s)
         let txHash = sentTx.getHash();
         
         // wallet receives unconfirmed funds within 10 seconds
@@ -197,7 +196,12 @@ class TestSampleCode {
         
         // send funds from the RPC wallet to the wasm wallet
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // wait for txs to clear pool *** REMOVE FROM README SAMPLE ***
-        let txSet = await walletRpc.sendTx(0, await walletWasm.getPrimaryAddress(), BigInteger.parse("50000"));
+        let txSet = await walletRpc.createTx({
+          accountIndex: 0,
+          address: await walletWasm.getPrimaryAddress(),
+          amount: BigInteger.parse("50000"),
+          relay: true
+        });
         let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs
         assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
         
@@ -222,13 +226,14 @@ class TestSampleCode {
         let config = new MoneroTxConfig()
                 .setAccountIndex(1)                           // send from account 1
                 .setSubaddressIndices([0, 1])                 // send from subaddresses in account 1
-                .setPriority(MoneroTxPriority.UNIMPORTANT)  // no rush
+                .setPriority(MoneroTxPriority.UNIMPORTANT)    // no rush
+                .setRelay(true)
                 .setDestinations([
                         new MoneroDestination(await walletWasm.getAddress(1, 0), BigInteger.parse("50000")),
                         new MoneroDestination(await walletWasm.getAddress(2, 0), BigInteger.parse("50000"))]);
         
         // create the transaction, confirm with the user, and relay to the network
-        let createdTx = (await walletRpc.createTx(config)).getTxs()[0];
+        let createdTx = await walletRpc.createTx(config);
         let fee = createdTx.getFee();  // "Are you sure you want to send ...?"
         await walletRpc.relayTx(createdTx); // submit the transaction which will notify the JNI wallet
         

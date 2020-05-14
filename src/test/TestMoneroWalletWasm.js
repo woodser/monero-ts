@@ -1081,14 +1081,13 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // send funds
           await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(sender);
-          let txSet = await sender.sendTx(0, await receiver.getPrimaryAddress(), TestUtils.MAX_FEE);
-          let txHash = txSet.getTxs()[0].getHash();
-          await sender.getTx(txHash);
+          let tx = await sender.createTx({accountIndex: 0, address: await receiver.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true})
+          await sender.getTx(tx.getHash());
           if (senderListener.getOutputsSpent().length === 0) console.log("WARNING: no notification on send");
           
           // unconfirmed funds received within 10 seconds
           await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-          await receiver.getTx(txHash);
+          await receiver.getTx(tx.getHash());
           assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds within 10 seconds in " + (sameAccount ? "same account" : "different wallets"));
           for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
         } catch (e) {
@@ -1170,12 +1169,13 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
             errors.push("ERROR: No outputs available to sweep");
             return errors;
           }
-          tx = (await wallet.sweepOutput(await wallet.getAddress(destinationAccounts[0], 0), outputs[0].getKeyImage().getHex())).getTxs()[0];
+          tx = await wallet.sweepOutput({address: await wallet.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: true});
         } else {
           let config = new MoneroTxConfig();
           config.setAccountIndex(0);
           for (let destinationAccount of destinationAccounts) config.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
-          tx = (await wallet.sendTx(config)).getTxs()[0];
+          config.setRelay(true);
+          tx = await wallet.createTx(config);
         }
         
         // test wallet's balance
@@ -1272,7 +1272,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // send funds to the created wallet
           await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-          let sentTx = (await that.wallet.sendTx(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
+          let sentTx = await that.wallet.createTx({accountIndex: 0, address: await myWallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true});
           
           // wait for funds to confirm
           try { await StartMining.startMining(); } catch (e) { }
