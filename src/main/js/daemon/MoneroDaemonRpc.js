@@ -204,7 +204,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsConfirmed(true);
         tx.setInTxPool(false);
         tx.setIsMinerTx(false);
-        tx.setDoNotRelay(false);
+        tx.setRelay(true);
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
@@ -953,7 +953,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "fee") GenUtils.safeSet(tx, tx.getFee, tx.setFee, BigInteger.parse(val));
       else if (key === "relayed") GenUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, val);
       else if (key === "output_indices") GenUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
-      else if (key === "do_not_relay") GenUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
+      else if (key === "do_not_relay") GenUtils.safeSet(tx, tx.getRelay, tx.setRelay, !val);
       else if (key === "kept_by_block") GenUtils.safeSet(tx, tx.isKeptByBlock, tx.setIsKeptByBlock, val);
       else if (key === "signatures") GenUtils.safeSet(tx, tx.getSignatures, tx.setSignatures, val);
       else if (key === "last_failed_height") {
@@ -990,7 +990,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // initialize remaining known fields
     if (tx.isConfirmed()) {
       GenUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, true);
-      GenUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, false);
+      GenUtils.safeSet(tx, tx.getRelay, tx.setRelay, true);
       GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
     } else {
       tx.setNumConfirmations(0);
