@@ -2323,7 +2323,7 @@ namespace monero {
 
     // validate request
     if (m_w2->key_on_device()) throw runtime_error("command not supported by HW wallet");
-    if (m_w2->watch_only()) throw runtime_error("command not supported by watch-only wallet");
+    if (m_w2->watch_only()) throw runtime_error("command not supported by view-only wallet");
     if (unsigned_tx_hex.empty() && multisig_tx_hex.empty()) throw runtime_error("no txset provided");
 
     std::vector <wallet2::tx_construction_data> tx_constructions;
@@ -2476,7 +2476,7 @@ namespace monero {
   // implementation based on monero-project wallet_rpc_server.cpp::on_sign_transfer()
   string monero_wallet_core::sign_txs(const string& unsigned_tx_hex) {
     if (m_w2->key_on_device()) throw runtime_error("command not supported by HW wallet");
-    if (m_w2->watch_only()) throw runtime_error("command not supported by watch-only wallet");
+    if (m_w2->watch_only()) throw runtime_error("command not supported by view-only wallet");
 
     cryptonote::blobdata blob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(unsigned_tx_hex, blob)) throw runtime_error("Failed to parse hex.");
@@ -2992,13 +2992,13 @@ namespace monero {
 
   string monero_wallet_core::prepare_multisig() {
     if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
-    if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
+    if (m_w2->watch_only()) throw runtime_error("This wallet is view-only and cannot be made multisig");
     return m_w2->get_multisig_info();
   }
 
   monero_multisig_init_result monero_wallet_core::make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
     if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
-    if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
+    if (m_w2->watch_only()) throw runtime_error("This wallet is view-only and cannot be made multisig");
     boost::lock_guard<boost::mutex> guarg(m_sync_mutex);  // do not refresh while making multisig
     monero_multisig_init_result result;
     result.m_multisig_hex = m_w2->make_multisig(epee::wipeable_string(password), multisig_hexes, threshold);
@@ -3157,8 +3157,8 @@ namespace monero {
     m_w2->store_to(path, password);
   }
 
-  std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) const {
-    boost::optional<wallet2::keys_file_data> keys_file_data = m_w2->get_keys_file_data(password, watch_only);
+  std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool view_only) const {
+    boost::optional<wallet2::keys_file_data> keys_file_data = m_w2->get_keys_file_data(password, view_only);
     std::string buf;
     ::serialization::dump_binary(keys_file_data.get(), buf);
     return buf;

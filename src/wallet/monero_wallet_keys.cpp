@@ -178,7 +178,7 @@ namespace monero {
     }
 
     // initialize remaining wallet
-    wallet->m_is_watch_only = !has_spend_key;
+    wallet->m_is_view_only = !has_spend_key;
     wallet->m_network_type = network_type;
     if (!spend_key.empty()) {
       wallet->m_language = language;

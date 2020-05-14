@@ -121,13 +121,13 @@ namespace monero {
     virtual ~monero_wallet() {}
 
     /**
-     * Indicates if the wallet is watch-only, meaning it does have the private
+     * Indicates if the wallet is view-only, meaning it does have the private
      * spend key and can therefore only observe incoming outputs.
      *
-     * @return true if the wallet is watch-only, false otherwise
+     * @return true if the wallet is view-only, false otherwise
      */
-    virtual bool is_watch_only() const {
-      throw runtime_error("is_watch_only() not supported");
+    virtual bool is_view_only() const {
+      throw runtime_error("is_view_only() not supported");
     }
 
     /**
@@ -870,7 +870,7 @@ namespace monero {
     }
 
     /**
-     * Sign unsigned transactions from a watch-only wallet.
+     * Sign unsigned transactions from a view-only wallet.
      *
      * @param unsigned_tx_hex is unsigned transaction hex from when the transactions were created
      * @return the signed transaction hex
@@ -880,7 +880,7 @@ namespace monero {
     }
 
     /**
-     * Submit signed transactions from a watch-only wallet.
+     * Submit signed transactions from a view-only wallet.
      *
      * @param signed_tx_hex is signed transaction hex from signTxs()
      * @return the resulting transaction hashes

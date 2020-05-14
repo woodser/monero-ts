@@ -172,7 +172,7 @@ namespace monero {
     /**
      * Supported wallet methods.
      */
-    bool is_watch_only() const override { return m_w2->watch_only(); }
+    bool is_view_only() const override { return m_w2->watch_only(); }
     void set_daemon_connection(const string& uri, const string& username = "", const string& password = "") override;
     void set_daemon_connection(const boost::optional<monero_rpc_connection>& connection) override;
     boost::optional<monero_rpc_connection> get_daemon_connection() const override;
@@ -279,7 +279,7 @@ namespace monero {
     /**
      * Wallet import and export using buffers and not the file system.
      */
-    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) const;
+    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool view_only) const;
     std::string get_cache_file_buffer(const epee::wipeable_string& password) const;
 
     // --------------------------------- PRIVATE --------------------------------
