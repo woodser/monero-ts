@@ -1,27 +1,41 @@
 # External Software
 
-## Installing Python
-The sample app uses a Python command to run a server that hosts the monero-javascript sample web application, so you need to make sure Python is installed before you proceed.
+## Python
+The starter web application uses a Python command to run its server, so Python must installed before you attempt to run the sample application.
+
+To install Python:
 ### Windows
-1. [Download the latest version of the Python installer from the Python website](https://www.python.org/downloads/).
-2. Run the installer.
-3. Create a bash alias to the Windows Python executable:
-  3a. Open Git Bash.
-  3b. Create and edit a .bashrc file in nano:
-  `$ nano .bashrc`
-  3c. Add the following line to the file:
-  > alias python='winpty python.exe'
-  3d. Press Ctrl-X followed by 'Y' to save the file and exit nano.
-4. Close Git Bash (the alias will not be applied until the next time Bash starts)
+#### Download and install
+1. Go to the [Python Downloads page](https://www.python.org/downloads/) and click the button under "Download the latest version of Python".
+2. Scroll down to find the [Windows x86-64 executable installer](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe).
+3. Click "Install now".
+4. When the install finishes, click the "close" button.
+
+#### Add Python to the Path environment variable
+The scripts that configure and initiate the web server do not know where to find the Python executable file in Windows. In order to allow them to start Python without specifying the exectable location, you need to add the location to Windows' "Path" environment variable.
+1. Click the start menu button.
+2. type "env".
+3. Click "Edit the system environment variables".
+4. In the advanced tab, click the "Environment Variables..." button at the bottom of the window.
+5. In the "System variables" section, find and click "Path", then click "Edit...".
+6. Click "New".
+7. Type in the path to the Python executable. The default Python installation location is `C:\Users\[username]\AppData\Local\Programs\Python3X` **Where "X" is the 2nd digit in the three-part version number.** At the time writing, Python is version 3.8.3, so the last part of the directory would be "\Python38".
+8. Click "Okay".
+9. In the "Environment Variables" window, click "Okay".
+10. In the "System Properties" window, click "Okay".
+
 ### Linux
 1. Open a terminal.
 2. Use a package manager to download and install Python 3:
-  For Debian/Ubuntu:
+#### For Debian/Ubuntu:
   `$ sudo apt-get install python3`
-  For Fedora:
+#### For Fedora:
   `$ sudo dnf install python3`
 
-## Installing node.js and npm
+## Node.js and npm
+_explanation of necessity here_
+
+To install Node.js and npm:
 ### Windows
 1. [Download the node.js Windows installer](https://nodejs.org/en/download/) from the node.js website.
 2. Open the installer.
@@ -32,14 +46,17 @@ The sample app uses a Python command to run a server that hosts the monero-javas
 7. Click “next”.
 8. Click “Install”.
 9. Click “Finish” after the installation process completes.
+
 ### Linux
-  For Debian/Ubuntu:
-  1. Install node.js:
-    `$ sudo apt-get install nodejs`
-  2. Install npm:
-    `$ sudo apt-get install npm`
-  For Fedora:
+  #### Debian/Ubuntu:
+  1. Install node.js by typing `$ sudo apt-get install nodejs`.
+  2. Install npm by typing `$ sudo apt-get install npm`.
+
+  #### Fedora:
   1. Install node.js:
     `$ sudo dnf install nodejs`
   2. Install npm:
     `$ sudo dnf install npm`
+    
+ ## Monero CLI tools
+ _Coming soon..._
