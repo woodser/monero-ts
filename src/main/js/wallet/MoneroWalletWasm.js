@@ -42,7 +42,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
    * &nbsp;&nbsp; serverUri: "http://localhost:38081", // daemon configuration<br>
    * &nbsp;&nbsp; serverUsername: "superuser",<br>
-   * &nbsp;&nbsp; serverPassword: "abctesting123",<br>
+   * &nbsp;&nbsp; serverPassword: "abctesting123"<br>
    * });
    * </code>
    * 
