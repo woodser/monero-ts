@@ -1,5 +1,7 @@
 HIGH (WASM)
 getBlockTemplate() getNextSeedHash not null
+user guide document model with json / diagram
+only get failed synchronize message for 1 wallet when multiple wallets fail to sync
 not waiting for tx to clear pool
 print memory used in web worker
 re-enable test reserves or report issue
@@ -16,6 +18,11 @@ full tests including jni
 release
 report core issues
 
+free tx set, tx, transfer, outputs from getTxs(), createTxs(), etc
+why not waiting for tx pool?
+error when wallet alread open?
+inherit tx config in transfer, output configs?
+check for unrecognized tx config
 wallet2 1128 ::move() causes warning
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
