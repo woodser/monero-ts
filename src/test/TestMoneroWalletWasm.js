@@ -1219,7 +1219,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // since sending from/to the same wallet, the net amount spent = tx fee = outputs spent - outputs received
         let netAmount = BigInteger.parse("0");
         for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
-        for (let outputReceived of listener.getOutputsReceived()) netAmount = netAmount.subtract(outputReceived.getAmount());
+        for (let outputReceived of listener.getOutputsReceived()) if (outputReceived.getTx().isConfirmed()) netAmount = netAmount.subtract(outputReceived.getAmount());
         if (tx.getFee().compare(netAmount) !== 0) {
           errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
           return errors;
