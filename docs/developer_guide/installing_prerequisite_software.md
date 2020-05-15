@@ -1,7 +1,7 @@
 # External Software
 
 ## Python
-The starter web application uses a Python command to run its server, so Python must installed before you attempt to run the sample application.
+The starter web application uses a Python command to run its server, so Python must be installed before you attempt to run the sample application.
 
 To install Python:
 ### Windows
