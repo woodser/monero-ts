@@ -3,14 +3,16 @@
  */
 class WalletSyncPrinter extends MoneroWalletListener {
   
-  constructor(blockResolution) {
+  constructor(syncResolution) {
     super();
-    this.blockResolution = blockResolution ? blockResolution : 2500;
+    this.syncResolution = syncResolution ? syncResolution : .05;
+    this.lastIncrement = 0;
   }
   
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    if (percentDone === 1 || (startHeight - height) % this.blockResolution === 0) {
+    if (percentDone >= this.lastIncrement + this.syncResolution) {
       console.log("onSyncProgress(" + height + ", " + startHeight + ", " + endHeight + ", " + percentDone + ", " + message + ")");
+      this.lastIncrement += this.syncResolution;
     }
   }
 }
