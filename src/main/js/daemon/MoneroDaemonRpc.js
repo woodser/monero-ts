@@ -1133,9 +1133,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let overview;
         try {
           overview = JSON.parse(val);
-          if (overview !== undefined && overview.length > 0) console.log("WARNING: ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
+          if (overview !== undefined && overview.length > 0) console.error("Ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
         } catch (e) {
-          console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
+          console.error("Failed to parse 'overview' field: " + overview + ": " + e.message);
         }
       }
       else if (key === "credits") syncInfo.setCredits(BigInteger.parse(val));
