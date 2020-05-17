@@ -43,7 +43,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       wakeUp(ptr);
     }).catch(err => {
       if (wakeUpCalled) {
-        console.log("Error caught in JS after previously calling wakeUp(): " + err);
+        console.error("Error caught in JS after previously calling wakeUp(): " + err);
         throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
       }
       let str = err.message ? err.message : ("" + err); // get error message
@@ -116,7 +116,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         wakeUp(ptr);
       }).catch(err => {
         if (wakeUpCalled) {
-          console.log("Error caught in JS after previously calling wakeUp(): " + err);
+          console.error("Error caught in JS after previously calling wakeUp(): " + err);
           throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
         }
         let str = err.message ? err.message : ("" + err); // get error message

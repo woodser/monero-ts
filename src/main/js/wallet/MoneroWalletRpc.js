@@ -590,7 +590,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(query) {
     
-    // copy and normalize query up to block
+    // copy query
     query = MoneroWallet._normalizeTxQuery(query);
     
     // temporarily disable transfer and output queries in order to collect all tx information
@@ -600,7 +600,7 @@ class MoneroWalletRpc extends MoneroWallet {
     query.setOutputQuery(undefined);
     
     // fetch all transfers that meet tx query
-    let transfers = await this.getTransfers(new MoneroTransferQuery().setTxQuery(query));
+    let transfers = await this._getTransfersAux(new MoneroTransferQuery().setTxQuery(MoneroWalletRpc._decontextualize(query.copy())));
     
     // collect unique txs from transfers while retaining order
     let txs = [];
@@ -620,8 +620,8 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // fetch and merge outputs if requested
-    if (query.getIncludeOutputs() || !outputQuery.isDefault()) {
-      let outputs = await this.getOutputs(new MoneroOutputQuery().setTxQuery(query));
+    if (query.getIncludeOutputs() || outputQuery) {
+      let outputs = await this._getOutputsAux(new MoneroOutputQuery().setTxQuery(MoneroWalletRpc._decontextualize(query.copy())));
       
       // merge output txs one time while retaining order
       let outputTxs = [];
@@ -638,8 +638,6 @@ class MoneroWalletRpc extends MoneroWallet {
     query.setOutputQuery(outputQuery);
     
     // filter txs that don't meet transfer query
-    transferQuery.setTxQuery(undefined);  // break circular reference for meets criteria TODO: meetsCriteria should handle loop
-    outputQuery.setTxQuery(undefined);
     let txsQueried = [];
     for (let tx of txs) {
       if (query.meetsCriteria(tx)) txsQueried.push(tx);
@@ -681,108 +679,15 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // copy and normalize query up to block
     query = MoneroWallet._normalizeTransferQuery(query);
-    let txQuery = query.getTxQuery();
-    txQuery.setTransferQuery(undefined); // break circular link for meetsCriteria()
     
-    // check if pool txs explicitly requested without daemon connection
-    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnected()) {
-      throw new MoneroError("Cannot fetch pool transactions because because wallet has no daemon connection");
-    }
+    // get transfers directly if query does not require tx context (other transfers, outputs)
+    if (!MoneroWalletRpc._isContextual(query)) return this._getTransfersAux(query);
     
-    // build params for get_transfers rpc call
-    let params = {};
-    let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
-    let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
-    let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
-    params.in = canBeIncoming && canBeConfirmed;
-    params.out = canBeOutgoing && canBeConfirmed;
-    params.pool = canBeIncoming && canBeInTxPool;
-    params.pending = canBeOutgoing && canBeInTxPool;
-    params.failed = txQuery.isFailed() !== false && txQuery.isConfirmed() !== true && txQuery.inTxPool() != true;
-    if (txQuery.getMinHeight() !== undefined) {
-      if (txQuery.getMinHeight() > 0) params.min_height = txQuery.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
-      else params.min_height = txQuery.getMinHeight();
-    }
-    if (txQuery.getMaxHeight() !== undefined) params.max_height = txQuery.getMaxHeight();
-    params.filter_by_height = txQuery.getMinHeight() !== undefined || txQuery.getMaxHeight() !== undefined;
-    if (query.getAccountIndex() === undefined) {
-      assert(query.getSubaddressIndex() === undefined && query.getSubaddressIndices() === undefined, "Query specifies a subaddress index but not an account index");
-      params.all_accounts = true;
-    } else {
-      params.account_index = query.getAccountIndex();
-      
-      // set subaddress indices param
-      let subaddressIndices = new Set();
-      if (query.getSubaddressIndex() !== undefined) subaddressIndices.add(query.getSubaddressIndex());
-      if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      if (subaddressIndices.size) params.subaddr_indices = Array.from(subaddressIndices);
-    }
-    
-    // cache unique txs and blocks
-    let txMap = {};
-    let blockMap = {};
-    
-    // build txs using `get_transfers`
-    let resp = await this.rpc.sendJsonRequest("get_transfers", params);
-    for (let key of Object.keys(resp.result)) {
-      for (let rpcTx of resp.result[key]) {
-        //if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
-        let tx = MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx);
-        if (tx.isConfirmed()) assert(tx.getBlock().getTxs().indexOf(tx) > -1);
-        
-        // replace transfer amount with destination sum
-        // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
-        if (tx.getOutgoingTransfer() !== undefined && tx.isRelayed() && !tx.isFailed() &&
-            tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
-          let outgoingTransfer = tx.getOutgoingTransfer();
-          let transferTotal = new BigInteger(0);
-          for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
-          tx.getOutgoingTransfer().setAmount(transferTotal);
-        }
-        
-        // merge tx
-        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
-      }
-    }
-    
-    // sort txs by block height
-    let txs = Object.values(txMap);
-    txs.sort(MoneroWalletRpc._compareTxsByHeight);
-    
-    // filter and return transfers
+    // otherwise get txs with full models to fulfill query
     let transfers = [];
-    for (let tx of txs) {
-      
-      // tx is not incoming/outgoing unless already set
-      if (tx.isIncoming() === undefined) tx.setIsIncoming(false);
-      if (tx.isOutgoing() === undefined) tx.setIsOutgoing(false);
-      
-      // sort transfers
-      if (tx.getIncomingTransfers() !== undefined) tx.getIncomingTransfers().sort(MoneroWalletRpc._compareIncomingTransfers);
-      
-      // collect outgoing transfer, erase if filtered
-      if (tx.getOutgoingTransfer() !== undefined && query.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      else tx.setOutgoingTransfer(undefined);
-      
-      // collect incoming transfers, erase if filtered
-      if (tx.getIncomingTransfers() !== undefined) {
-        let toRemoves = [];
-        for (let transfer of tx.getIncomingTransfers()) {
-          if (query.meetsCriteria(transfer)) transfers.push(transfer);
-          else toRemoves.push(transfer);
-        }
-        
-        // remove excluded transfers
-        tx.setIncomingTransfers(tx.getIncomingTransfers().filter(function(transfer) {
-          return !toRemoves.includes(transfer);
-        }));
-        if (tx.getIncomingTransfers().length === 0) tx.setIncomingTransfers(undefined);
-      }
-      
-      // remove txs without requested transfer
-      if (tx.getBlock() !== undefined && tx.getOutgoingTransfer() === undefined && tx.getIncomingTransfers() === undefined) {
-        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+    for (let tx of await this.getTxs(query.getTxQuery())) {
+      for (let transfer of tx.filterTransfers(query)) {
+        transfers.push(transfer);
       }
     }
     
@@ -793,71 +698,18 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // copy and normalize query up to block
     query = MoneroWallet._normalizeOutputQuery(query);
-    let txQuery = query.getTxQuery();
-    txQuery.setOutputQuery(undefined); // break circular link for meetsCriteria()
     
-    // determine account and subaddress indices to be queried
-    let indices = new Map();
-    if (query.getAccountIndex() !== undefined) {
-      let subaddressIndices = new Set();
-      if (query.getSubaddressIndex() !== undefined) subaddressIndices.add(query.getSubaddressIndex());
-      if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(query.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
-    } else {
-      assert.equal(query.getSubaddressIndex(), undefined, "Query specifies a subaddress index but not an account index")
-      assert(query.getSubaddressIndices() === undefined || query.getSubaddressIndices().length === 0, "Query specifies subaddress indices but not an account index");
-      indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
-    }
+    // get outputs directly if query does not require tx context (other outputs, transfers)
+    if (!MoneroWalletRpc._isContextual(query)) return this._getOutputsAux(query);
     
-    // cache unique txs and blocks
-    let txMap = {};
-    let blockMap = {};
-    
-    // collect txs with outputs for each indicated account using `incoming_transfers` rpc call
-    let params = {};
-    params.transfer_type = query.isSpent() === true ? "unavailable" : query.isSpent() === false ? "available" : "all";
-    params.verbose = true;
-    for (let accountIdx of indices.keys()) {
-    
-      // tx config
-      params.account_index = accountIdx;
-      params.subaddr_indices = indices.get(accountIdx);
-      let resp = await this.rpc.sendJsonRequest("incoming_transfers", params);
-      
-      // convert response to txs with outputs and merge
-      if (resp.result.transfers === undefined) continue;
-      for (let rpcOutput of resp.result.transfers) {
-        let tx = MoneroWalletRpc._convertRpcTxWalletWithOutput(rpcOutput);
-        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
-      }
-    }
-    
-    // sort txs by block height
-    let txs = Object.values(txMap);
-    txs.sort(MoneroWalletRpc._compareTxsByHeight);
-    
-    // collect queried outputs
+    // otherwise get txs with full models to fulfill query
     let outputs = [];
-    for (let tx of txs) {
-      
-      // sort outputs
-      if (tx.getOutputs() !== undefined) tx.getOutputs().sort(MoneroWalletRpc._compareOutputs);
-      
-      // collect queried outputs
-      let toRemoves = [];
-      for (let output of tx.getOutputs()) {
-        if (query.meetsCriteria(output)) outputs.push(output);
-        else toRemoves.push(output);
-      }
-      
-      // remove excluded outputs
-      tx.setOutputs(tx.getOutputs().filter(function(output) { return !toRemoves.includes(output); }))
-      
-      // remove excluded txs from block
-      if ((tx.getOutputs() === undefined || tx.getOutputs().length === 0) && tx.getBlock() !== undefined) {
-        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+    for (let tx of await this.getTxs(query.getTxQuery())) {
+      for (let output of tx.filterOutputs(query)) {
+        outputs.push(output);
       }
     }
+    
     return outputs;
   }
   
@@ -1430,7 +1282,7 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.rpc.sendJsonRequest("stop_wallet");
   }
   
-  // --------------------------------  PRIVATE --------------------------------
+  // -------------------------------- PRIVATE ---------------------------------
   
   async _clear() {
     delete this.addressCache;
@@ -1469,6 +1321,160 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.rpc.sendJsonRequest("get_address", {account_index: accountIdx});
     for (let address of resp.result.addresses) subaddressIndices.push(address.address_index);
     return subaddressIndices;
+  }
+  
+  async _getTransfersAux(query) {
+    
+    // check if pool txs explicitly requested without daemon connection
+    let txQuery = query.getTxQuery();
+    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnected()) {
+      throw new MoneroError("Cannot fetch pool transactions because because wallet has no daemon connection");
+    }
+    
+    // build params for get_transfers rpc call
+    let params = {};
+    let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
+    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
+    let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
+    let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
+    params.in = canBeIncoming && canBeConfirmed;
+    params.out = canBeOutgoing && canBeConfirmed;
+    params.pool = canBeIncoming && canBeInTxPool;
+    params.pending = canBeOutgoing && canBeInTxPool;
+    params.failed = txQuery.isFailed() !== false && txQuery.isConfirmed() !== true && txQuery.inTxPool() != true;
+    if (txQuery.getMinHeight() !== undefined) {
+      if (txQuery.getMinHeight() > 0) params.min_height = txQuery.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
+      else params.min_height = txQuery.getMinHeight();
+    }
+    if (txQuery.getMaxHeight() !== undefined) params.max_height = txQuery.getMaxHeight();
+    params.filter_by_height = txQuery.getMinHeight() !== undefined || txQuery.getMaxHeight() !== undefined;
+    if (query.getAccountIndex() === undefined) {
+      assert(query.getSubaddressIndex() === undefined && query.getSubaddressIndices() === undefined, "Query specifies a subaddress index but not an account index");
+      params.all_accounts = true;
+    } else {
+      params.account_index = query.getAccountIndex();
+      
+      // set subaddress indices param
+      let subaddressIndices = new Set();
+      if (query.getSubaddressIndex() !== undefined) subaddressIndices.add(query.getSubaddressIndex());
+      if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
+      if (subaddressIndices.size) params.subaddr_indices = Array.from(subaddressIndices);
+    }
+    
+    // cache unique txs and blocks
+    let txMap = {};
+    let blockMap = {};
+    
+    // build txs using `get_transfers`
+    let resp = await this.rpc.sendJsonRequest("get_transfers", params);
+    for (let key of Object.keys(resp.result)) {
+      for (let rpcTx of resp.result[key]) {
+        //if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
+        let tx = MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx);
+        if (tx.isConfirmed()) assert(tx.getBlock().getTxs().indexOf(tx) > -1);
+        
+        // replace transfer amount with destination sum
+        // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
+        if (tx.getOutgoingTransfer() !== undefined && tx.isRelayed() && !tx.isFailed() &&
+            tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+          let outgoingTransfer = tx.getOutgoingTransfer();
+          let transferTotal = new BigInteger(0);
+          for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
+          tx.getOutgoingTransfer().setAmount(transferTotal);
+        }
+        
+        // merge tx
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+      }
+    }
+    
+    // sort txs by block height
+    let txs = Object.values(txMap);
+    txs.sort(MoneroWalletRpc._compareTxsByHeight);
+    
+    // filter and return transfers
+    let transfers = [];
+    for (let tx of txs) {
+      
+      // tx is not incoming/outgoing unless already set
+      if (tx.isIncoming() === undefined) tx.setIsIncoming(false);
+      if (tx.isOutgoing() === undefined) tx.setIsOutgoing(false);
+      
+      // sort incoming transfers
+      if (tx.getIncomingTransfers() !== undefined) tx.getIncomingTransfers().sort(MoneroWalletRpc._compareIncomingTransfers);
+      
+      // collect queried transfers, erase if excluded
+      for (let transfer of tx.filterTransfers(query)) {
+        transfers.push(transfer);
+      }
+      
+      // remove txs without requested transfer
+      if (tx.getBlock() !== undefined && tx.getOutgoingTransfer() === undefined && tx.getIncomingTransfers() === undefined) {
+        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+      }
+    }
+    
+    return transfers;
+  }
+  
+  async _getOutputsAux(query) {
+    
+    // determine account and subaddress indices to be queried
+    let indices = new Map();
+    if (query.getAccountIndex() !== undefined) {
+      let subaddressIndices = new Set();
+      if (query.getSubaddressIndex() !== undefined) subaddressIndices.add(query.getSubaddressIndex());
+      if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
+      indices.set(query.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
+    } else {
+      assert.equal(query.getSubaddressIndex(), undefined, "Query specifies a subaddress index but not an account index")
+      assert(query.getSubaddressIndices() === undefined || query.getSubaddressIndices().length === 0, "Query specifies subaddress indices but not an account index");
+      indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
+    }
+    
+    // cache unique txs and blocks
+    let txMap = {};
+    let blockMap = {};
+    
+    // collect txs with outputs for each indicated account using `incoming_transfers` rpc call
+    let params = {};
+    params.transfer_type = query.isSpent() === true ? "unavailable" : query.isSpent() === false ? "available" : "all";
+    params.verbose = true;
+    for (let accountIdx of indices.keys()) {
+    
+      // tx config
+      params.account_index = accountIdx;
+      params.subaddr_indices = indices.get(accountIdx);
+      let resp = await this.rpc.sendJsonRequest("incoming_transfers", params);
+      
+      // convert response to txs with outputs and merge
+      if (resp.result.transfers === undefined) continue;
+      for (let rpcOutput of resp.result.transfers) {
+        let tx = MoneroWalletRpc._convertRpcTxWalletWithOutput(rpcOutput);
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+      }
+    }
+    
+    // sort txs by block height
+    let txs = Object.values(txMap);
+    txs.sort(MoneroWalletRpc._compareTxsByHeight);
+    
+    // collect queried outputs
+    let outputs = [];
+    for (let tx of txs) {
+      
+      // sort outputs
+      if (tx.getOutputs() !== undefined) tx.getOutputs().sort(MoneroWalletRpc._compareOutputs);
+      
+      // collect queried outputs, erase if excluded
+      for (let output of tx.filterOutputs(query)) outputs.push(output);
+      
+      // remove excluded txs from block
+      if (tx.getOutputs() === undefined && tx.getBlock() !== undefined) {
+        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+      }
+    }
+    return outputs;
   }
   
   /**
@@ -1555,6 +1561,36 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
+  
+  /**
+   * Remove criteria which requires looking up other transfers/outputs to
+   * fulfill query.
+   * 
+   * @param {MoneroTxQuery} query - the query to decontextualize
+   * @return {MoneroTxQuery} a reference to the query for convenience
+   */
+  static _decontextualize(query) {
+    query.setIsIncoming(undefined);
+    query.setIsOutgoing(undefined);
+    query.setTransferQuery(undefined);
+    query.setOutputQuery(undefined);
+    return query;
+  }
+  
+  static _isContextual(query) {
+    if (!query) return false;
+    if (!query.getTxQuery()) return false;
+    if (query.getTxQuery().isIncoming() !== undefined) return true; // requires getting other transfers
+    if (query.getTxQuery().isOutgoing() !== undefined) return true;
+    if (query instanceof MoneroTransferQuery) {
+      if (query.getTxQuery().getOutputQuery() !== undefined) return true; // requires getting other outputs
+    } else if (query instanceof MoneroOutputQuery) {
+      if (query.getTxQuery().getTransferQuery() !== undefined) return true; // requires getting other transfers
+    } else {
+      throw new MoneroError("query must be tx or transfer query");
+    }
+    return false;
+  }
   
   static _convertRpcAccount(rpcAccount) {
     let account = new MoneroAccount();

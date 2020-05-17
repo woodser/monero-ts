@@ -34,13 +34,13 @@ class MoneroTransferQuery extends MoneroTransfer {
    */
   constructor(config) {
     super(config);
-    config = this.state;
     
     // deserialize if necessary
-    if (config.txQuery && !(config.txQuery instanceof MoneroTxQuery)) config.txQuery = new MoneroTxQuery(config.txQuery);
+    if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
+    if (this.state.txQuery) this.state.txQuery.setTransferQuery(this);
     
     // alias isOutgoing to isIncoming
-    if (config.isOutgoing !== undefined) config.isIncoming = !config.isOutgoing;
+    if (this.state.isOutgoing !== undefined) this.state.isIncoming = !this.state.isOutgoing;
   }
   
   copy() {
@@ -51,6 +51,16 @@ class MoneroTransferQuery extends MoneroTransfer {
     let json = Object.assign({}, this.state, super.toJson());
     delete json.txQuery;
     return json;
+  }
+  
+  getTxQuery() {
+    return this.state.txQuery;
+  }
+  
+  setTxQuery(txQuery) {
+    this.state.txQuery = txQuery;
+    if (txQuery) txQuery.state.transferQuery = this;
+    return this;
   }
   
   isIncoming() {
@@ -125,15 +135,6 @@ class MoneroTransferQuery extends MoneroTransfer {
     return this;
   }
   
-  getTxQuery() {
-    return this.state.txQuery;
-  }
-  
-  setTxQuery(txQuery) {
-    this.state.txQuery = txQuery;
-    return this;
-  }
-  
   /**
    * Convenience method to query outputs by the locked state of their tx.
    * 
@@ -146,9 +147,9 @@ class MoneroTransferQuery extends MoneroTransfer {
     return this;
   }
   
-  meetsCriteria(transfer) {
-    assert(transfer !== null, "transfer is null");
-    assert(transfer instanceof MoneroTransfer);
+  meetsCriteria(transfer, queryParent) {
+    if (!(transfer instanceof MoneroTransfer)) throw new Error("Transfer not given to MoneroTransferQuery.meetsCriteria(transfer)");
+    if (queryParent === undefined) queryParent = true;
     
     // filter on common fields
     if (this.isIncoming() !== undefined && this.isIncoming() !== transfer.isIncoming()) return false;
@@ -196,7 +197,7 @@ class MoneroTransferQuery extends MoneroTransfer {
     else throw new Error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
     
     // filter with tx filter
-    if (this.getTxQuery() !== undefined && !this.getTxQuery().meetsCriteria(transfer.getTx())) return false;    
+    if (queryParent && this.getTxQuery() !== undefined && !this.getTxQuery().meetsCriteria(transfer.getTx())) return false;    
     return true;
   }
 }
