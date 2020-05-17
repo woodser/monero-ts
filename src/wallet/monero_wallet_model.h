@@ -125,6 +125,8 @@ namespace monero {
 
   /**
    * Models a base transfer of funds to or from the wallet.
+   *
+   * TODO: m_is_incoming for api consistency
    */
   struct monero_transfer : serializable_struct {
     shared_ptr<monero_tx_wallet> m_tx;
@@ -195,7 +197,7 @@ namespace monero {
     shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
     shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer_query>& src, const shared_ptr<monero_transfer_query>& tgt) const;
     boost::optional<bool> is_incoming() const;
-    bool meets_criteria(monero_transfer* transfer) const;
+    bool meets_criteria(monero_transfer* transfer, bool query_parent = true) const;
   };
 
   /**
@@ -231,14 +233,10 @@ namespace monero {
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output_query>& output_query);
     static shared_ptr<monero_output_query> deserialize_from_block(const string& output_query_json);
-    bool is_default() const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const; // TODO: necessary to override all super classes?
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_query>& src, const shared_ptr<monero_output_query>& tgt) const;
-    bool meets_criteria(monero_output_wallet* output) const;
-
-  private:
-    static const unique_ptr<monero_output_wallet> M_EMPTY_OUTPUT;
+    bool meets_criteria(monero_output_wallet* output, bool query_parent = true) const;
   };
 
   /**
@@ -265,6 +263,12 @@ namespace monero {
     shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
     void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
     void merge(const shared_ptr<monero_tx_wallet>& self, const shared_ptr<monero_tx_wallet>& other);
+    vector<shared_ptr<monero_transfer>> get_transfers() const;
+    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const;
+    vector<shared_ptr<monero_transfer>> filter_transfers(const monero_transfer_query& query);
+    vector<shared_ptr<monero_output_wallet>> get_outputs_wallet() const;
+    vector<shared_ptr<monero_output_wallet>> get_outputs_wallet(const monero_output_query& query) const;
+    vector<shared_ptr<monero_output_wallet>> filter_outputs_wallet(const monero_output_query& query);
   };
 
   /**
@@ -291,7 +295,7 @@ namespace monero {
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const; // TODO: necessary to override all super classes?
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt) const;
-    bool meets_criteria(monero_tx_wallet* tx) const;
+    bool meets_criteria(monero_tx_wallet* tx, bool query_children = true) const;
   };
 
   /**

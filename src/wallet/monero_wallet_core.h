@@ -292,6 +292,8 @@ namespace monero {
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
+    vector<shared_ptr<monero_transfer>> get_transfers_aux(const monero_transfer_query& query) const;
+    vector<shared_ptr<monero_output_wallet>> get_outputs_aux(const monero_output_query& query) const;
     vector<shared_ptr<monero_tx_wallet>> sweep_account(const monero_tx_config& config);  // sweeps unlocked funds within an account; private helper to sweep_unlocked()
 
     // blockchain sync management

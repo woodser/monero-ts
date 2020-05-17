@@ -85,6 +85,7 @@ namespace monero {
           shared_ptr<monero_tx_query> tx_query = make_shared<monero_tx_query>();
           monero_tx_query::from_property_tree(it2->second, tx_query);
           block->m_txs.push_back(tx_query);
+          tx_query->m_block = block;
         }
       }
     }
@@ -227,9 +228,9 @@ namespace monero {
     if (!src->m_incoming_transfers.empty()) {
       tgt->m_incoming_transfers = vector<shared_ptr<monero_incoming_transfer>>();
       for (const shared_ptr<monero_incoming_transfer>& transfer : src->m_incoming_transfers) {
-        shared_ptr<monero_incoming_transfer> transferCopy = transfer->copy(transfer, make_shared<monero_incoming_transfer>());
-        transferCopy->m_tx = tgt;
-        tgt->m_incoming_transfers.push_back(transferCopy);
+        shared_ptr<monero_incoming_transfer> transfer_copy = transfer->copy(transfer, make_shared<monero_incoming_transfer>());
+        transfer_copy->m_tx = tgt;
+        tgt->m_incoming_transfers.push_back(transfer_copy);
       }
     }
     if (src->m_outgoing_transfer != boost::none) {
@@ -288,6 +289,67 @@ namespace monero {
     m_extra_hex = gen_utils::reconcile(m_extra_hex, other->m_extra_hex);
   }
 
+  vector<shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers() const {
+    monero_transfer_query query;
+    return get_transfers(query);
+  }
+
+  vector<shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers(const monero_transfer_query& query) const {
+    vector<shared_ptr<monero_transfer>> transfers;
+    if (m_outgoing_transfer != boost::none && query.meets_criteria(m_outgoing_transfer.get().get())) transfers.push_back(m_outgoing_transfer.get());
+    for (const shared_ptr<monero_transfer>& transfer : m_incoming_transfers) if (query.meets_criteria(transfer.get())) transfers.push_back(transfer);
+    return transfers;
+  }
+
+  vector<shared_ptr<monero_transfer>> monero_tx_wallet::filter_transfers(const monero_transfer_query& query) {
+
+    // collect outgoing transfer, erase if excluded
+    vector<shared_ptr<monero_transfer>> transfers;
+    if (m_outgoing_transfer != boost::none && query.meets_criteria(m_outgoing_transfer.get().get())) transfers.push_back(m_outgoing_transfer.get());
+    else m_outgoing_transfer = boost::none;
+
+    // collect incoming transfers, erase if excluded
+    vector<shared_ptr<monero_incoming_transfer>>::iterator iter = m_incoming_transfers.begin();
+    while (iter != m_incoming_transfers.end()) {
+      if (query.meets_criteria((*iter).get())) {
+        transfers.push_back(*iter);
+        iter++;
+      } else {
+        iter = m_incoming_transfers.erase(iter);
+      }
+    }
+    return transfers;
+  }
+
+  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet() const {
+    monero_output_query query;
+    return get_outputs_wallet(query);
+  }
+
+  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet(const monero_output_query& query) const {
+    vector<shared_ptr<monero_output_wallet>> outputs;
+    for (const shared_ptr<monero_output>& output : m_outputs) {
+      shared_ptr<monero_output_wallet> output_wallet = dynamic_pointer_cast<monero_output_wallet>(output);
+      if (query.meets_criteria(output_wallet.get())) outputs.push_back(output_wallet);
+    }
+    return outputs;
+  }
+
+  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::filter_outputs_wallet(const monero_output_query& query) {
+    vector<shared_ptr<monero_output_wallet>> outputs;
+    vector<shared_ptr<monero_output>>::iterator iter = m_outputs.begin();
+    while (iter != m_outputs.end()) {
+      shared_ptr<monero_output_wallet> output_wallet = dynamic_pointer_cast<monero_output_wallet>(*iter);
+      if (query.meets_criteria(output_wallet.get())) {
+        outputs.push_back(output_wallet);
+        iter++;
+      } else {
+        iter = m_outputs.erase(iter);
+      }
+    }
+    return outputs;
+  }
+
   // -------------------------- MONERO TX QUERY -----------------------------
 
   rapidjson::Value monero_tx_query::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
@@ -336,10 +398,12 @@ namespace monero {
       else if (key == string("transferQuery")) {
         tx_query->m_transfer_query = make_shared<monero_transfer_query>();
         monero_transfer_query::from_property_tree(it->second, tx_query->m_transfer_query.get());
+        tx_query->m_transfer_query.get()->m_tx_query = tx_query;
       }
       else if (key == string("outputQuery")) {
         tx_query->m_output_query = make_shared<monero_output_query>();
         monero_output_query::from_property_tree(it->second, tx_query->m_output_query.get());
+        tx_query->m_output_query.get()->m_tx_query = tx_query;
       }
     }
   }
@@ -386,13 +450,19 @@ namespace monero {
     tgt->m_min_height = src->m_min_height;
     tgt->m_max_height = src->m_max_height;
     tgt->m_include_outputs = src->m_include_outputs;
-    if (src->m_transfer_query != boost::none) tgt->m_transfer_query = src->m_transfer_query.get()->copy(src->m_transfer_query.get(), make_shared<monero_transfer_query>());
-    if (src->m_output_query != boost::none) tgt->m_output_query = src->m_output_query.get()->copy(src->m_output_query.get(), make_shared<monero_output_query>());
+    if (src->m_transfer_query != boost::none) {
+      tgt->m_transfer_query = src->m_transfer_query.get()->copy(src->m_transfer_query.get(), make_shared<monero_transfer_query>());
+      tgt->m_transfer_query.get()->m_tx_query = tgt;
+    }
+    if (src->m_output_query != boost::none) {
+      tgt->m_output_query = src->m_output_query.get()->copy(src->m_output_query.get(), make_shared<monero_output_query>());
+      tgt->m_output_query.get()->m_tx_query = tgt;
+    }
     return tgt;
   };
 
-  bool monero_tx_query::meets_criteria(monero_tx_wallet* tx) const {
-    if (tx == nullptr) return false;
+  bool monero_tx_query::meets_criteria(monero_tx_wallet* tx, bool query_children) const {
+    if (tx == nullptr) throw runtime_error("nullptr given to monero_tx_query::meets_criteria()");
 
     // filter on tx
     if (m_hash != boost::none && m_hash != tx->m_hash) return false;
@@ -403,35 +473,6 @@ namespace monero {
     if (m_is_failed != boost::none && m_is_failed != tx->m_is_failed) return false;
     if (m_is_miner_tx != boost::none && m_is_miner_tx != tx->m_is_miner_tx) return false;
     if (m_is_locked != boost::none && m_is_locked != tx->m_is_locked) return false;
-
-    // at least one transfer must meet transfer query if defined
-    if (m_transfer_query != boost::none) {
-      bool matchFound = false;
-      if (tx->m_outgoing_transfer != boost::none && m_transfer_query.get()->meets_criteria(tx->m_outgoing_transfer.get().get())) matchFound = true;
-      else if (!tx->m_incoming_transfers.empty()) {
-        for (const shared_ptr<monero_incoming_transfer>& incoming_transfer : tx->m_incoming_transfers) {
-          if (m_transfer_query.get()->meets_criteria(incoming_transfer.get())) {
-            matchFound = true;
-            break;
-          }
-        }
-      }
-      if (!matchFound) return false;
-    }
-
-    // at least one output must meet output query if defined
-    if (m_output_query != boost::none && !m_output_query.get()->is_default()) {
-      if (tx->m_outputs.empty()) return false;
-      bool matchFound = false;
-      for (const shared_ptr<monero_output>& output : tx->m_outputs) {
-        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(output);
-        if (m_output_query.get()->meets_criteria(vout_wallet.get())) {
-          matchFound = true;
-          break;
-        }
-      }
-      if (!matchFound) return false;
-    }
 
     // filter on having a payment id
     if (m_has_payment_id != boost::none) {
@@ -452,6 +493,38 @@ namespace monero {
     if (m_height != boost::none && (txHeight == boost::none || *txHeight != *m_height)) return false;
     if (m_min_height != boost::none && (txHeight == boost::none || *txHeight < *m_min_height)) return false;
     if (m_max_height != boost::none && (txHeight == boost::none || *txHeight > *m_max_height)) return false;
+
+    // done if not querying transfers or outputs
+    if (!query_children) return true;
+
+    // at least one transfer must meet transfer query if defined
+    if (m_transfer_query != boost::none) {
+      bool match_found = false;
+      if (tx->m_outgoing_transfer != boost::none && m_transfer_query.get()->meets_criteria(tx->m_outgoing_transfer.get().get())) match_found = true;
+      else if (!tx->m_incoming_transfers.empty()) {
+        for (const shared_ptr<monero_incoming_transfer>& incoming_transfer : tx->m_incoming_transfers) {
+          if (m_transfer_query.get()->meets_criteria(incoming_transfer.get(), false)) {
+            match_found = true;
+            break;
+          }
+        }
+      }
+      if (!match_found) return false;
+    }
+
+    // at least one output must meet output query if defined
+    if (m_output_query != boost::none) {
+      if (tx->m_outputs.empty()) return false;
+      bool match_found = false;
+      for (const shared_ptr<monero_output>& output : tx->m_outputs) {
+        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(output);
+        if (m_output_query.get()->meets_criteria(vout_wallet.get(), false)) {
+          match_found = true;
+          break;
+        }
+      }
+      if (!match_found) return false;
+    }
 
     // transaction meets query criteria
     return true;
@@ -678,7 +751,7 @@ namespace monero {
     m_destinations = gen_utils::reconcile(m_destinations, other->m_destinations);
   }
 
-  // ----------------------- MONERO TRANSFER REQUEST --------------------------
+  // ----------------------- MONERO TRANSFER QUERY --------------------------
 
   rapidjson::Value monero_transfer_query::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
 
@@ -746,9 +819,8 @@ namespace monero {
     // get / create transfer query
     shared_ptr<monero_transfer_query> transfer_query = tx_query->m_transfer_query == boost::none ? make_shared<monero_transfer_query>() : *tx_query->m_transfer_query;
 
-    // transfer query references tx query but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
+    // set transfer query's tx query
     transfer_query->m_tx_query = tx_query;
-    tx_query->m_transfer_query = boost::none;
 
     // return deserialized query
     return transfer_query;
@@ -781,13 +853,12 @@ namespace monero {
     return tgt;
   };
 
-  bool monero_transfer_query::meets_criteria(monero_transfer* transfer) const {
-    if (transfer == nullptr) throw runtime_error("transfer is null");
-    if (m_tx_query != boost::none && (*m_tx_query)->m_transfer_query != boost::none) throw runtime_error("Transfer query's tx query cannot have a circular transfer query");   // TODO: could auto detect and handle this.  port to java/js
+  bool monero_transfer_query::meets_criteria(monero_transfer* transfer, bool query_parent) const {
+    if (transfer == nullptr) throw runtime_error("nullptr given to monero_transfer_query::meets_criteria()");
 
     // filter on common fields
     if (is_incoming() != boost::none && *is_incoming() != *transfer->is_incoming()) return false;
-    if (is_outgoing() != boost::none && is_outgoing() != transfer->is_outgoing()) return false;
+    if (is_outgoing() != boost::none && *is_outgoing() != *transfer->is_outgoing()) return false;
     if (m_amount != boost::none && *m_amount != *transfer->m_amount) return false;
     if (m_account_index != boost::none && *m_account_index != *transfer->m_account_index) return false;
 
@@ -849,7 +920,7 @@ namespace monero {
     if (inTransfer == nullptr && out_transfer == nullptr) throw runtime_error("Transfer must be monero_incoming_transfer or monero_outgoing_transfer");
 
     // filter with tx query
-    if (m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(transfer->m_tx.get())) return false;
+    if (query_parent && m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(transfer->m_tx.get(), false)) return false;
     return true;
   }
 
@@ -925,7 +996,7 @@ namespace monero {
     m_is_frozen = gen_utils::reconcile(m_is_frozen, other->m_is_frozen);
   }
 
-  // ------------------------ MONERO OUTPUT REQUEST ---------------------------
+  // ------------------------ MONERO OUTPUT QUERY ---------------------------
 
   rapidjson::Value monero_output_query::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
 
@@ -976,18 +1047,11 @@ namespace monero {
     // get / create output query
     shared_ptr<monero_output_query> output_query = tx_query->m_output_query == boost::none ? make_shared<monero_output_query>() : *tx_query->m_output_query;
 
-    // output query references tx query but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias(), TODO: move this temp hack to the caller
+    // set output query's tx query
     output_query->m_tx_query = tx_query;
-    tx_query->m_output_query = boost::none;
 
     // return deserialized query
     return output_query;
-  }
-
-  // initialize static empty output for is_default() check
-  const unique_ptr<monero_output_wallet> monero_output_query::M_EMPTY_OUTPUT = unique_ptr<monero_output_wallet>(new monero_output_wallet());
-  bool monero_output_query::is_default() const {
-    return meets_criteria(monero_output_query::M_EMPTY_OUTPUT.get());
   }
 
   shared_ptr<monero_output_query> monero_output_query::copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const {
@@ -1009,10 +1073,12 @@ namespace monero {
     if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = vector<uint32_t>(src->m_subaddress_indices);
     tgt->m_min_amount = src->m_min_amount;
     tgt->m_max_amount = src->m_max_amount;
+    tgt->m_tx_query = src->m_tx_query;
     return tgt;
   };
 
-  bool monero_output_query::meets_criteria(monero_output_wallet* output) const {
+  bool monero_output_query::meets_criteria(monero_output_wallet* output, bool query_parent) const {
+    if (output == nullptr) throw runtime_error("nullptr given to monero_output_query::meets_criteria()");
 
     // filter on output
     if (m_account_index != boost::none && (output->m_account_index == boost::none || *m_account_index != *output->m_account_index)) return false;
@@ -1033,7 +1099,7 @@ namespace monero {
     if (m_max_amount != boost::none && (output->m_amount == boost::none || output->m_amount.get() > m_max_amount.get())) return false;
 
     // filter with tx query
-    if (m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(static_pointer_cast<monero_tx_wallet>(output->m_tx).get())) return false;
+    if (query_parent && m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(static_pointer_cast<monero_tx_wallet>(output->m_tx).get(), false)) return false;
 
     // output meets query
     return true;
@@ -1128,7 +1194,7 @@ namespace monero {
         else if (priority_num == 1) config->m_priority = monero_tx_priority::UNIMPORTANT;
         else if (priority_num == 2) config->m_priority = monero_tx_priority::NORMAL;
         else if (priority_num == 3) config->m_priority = monero_tx_priority::ELEVATED;
-        else throw new runtime_error("Invalid priority number: " + std::to_string(priority_num));
+        else throw runtime_error("Invalid priority number: " + std::to_string(priority_num));
       }
       else if (key == string("ringSize")) config->m_ring_size = it->second.get_value<uint32_t>();
       else if (key == string("fee")) config->m_fee = it->second.get_value<uint64_t>();
