@@ -845,6 +845,18 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           assert.equal(tx.isLocked(), false);
         }
+        
+        // get confirmed transactions sent from/to same account with a transfer with destinations
+        txs = await that.wallet.getTxs({isIncoming: true, isOutgoing: true, isConfirmed: true, includeOutputs: true, transferQuery: { hasDestinations: true }});
+        for (let tx of txs) {
+          assert(tx.isIncoming());
+          assert(tx.isOutgoing());
+          assert(tx.isConfirmed());
+          assert(tx.getOutputs().length > 0);
+          assert.notEqual(tx.getOutgoingTransfer(), undefined);
+          assert.notEqual(tx.getOutgoingTransfer().getDestinations(), undefined);
+          assert(tx.getOutgoingTransfer().getDestinations().length > 0);
+        }
       });
       
       if (testConfig.testNonRelays)
@@ -1164,7 +1176,7 @@ class TestMoneroWalletCommon {
         transfers = await that._getAndTestTransfers(that.wallet, {txQuery: {hashes: txHashes}}, true);
         for (let transfer of transfers) assert(txHashes.includes(transfer.getTx().getHash()));
         
-        // TODO: test that transfers with the same txHash have the same tx reference
+        // TODO: test that transfers with the same tx hash have the same tx reference
         
         // TODO: test transfers destinations
         
@@ -1178,6 +1190,16 @@ class TestMoneroWalletCommon {
           assert.equal(transfer.isOutgoing(), true);
           assert(transfer.getDestinations().length > 0);
           assert.equal(transfer.getTx().isConfirmed(), true);
+        }
+        
+        // get incoming transfers to account 0 which has outgoing transfers (i.e. originated from the same wallet)
+        transfers = await that.wallet.getTransfers({accountIndex: 1, isIncoming: true, txQuery: {isOutgoing: true}})
+        assert(transfers.length > 0);
+        for (let transfer of transfers) {
+          assert(transfer.isIncoming());
+          assert.equal(transfer.getAccountIndex(), 1);
+          assert(transfer.getTx().isOutgoing());
+          assert.equal(transfer.getTx().getOutgoingTransfer(), undefined);
         }
       });
       
@@ -1362,6 +1384,17 @@ class TestMoneroWalletCommon {
         outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setKeyImage(new MoneroKeyImage(keyImage)));
         assert.equal(outputs.length, 1);
         assert.equal(outputs[0].getKeyImage().getHex(), keyImage);
+        
+        // get outputs whose transaction is confirmed and has incoming and outgoing transfers
+        outputs = await that.wallet.getOutputs({txQuery: {isConfirmed: true, isIncoming: true, isOutgoing: true, includeOutputs: true}});
+        assert(outputs.length > 0);
+        for (let output of outputs) {
+          assert(output.getTx().isIncoming());
+          assert(output.getTx().isOutgoing());
+          assert(output.getTx().isConfirmed());
+          assert(output.getTx().getOutputs().length > 0);
+          assert(GenUtils.arrayContains(output.getTx().getOutputs(), output, true));
+        }
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
@@ -1747,7 +1780,6 @@ class TestMoneroWalletCommon {
         
         // test subaddress
         try {
-          
           await that.wallet.checkReserveProof((await that.wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
           throw new Error("Should have thrown exception");
         } catch (e) {

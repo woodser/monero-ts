@@ -1151,8 +1151,6 @@ class MoneroWallet {
       query = new MoneroTxQuery(query);
     }
     if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
-    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
-    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
     return query;
   }
   

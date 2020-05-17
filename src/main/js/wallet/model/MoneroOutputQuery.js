@@ -43,6 +43,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.state.minAmount !== undefined && !(this.state.minAmount instanceof BigInteger)) this.state.minAmount = BigInteger.parse(this.state.minAmount);
     if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInteger)) this.state.maxAmount = BigInteger.parse(this.state.maxAmount);
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
+    if (this.state.txQuery) this.state.txQuery.setOutputQuery(this);
   }
   
   copy() {
@@ -81,6 +82,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
   
   setTxQuery(txQuery) {
     this.state.txQuery = txQuery;
+    if (txQuery) txQuery.state.outputQuery = this;
     return this;
   }
   
@@ -115,8 +117,9 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     return this;
   }
   
-  meetsCriteria(output) {
-    if (!(output instanceof MoneroOutputWallet)) return false;
+  meetsCriteria(output, queryParent) {
+    if (!(output instanceof MoneroOutputWallet)) throw new Error("Output not given to MoneroOutputQuery.meetsCriteria(output)");
+    if (queryParent === undefined) queryParent = true;
     
     // filter on output
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== output.getAccountIndex()) return false;
@@ -135,7 +138,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(output.getSubaddressIndex())) return false;
     
     // filter with tx query
-    if (this.getTxQuery() && !this.getTxQuery().meetsCriteria(output.getTx())) return false;
+    if (this.getTxQuery() && !this.getTxQuery().meetsCriteria(output.getTx(), false)) return false;
     
     // filter on remaining fields
     if (this.getMinAmount() !== undefined && (output.getAmount() === undefined || output.getAmount().compare(this.getMinAmount()) < 0)) return false;
@@ -143,10 +146,6 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     
     // output meets query
     return true;
-  }
-  
-  isDefault() {
-    return this.meetsCriteria(MoneroOutputQuery._EMPTY_OUTPUT);
   }
 }
 

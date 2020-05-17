@@ -526,6 +526,12 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   // deserialize transfer query
   shared_ptr<monero_transfer_query> transfer_query = monero_transfer_query::deserialize_from_block(transfer_query_json);
 
+//  // log query
+//  if (transfer_query->m_tx_query != boost::none) {
+//    if ((*transfer_query->m_tx_query)->m_block == boost::none) cout << "Transfer query's tx query rooted at [tx]:" << (*transfer_query->m_tx_query)->serialize() << endl;
+//    else cout << "Transfer query's tx query rooted at [block]: " << (*(*transfer_query->m_tx_query)->m_block)->serialize() << endl;
+//  } else cout << "Transfer query: " << transfer_query->serialize() << endl;
+
   // get transfers
   vector<shared_ptr<monero_transfer>> transfers = wallet->get_transfers(*transfer_query);
 

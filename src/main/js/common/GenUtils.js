@@ -593,14 +593,16 @@ class GenUtils {
   /**
    * Indicates if the given array contains the given object.
    * 
-   * @param arr is the array that may or may not contain the object
-   * @param obj is the object to check for inclusion in the array
+   * @param {[]} arr - array that may or may not contain the object
+   * @param {object} obj - object to check for inclusion in the array
+   * @param {boolean} compareByReference - compare strictly by reference, forgoing deep equality check
    * @returns true if the array contains the object, false otherwise
    */
-  static arrayContains(arr, obj) {
+  static arrayContains(arr, obj, compareByReference) {
     GenUtils.assertTrue(GenUtils.isArray(arr));
     for (let i = 0; i < arr.length; i++) {
-      if (GenUtils.equals(arr[i], obj)) return true;
+      if (arr[i] === obj) return true;
+      if (!compareByReference && GenUtils.equals(arr[i], obj)) return true;
     }
     return false;
   }

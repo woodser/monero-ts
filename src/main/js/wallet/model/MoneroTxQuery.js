@@ -49,8 +49,10 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // deserialize if necessary
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
-    if (this.state.transferQuery) this.state.transferQuery.setTxQuery(this);
     if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
+    
+    // link cycles
+    if (this.state.transferQuery) this.state.transferQuery.setTxQuery(this);
     if (this.state.outputQuery) this.state.outputQuery.setTxQuery(this);
     
     // alias 'hash' to hashes
@@ -171,6 +173,7 @@ class MoneroTxQuery extends MoneroTxWallet {
   
   setTransferQuery(transferQuery) {
     this.state.transferQuery = transferQuery;
+    if (transferQuery) transferQuery.state.txQuery = this;
     return this;
   }
   
@@ -180,12 +183,13 @@ class MoneroTxQuery extends MoneroTxWallet {
   
   setOutputQuery(outputQuery) {
     this.state.outputQuery = outputQuery;
+    if (outputQuery) outputQuery.state.txQuery = this;
     return this;
   }
   
-  // TODO: this filtering is not complete
-  meetsCriteria(tx) {
-    if (!(tx instanceof MoneroTxWallet)) return false;
+  meetsCriteria(tx, queryChildren) {
+    if (!(tx instanceof MoneroTxWallet)) throw new Error("Tx not given to MoneroTxQuery.meetsCriteria(tx)");
+    if (queryChildren === undefined) queryChildren = true;
     
     // filter on tx
     if (this.getHash() !== undefined && this.getHash() !== tx.getHash()) return false;
@@ -197,34 +201,6 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.isFailed() !== undefined && this.isFailed() !== tx.isFailed()) return false;
     if (this.isMinerTx() !== undefined && this.isMinerTx() !== tx.isMinerTx()) return false;
     if (this.isLocked() !== undefined && this.isLocked() !== tx.isLocked()) return false;
-    
-    // at least one transfer must meet transfer filter if defined
-    if (this.getTransferQuery()) {
-      let matchFound = false;
-      if (tx.getOutgoingTransfer() && this.getTransferQuery().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
-      else if (tx.getIncomingTransfers()) {
-        for (let incomingTransfer of tx.getIncomingTransfers()) {
-          if (this.getTransferQuery().meetsCriteria(incomingTransfer)) {
-            matchFound = true;
-            break;
-          }
-        }
-      }
-      if (!matchFound) return false;
-    }
-    
-    // at least one output must meet output query if defined
-    if (this.getOutputQuery() !== undefined && !this.getOutputQuery().isDefault()) {
-      if (tx.getOutputs() === undefined || tx.getOutputs().length === 0) return false;
-      let matchFound = false;
-      for (let output of tx.getOutputs()) {
-        if (this.getOutputQuery().meetsCriteria(output)) {
-          matchFound = true;
-          break;
-        }
-      }
-      if (!matchFound) return false;
-    }
     
     // filter on having a payment id
     if (this.hasPaymentId() !== undefined) {
@@ -251,9 +227,40 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.getHeight() !== undefined && (txHeight === undefined || txHeight !== this.getHeight())) return false;
     if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;
     if (this.getMaxHeight() !== undefined && (txHeight === undefined || txHeight > this.getMaxHeight())) return false;
+    // TODO: filtering not complete
     
-    // transaction meets filter criteria
-    return true;
+    // done if not querying transfers or outputs
+    if (!queryChildren) return true;
+    
+    // at least one transfer must meet transfer filter if defined
+    if (this.getTransferQuery()) {
+      let matchFound = false;
+      if (tx.getOutgoingTransfer() && this.getTransferQuery().meetsCriteria(tx.getOutgoingTransfer(), false)) matchFound = true;
+      else if (tx.getIncomingTransfers()) {
+        for (let incomingTransfer of tx.getIncomingTransfers()) {
+          if (this.getTransferQuery().meetsCriteria(incomingTransfer, false)) {
+            matchFound = true;
+            break;
+          }
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
+    // at least one output must meet output query if defined
+    if (this.getOutputQuery() !== undefined) {
+      if (tx.getOutputs() === undefined || tx.getOutputs().length === 0) return false;
+      let matchFound = false;
+      for (let output of tx.getOutputs()) {
+        if (this.getOutputQuery().meetsCriteria(output, false)) {
+          matchFound = true;
+          break;
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
+    return true;  // transaction meets filter criteria
   }
 }
 

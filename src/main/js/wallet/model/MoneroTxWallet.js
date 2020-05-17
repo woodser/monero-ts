@@ -107,6 +107,40 @@ class MoneroTxWallet extends MoneroTx {
     return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
   }
   
+  getTransfers(transferQuery) {
+    let transfers = [];
+    if (this.getOutgoingTransfer() && (!transferQuery || transferQuery.meetsCriteria(this.getOutgoingTransfer()))) transfers.push(this.getOutgoingTransfer());
+    if (this.getIncomingTransfers()) {
+      for (let transfer of this.getIncomingTransfers()) {
+        if (!transferQuery || transferQuery.meetsCriteria(transfer)) transfers.push(transfer);
+      }
+    }
+    return transfers;
+  }
+  
+  filterTransfers(transferQuery) {
+    let transfers = [];
+    
+    // collect outgoing transfer or erase if filtered
+    if (this.getOutgoingTransfer() && (!transferQuery || transferQuery.meetsCriteria(this.getOutgoingTransfer()))) transfers.push(this.getOutgoingTransfer());
+    else this.setOutgoingTransfer(undefined);
+    
+    // collect incoming transfers or erase if filtered
+    if (this.getIncomingTransfers()) {
+      let toRemoves = [];
+      for (let transfer of this.getIncomingTransfers()) {
+        if (transferQuery.meetsCriteria(transfer)) transfers.push(transfer);
+        else toRemoves.push(transfer);
+      }
+      this.setIncomingTransfers(this.getIncomingTransfers().filter(function(transfer) {
+        return !toRemoves.includes(transfer);
+      }));
+      if (this.getIncomingTransfers().length === 0) this.setIncomingTransfers(undefined);
+    }
+    
+    return transfers;
+  }
+  
   getIncomingTransfers() {
     return this.state.incomingTransfers;
   }
@@ -125,6 +159,13 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
+  getOutputs(outputQuery) {
+    if (!outputQuery || !super.getOutputs()) return super.getOutputs();
+    let outputs = [];
+    for (let output of super.getOutputs()) if (!outputQuery || outputQuery.meetsCriteria(output)) outputs.push(output);
+    return outputs;
+  }
+  
   setOutputs(outputs) {
     
     // validate that all outputs are wallet outputs
@@ -135,6 +176,22 @@ class MoneroTxWallet extends MoneroTx {
     }
     super.setOutputs(outputs);
     return this;
+  }
+  
+  filterOutputs(outputQuery) {
+    let outputs = [];
+    if (super.getOutputs()) {
+      let toRemoves = [];
+      for (let output of super.getOutputs()) {
+        if (!outputQuery || outputQuery.meetsCriteria(output)) outputs.push(output);
+        else toRemoves.push(output);
+      }
+      this.setOutputs(super.getOutputs().filter(function(output) {
+        return !toRemoves.includes(output);
+      }));
+      if (this.getOutputs().length === 0) this.setOutputs(undefined);
+    }
+    return outputs;
   }
   
   getNote() {
