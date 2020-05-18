@@ -38,7 +38,13 @@ self.initOneTime = async function() {
   }
 }
 
-//----------------------------- DAEMON METHODS --------------------------------
+// --------------------------- STATIC UTILITIES -------------------------------
+
+self.getWasmMemoryUsed = async function(objectId) {	// TODO: object id not needed for static utilites, using throwaway uuid
+  return LibraryUtils.getWasmModule() && LibraryUtils.getWasmModule().HEAP8 ? LibraryUtils.getWasmModule().HEAP8.length : undefined;
+}
+
+// ---------------------------- DAEMON METHODS --------------------------------
 
 self.connectDaemonRpc = async function(daemonId, config) {
   self.WORKER_OBJECTS[daemonId] = new MoneroDaemonRpc(config);

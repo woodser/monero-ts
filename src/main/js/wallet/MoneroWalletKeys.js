@@ -153,7 +153,7 @@ class MoneroWalletKeys extends MoneroWallet {
   constructor(cppAddress) {
     super();
     this._cppAddress = cppAddress;
-    this._module = MoneroUtils.WASM_MODULE;
+    this._module = LibraryUtils.getWasmModule();
     if (!this._module.create_core_wallet_from_mnemonic) throw new Error("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
   }
   
