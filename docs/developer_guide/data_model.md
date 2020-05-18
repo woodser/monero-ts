@@ -14,16 +14,15 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
       "relay": true,
       "isRelayed": true,
       "isConfirmed": true,
-      "numConfirmations": 5,
+      "numConfirmations": 238,
       "unlockTime": 0,
       "isDoubleSpendSeen": false,
       "isFailed": false,
-      "isLocked": true,
+      "isLocked": false,
       "isIncoming": true,
       "isOutgoing": true,
       "outgoingAmount": 100000,
       "incomingAmount": 100000,
-      "height": 582106,
       "inTxPool": false,
       "incomingTransfers": [
         {
@@ -32,8 +31,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "numSuggestedConfirmations": 1,
           "subaddressIndex": 0,
           "address": "73FUi8tkbeuBFSqhXzeMbd1WuMXJmdc3yeaGwx2f1NFaYzzypQ7a9scgn7JAtNagKPe4qCwE4S7wwB9ibJKv4RXnE8dtAva",
-          "isIncoming": true,
-          "isOutgoing": false
+          "isIncoming": true
         },
         {
           "amount": 50000,
@@ -41,8 +39,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "numSuggestedConfirmations": 1,
           "subaddressIndex": 0,
           "address": "7AnBDQp5ZMEWvwMxzNthWhNEvLsvTkYwp6dxnDmC88hqcLwqaD2cYmESAtqqJ9myXE6PLz5oqrApnUtqTW69mWevCZJUhWV",
-          "isIncoming": true,
-          "isOutgoing": false
+          "isIncoming": true
         }
       ],
       "outgoingTransfer": {
@@ -51,6 +48,9 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
         "numSuggestedConfirmations": 1,
         "subaddressIndices": [
           0
+        ],
+        "addresses": [
+          "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG"
         ],
         "destinations": [
           {
@@ -62,8 +62,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
             "amount": 50000
           }
         ],
-        "isIncoming": false,
-        "isOutgoing": true
+        "isIncoming": false
       },
       "outputs": [
         {
@@ -74,7 +73,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "index": 2657543,
           "accountIndex": 0,
           "subaddressIndex": 0,
-          "isSpent": false,
+          "isSpent": true,
           "isFrozen": false
         },
         {
@@ -99,7 +98,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "isSpent": false,
           "isFrozen": false
         }
-      ],
+      ]
     }
   ]
 }

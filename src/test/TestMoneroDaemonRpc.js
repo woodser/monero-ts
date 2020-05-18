@@ -31,7 +31,8 @@ class TestMoneroDaemonRpc {
           that.daemon = await TestUtils.getDaemonRpc();
           TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
         } catch (e) {
-          console.log(e);
+          console.error("Error before tests: ");
+          console.error(e);
           throw e;
         }
       });

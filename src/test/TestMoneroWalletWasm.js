@@ -72,6 +72,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
+        console.log("WASM memory usage: " + await LibraryUtils.getWasmMemoryUsed());
         try {
           that.wallet = await that.getTestWallet();
           that.daemon = await that.getTestDaemon();
@@ -86,6 +87,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       // delete non-main test wallets after each test
       afterEach(async function() {
         
+        // print memory usage
+        console.log("WASM memory usage: " + await LibraryUtils.getWasmMemoryUsed());
+        //console.log(process.memoryUsage());
+        
         // remove non-whitelisted wallets
         let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
         let items = LibraryUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
@@ -99,11 +104,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           }
           if (!found) LibraryUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
         }
-        
-        // measure memory
-        let module = await LibraryUtils.loadCoreModule();
-        console.log("Memory usage: " + module.HEAP8.length);
-        //console.log(process.memoryUsage());
       });
       
       // save wallet after tests
