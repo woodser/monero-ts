@@ -75,8 +75,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "accountIndex": 0,
           "subaddressIndex": 0,
           "isSpent": false,
-          "isFrozen": false,
-          "isLocked": true
+          "isFrozen": false
         },
         {
           "keyImage": {
@@ -87,8 +86,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "accountIndex": 1,
           "subaddressIndex": 0,
           "isSpent": false,
-          "isFrozen": false,
-          "isLocked": true
+          "isFrozen": false
         },
         {
           "keyImage": {
@@ -99,8 +97,7 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
           "accountIndex": 2,
           "subaddressIndex": 0,
           "isSpent": false,
-          "isFrozen": false,
-          "isLocked": true
+          "isFrozen": false
         }
       ],
     }
