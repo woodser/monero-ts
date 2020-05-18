@@ -1,6 +1,8 @@
 # Transactions, transfers, and outputs
 
-The following JSON is a serialized transaction to demonstrate the data model (blocks, transactions, transfers, and outputs) used by this library.
+The following JSON demonstrates the relationship among blocks, transactions, transfers, and outputs used in monero-javascript.
+
+This JSON is a serialized transaction which sends funds to two accounts in the same wallet, so it has both an outgoing transfer and incoming transfers.
 
 ```json
 {
@@ -104,4 +106,4 @@ The following JSON is a serialized transaction to demonstrate the data model (bl
 }
 ```
 
-The top level is a block which contains transactions.  Transactions may have incoming transfers and one outgoing transfer.  The outgoing transfer may have destination amounts and addresses (this information is only saved locally with the wallet and is not stored on the blockchain).  Transactions may also have outputs received by the wallet.
+The top level is a block which contains transactions.  Transactions can have incoming transfers and an outgoing transfer.  The outgoing transfer may have destination addresses and amounts (note: this information is only saved locally with the wallet file and is not stored on the blockchain).  Transactions can also have outputs received by the wallet.
