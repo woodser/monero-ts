@@ -72,7 +72,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        console.log("WASM memory usage: " + await LibraryUtils.getWasmMemoryUsed());
         try {
           that.wallet = await that.getTestWallet();
           that.daemon = await that.getTestDaemon();
@@ -1345,7 +1344,7 @@ class OutputNotificationCollector extends MoneroWalletListener {
 /**
  * Helper class to test progress updates.
  */
-class SyncProgressTester extends MoneroWalletListener {
+class SyncProgressTester extends WalletSyncPrinter {
   
   constructor(wallet, startHeight, endHeight) {
     super();
@@ -1358,7 +1357,7 @@ class SyncProgressTester extends MoneroWalletListener {
   }
   
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    if ((height - startHeight) % SyncProgressTester.PRINT_INCREMENT === 0 || percentDone === 1.0) console.log("onSyncProgress(" + height + ", " + startHeight + ", " + endHeight + ", " + percentDone + ", " + message + ")");
+    super.onSyncProgress(height, startHeight, endHeight, percentDone, message);
     
     // registered wallet listeners will continue to get sync notifications after the wallet's initial sync
     if (this.isDone) {
@@ -1409,7 +1408,6 @@ class SyncProgressTester extends MoneroWalletListener {
     return this.onSyncProgressAfterDone;
   }
 }
-SyncProgressTester.PRINT_INCREMENT = 2500;  // print every 2500 blocks
 
 /**
  * Internal class to test all wallet notifications on sync. 
