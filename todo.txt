@@ -1,7 +1,6 @@
 HIGH (WASM)
-testGetReserveProofAccount() exception
+testGetReserveProofAccount() exception, re-enable test reserves or report issue
 print memory used in web worker
-re-enable test reserves or report issue
 git clone includes .git directory which is 95mbs
 document data model from block
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator

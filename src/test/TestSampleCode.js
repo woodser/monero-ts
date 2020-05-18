@@ -25,7 +25,9 @@ class TestSampleCode {
             fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
           }
         } catch (e) {
-          console.log(e);
+          console.error("Error before tests: ");
+          console.error(e);
+          throw e;
         }
       });
       
