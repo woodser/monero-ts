@@ -92,6 +92,9 @@ await walletWasm.close(true);
 
 * [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
 * [Getting started](docs/developer_guide/getting_started.md)
+* [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
+* [Query transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Creating wallets](docs/developer_guide/creating_wallets.md)
 * Getting started with monero-javascript web browser applications
 * Connecting to Monero nodes and RPC wallet servers
 * Initiating transfers
