@@ -62,13 +62,11 @@
  */
 namespace gen_utils
 {
-  using namespace std;
-
   // ------------------------- VALUE RECONCILATION- ---------------------------
 
   // TODO: refactor common template code
-  template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
+  template <class T, typename std::enable_if<std::is_same<T, std::string>::value, T>::type* = nullptr>
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const std::string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -79,15 +77,15 @@ namespace gen_utils
       else return val1 == boost::none ? val2 : val1;
     }
 
-    throw runtime_error(string("Cannot reconcile strings: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
+    throw std::runtime_error(std::string("Cannot reconcile strings: ") + to_string(val1) + std::string(" vs ") + to_string(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
   }
-  template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+  template <class T, typename std::enable_if<std::is_same<T, std::string>::value, T>::type* = nullptr>
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const std::string& err_msg = "") {
     return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const std::string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -100,19 +98,19 @@ namespace gen_utils
 
     // resolve different numbers
     if (resolve_max != boost::none) {
-      return *resolve_max ? max(*val1, *val2) : min(*val1, *val2);
+      return *resolve_max ? std::max(*val1, *val2) : std::min(*val1, *val2);
     }
 
-    // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolve_defined + ", " + resolve_true + ", " + resolve_max + "]", val1, val2);
-    throw runtime_error(string("Cannot reconcile integrals: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
+    // throw std::runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolve_defined + ", " + resolve_true + ", " + resolve_max + "]", val1, val2);
+    throw std::runtime_error(std::string("Cannot reconcile integrals: ") + to_string(val1) + std::string(" vs ") + to_string(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
   }
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const std::string& err_msg = "") {
     return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const std::string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -127,16 +125,16 @@ namespace gen_utils
     if (resolve_true != boost::none) {
       return val1 == resolve_true ? val1 : val2; // if resolve true, return true, else return false
     } else {
-      throw runtime_error(string("Cannot reconcile booleans: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
+      throw std::runtime_error(std::string("Cannot reconcile booleans: ") + to_string(val1) + std::string(" vs ") + to_string(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
     }
   }
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const std::string& err_msg = "") {
     return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T>
-  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2, const string& err_msg = "") {
+  std::vector<T> reconcile(const std::vector<T>& v1, const std::vector<T>& v2, const std::string& err_msg = "") {
 
     // check for equality
     if (v1 == v2) return v1;
@@ -146,7 +144,7 @@ namespace gen_utils
     if (v2.empty()) return v1;
 
     // otherwise cannot reconcile
-    throw runtime_error("Cannot reconcile vectors" + (!err_msg.empty() ? string(". ") + err_msg : string("")));
+    throw std::runtime_error("Cannot reconcile vectors" + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
   }
 }
 #endif /* gen_utils_h */

@@ -64,8 +64,8 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void merge_tx(vector<shared_ptr<monero_tx>>& txs, const shared_ptr<monero_tx>& tx) {
-    for (const shared_ptr<monero_tx>& aTx : txs) {
+  void merge_tx(std::vector<std::shared_ptr<monero_tx>>& txs, const std::shared_ptr<monero_tx>& tx) {
+    for (const std::shared_ptr<monero_tx>& aTx : txs) {
       if (aTx->m_hash.get() == tx->m_hash.get()) {
         aTx->merge(aTx, tx);
         return;
@@ -76,11 +76,11 @@ namespace monero {
 
   // ------------------------- INITIALIZE CONSTANTS ---------------------------
 
-  const string monero_tx::DEFAULT_PAYMENT_ID = string("0000000000000000");
+  const std::string monero_tx::DEFAULT_PAYMENT_ID = std::string("0000000000000000");
 
   // ------------------------- SERIALIZABLE STRUCT ----------------------------
 
-  string serializable_struct::serialize() const {
+  std::string serializable_struct::serialize() const {
     rapidjson::Document doc;
     doc.SetObject();
     rapidjson::Value val = to_rapidjson_val(doc.GetAllocator());
@@ -113,7 +113,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_uri != boost::none) monero_utils::addJsonMember("uri", m_uri.get(), allocator, root, value_str);
     if (m_username != boost::none) monero_utils::addJsonMember("username", m_username.get(), allocator, root, value_str);
@@ -147,7 +147,7 @@ namespace monero {
     if (m_num_txs != boost::none) monero_utils::addJsonMember("numTxs", m_num_txs.get(), allocator, root, value_num);
     if (m_reward != boost::none) monero_utils::addJsonMember("reward", m_reward.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hash != boost::none) monero_utils::addJsonMember("hash", m_hash.get(), allocator, root, value_str);
     if (m_prev_hash != boost::none) monero_utils::addJsonMember("prevHash", m_prev_hash.get(), allocator, root, value_str);
@@ -160,8 +160,8 @@ namespace monero {
     return root;
   }
 
-  void monero_block_header::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_block_header::merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
     m_hash = gen_utils::reconcile(m_hash, other->m_hash);
     m_height = gen_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block height"); // height can increase
@@ -190,7 +190,7 @@ namespace monero {
     // serialize root from superclass
     rapidjson::Value root = monero_block_header::to_rapidjson_val(allocator);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hex != boost::none) monero_utils::addJsonMember("hex", m_hex.get(), allocator, root, value_str);
 
@@ -205,12 +205,12 @@ namespace monero {
     return root;
   }
 
-  void monero_block::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
-    merge(static_pointer_cast<monero_block>(self), static_pointer_cast<monero_block>(other));
+  void monero_block::merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other) {
+    merge(std::static_pointer_cast<monero_block>(self), std::static_pointer_cast<monero_block>(other));
   }
 
-  void monero_block::merge(const shared_ptr<monero_block>& self, const shared_ptr<monero_block>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_block::merge(const std::shared_ptr<monero_block>& self, const std::shared_ptr<monero_block>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge header fields
@@ -229,7 +229,7 @@ namespace monero {
 
     // merge non-miner txs
     if (!other->m_txs.empty()) {
-      for (const shared_ptr<monero_tx> otherTx : other->m_txs) { // NOTE: not using reference so shared_ptr is not deleted when block is dereferenced
+      for (const std::shared_ptr<monero_tx> otherTx : other->m_txs) { // NOTE: not using reference so std::shared_ptr is not deleted when block is dereferenced
         otherTx->m_block = self;
         merge_tx(self->m_txs, otherTx);
       }
@@ -257,7 +257,7 @@ namespace monero {
     if (m_last_failed_height != boost::none) monero_utils::addJsonMember("lastFailedHeight", m_last_failed_height.get(), allocator, root, value_num);
     if (m_max_used_block_height != boost::none) monero_utils::addJsonMember("maxUsedBlockHeight", m_max_used_block_height.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hash != boost::none) monero_utils::addJsonMember("hash", m_hash.get(), allocator, root, value_str);
     if (m_payment_id != boost::none) monero_utils::addJsonMember("paymentId", m_payment_id.get(), allocator, root, value_str);
@@ -294,53 +294,53 @@ namespace monero {
     return root;
   }
 
-  void monero_tx::from_property_tree(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
+  void monero_tx::from_property_tree(const boost::property_tree::ptree& node, std::shared_ptr<monero_tx> tx) {
 
     // initialize tx from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("hash")) tx->m_hash = it->second.data();
-      else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
-      else if (key == string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
-      else if (key == string("paymentId")) tx->m_payment_id = it->second.data();
-      else if (key == string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
-      else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
-      else if (key == string("relay")) tx->m_relay = it->second.get_value<bool>();
-      else if (key == string("isRelayed")) tx->m_is_relayed = it->second.get_value<bool>();
-      else if (key == string("isConfirmed")) tx->m_is_confirmed = it->second.get_value<bool>();
-      else if (key == string("inTxPool")) tx->m_in_tx_pool = it->second.get_value<bool>();
-      else if (key == string("numConfirmations")) tx->m_num_confirmations = it->second.get_value<uint64_t>();
-      else if (key == string("unlockTime")) tx->m_unlock_time = it->second.get_value<uint64_t>();
-      else if (key == string("lastRelayedTimestamp")) tx->m_last_relayed_timestamp = it->second.get_value<uint64_t>();
-      else if (key == string("receivedTimestamp")) tx->m_received_timestamp = it->second.get_value<uint64_t>();
-      else if (key == string("isDoubleSpendSeen")) tx->m_is_double_spend_seen = it->second.get_value<bool>();
-      else if (key == string("key")) tx->m_key = it->second.data();
-      else if (key == string("fullHex")) tx->m_full_hex = it->second.data();
-      else if (key == string("prunedHex")) tx->m_pruned_hex = it->second.data();
-      else if (key == string("prunableHex")) tx->m_prunable_hex = it->second.data();
-      else if (key == string("prunableHash")) tx->m_prunable_hash = it->second.data();
-      else if (key == string("size")) throw runtime_error("size deserialization not implemented");
-      else if (key == string("weight")) throw runtime_error("weight deserialization not implemented");
-      else if (key == string("inputs")) throw runtime_error("inputs deserializationn not implemented");
-      else if (key == string("outputs")) throw runtime_error("outputs deserializationn not implemented");
-      else if (key == string("outputIndices")) throw runtime_error("m_output_indices deserialization not implemented");
-      else if (key == string("metadata")) tx->m_metadata = it->second.data();
-      else if (key == string("commonTxSets")) throw runtime_error("commonTxSets deserialization not implemented");
-      else if (key == string("extra")) throw runtime_error("extra deserialization not implemented");
-      else if (key == string("rctSignatures")) throw runtime_error("rctSignatures deserialization not implemented");
-      else if (key == string("rctSigPrunable")) throw runtime_error("rctSigPrunable deserialization not implemented");
-      else if (key == string("isKeptByBlock")) tx->m_is_kept_by_block = it->second.get_value<bool>();
-      else if (key == string("isFailed")) tx->m_is_failed = it->second.get_value<bool>();
-      else if (key == string("lastFailedHeight")) throw runtime_error("lastFailedHeight deserialization not implemented");
-      else if (key == string("lastFailedHash")) tx->m_last_failed_hash = it->second.data();
-      else if (key == string("maxUsedBlockHeight")) throw runtime_error("maxUsedBlockHeight deserialization not implemented");
-      else if (key == string("maxUsedBlockHash")) tx->m_max_used_block_hash = it->second.data();
-      else if (key == string("signatures")) throw runtime_error("signatures deserialization not implemented");
+      std::string key = it->first;
+      if (key == std::string("hash")) tx->m_hash = it->second.data();
+      else if (key == std::string("version")) throw std::runtime_error("version deserializationn not implemented");
+      else if (key == std::string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
+      else if (key == std::string("paymentId")) tx->m_payment_id = it->second.data();
+      else if (key == std::string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
+      else if (key == std::string("mixin")) throw std::runtime_error("mixin deserialization not implemented");
+      else if (key == std::string("relay")) tx->m_relay = it->second.get_value<bool>();
+      else if (key == std::string("isRelayed")) tx->m_is_relayed = it->second.get_value<bool>();
+      else if (key == std::string("isConfirmed")) tx->m_is_confirmed = it->second.get_value<bool>();
+      else if (key == std::string("inTxPool")) tx->m_in_tx_pool = it->second.get_value<bool>();
+      else if (key == std::string("numConfirmations")) tx->m_num_confirmations = it->second.get_value<uint64_t>();
+      else if (key == std::string("unlockTime")) tx->m_unlock_time = it->second.get_value<uint64_t>();
+      else if (key == std::string("lastRelayedTimestamp")) tx->m_last_relayed_timestamp = it->second.get_value<uint64_t>();
+      else if (key == std::string("receivedTimestamp")) tx->m_received_timestamp = it->second.get_value<uint64_t>();
+      else if (key == std::string("isDoubleSpendSeen")) tx->m_is_double_spend_seen = it->second.get_value<bool>();
+      else if (key == std::string("key")) tx->m_key = it->second.data();
+      else if (key == std::string("fullHex")) tx->m_full_hex = it->second.data();
+      else if (key == std::string("prunedHex")) tx->m_pruned_hex = it->second.data();
+      else if (key == std::string("prunableHex")) tx->m_prunable_hex = it->second.data();
+      else if (key == std::string("prunableHash")) tx->m_prunable_hash = it->second.data();
+      else if (key == std::string("size")) throw std::runtime_error("size deserialization not implemented");
+      else if (key == std::string("weight")) throw std::runtime_error("weight deserialization not implemented");
+      else if (key == std::string("inputs")) throw std::runtime_error("inputs deserializationn not implemented");
+      else if (key == std::string("outputs")) throw std::runtime_error("outputs deserializationn not implemented");
+      else if (key == std::string("outputIndices")) throw std::runtime_error("m_output_indices deserialization not implemented");
+      else if (key == std::string("metadata")) tx->m_metadata = it->second.data();
+      else if (key == std::string("commonTxSets")) throw std::runtime_error("commonTxSets deserialization not implemented");
+      else if (key == std::string("extra")) throw std::runtime_error("extra deserialization not implemented");
+      else if (key == std::string("rctSignatures")) throw std::runtime_error("rctSignatures deserialization not implemented");
+      else if (key == std::string("rctSigPrunable")) throw std::runtime_error("rctSigPrunable deserialization not implemented");
+      else if (key == std::string("isKeptByBlock")) tx->m_is_kept_by_block = it->second.get_value<bool>();
+      else if (key == std::string("isFailed")) tx->m_is_failed = it->second.get_value<bool>();
+      else if (key == std::string("lastFailedHeight")) throw std::runtime_error("lastFailedHeight deserialization not implemented");
+      else if (key == std::string("lastFailedHash")) tx->m_last_failed_hash = it->second.data();
+      else if (key == std::string("maxUsedBlockHeight")) throw std::runtime_error("maxUsedBlockHeight deserialization not implemented");
+      else if (key == std::string("maxUsedBlockHash")) tx->m_max_used_block_hash = it->second.data();
+      else if (key == std::string("signatures")) throw std::runtime_error("signatures deserialization not implemented");
     }
   }
 
-  shared_ptr<monero_tx> monero_tx::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const {
-    MTRACE("monero_tx::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt)");
+  std::shared_ptr<monero_tx> monero_tx::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt) const {
+    MTRACE("monero_tx::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt)");
     tgt->m_hash = src->m_hash;
     tgt->m_version = src->m_version;
     tgt->m_is_miner_tx = src->m_is_miner_tx;
@@ -364,25 +364,25 @@ namespace monero {
     tgt->m_size = src->m_size;
     tgt->m_weight = src->m_weight;
     if (!src->m_inputs.empty()) {
-      tgt->m_inputs = vector<shared_ptr<monero_output>>();
-      for (const shared_ptr<monero_output>& input : src->m_inputs) {
-        shared_ptr<monero_output> input_copy = input->copy(input, make_shared<monero_output>());
+      tgt->m_inputs = std::vector<std::shared_ptr<monero_output>>();
+      for (const std::shared_ptr<monero_output>& input : src->m_inputs) {
+        std::shared_ptr<monero_output> input_copy = input->copy(input, std::make_shared<monero_output>());
         input_copy->m_tx = tgt;
         tgt->m_inputs.push_back(input_copy);
       }
     }
     if (!src->m_outputs.empty()) {
-      tgt->m_outputs = vector<shared_ptr<monero_output>>();
-      for (const shared_ptr<monero_output>& output : src->m_outputs) {
-        shared_ptr<monero_output> output_copy = output->copy(output, make_shared<monero_output>());
+      tgt->m_outputs = std::vector<std::shared_ptr<monero_output>>();
+      for (const std::shared_ptr<monero_output>& output : src->m_outputs) {
+        std::shared_ptr<monero_output> output_copy = output->copy(output, std::make_shared<monero_output>());
         output_copy->m_tx = tgt;
         tgt->m_outputs.push_back(output_copy);
       }
     }
-    if (!src->m_output_indices.empty()) tgt->m_output_indices = vector<uint32_t>(src->m_output_indices);
+    if (!src->m_output_indices.empty()) tgt->m_output_indices = std::vector<uint32_t>(src->m_output_indices);
     tgt->m_metadata = src->m_metadata;
     tgt->m_common_tx_sets = src->m_common_tx_sets;
-    if (!src->m_extra.empty()) throw runtime_error("extra deep copy not implemented");  // TODO: implement extra
+    if (!src->m_extra.empty()) throw std::runtime_error("extra deep copy not implemented");  // TODO: implement extra
     tgt->m_rct_signatures = src->m_rct_signatures;
     tgt->m_rct_sig_prunable = src->m_rct_sig_prunable;
     tgt->m_is_kept_by_block = src->m_is_kept_by_block;
@@ -391,7 +391,7 @@ namespace monero {
     tgt->m_last_failed_hash = src->m_last_failed_hash;
     tgt->m_max_used_block_height = src->m_max_used_block_height;
     tgt->m_max_used_block_hash = src->m_max_used_block_hash;
-    if (!src->m_signatures.empty()) tgt->m_signatures = vector<string>(src->m_signatures);
+    if (!src->m_signatures.empty()) tgt->m_signatures = std::vector<std::string>(src->m_signatures);
     return tgt;
   }
 
@@ -400,19 +400,19 @@ namespace monero {
     return *((*m_block)->m_height);
   }
 
-  void monero_tx::merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_tx::merge(const std::shared_ptr<monero_tx>& self, const std::shared_ptr<monero_tx>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge blocks if they're different which comes back to merging txs
     if (m_block != other->m_block) {
       if (m_block == boost::none) {
-        m_block = make_shared<monero_block>();
+        m_block = std::make_shared<monero_block>();
         m_block.get()->m_txs.push_back(self);
         m_block.get()->m_height = other->get_height();
       }
       if (other->m_block == boost::none) {
-        other->m_block = make_shared<monero_block>();
+        other->m_block = std::make_shared<monero_block>();
         other->m_block.get()->m_txs.push_back(other);
         other->m_block.get()->m_height = self->get_height();
       }
@@ -455,10 +455,10 @@ namespace monero {
 
     // merge inputs
     if (!other->m_inputs.empty()) {
-      for (const shared_ptr<monero_output>& merger : other->m_inputs) {
+      for (const std::shared_ptr<monero_output>& merger : other->m_inputs) {
         bool merged = false;
         merger->m_tx = self;
-        for (const shared_ptr<monero_output>& mergee : m_inputs) {
+        for (const std::shared_ptr<monero_output>& mergee : m_inputs) {
           if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
             mergee->merge(mergee, merger);
             merged = true;
@@ -471,24 +471,24 @@ namespace monero {
 
     // merge outputs
     if (!other->m_outputs.empty()) {
-      for (const shared_ptr<monero_output>& output : other->m_outputs) output->m_tx = self;
+      for (const std::shared_ptr<monero_output>& output : other->m_outputs) output->m_tx = self;
       if (m_outputs.empty()) m_outputs = other->m_outputs;
       else {
 
         // validate output indices if present
         int num_indices = 0;
-        for (const shared_ptr<monero_output>& output : this->m_outputs) if (output->m_index != boost::none) num_indices++;
-        for (const shared_ptr<monero_output>& output : other->m_outputs) if (output->m_index != boost::none) num_indices++;
+        for (const std::shared_ptr<monero_output>& output : this->m_outputs) if (output->m_index != boost::none) num_indices++;
+        for (const std::shared_ptr<monero_output>& output : other->m_outputs) if (output->m_index != boost::none) num_indices++;
         if (num_indices != 0 && this->m_outputs.size() + other->m_outputs.size() != num_indices) {
-          throw runtime_error("Some outputs have an output index and some do not");
+          throw std::runtime_error("Some outputs have an output index and some do not");
         }
 
         // merge by output indices if present
         if (num_indices > 0) {
-          for (const shared_ptr<monero_output>& merger : other->m_outputs) {
+          for (const std::shared_ptr<monero_output>& merger : other->m_outputs) {
             bool merged = false;
             merger->m_tx = self;
-            for (const shared_ptr<monero_output>& mergee : this->m_outputs) {
+            for (const std::shared_ptr<monero_output>& mergee : this->m_outputs) {
               if (mergee->m_index.get() == merger->m_index.get()) {
                 mergee->merge(mergee, merger);
                 merged = true;
@@ -501,26 +501,26 @@ namespace monero {
 
           // determine if key images present
           int numKeyImages = 0;
-          for (const shared_ptr<monero_output> output : m_outputs) {
+          for (const std::shared_ptr<monero_output> output : m_outputs) {
             if (output->m_key_image != boost::none) {
-              if ((*output->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+              if ((*output->m_key_image)->m_hex == boost::none) throw std::runtime_error("Key image hex cannot be null");
               numKeyImages++;
             }
           }
-          for (const shared_ptr<monero_output>& output : other->m_outputs) {
+          for (const std::shared_ptr<monero_output>& output : other->m_outputs) {
             if (output->m_key_image != boost::none) {
-              if ((*output->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+              if ((*output->m_key_image)->m_hex == boost::none) throw std::runtime_error("Key image hex cannot be null");
               numKeyImages++;
             }
           }
-          if (numKeyImages != 0 && m_outputs.size() + other->m_outputs.size() != numKeyImages) throw runtime_error("Some outputs have a key image and some do not");
+          if (numKeyImages != 0 && m_outputs.size() + other->m_outputs.size() != numKeyImages) throw std::runtime_error("Some outputs have a key image and some do not");
 
           // merge by key images
           if (numKeyImages > 0) {
-            for (const shared_ptr<monero_output>& merger : other->m_outputs) {
+            for (const std::shared_ptr<monero_output>& merger : other->m_outputs) {
               bool merged = false;
               merger->m_tx = self;
-              for (const shared_ptr<monero_output>& mergee : m_outputs) {
+              for (const std::shared_ptr<monero_output>& mergee : m_outputs) {
                 if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
                   mergee->merge(mergee, merger);
                   merged = true;
@@ -533,7 +533,7 @@ namespace monero {
 
           // merge by position
           else {
-            if (m_outputs.size() != other->m_outputs.size()) throw runtime_error("Vout sizes are different");
+            if (m_outputs.size() != other->m_outputs.size()) throw std::runtime_error("Vout sizes are different");
             for (int i = 0; i < other->m_outputs.size(); i++) {
               m_outputs.at(i)->merge(m_outputs.at(i), other->m_outputs.at(i));
             }
@@ -561,7 +561,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hex != boost::none) monero_utils::addJsonMember("hex", m_hex.get(), allocator, root, value_str);
     if (m_signature != boost::none) monero_utils::addJsonMember("signature", m_signature.get(), allocator, root, value_str);
@@ -570,17 +570,17 @@ namespace monero {
     return root;
   }
 
-  void monero_key_image::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_key_image>& key_image) {
+  void monero_key_image::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_key_image>& key_image) {
 
     // initialize key image from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("hex")) key_image->m_hex = it->second.data();
-      else if (key == string("signature")) key_image->m_signature = it->second.data();
+      std::string key = it->first;
+      if (key == std::string("hex")) key_image->m_hex = it->second.data();
+      else if (key == std::string("signature")) key_image->m_signature = it->second.data();
     }
   }
 
-  vector<shared_ptr<monero_key_image>> monero_key_image::deserialize_key_images(const string& key_images_json) {
+  std::vector<std::shared_ptr<monero_key_image>> monero_key_image::deserialize_key_images(const std::string& key_images_json) {
 
     // deserialize json to property node
     std::istringstream iss = key_images_json.empty() ? std::istringstream() : std::istringstream(key_images_json);
@@ -588,12 +588,12 @@ namespace monero {
     boost::property_tree::read_json(iss, node);
 
     // convert property tree to key images
-    vector<shared_ptr<monero_key_image>> key_images;
+    std::vector<std::shared_ptr<monero_key_image>> key_images;
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("keyImages")) {
+      std::string key = it->first;
+      if (key == std::string("keyImages")) {
         for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-          shared_ptr<monero_key_image> key_image = make_shared<monero_key_image>();
+          std::shared_ptr<monero_key_image> key_image = std::make_shared<monero_key_image>();
           monero_key_image::from_property_tree(it2->second, key_image);
           key_images.push_back(key_image);
         }
@@ -603,15 +603,15 @@ namespace monero {
     return key_images;
   }
 
-  shared_ptr<monero_key_image> monero_key_image::copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const {
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_key_image> monero_key_image::copy(const std::shared_ptr<monero_key_image>& src, const std::shared_ptr<monero_key_image>& tgt) const {
+    if (this != src.get()) throw std::runtime_error("this != src");
     tgt->m_hex = src->m_hex;
     tgt->m_signature = src->m_signature;
     return tgt;
   }
 
-  void monero_key_image::merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other) {
-    throw runtime_error("Not implemented");
+  void monero_key_image::merge(const std::shared_ptr<monero_key_image>& self, const std::shared_ptr<monero_key_image>& other) {
+    throw std::runtime_error("Not implemented");
   }
 
   // ------------------------------ MONERO OUTPUT -----------------------------
@@ -637,35 +637,35 @@ namespace monero {
     return root;
   }
 
-  void monero_output::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output>& output) {
+  void monero_output::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_output>& output) {
 
     // initialize output from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("keyImage")) {
-        output->m_key_image = make_shared<monero_key_image>();
+      std::string key = it->first;
+      if (key == std::string("keyImage")) {
+        output->m_key_image = std::make_shared<monero_key_image>();
         monero_key_image::from_property_tree(it->second, output->m_key_image.get());
       }
-      else if (key == string("amount")) output->m_amount = it->second.get_value<uint64_t>();
-      else if (key == string("index")) output->m_index = it->second.get_value<uint32_t>();
-      else if (key == string("ringOutputIndices")) throw runtime_error("node_to_tx() deserialize ringOutputIndices not implemented");
-      else if (key == string("stealthPublicKey")) throw runtime_error("node_to_tx() deserialize stealthPublicKey not implemented");
+      else if (key == std::string("amount")) output->m_amount = it->second.get_value<uint64_t>();
+      else if (key == std::string("index")) output->m_index = it->second.get_value<uint32_t>();
+      else if (key == std::string("ringOutputIndices")) throw std::runtime_error("node_to_tx() deserialize ringOutputIndices not implemented");
+      else if (key == std::string("stealthPublicKey")) throw std::runtime_error("node_to_tx() deserialize stealthPublicKey not implemented");
     }
   }
 
-  shared_ptr<monero_output> monero_output::copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const {
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_output> monero_output::copy(const std::shared_ptr<monero_output>& src, const std::shared_ptr<monero_output>& tgt) const {
+    if (this != src.get()) throw std::runtime_error("this != src");
     tgt->m_tx = src->m_tx;  // reference same parent tx by default
-    if (src->m_key_image != boost::none) tgt->m_key_image = src->m_key_image.get()->copy(src->m_key_image.get(), make_shared<monero_key_image>());
+    if (src->m_key_image != boost::none) tgt->m_key_image = src->m_key_image.get()->copy(src->m_key_image.get(), std::make_shared<monero_key_image>());
     tgt->m_amount = src->m_amount;
     tgt->m_index = src->m_index;
-    if (!src->m_ring_output_indices.empty()) tgt->m_ring_output_indices = vector<uint64_t>(src->m_ring_output_indices);
+    if (!src->m_ring_output_indices.empty()) tgt->m_ring_output_indices = std::vector<uint64_t>(src->m_ring_output_indices);
     tgt->m_stealth_public_key = src->m_stealth_public_key;
     return tgt;
   }
 
-  void monero_output::merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_output::merge(const std::shared_ptr<monero_output>& self, const std::shared_ptr<monero_output>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge txs if they're different which comes back to merging outputs

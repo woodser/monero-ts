@@ -56,8 +56,6 @@
 #include "utils/monero_utils.h"
 #include <iostream>
 
-using namespace std;
-
 /**
  * Public library interface.
  */
@@ -65,8 +63,8 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void merge_incoming_transfer(vector<shared_ptr<monero_incoming_transfer>>& transfers, const shared_ptr<monero_incoming_transfer>& transfer) {
-    for (const shared_ptr<monero_incoming_transfer>& aTransfer : transfers) {
+  void merge_incoming_transfer(std::vector<std::shared_ptr<monero_incoming_transfer>>& transfers, const std::shared_ptr<monero_incoming_transfer>& transfer) {
+    for (const std::shared_ptr<monero_incoming_transfer>& aTransfer : transfers) {
       if (aTransfer->m_account_index.get() == transfer->m_account_index.get() && aTransfer->m_subaddress_index.get() == transfer->m_subaddress_index.get()) {
         aTransfer->merge(aTransfer, transfer);
         return;
@@ -75,14 +73,14 @@ namespace monero {
     transfers.push_back(transfer);
   }
 
-  shared_ptr<monero_block> node_to_block_query(const boost::property_tree::ptree& node) {
-    shared_ptr<monero_block> block = make_shared<monero_block>();
+  std::shared_ptr<monero_block> node_to_block_query(const boost::property_tree::ptree& node) {
+    std::shared_ptr<monero_block> block = std::make_shared<monero_block>();
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("txs")) {
+      std::string key = it->first;
+      if (key == std::string("txs")) {
         boost::property_tree::ptree txs_node = it->second;
         for (boost::property_tree::ptree::const_iterator it2 = txs_node.begin(); it2 != txs_node.end(); ++it2) {
-          shared_ptr<monero_tx_query> tx_query = make_shared<monero_tx_query>();
+          std::shared_ptr<monero_tx_query> tx_query = std::make_shared<monero_tx_query>();
           monero_tx_query::from_property_tree(it2->second, tx_query);
           block->m_txs.push_back(tx_query);
           tx_query->m_block = block;
@@ -123,7 +121,7 @@ namespace monero {
     if (m_balance != boost::none) monero_utils::addJsonMember("balance", m_balance.get(), allocator, root, value_num);
     if (m_unlocked_balance != boost::none) monero_utils::addJsonMember("unlockedBalance", m_unlocked_balance.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_primary_address != boost::none) monero_utils::addJsonMember("primaryAddress", m_primary_address.get(), allocator, root, value_str);
     if (m_tag != boost::none) monero_utils::addJsonMember("tag", m_tag.get(), allocator, root, value_str);
@@ -151,7 +149,7 @@ namespace monero {
     if (m_num_unspent_outputs != boost::none) monero_utils::addJsonMember("numUnspentOutputs", m_num_unspent_outputs.get(), allocator, root, value_num);
     if (m_num_blocks_to_unlock) monero_utils::addJsonMember("numBlocksToUnlock", m_num_blocks_to_unlock.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
     if (m_label != boost::none) monero_utils::addJsonMember("label", m_label.get(), allocator, root, value_str);
@@ -177,7 +175,7 @@ namespace monero {
     if (m_change_amount != boost::none) monero_utils::addJsonMember("changeAmount", m_change_amount.get(), allocator, root, value_num);
     if (m_num_dummy_outputs != boost::none) monero_utils::addJsonMember("numDummyOutputs", m_num_dummy_outputs.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_note != boost::none) monero_utils::addJsonMember("note", m_note.get(), allocator, root, value_str);
     if (m_change_address != boost::none) monero_utils::addJsonMember("changeAddress", m_change_address.get(), allocator, root, value_str);
@@ -198,43 +196,43 @@ namespace monero {
     return root;
   }
 
-  void monero_tx_wallet::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_tx_wallet>& tx_wallet) {
+  void monero_tx_wallet::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_tx_wallet>& tx_wallet) {
     monero_tx::from_property_tree(node, tx_wallet);
 
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      //if (key == string("hash")) tx->m_hash = it->second.data();
-      if (key == string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
+      std::string key = it->first;
+      //if (key == std::string("hash")) tx->m_hash = it->second.data();
+      if (key == std::string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
       // TODO: deserialize other fields
     }
   }
 
-  shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const {
-    MTRACE("monero_tx_wallet::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt)");
-    return monero_tx_wallet::copy(static_pointer_cast<monero_tx_wallet>(src), static_pointer_cast<monero_tx_wallet>(tgt));
+  std::shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt) const {
+    MTRACE("monero_tx_wallet::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt)");
+    return monero_tx_wallet::copy(std::static_pointer_cast<monero_tx_wallet>(src), std::static_pointer_cast<monero_tx_wallet>(tgt));
   };
 
-  shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const {
-    MTRACE("monero_tx_wallet::copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt)");
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const std::shared_ptr<monero_tx_wallet>& src, const std::shared_ptr<monero_tx_wallet>& tgt) const {
+    MTRACE("monero_tx_wallet::copy(const std::shared_ptr<monero_tx_wallet>& src, const std::shared_ptr<monero_tx_wallet>& tgt)");
+    if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
-    monero_tx::copy(static_pointer_cast<monero_tx>(src), static_pointer_cast<monero_tx>(tgt));
+    monero_tx::copy(std::static_pointer_cast<monero_tx>(src), std::static_pointer_cast<monero_tx>(tgt));
 
     // copy wallet extensions
     tgt->m_tx_set = src->m_tx_set;
     tgt->m_is_incoming = src->m_is_incoming;
     tgt->m_is_outgoing = src->m_is_outgoing;
     if (!src->m_incoming_transfers.empty()) {
-      tgt->m_incoming_transfers = vector<shared_ptr<monero_incoming_transfer>>();
-      for (const shared_ptr<monero_incoming_transfer>& transfer : src->m_incoming_transfers) {
-        shared_ptr<monero_incoming_transfer> transfer_copy = transfer->copy(transfer, make_shared<monero_incoming_transfer>());
+      tgt->m_incoming_transfers = std::vector<std::shared_ptr<monero_incoming_transfer>>();
+      for (const std::shared_ptr<monero_incoming_transfer>& transfer : src->m_incoming_transfers) {
+        std::shared_ptr<monero_incoming_transfer> transfer_copy = transfer->copy(transfer, std::make_shared<monero_incoming_transfer>());
         transfer_copy->m_tx = tgt;
         tgt->m_incoming_transfers.push_back(transfer_copy);
       }
     }
     if (src->m_outgoing_transfer != boost::none) {
-      shared_ptr<monero_outgoing_transfer> transferCopy = src->m_outgoing_transfer.get()->copy(src->m_outgoing_transfer.get(), make_shared<monero_outgoing_transfer>());
+      std::shared_ptr<monero_outgoing_transfer> transferCopy = src->m_outgoing_transfer.get()->copy(src->m_outgoing_transfer.get(), std::make_shared<monero_outgoing_transfer>());
       transferCopy->m_tx = tgt;
       tgt->m_outgoing_transfer = transferCopy;
     }
@@ -250,12 +248,12 @@ namespace monero {
     return tgt;
   };
 
-  void monero_tx_wallet::merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other) {
-    merge(static_pointer_cast<monero_tx_wallet>(self), static_pointer_cast<monero_tx_wallet>(other));
+  void monero_tx_wallet::merge(const std::shared_ptr<monero_tx>& self, const std::shared_ptr<monero_tx>& other) {
+    merge(std::static_pointer_cast<monero_tx_wallet>(self), std::static_pointer_cast<monero_tx_wallet>(other));
   }
 
-  void monero_tx_wallet::merge(const shared_ptr<monero_tx_wallet>& self, const shared_ptr<monero_tx_wallet>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_tx_wallet::merge(const std::shared_ptr<monero_tx_wallet>& self, const std::shared_ptr<monero_tx_wallet>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge base classes
@@ -263,7 +261,7 @@ namespace monero {
 
     // merge incoming transfers
     if (!other->m_incoming_transfers.empty()) {
-      for (const shared_ptr<monero_incoming_transfer>& transfer : other->m_incoming_transfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
+      for (const std::shared_ptr<monero_incoming_transfer>& transfer : other->m_incoming_transfers) {  // NOTE: not using reference so std::shared_ptr is not deleted when tx is dereferenced
         transfer->m_tx = self;
         merge_incoming_transfer(self->m_incoming_transfers, transfer);
       }
@@ -289,27 +287,27 @@ namespace monero {
     m_extra_hex = gen_utils::reconcile(m_extra_hex, other->m_extra_hex);
   }
 
-  vector<shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers() const {
+  std::vector<std::shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers() const {
     monero_transfer_query query;
     return get_transfers(query);
   }
 
-  vector<shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers(const monero_transfer_query& query) const {
-    vector<shared_ptr<monero_transfer>> transfers;
+  std::vector<std::shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers(const monero_transfer_query& query) const {
+    std::vector<std::shared_ptr<monero_transfer>> transfers;
     if (m_outgoing_transfer != boost::none && query.meets_criteria(m_outgoing_transfer.get().get())) transfers.push_back(m_outgoing_transfer.get());
-    for (const shared_ptr<monero_transfer>& transfer : m_incoming_transfers) if (query.meets_criteria(transfer.get())) transfers.push_back(transfer);
+    for (const std::shared_ptr<monero_transfer>& transfer : m_incoming_transfers) if (query.meets_criteria(transfer.get())) transfers.push_back(transfer);
     return transfers;
   }
 
-  vector<shared_ptr<monero_transfer>> monero_tx_wallet::filter_transfers(const monero_transfer_query& query) {
+  std::vector<std::shared_ptr<monero_transfer>> monero_tx_wallet::filter_transfers(const monero_transfer_query& query) {
 
     // collect outgoing transfer, erase if excluded
-    vector<shared_ptr<monero_transfer>> transfers;
+    std::vector<std::shared_ptr<monero_transfer>> transfers;
     if (m_outgoing_transfer != boost::none && query.meets_criteria(m_outgoing_transfer.get().get())) transfers.push_back(m_outgoing_transfer.get());
     else m_outgoing_transfer = boost::none;
 
     // collect incoming transfers, erase if excluded
-    vector<shared_ptr<monero_incoming_transfer>>::iterator iter = m_incoming_transfers.begin();
+    std::vector<std::shared_ptr<monero_incoming_transfer>>::iterator iter = m_incoming_transfers.begin();
     while (iter != m_incoming_transfers.end()) {
       if (query.meets_criteria((*iter).get())) {
         transfers.push_back(*iter);
@@ -321,25 +319,25 @@ namespace monero {
     return transfers;
   }
 
-  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet() const {
+  std::vector<std::shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet() const {
     monero_output_query query;
     return get_outputs_wallet(query);
   }
 
-  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet(const monero_output_query& query) const {
-    vector<shared_ptr<monero_output_wallet>> outputs;
-    for (const shared_ptr<monero_output>& output : m_outputs) {
-      shared_ptr<monero_output_wallet> output_wallet = dynamic_pointer_cast<monero_output_wallet>(output);
+  std::vector<std::shared_ptr<monero_output_wallet>> monero_tx_wallet::get_outputs_wallet(const monero_output_query& query) const {
+    std::vector<std::shared_ptr<monero_output_wallet>> outputs;
+    for (const std::shared_ptr<monero_output>& output : m_outputs) {
+      std::shared_ptr<monero_output_wallet> output_wallet = std::dynamic_pointer_cast<monero_output_wallet>(output);
       if (query.meets_criteria(output_wallet.get())) outputs.push_back(output_wallet);
     }
     return outputs;
   }
 
-  vector<shared_ptr<monero_output_wallet>> monero_tx_wallet::filter_outputs_wallet(const monero_output_query& query) {
-    vector<shared_ptr<monero_output_wallet>> outputs;
-    vector<shared_ptr<monero_output>>::iterator iter = m_outputs.begin();
+  std::vector<std::shared_ptr<monero_output_wallet>> monero_tx_wallet::filter_outputs_wallet(const monero_output_query& query) {
+    std::vector<std::shared_ptr<monero_output_wallet>> outputs;
+    std::vector<std::shared_ptr<monero_output>>::iterator iter = m_outputs.begin();
     while (iter != m_outputs.end()) {
-      shared_ptr<monero_output_wallet> output_wallet = dynamic_pointer_cast<monero_output_wallet>(*iter);
+      std::shared_ptr<monero_output_wallet> output_wallet = std::dynamic_pointer_cast<monero_output_wallet>(*iter);
       if (query.meets_criteria(output_wallet.get())) {
         outputs.push_back(output_wallet);
         iter++;
@@ -380,89 +378,89 @@ namespace monero {
     return root;
   }
 
-  void monero_tx_query::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_tx_query>& tx_query) {
+  void monero_tx_query::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_tx_query>& tx_query) {
     monero_tx_wallet::from_property_tree(node, tx_query);
 
     // initialize query from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("isOutgoing")) tx_query->m_is_outgoing = it->second.get_value<bool>();
-      else if (key == string("isIncoming")) tx_query->m_is_incoming = it->second.get_value<bool>();
-      else if (key == string("hashes")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_hashes.push_back(it2->second.data());
-      else if (key == string("hasPaymentId")) tx_query->m_has_payment_id = it->second.get_value<bool>();
-      else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_payment_ids.push_back(it2->second.data());
-      else if (key == string("height")) tx_query->m_height = it->second.get_value<uint64_t>();
-      else if (key == string("minHeight")) tx_query->m_min_height = it->second.get_value<uint64_t>();
-      else if (key == string("maxHeight")) tx_query->m_max_height = it->second.get_value<uint64_t>();
-      else if (key == string("includeOutputs")) tx_query->m_include_outputs = it->second.get_value<bool>();
-      else if (key == string("transferQuery")) {
-        tx_query->m_transfer_query = make_shared<monero_transfer_query>();
+      std::string key = it->first;
+      if (key == std::string("isOutgoing")) tx_query->m_is_outgoing = it->second.get_value<bool>();
+      else if (key == std::string("isIncoming")) tx_query->m_is_incoming = it->second.get_value<bool>();
+      else if (key == std::string("hashes")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_hashes.push_back(it2->second.data());
+      else if (key == std::string("hasPaymentId")) tx_query->m_has_payment_id = it->second.get_value<bool>();
+      else if (key == std::string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_payment_ids.push_back(it2->second.data());
+      else if (key == std::string("height")) tx_query->m_height = it->second.get_value<uint64_t>();
+      else if (key == std::string("minHeight")) tx_query->m_min_height = it->second.get_value<uint64_t>();
+      else if (key == std::string("maxHeight")) tx_query->m_max_height = it->second.get_value<uint64_t>();
+      else if (key == std::string("includeOutputs")) tx_query->m_include_outputs = it->second.get_value<bool>();
+      else if (key == std::string("transferQuery")) {
+        tx_query->m_transfer_query = std::make_shared<monero_transfer_query>();
         monero_transfer_query::from_property_tree(it->second, tx_query->m_transfer_query.get());
         tx_query->m_transfer_query.get()->m_tx_query = tx_query;
       }
-      else if (key == string("outputQuery")) {
-        tx_query->m_output_query = make_shared<monero_output_query>();
+      else if (key == std::string("outputQuery")) {
+        tx_query->m_output_query = std::make_shared<monero_output_query>();
         monero_output_query::from_property_tree(it->second, tx_query->m_output_query.get());
         tx_query->m_output_query.get()->m_tx_query = tx_query;
       }
     }
   }
 
-  shared_ptr<monero_tx_query> monero_tx_query::deserialize_from_block(const string& tx_query_json) {
+  std::shared_ptr<monero_tx_query> monero_tx_query::deserialize_from_block(const std::string& tx_query_json) {
 
-    // deserialize tx query string to property rooted at block
+    // deserialize tx query std::string to property rooted at block
     std::istringstream iss = tx_query_json.empty() ? std::istringstream() : std::istringstream(tx_query_json);
     boost::property_tree::ptree block_node;
     boost::property_tree::read_json(iss, block_node);
 
     // convert query property tree to block
-    shared_ptr<monero_block> block = node_to_block_query(block_node);
+    std::shared_ptr<monero_block> block = node_to_block_query(block_node);
 
     // get tx query
-    shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
+    std::shared_ptr<monero_tx_query> tx_query = std::static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
     // return deserialized query
     return tx_query;
   }
 
-  shared_ptr<monero_tx_query> monero_tx_query::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const {
-    return copy(static_pointer_cast<monero_tx_query>(src), static_pointer_cast<monero_tx_query>(tgt));
+  std::shared_ptr<monero_tx_query> monero_tx_query::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt) const {
+    return copy(std::static_pointer_cast<monero_tx_query>(src), std::static_pointer_cast<monero_tx_query>(tgt));
   };
 
-  shared_ptr<monero_tx_query> monero_tx_query::copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const {
-    return copy(static_pointer_cast<monero_tx_query>(src), static_pointer_cast<monero_tx_query>(tgt));
+  std::shared_ptr<monero_tx_query> monero_tx_query::copy(const std::shared_ptr<monero_tx_wallet>& src, const std::shared_ptr<monero_tx_wallet>& tgt) const {
+    return copy(std::static_pointer_cast<monero_tx_query>(src), std::static_pointer_cast<monero_tx_query>(tgt));
   };
 
-  shared_ptr<monero_tx_query> monero_tx_query::copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt) const {
-    MTRACE("monero_tx_query::copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt)");
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_tx_query> monero_tx_query::copy(const std::shared_ptr<monero_tx_query>& src, const std::shared_ptr<monero_tx_query>& tgt) const {
+    MTRACE("monero_tx_query::copy(const std::shared_ptr<monero_tx_query>& src, const std::shared_ptr<monero_tx_query>& tgt)");
+    if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
-    monero_tx_wallet::copy(static_pointer_cast<monero_tx>(src), static_pointer_cast<monero_tx>(tgt));
+    monero_tx_wallet::copy(std::static_pointer_cast<monero_tx>(src), std::static_pointer_cast<monero_tx>(tgt));
 
     // copy query extensions
     tgt->m_is_outgoing = src->m_is_outgoing;
     tgt->m_is_incoming = src->m_is_incoming;
-    if (!src->m_hashes.empty()) tgt->m_hashes = vector<string>(src->m_hashes);
+    if (!src->m_hashes.empty()) tgt->m_hashes = std::vector<std::string>(src->m_hashes);
     tgt-> m_has_payment_id = src->m_has_payment_id;
-    if (!src->m_payment_ids.empty()) tgt->m_payment_ids = vector<string>(src->m_payment_ids);
+    if (!src->m_payment_ids.empty()) tgt->m_payment_ids = std::vector<std::string>(src->m_payment_ids);
     tgt->m_height = src->m_height;
     tgt->m_min_height = src->m_min_height;
     tgt->m_max_height = src->m_max_height;
     tgt->m_include_outputs = src->m_include_outputs;
     if (src->m_transfer_query != boost::none) {
-      tgt->m_transfer_query = src->m_transfer_query.get()->copy(src->m_transfer_query.get(), make_shared<monero_transfer_query>());
+      tgt->m_transfer_query = src->m_transfer_query.get()->copy(src->m_transfer_query.get(), std::make_shared<monero_transfer_query>());
       tgt->m_transfer_query.get()->m_tx_query = tgt;
     }
     if (src->m_output_query != boost::none) {
-      tgt->m_output_query = src->m_output_query.get()->copy(src->m_output_query.get(), make_shared<monero_output_query>());
+      tgt->m_output_query = src->m_output_query.get()->copy(src->m_output_query.get(), std::make_shared<monero_output_query>());
       tgt->m_output_query.get()->m_tx_query = tgt;
     }
     return tgt;
   };
 
   bool monero_tx_query::meets_criteria(monero_tx_wallet* tx, bool query_children) const {
-    if (tx == nullptr) throw runtime_error("nullptr given to monero_tx_query::meets_criteria()");
+    if (tx == nullptr) throw std::runtime_error("nullptr given to monero_tx_query::meets_criteria()");
 
     // filter on tx
     if (m_hash != boost::none && m_hash != tx->m_hash) return false;
@@ -502,7 +500,7 @@ namespace monero {
       bool match_found = false;
       if (tx->m_outgoing_transfer != boost::none && m_transfer_query.get()->meets_criteria(tx->m_outgoing_transfer.get().get())) match_found = true;
       else if (!tx->m_incoming_transfers.empty()) {
-        for (const shared_ptr<monero_incoming_transfer>& incoming_transfer : tx->m_incoming_transfers) {
+        for (const std::shared_ptr<monero_incoming_transfer>& incoming_transfer : tx->m_incoming_transfers) {
           if (m_transfer_query.get()->meets_criteria(incoming_transfer.get(), false)) {
             match_found = true;
             break;
@@ -516,8 +514,8 @@ namespace monero {
     if (m_output_query != boost::none) {
       if (tx->m_outputs.empty()) return false;
       bool match_found = false;
-      for (const shared_ptr<monero_output>& output : tx->m_outputs) {
-        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(output);
+      for (const std::shared_ptr<monero_output>& output : tx->m_outputs) {
+        std::shared_ptr<monero_output_wallet> vout_wallet = std::static_pointer_cast<monero_output_wallet>(output);
         if (m_output_query.get()->meets_criteria(vout_wallet.get(), false)) {
           match_found = true;
           break;
@@ -541,7 +539,7 @@ namespace monero {
     rapidjson::Value value_num(rapidjson::kNumberType);
     if (m_amount != boost::none) monero_utils::addJsonMember("amount", m_amount.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
 
@@ -549,17 +547,17 @@ namespace monero {
     return root;
   }
 
-  void monero_destination::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_destination>& destination) {
+  void monero_destination::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_destination>& destination) {
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("address")) destination->m_address = it->second.data();
-      else if (key == string("amount")) destination->m_amount = it->second.get_value<uint64_t>();
+      std::string key = it->first;
+      if (key == std::string("address")) destination->m_address = it->second.data();
+      else if (key == std::string("amount")) destination->m_amount = it->second.get_value<uint64_t>();
     }
   }
 
-  shared_ptr<monero_destination> monero_destination::copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt) const {
-    MTRACE("monero_destination::copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt)");
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_destination> monero_destination::copy(const std::shared_ptr<monero_destination>& src, const std::shared_ptr<monero_destination>& tgt) const {
+    MTRACE("monero_destination::copy(const std::shared_ptr<monero_destination>& src, const std::shared_ptr<monero_destination>& tgt)");
+    if (this != src.get()) throw std::runtime_error("this != src");
     tgt->m_address = src->m_address;
     tgt->m_amount = src->m_amount;
     return tgt;
@@ -572,7 +570,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_multisig_tx_hex != boost::none) monero_utils::addJsonMember("multisigTxHex", m_multisig_tx_hex.get(), allocator, root, value_str);
     if (m_unsigned_tx_hex != boost::none) monero_utils::addJsonMember("unsignedTxHex", m_unsigned_tx_hex.get(), allocator, root, value_str);
@@ -585,7 +583,7 @@ namespace monero {
     return root;
   }
 
-  monero_tx_set monero_tx_set::deserialize(const string& tx_set_json) {
+  monero_tx_set monero_tx_set::deserialize(const std::string& tx_set_json) {
 
     // deserialize tx set to property
     std::istringstream iss = tx_set_json.empty() ? std::istringstream() : std::istringstream(tx_set_json);
@@ -595,18 +593,18 @@ namespace monero {
     // initialize tx_set from property node
     monero_tx_set tx_set;
     for (boost::property_tree::ptree::const_iterator it = tx_set_node.begin(); it != tx_set_node.end(); ++it) {
-      string key = it->first;
-      if (key == string("unsignedTxHex")) tx_set.m_unsigned_tx_hex = it->second.data();
-      else if (key == string("multisigTxHex")) tx_set.m_multisig_tx_hex = it->second.data();
-      else if (key == string("txs")) {
+      std::string key = it->first;
+      if (key == std::string("unsignedTxHex")) tx_set.m_unsigned_tx_hex = it->second.data();
+      else if (key == std::string("multisigTxHex")) tx_set.m_multisig_tx_hex = it->second.data();
+      else if (key == std::string("txs")) {
         boost::property_tree::ptree txs_node = it->second;
         for (boost::property_tree::ptree::const_iterator it2 = txs_node.begin(); it2 != txs_node.end(); ++it2) {
-          shared_ptr<monero_tx_wallet> tx_wallet = make_shared<monero_tx_wallet>();
+          std::shared_ptr<monero_tx_wallet> tx_wallet = std::make_shared<monero_tx_wallet>();
           monero_tx_wallet::from_property_tree(it2->second, tx_wallet);
           tx_set.m_txs.push_back(tx_wallet);
         }
       }
-      else throw runtime_error("monero_utils::deserialize_tx_set() field '" + key + "' not supported");
+      else throw std::runtime_error("monero_utils::deserialize_tx_set() field '" + key + "' not supported");
     }
 
     return tx_set;
@@ -629,17 +627,17 @@ namespace monero {
     return root;
   }
 
-  void monero_transfer::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_transfer>& transfer) {
+  void monero_transfer::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_transfer>& transfer) {
 
     // initialize transfer from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("accountIndex")) transfer->m_account_index = it->second.get_value<uint32_t>();
+      std::string key = it->first;
+      if (key == std::string("accountIndex")) transfer->m_account_index = it->second.get_value<uint32_t>();
     }
   }
 
-  shared_ptr<monero_transfer> monero_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const {
-    MTRACE("monero_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt)");
+  std::shared_ptr<monero_transfer> monero_transfer::copy(const std::shared_ptr<monero_transfer>& src, const std::shared_ptr<monero_transfer>& tgt) const {
+    MTRACE("monero_transfer::copy(const std::shared_ptr<monero_transfer>& src, const std::shared_ptr<monero_transfer>& tgt)");
     tgt->m_tx = src->m_tx;  // reference parent tx by default
     tgt->m_amount = src->m_amount;
     tgt->m_account_index = src->m_account_index;
@@ -647,8 +645,8 @@ namespace monero {
     return tgt;
   }
 
-  void monero_transfer::merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other) {
-    if (this != self.get()) throw runtime_error("this != self");
+  void monero_transfer::merge(const std::shared_ptr<monero_transfer>& self, const std::shared_ptr<monero_transfer>& other) {
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge txs if they're different which comes back to merging transfers
@@ -682,7 +680,7 @@ namespace monero {
     rapidjson::Value value_num(rapidjson::kNumberType);
     if (m_subaddress_index != boost::none) monero_utils::addJsonMember("subaddressIndex", m_subaddress_index.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
 
@@ -690,22 +688,22 @@ namespace monero {
     return root;
   }
 
-  shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const {
-    return copy(static_pointer_cast<monero_incoming_transfer>(src), static_pointer_cast<monero_incoming_transfer>(tgt));
+  std::shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const std::shared_ptr<monero_transfer>& src, const std::shared_ptr<monero_transfer>& tgt) const {
+    return copy(std::static_pointer_cast<monero_incoming_transfer>(src), std::static_pointer_cast<monero_incoming_transfer>(tgt));
   }
 
-  shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const shared_ptr<monero_incoming_transfer>& src, const shared_ptr<monero_incoming_transfer>& tgt) const {
-    cout << "monero_incoming_transfer::copy()" << endl;
-    throw runtime_error("monero_incoming_transfer::copy(inTransfer) not implemented");
+  std::shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const std::shared_ptr<monero_incoming_transfer>& src, const std::shared_ptr<monero_incoming_transfer>& tgt) const {
+    std::cout << "monero_incoming_transfer::copy()" << std::endl;
+    throw std::runtime_error("monero_incoming_transfer::copy(inTransfer) not implemented");
   };
 
   boost::optional<bool> monero_incoming_transfer::is_incoming() const { return true; }
 
-  void monero_incoming_transfer::merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other) {
-    merge(static_pointer_cast<monero_incoming_transfer>(self), static_pointer_cast<monero_incoming_transfer>(other));
+  void monero_incoming_transfer::merge(const std::shared_ptr<monero_transfer>& self, const std::shared_ptr<monero_transfer>& other) {
+    merge(std::static_pointer_cast<monero_incoming_transfer>(self), std::static_pointer_cast<monero_incoming_transfer>(other));
   }
 
-  void monero_incoming_transfer::merge(const shared_ptr<monero_incoming_transfer>& self, const shared_ptr<monero_incoming_transfer>& other) {
+  void monero_incoming_transfer::merge(const std::shared_ptr<monero_incoming_transfer>& self, const std::shared_ptr<monero_incoming_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
     m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "incoming transfer m_subaddress_index");
@@ -728,22 +726,22 @@ namespace monero {
     return root;
   }
 
-  shared_ptr<monero_outgoing_transfer> monero_outgoing_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const {
-    return copy(static_pointer_cast<monero_outgoing_transfer>(src), static_pointer_cast<monero_outgoing_transfer>(tgt));
+  std::shared_ptr<monero_outgoing_transfer> monero_outgoing_transfer::copy(const std::shared_ptr<monero_transfer>& src, const std::shared_ptr<monero_transfer>& tgt) const {
+    return copy(std::static_pointer_cast<monero_outgoing_transfer>(src), std::static_pointer_cast<monero_outgoing_transfer>(tgt));
   };
 
-  shared_ptr<monero_outgoing_transfer> monero_outgoing_transfer::copy(const shared_ptr<monero_outgoing_transfer>& src, const shared_ptr<monero_outgoing_transfer>& tgt) const {
-    cout << "monero_outgoing_transfer::copy()" << endl;
-    throw runtime_error("monero_outgoing_transfer::copy(out_transfer) not implemented");
+  std::shared_ptr<monero_outgoing_transfer> monero_outgoing_transfer::copy(const std::shared_ptr<monero_outgoing_transfer>& src, const std::shared_ptr<monero_outgoing_transfer>& tgt) const {
+    std::cout << "monero_outgoing_transfer::copy()" << std::endl;
+    throw std::runtime_error("monero_outgoing_transfer::copy(out_transfer) not implemented");
   };
 
   boost::optional<bool> monero_outgoing_transfer::is_incoming() const { return false; }
 
-  void monero_outgoing_transfer::merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other) {
-    merge(static_pointer_cast<monero_outgoing_transfer>(self), static_pointer_cast<monero_outgoing_transfer>(other));
+  void monero_outgoing_transfer::merge(const std::shared_ptr<monero_transfer>& self, const std::shared_ptr<monero_transfer>& other) {
+    merge(std::static_pointer_cast<monero_outgoing_transfer>(self), std::static_pointer_cast<monero_outgoing_transfer>(other));
   }
 
-  void monero_outgoing_transfer::merge(const shared_ptr<monero_outgoing_transfer>& self, const shared_ptr<monero_outgoing_transfer>& other) {
+  void monero_outgoing_transfer::merge(const std::shared_ptr<monero_outgoing_transfer>& self, const std::shared_ptr<monero_outgoing_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
     m_subaddress_indices = gen_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices);
@@ -766,7 +764,7 @@ namespace monero {
     if (m_is_incoming != boost::none) monero_utils::addJsonMember("isIncoming", m_is_incoming.get(), allocator, root);
     if (m_has_destinations != boost::none) monero_utils::addJsonMember("hasDestinations", m_has_destinations.get(), allocator, root);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
 
@@ -779,45 +777,45 @@ namespace monero {
     return root;
   }
 
-  void monero_transfer_query::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_transfer_query>& transfer_query) {
+  void monero_transfer_query::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_transfer_query>& transfer_query) {
     monero_transfer::from_property_tree(node, transfer_query);
 
     // initialize query from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("isIncoming")) transfer_query->m_is_incoming = it->second.get_value<bool>();
-      else if (key == string("address")) transfer_query->m_address = it->second.data();
-      else if (key == string("addresses")) throw runtime_error("addresses not implemented");
-      else if (key == string("subaddressIndex")) transfer_query->m_subaddress_index = it->second.get_value<uint32_t>();
-      else if (key == string("subaddressIndices")) {
-        vector<uint32_t> m_subaddress_indices;
+      std::string key = it->first;
+      if (key == std::string("isIncoming")) transfer_query->m_is_incoming = it->second.get_value<bool>();
+      else if (key == std::string("address")) transfer_query->m_address = it->second.data();
+      else if (key == std::string("addresses")) throw std::runtime_error("addresses not implemented");
+      else if (key == std::string("subaddressIndex")) transfer_query->m_subaddress_index = it->second.get_value<uint32_t>();
+      else if (key == std::string("subaddressIndices")) {
+        std::vector<uint32_t> m_subaddress_indices;
         for (const auto& child : it->second) m_subaddress_indices.push_back(child.second.get_value<uint32_t>());
         transfer_query->m_subaddress_indices = m_subaddress_indices;
       }
-      else if (key == string("destinations")) throw runtime_error("destinations not implemented");
-      else if (key == string("hasDestinations")) transfer_query->m_has_destinations = it->second.get_value<bool>();
-      else if (key == string("txQuery")) throw runtime_error("txQuery not implemented");
+      else if (key == std::string("destinations")) throw std::runtime_error("destinations not implemented");
+      else if (key == std::string("hasDestinations")) transfer_query->m_has_destinations = it->second.get_value<bool>();
+      else if (key == std::string("txQuery")) throw std::runtime_error("txQuery not implemented");
     }
   }
 
-  shared_ptr<monero_transfer_query> monero_transfer_query::deserialize_from_block(const string& transfer_query_json) {
+  std::shared_ptr<monero_transfer_query> monero_transfer_query::deserialize_from_block(const std::string& transfer_query_json) {
 
-    // deserialize transfer query string to property rooted at block
+    // deserialize transfer query std::string to property rooted at block
     std::istringstream iss = transfer_query_json.empty() ? std::istringstream() : std::istringstream(transfer_query_json);
     boost::property_tree::ptree blockNode;
     boost::property_tree::read_json(iss, blockNode);
 
     // convert query property tree to block
-    shared_ptr<monero_block> block = node_to_block_query(blockNode);
+    std::shared_ptr<monero_block> block = node_to_block_query(blockNode);
 
     // return empty query if no txs
-    if (block->m_txs.empty()) return make_shared<monero_transfer_query>();
+    if (block->m_txs.empty()) return std::make_shared<monero_transfer_query>();
 
     // get tx query
-    shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
+    std::shared_ptr<monero_tx_query> tx_query = std::static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
     // get / create transfer query
-    shared_ptr<monero_transfer_query> transfer_query = tx_query->m_transfer_query == boost::none ? make_shared<monero_transfer_query>() : *tx_query->m_transfer_query;
+    std::shared_ptr<monero_transfer_query> transfer_query = tx_query->m_transfer_query == boost::none ? std::make_shared<monero_transfer_query>() : *tx_query->m_transfer_query;
 
     // set transfer query's tx query
     transfer_query->m_tx_query = tx_query;
@@ -826,26 +824,26 @@ namespace monero {
     return transfer_query;
   }
 
-  shared_ptr<monero_transfer_query> monero_transfer_query::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const {
-    return copy(static_pointer_cast<monero_transfer_query>(src), static_pointer_cast<monero_transfer>(tgt));
+  std::shared_ptr<monero_transfer_query> monero_transfer_query::copy(const std::shared_ptr<monero_transfer>& src, const std::shared_ptr<monero_transfer>& tgt) const {
+    return copy(std::static_pointer_cast<monero_transfer_query>(src), std::static_pointer_cast<monero_transfer>(tgt));
   };
 
-  shared_ptr<monero_transfer_query> monero_transfer_query::copy(const shared_ptr<monero_transfer_query>& src, const shared_ptr<monero_transfer_query>& tgt) const {
-    MTRACE("monero_transfer_query::copy(const shared_ptr<monero_transfer_query>& src, const shared_ptr<monero_transfer_query>& tgt)");
-    if (this != src.get()) throw runtime_error("this != src");
+  std::shared_ptr<monero_transfer_query> monero_transfer_query::copy(const std::shared_ptr<monero_transfer_query>& src, const std::shared_ptr<monero_transfer_query>& tgt) const {
+    MTRACE("monero_transfer_query::copy(const std::shared_ptr<monero_transfer_query>& src, const std::shared_ptr<monero_transfer_query>& tgt)");
+    if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
-    monero_transfer::copy(static_pointer_cast<monero_transfer>(src), static_pointer_cast<monero_transfer>(tgt));
+    monero_transfer::copy(std::static_pointer_cast<monero_transfer>(src), std::static_pointer_cast<monero_transfer>(tgt));
 
     // copy extensions
     tgt->m_is_incoming = src->m_is_incoming;
     tgt->m_address = src->m_address;
-    if (!src->m_addresses.empty()) tgt->m_addresses = vector<string>(src->m_addresses);
+    if (!src->m_addresses.empty()) tgt->m_addresses = std::vector<std::string>(src->m_addresses);
     tgt->m_subaddress_index = src->m_subaddress_index;
-    if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = vector<uint32_t>(src->m_subaddress_indices);
+    if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = std::vector<uint32_t>(src->m_subaddress_indices);
     if (!src->m_destinations.empty()) {
-      for (const shared_ptr<monero_destination>& destination : src->m_destinations) {
-        tgt->m_destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
+      for (const std::shared_ptr<monero_destination>& destination : src->m_destinations) {
+        tgt->m_destinations.push_back(destination->copy(destination, std::make_shared<monero_destination>()));
       }
     }
     tgt->m_has_destinations = src->m_has_destinations;
@@ -854,7 +852,7 @@ namespace monero {
   };
 
   bool monero_transfer_query::meets_criteria(monero_transfer* transfer, bool query_parent) const {
-    if (transfer == nullptr) throw runtime_error("nullptr given to monero_transfer_query::meets_criteria()");
+    if (transfer == nullptr) throw std::runtime_error("nullptr given to monero_transfer_query::meets_criteria()");
 
     // filter on common fields
     if (is_incoming() != boost::none && *is_incoming() != *transfer->is_incoming()) return false;
@@ -880,8 +878,8 @@ namespace monero {
       if (m_address != boost::none && (out_transfer->m_addresses.empty() || find(out_transfer->m_addresses.begin(), out_transfer->m_addresses.end(), *m_address) == out_transfer->m_addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
       if (!m_addresses.empty()) {
         bool intersects = false;
-        for (const string& addressReq : m_addresses) {
-          for (const string& address : out_transfer->m_addresses) {
+        for (const std::string& addressReq : m_addresses) {
+          for (const std::string& address : out_transfer->m_addresses) {
             if (addressReq == address) {
               intersects = true;
               break;
@@ -917,7 +915,7 @@ namespace monero {
     }
 
     // validate type
-    if (inTransfer == nullptr && out_transfer == nullptr) throw runtime_error("Transfer must be monero_incoming_transfer or monero_outgoing_transfer");
+    if (inTransfer == nullptr && out_transfer == nullptr) throw std::runtime_error("Transfer must be monero_incoming_transfer or monero_outgoing_transfer");
 
     // filter with tx query
     if (query_parent && m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(transfer->m_tx.get(), false)) return false;
@@ -946,28 +944,28 @@ namespace monero {
     return root;
   }
 
-  void monero_output_wallet::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output_wallet>& output_wallet) {
+  void monero_output_wallet::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_output_wallet>& output_wallet) {
     monero_output::from_property_tree(node, output_wallet);
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("accountIndex")) output_wallet->m_account_index = it->second.get_value<uint32_t>();
-      else if (key == string("subaddressIndex")) output_wallet->m_subaddress_index = it->second.get_value<uint32_t>();
-      else if (key == string("isSpent")) output_wallet->m_is_spent = it->second.get_value<bool>();
-      else if (key == string("isFrozen")) output_wallet->m_is_frozen = it->second.get_value<bool>();
+      std::string key = it->first;
+      if (key == std::string("accountIndex")) output_wallet->m_account_index = it->second.get_value<uint32_t>();
+      else if (key == std::string("subaddressIndex")) output_wallet->m_subaddress_index = it->second.get_value<uint32_t>();
+      else if (key == std::string("isSpent")) output_wallet->m_is_spent = it->second.get_value<bool>();
+      else if (key == std::string("isFrozen")) output_wallet->m_is_frozen = it->second.get_value<bool>();
     }
   }
 
-  shared_ptr<monero_output_wallet> monero_output_wallet::copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const {
+  std::shared_ptr<monero_output_wallet> monero_output_wallet::copy(const std::shared_ptr<monero_output>& src, const std::shared_ptr<monero_output>& tgt) const {
     MTRACE("monero_output_wallet::copy(output)");
-    return monero_output_wallet::copy(static_pointer_cast<monero_output_wallet>(src), static_pointer_cast<monero_output_wallet>(tgt));
+    return monero_output_wallet::copy(std::static_pointer_cast<monero_output_wallet>(src), std::static_pointer_cast<monero_output_wallet>(tgt));
   };
 
-  shared_ptr<monero_output_wallet> monero_output_wallet::copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const {
+  std::shared_ptr<monero_output_wallet> monero_output_wallet::copy(const std::shared_ptr<monero_output_wallet>& src, const std::shared_ptr<monero_output_wallet>& tgt) const {
     MTRACE("monero_output_wallet::copy(output_wallet)");
-    if (this != src.get()) throw runtime_error("this != src");
+    if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
-    monero_output::copy(static_pointer_cast<monero_output>(src), static_pointer_cast<monero_output>(tgt));
+    monero_output::copy(std::static_pointer_cast<monero_output>(src), std::static_pointer_cast<monero_output>(tgt));
 
     // copy extensions
     tgt->m_account_index = src->m_account_index;
@@ -977,13 +975,13 @@ namespace monero {
     return tgt;
   };
 
-  void monero_output_wallet::merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other) {
-    merge(static_pointer_cast<monero_output_wallet>(self), static_pointer_cast<monero_output_wallet>(other));
+  void monero_output_wallet::merge(const std::shared_ptr<monero_output>& self, const std::shared_ptr<monero_output>& other) {
+    merge(std::static_pointer_cast<monero_output_wallet>(self), std::static_pointer_cast<monero_output_wallet>(other));
   }
 
-  void monero_output_wallet::merge(const shared_ptr<monero_output_wallet>& self, const shared_ptr<monero_output_wallet>& other) {
+  void monero_output_wallet::merge(const std::shared_ptr<monero_output_wallet>& self, const std::shared_ptr<monero_output_wallet>& other) {
     MTRACE("monero_output_wallet::merge(self, other)");
-    if (this != self.get()) throw runtime_error("this != self");
+    if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
     // merge base classes
@@ -1015,37 +1013,37 @@ namespace monero {
     return root;
   }
 
-  void monero_output_query::from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output_query>& output_query) {
+  void monero_output_query::from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_output_query>& output_query) {
     monero_output_wallet::from_property_tree(node, output_query);
 
     // initialize query from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-      else if (key == string("minAmount")) output_query->m_min_amount = it->second.get_value<uint64_t>();
-      else if (key == string("maxAmount")) output_query->m_max_amount = it->second.get_value<uint64_t>();
-      else if (key == string("txQuery")) {} // ignored
+      std::string key = it->first;
+      if (key == std::string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+      else if (key == std::string("minAmount")) output_query->m_min_amount = it->second.get_value<uint64_t>();
+      else if (key == std::string("maxAmount")) output_query->m_max_amount = it->second.get_value<uint64_t>();
+      else if (key == std::string("txQuery")) {} // ignored
     }
   }
 
-  shared_ptr<monero_output_query> monero_output_query::deserialize_from_block(const string& output_query_json) {
+  std::shared_ptr<monero_output_query> monero_output_query::deserialize_from_block(const std::string& output_query_json) {
 
-    // deserialize output query string to property rooted at block
+    // deserialize output query std::string to property rooted at block
     std::istringstream iss = output_query_json.empty() ? std::istringstream() : std::istringstream(output_query_json);
     boost::property_tree::ptree blockNode;
     boost::property_tree::read_json(iss, blockNode);
 
     // convert query property tree to block
-    shared_ptr<monero_block> block = node_to_block_query(blockNode);
+    std::shared_ptr<monero_block> block = node_to_block_query(blockNode);
 
     // empty query if no txs
-    if (block->m_txs.empty()) return make_shared<monero_output_query>();
+    if (block->m_txs.empty()) return std::make_shared<monero_output_query>();
 
     // get tx query
-    shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
+    std::shared_ptr<monero_tx_query> tx_query = std::static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
     // get / create output query
-    shared_ptr<monero_output_query> output_query = tx_query->m_output_query == boost::none ? make_shared<monero_output_query>() : *tx_query->m_output_query;
+    std::shared_ptr<monero_output_query> output_query = tx_query->m_output_query == boost::none ? std::make_shared<monero_output_query>() : *tx_query->m_output_query;
 
     // set output query's tx query
     output_query->m_tx_query = tx_query;
@@ -1054,23 +1052,23 @@ namespace monero {
     return output_query;
   }
 
-  shared_ptr<monero_output_query> monero_output_query::copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const {
-    return monero_output_query::copy(static_pointer_cast<monero_output_query>(src), static_pointer_cast<monero_output_query>(tgt));
+  std::shared_ptr<monero_output_query> monero_output_query::copy(const std::shared_ptr<monero_output>& src, const std::shared_ptr<monero_output>& tgt) const {
+    return monero_output_query::copy(std::static_pointer_cast<monero_output_query>(src), std::static_pointer_cast<monero_output_query>(tgt));
   };
 
-  shared_ptr<monero_output_query> monero_output_query::copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const {
-    return monero_output_query::copy(static_pointer_cast<monero_output_query>(src), static_pointer_cast<monero_output_query>(tgt));
+  std::shared_ptr<monero_output_query> monero_output_query::copy(const std::shared_ptr<monero_output_wallet>& src, const std::shared_ptr<monero_output_wallet>& tgt) const {
+    return monero_output_query::copy(std::static_pointer_cast<monero_output_query>(src), std::static_pointer_cast<monero_output_query>(tgt));
   };
 
-  shared_ptr<monero_output_query> monero_output_query::copy(const shared_ptr<monero_output_query>& src, const shared_ptr<monero_output_query>& tgt) const {
+  std::shared_ptr<monero_output_query> monero_output_query::copy(const std::shared_ptr<monero_output_query>& src, const std::shared_ptr<monero_output_query>& tgt) const {
     MTRACE("monero_output_query::copy(output_query)");
-    if (this != src.get()) throw runtime_error("this != src");
+    if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
-    monero_output_wallet::copy(static_pointer_cast<monero_output>(src), static_pointer_cast<monero_output>(tgt));
+    monero_output_wallet::copy(std::static_pointer_cast<monero_output>(src), std::static_pointer_cast<monero_output>(tgt));
 
     // copy extensions
-    if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = vector<uint32_t>(src->m_subaddress_indices);
+    if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = std::vector<uint32_t>(src->m_subaddress_indices);
     tgt->m_min_amount = src->m_min_amount;
     tgt->m_max_amount = src->m_max_amount;
     tgt->m_tx_query = src->m_tx_query;
@@ -1078,7 +1076,7 @@ namespace monero {
   };
 
   bool monero_output_query::meets_criteria(monero_output_wallet* output, bool query_parent) const {
-    if (output == nullptr) throw runtime_error("nullptr given to monero_output_query::meets_criteria()");
+    if (output == nullptr) throw std::runtime_error("nullptr given to monero_output_query::meets_criteria()");
 
     // filter on output
     if (m_account_index != boost::none && (output->m_account_index == boost::none || *m_account_index != *output->m_account_index)) return false;
@@ -1099,7 +1097,7 @@ namespace monero {
     if (m_max_amount != boost::none && (output->m_amount == boost::none || output->m_amount.get() > m_max_amount.get())) return false;
 
     // filter with tx query
-    if (query_parent && m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(static_pointer_cast<monero_tx_wallet>(output->m_tx).get(), false)) return false;
+    if (query_parent && m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(std::static_pointer_cast<monero_tx_wallet>(output->m_tx).get(), false)) return false;
 
     // output meets query
     return true;
@@ -1111,8 +1109,8 @@ namespace monero {
     m_address = config.m_address;
     m_amount = config.m_amount;
     if (config.m_destinations.size() > 0) {
-      for (const shared_ptr<monero_destination>& destination : config.m_destinations) {
-        m_destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
+      for (const std::shared_ptr<monero_destination>& destination : config.m_destinations) {
+        m_destinations.push_back(destination->copy(destination, std::make_shared<monero_destination>()));
       }
     }
     m_payment_id = config.m_payment_id;
@@ -1148,7 +1146,7 @@ namespace monero {
     if (m_unlock_time != boost::none) monero_utils::addJsonMember("unlockTime", m_unlock_time.get(), allocator, root, value_num);
     if (m_below_amount != boost::none) monero_utils::addJsonMember("belowAmount", m_below_amount.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_payment_id != boost::none) monero_utils::addJsonMember("paymentId", m_payment_id.get(), allocator, root, value_str);
     if (m_note != boost::none) monero_utils::addJsonMember("note", m_note.get(), allocator, root, value_str);
@@ -1168,7 +1166,7 @@ namespace monero {
     return root;
   }
 
-  shared_ptr<monero_tx_config> monero_tx_config::deserialize(const string& config_json) {
+  std::shared_ptr<monero_tx_config> monero_tx_config::deserialize(const std::string& config_json) {
 
     // deserialize config json to property node
     std::istringstream iss = config_json.empty() ? std::istringstream() : std::istringstream(config_json);
@@ -1176,53 +1174,53 @@ namespace monero {
     boost::property_tree::read_json(iss, node);
 
     // convert config property tree to monero_tx_config
-    shared_ptr<monero_tx_config> config = make_shared<monero_tx_config>();
+    std::shared_ptr<monero_tx_config> config = std::make_shared<monero_tx_config>();
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-      string key = it->first;
-      if (key == string("destinations")) {
+      std::string key = it->first;
+      if (key == std::string("destinations")) {
         boost::property_tree::ptree destinationsNode = it->second;
         for (boost::property_tree::ptree::const_iterator it2 = destinationsNode.begin(); it2 != destinationsNode.end(); ++it2) {
-          shared_ptr<monero_destination> destination = make_shared<monero_destination>();
+          std::shared_ptr<monero_destination> destination = std::make_shared<monero_destination>();
           monero_destination::from_property_tree(it2->second, destination);
           config->m_destinations.push_back(destination);
         }
       }
-      else if (key == string("paymentId")) config->m_payment_id = it->second.data();
-      else if (key == string("priority")) {
+      else if (key == std::string("paymentId")) config->m_payment_id = it->second.data();
+      else if (key == std::string("priority")) {
         uint32_t priority_num = it->second.get_value<uint32_t>();
         if (priority_num == 0) config->m_priority = monero_tx_priority::DEFAULT;
         else if (priority_num == 1) config->m_priority = monero_tx_priority::UNIMPORTANT;
         else if (priority_num == 2) config->m_priority = monero_tx_priority::NORMAL;
         else if (priority_num == 3) config->m_priority = monero_tx_priority::ELEVATED;
-        else throw runtime_error("Invalid priority number: " + std::to_string(priority_num));
+        else throw std::runtime_error("Invalid priority number: " + std::to_string(priority_num));
       }
-      else if (key == string("ringSize")) config->m_ring_size = it->second.get_value<uint32_t>();
-      else if (key == string("fee")) config->m_fee = it->second.get_value<uint64_t>();
-      else if (key == string("accountIndex")) config->m_account_index = it->second.get_value<uint32_t>();
-      else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) config->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-      else if (key == string("unlockTime")) config->m_unlock_time = it->second.get_value<uint64_t>();
-      else if (key == string("canSplit")) config->m_can_split = it->second.get_value<bool>();
-      else if (key == string("relay")) config->m_relay = it->second.get_value<bool>();
-      else if (key == string("note")) config->m_note = it->second.data();
-      else if (key == string("recipientName")) config->m_recipient_name = it->second.data();
-      else if (key == string("belowAmount")) config->m_below_amount = it->second.get_value<uint64_t>();
-      else if (key == string("sweepEachSubaddress")) config->m_sweep_each_subaddress = it->second.get_value<bool>();
-      else if (key == string("keyImage")) config->m_key_image = it->second.data();
+      else if (key == std::string("ringSize")) config->m_ring_size = it->second.get_value<uint32_t>();
+      else if (key == std::string("fee")) config->m_fee = it->second.get_value<uint64_t>();
+      else if (key == std::string("accountIndex")) config->m_account_index = it->second.get_value<uint32_t>();
+      else if (key == std::string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) config->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+      else if (key == std::string("unlockTime")) config->m_unlock_time = it->second.get_value<uint64_t>();
+      else if (key == std::string("canSplit")) config->m_can_split = it->second.get_value<bool>();
+      else if (key == std::string("relay")) config->m_relay = it->second.get_value<bool>();
+      else if (key == std::string("note")) config->m_note = it->second.data();
+      else if (key == std::string("recipientName")) config->m_recipient_name = it->second.data();
+      else if (key == std::string("belowAmount")) config->m_below_amount = it->second.get_value<uint64_t>();
+      else if (key == std::string("sweepEachSubaddress")) config->m_sweep_each_subaddress = it->second.get_value<bool>();
+      else if (key == std::string("keyImage")) config->m_key_image = it->second.data();
     }
 
     return config;
   }
 
-  vector<shared_ptr<monero_destination>> monero_tx_config::get_normalized_destinations() const {
+  std::vector<std::shared_ptr<monero_destination>> monero_tx_config::get_normalized_destinations() const {
     if (m_address == boost::none && m_amount == boost::none) return m_destinations;
     else if (m_destinations.empty()) {
-      vector<shared_ptr<monero_destination>> destinations;
+      std::vector<std::shared_ptr<monero_destination>> destinations;
       destinations.push_back(std::make_shared<monero_destination>(m_address, m_amount));
       return destinations;
     } else {
-      if (m_destinations.size() > 1) throw runtime_error("Invalid tx configuration: single destination address/amount incompatible with multiple destinations");
-      if (m_address != m_destinations[0]->m_address) throw runtime_error("Invalid tx configuration: single destination address does not match first destination address");
-      if (m_amount != m_destinations[0]->m_amount) throw runtime_error("Invalid tx configuration: single destination amount does not match first destination amount");
+      if (m_destinations.size() > 1) throw std::runtime_error("Invalid tx configuration: single destination address/amount incompatible with multiple destinations");
+      if (m_address != m_destinations[0]->m_address) throw std::runtime_error("Invalid tx configuration: single destination address does not match first destination address");
+      if (m_amount != m_destinations[0]->m_amount) throw std::runtime_error("Invalid tx configuration: single destination amount does not match first destination amount");
       return m_destinations;
     }
   }
@@ -1234,7 +1232,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     monero_utils::addJsonMember("standardAddress", m_standard_address, allocator, root, value_str);
     monero_utils::addJsonMember("paymentId", m_payment_id, allocator, root, value_str);
@@ -1335,7 +1333,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
     if (m_multisig_hex != boost::none) monero_utils::addJsonMember("multisigHex", m_multisig_hex.get(), allocator, root, value_str);
@@ -1348,7 +1346,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_signed_multisig_tx_hex != boost::none) monero_utils::addJsonMember("signedMultisigTxHex", m_signed_multisig_tx_hex.get(), allocator, root, value_str);
 
@@ -1370,7 +1368,7 @@ namespace monero {
     rapidjson::Value value_num(rapidjson::kNumberType);
     if (m_index != boost::none) monero_utils::addJsonMember("index", m_index.get(), allocator, root, value_num);
 
-    // set string values
+    // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
     if (m_description != boost::none) monero_utils::addJsonMember("description", m_description.get(), allocator, root, value_str);

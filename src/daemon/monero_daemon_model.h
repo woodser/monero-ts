@@ -58,8 +58,6 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-using namespace std;
-
 /**
  * Public interface for libmonero-cpp library.
  */
@@ -71,11 +69,11 @@ namespace monero {
   struct serializable_struct {
 
     /**
-     * Serializes the struct to a json string.
+     * Serializes the struct to a json std::string.
      *
-     * @return the struct serialized to a json string
+     * @return the struct serialized to a json std::string
      */
-    string serialize() const;
+    std::string serialize() const;
 
     /**
      * Converts the struct to a rapidjson Value.
@@ -109,11 +107,11 @@ namespace monero {
    * Models a connection to a daemon.
    */
   struct monero_rpc_connection : public serializable_struct {
-    boost::optional<string> m_uri;
-    boost::optional<string> m_username;
-    boost::optional<string> m_password;
+    boost::optional<std::string> m_uri;
+    boost::optional<std::string> m_username;
+    boost::optional<std::string> m_password;
 
-    monero_rpc_connection(const boost::optional<string>& uri = boost::none, const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : m_uri(uri), m_username(username), m_password(password) {}
+    monero_rpc_connection(const boost::optional<std::string>& uri = boost::none, const boost::optional<std::string>& username = boost::none, const boost::optional<std::string>& password = boost::none) : m_uri(uri), m_username(username), m_password(password) {}
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
   };
 
@@ -127,7 +125,7 @@ namespace monero {
    * TODO: a header that is transmitted may have fewer fields like cryptonote::block_header; separate?
    */
   struct monero_block_header : public serializable_struct {
-    boost::optional<string> m_hash;
+    boost::optional<std::string> m_hash;
     boost::optional<uint64_t> m_height;
     boost::optional<uint64_t> m_timestamp;
     boost::optional<uint64_t> m_size;
@@ -139,41 +137,41 @@ namespace monero {
     boost::optional<uint32_t> m_major_version;
     boost::optional<uint32_t> m_minor_version;
     boost::optional<uint32_t> m_nonce;
-    boost::optional<string> m_miner_tx_hash;
+    boost::optional<std::string> m_miner_tx_hash;
     boost::optional<uint32_t> m_num_txs;
     boost::optional<bool> m_orphan_status;
-    boost::optional<string> m_prev_hash;
+    boost::optional<std::string> m_prev_hash;
     boost::optional<uint64_t> m_reward;
-    boost::optional<string> m_pow_hash;
+    boost::optional<std::string> m_pow_hash;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    virtual void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
+    virtual void merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other);
   };
 
   /**
    * Models a Monero block in the blockchain.
    */
   struct monero_block : public monero_block_header {
-    boost::optional<string> m_hex;
-    boost::optional<shared_ptr<monero_tx>> m_miner_tx;
-    vector<shared_ptr<monero_tx>> m_txs;
-    vector<string> m_tx_hashes;
+    boost::optional<std::string> m_hex;
+    boost::optional<std::shared_ptr<monero_tx>> m_miner_tx;
+    std::vector<std::shared_ptr<monero_tx>> m_txs;
+    std::vector<std::string> m_tx_hashes;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
-    void merge(const shared_ptr<monero_block>& self, const shared_ptr<monero_block>& other);
+    void merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other);
+    void merge(const std::shared_ptr<monero_block>& self, const std::shared_ptr<monero_block>& other);
   };
 
   /**
    * Models a Monero transaction on the blockchain.
    */
   struct monero_tx : public serializable_struct {
-    static const string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
-    boost::optional<shared_ptr<monero_block>> m_block;
-    boost::optional<string> m_hash;
+    static const std::string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
+    boost::optional<std::shared_ptr<monero_block>> m_block;
+    boost::optional<std::string> m_hash;
     boost::optional<uint32_t> m_version;
     boost::optional<bool> m_is_miner_tx;
-    boost::optional<string> m_payment_id;
+    boost::optional<std::string> m_payment_id;
     boost::optional<uint64_t> m_fee;
     boost::optional<uint32_t> m_ring_size;
     boost::optional<bool> m_relay;
@@ -185,33 +183,33 @@ namespace monero {
     boost::optional<uint64_t> m_last_relayed_timestamp;
     boost::optional<uint64_t> m_received_timestamp;
     boost::optional<bool> m_is_double_spend_seen;
-    boost::optional<string> m_key;
-    boost::optional<string> m_full_hex;
-    boost::optional<string> m_pruned_hex;
-    boost::optional<string> m_prunable_hex;
-    boost::optional<string> m_prunable_hash;
+    boost::optional<std::string> m_key;
+    boost::optional<std::string> m_full_hex;
+    boost::optional<std::string> m_pruned_hex;
+    boost::optional<std::string> m_prunable_hex;
+    boost::optional<std::string> m_prunable_hash;
     boost::optional<uint64_t> m_size;
     boost::optional<uint64_t> m_weight;
-    vector<shared_ptr<monero_output>> m_inputs;
-    vector<shared_ptr<monero_output>> m_outputs;
-    vector<uint32_t> m_output_indices;
-    boost::optional<string> m_metadata;
-    boost::optional<string> m_common_tx_sets;
-    vector<uint8_t> m_extra;
-    boost::optional<string> m_rct_signatures;   // TODO: implement
-    boost::optional<string> m_rct_sig_prunable;  // TODO: implement
+    std::vector<std::shared_ptr<monero_output>> m_inputs;
+    std::vector<std::shared_ptr<monero_output>> m_outputs;
+    std::vector<uint32_t> m_output_indices;
+    boost::optional<std::string> m_metadata;
+    boost::optional<std::string> m_common_tx_sets;
+    std::vector<uint8_t> m_extra;
+    boost::optional<std::string> m_rct_signatures;   // TODO: implement
+    boost::optional<std::string> m_rct_sig_prunable;  // TODO: implement
     boost::optional<bool> m_is_kept_by_block;
     boost::optional<bool> m_is_failed;
     boost::optional<uint64_t> m_last_failed_height;
-    boost::optional<string> m_last_failed_hash;
+    boost::optional<std::string> m_last_failed_hash;
     boost::optional<uint64_t> m_max_used_block_height;
-    boost::optional<string> m_max_used_block_hash;
-    vector<string> m_signatures;
+    boost::optional<std::string> m_max_used_block_hash;
+    std::vector<std::string> m_signatures;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    static void from_property_tree(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx);
-    shared_ptr<monero_tx> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
-    virtual void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
+    static void from_property_tree(const boost::property_tree::ptree& node, std::shared_ptr<monero_tx> tx);
+    std::shared_ptr<monero_tx> copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt) const;
+    virtual void merge(const std::shared_ptr<monero_tx>& self, const std::shared_ptr<monero_tx>& other);
     boost::optional<uint64_t> get_height() const;
   };
 
@@ -219,30 +217,30 @@ namespace monero {
    * Models a Monero key image.
    */
   struct monero_key_image : public serializable_struct {
-    boost::optional<string> m_hex;
-    boost::optional<string> m_signature;
+    boost::optional<std::string> m_hex;
+    boost::optional<std::string> m_signature;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_key_image>& key_image);
-    static vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);  // TODO: remove this specialty util used once
-    shared_ptr<monero_key_image> copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const;
-    void merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other);
+    static void from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_key_image>& key_image);
+    static std::vector<std::shared_ptr<monero_key_image>> deserialize_key_images(const std::string& key_images_json);  // TODO: remove this specialty util used once
+    std::shared_ptr<monero_key_image> copy(const std::shared_ptr<monero_key_image>& src, const std::shared_ptr<monero_key_image>& tgt) const;
+    void merge(const std::shared_ptr<monero_key_image>& self, const std::shared_ptr<monero_key_image>& other);
   };
 
   /**
    * Models a Monero transaction output.
    */
   struct monero_output : public serializable_struct {
-    shared_ptr<monero_tx> m_tx;
-    boost::optional<shared_ptr<monero_key_image>> m_key_image;
+    std::shared_ptr<monero_tx> m_tx;
+    boost::optional<std::shared_ptr<monero_key_image>> m_key_image;
     boost::optional<uint64_t> m_amount;
     boost::optional<uint64_t> m_index;
-    vector<uint64_t> m_ring_output_indices;
-    boost::optional<string> m_stealth_public_key;
+    std::vector<uint64_t> m_ring_output_indices;
+    boost::optional<std::string> m_stealth_public_key;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
-    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output>& output);
-    shared_ptr<monero_output> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
-    virtual void merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other);
+    static void from_property_tree(const boost::property_tree::ptree& node, const std::shared_ptr<monero_output>& output);
+    std::shared_ptr<monero_output> copy(const std::shared_ptr<monero_output>& src, const std::shared_ptr<monero_output>& tgt) const;
+    virtual void merge(const std::shared_ptr<monero_output>& self, const std::shared_ptr<monero_output>& other);
   };
 }

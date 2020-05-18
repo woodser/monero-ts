@@ -54,8 +54,6 @@
 
 #include "monero_daemon_model.h"
 
-using namespace std;
-
 /**
  * Public library interface.
  */

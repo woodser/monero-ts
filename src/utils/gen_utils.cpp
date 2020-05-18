@@ -51,5 +51,3 @@
  */
 
 #include "gen_utils.h"
-
-using namespace std;

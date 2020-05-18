@@ -56,7 +56,6 @@
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "string_tools.h"
 
-using namespace std;
 using namespace cryptonote;
 using namespace monero_utils;
 
@@ -120,7 +119,7 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
   root.put("status", resp_struct.status);
   root.put("untrusted", resp_struct.untrusted);	// TODO: loss of ints and bools
 
-  // convert root to string // TODO: common utility with serial_bridge
+  // convert root to std::string // TODO: common utility with serial_bridge
   std::stringstream ss;
   boost::property_tree::write_json(ss, root, false/*pretty*/);
   json = ss.str();
@@ -128,38 +127,38 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
 
 // ------------------------------- RAPIDJSON ----------------------------------
 
-string monero_utils::serialize(const rapidjson::Document& doc) {
+std::string monero_utils::serialize(const rapidjson::Document& doc) {
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   doc.Accept(writer);
   return buffer.GetString();
 }
 
-void monero_utils::addJsonMember(string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+void monero_utils::addJsonMember(std::string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   field.SetInt(val);
   root.AddMember(field_key, field, allocator);
 }
 
-void monero_utils::addJsonMember(string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+void monero_utils::addJsonMember(std::string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   field.SetUint64(val);
   root.AddMember(field_key, field, allocator);
 }
 
-void monero_utils::addJsonMember(string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+void monero_utils::addJsonMember(std::string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   field.SetUint64(val);
   root.AddMember(field_key, field, allocator);
 }
 
-void monero_utils::addJsonMember(string key, string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+void monero_utils::addJsonMember(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   field.SetString(val.c_str(), val.size(), allocator);
   root.AddMember(field_key, field, allocator);
 }
 
-void monero_utils::addJsonMember(string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root) {
+void monero_utils::addJsonMember(std::string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   if (val) {
     rapidjson::Value field_val(rapidjson::kTrueType);
@@ -170,17 +169,17 @@ void monero_utils::addJsonMember(string key, bool val, rapidjson::Document::Allo
   }
 }
 
-rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<std::string>& strs) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_str(rapidjson::kStringType);
-  for (const string& str : strs) {
+  for (const std::string& str : strs) {
     value_str.SetString(str.c_str(), str.size(), allocator);
     value_arr.PushBack(value_str, allocator);
   }
   return value_arr;
 }
 
-rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint8_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -191,7 +190,7 @@ rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorTy
 }
 
 // TODO: remove these redundant implementations for different sizes?
-rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint32_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -201,7 +200,7 @@ rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorTy
   return value_arr;
 }
 
-rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint64_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -213,19 +212,19 @@ rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorTy
 
 // ------------------------ PROPERTY TREES ---------------------------
 
-string monero_utils::serialize(const boost::property_tree::ptree& node) {
+std::string monero_utils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
-  string str = ss.str();
+  std::string str = ss.str();
   return str.substr(0, str.size() - 1); // strip newline
 }
 
-void monero_utils::deserialize(const string& json, boost::property_tree::ptree& root) {
+void monero_utils::deserialize(const std::string& json, boost::property_tree::ptree& root) {
   std::istringstream iss = json.empty() ? std::istringstream() : std::istringstream(json);
   try {
     boost::property_tree::read_json(iss, root);
   } catch (std::exception const& e) {
-    throw runtime_error("Invalid JSON");
+    throw std::runtime_error("Invalid JSON");
   }
 }
 
@@ -233,10 +232,10 @@ void monero_utils::deserialize(const string& json, boost::property_tree::ptree& 
 
 // TODO: this is unused
 
-shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
+std::shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
   cryptonote::block temp = cn_block;
-  cout << cryptonote::obj_to_json_str(temp) << endl;
-  shared_ptr<monero_block> block = make_shared<monero_block>();
+  std::cout << cryptonote::obj_to_json_str(temp) << std::endl;
+  std::shared_ptr<monero_block> block = std::make_shared<monero_block>();
   block->m_major_version = cn_block.major_version;
   block->m_minor_version = cn_block.minor_version;
   block->m_timestamp = cn_block.timestamp;
@@ -249,8 +248,8 @@ shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block
   return block;
 }
 
-shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet) {
-  shared_ptr<monero_tx> tx = init_as_tx_wallet ? make_shared<monero_tx_wallet>() : make_shared<monero_tx>();
+std::shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet) {
+  std::shared_ptr<monero_tx> tx = init_as_tx_wallet ? std::make_shared<monero_tx_wallet>() : std::make_shared<monero_tx>();
   tx->m_version = cn_tx.version;
   tx->m_unlock_time = cn_tx.unlock_time;
   tx->m_hash = epee::string_tools::pod_to_hex(cn_tx.hash);
@@ -258,23 +257,23 @@ shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& c
 
   // init inputs
   for (const txin_v& cnVin : cn_tx.vin) {
-    if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
+    if (cnVin.which() != 0 && cnVin.which() != 3) throw std::runtime_error("Unsupported variant type");
     if (tx->m_is_miner_tx == boost::none) tx->m_is_miner_tx = cnVin.which() == 0;
     if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
-    shared_ptr<monero_output> input = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+    std::shared_ptr<monero_output> input = init_as_tx_wallet ? std::make_shared<monero_output_wallet>() : std::make_shared<monero_output>();
     input->m_tx = tx;
     tx->m_inputs.push_back(input);
     const txin_to_key& txin = boost::get<txin_to_key>(cnVin);
     input->m_amount = txin.amount;
     input->m_ring_output_indices = txin.key_offsets;
     crypto::key_image cnKeyImage = txin.k_image;
-    input->m_key_image = make_shared<monero_key_image>();
+    input->m_key_image = std::make_shared<monero_key_image>();
     input->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(cnKeyImage);
   }
 
   // init outputs
   for (const tx_out& cnVout : cn_tx.vout) {
-    shared_ptr<monero_output> output = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+    std::shared_ptr<monero_output> output = init_as_tx_wallet ? std::make_shared<monero_output_wallet>() : std::make_shared<monero_output>();
     output->m_tx = tx;
     tx->m_outputs.push_back(output);
     output->m_amount = cnVout.amount;

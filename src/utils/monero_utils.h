@@ -65,7 +65,6 @@
  */
 namespace monero_utils
 {
-  using namespace std;
   using namespace cryptonote;
 
   // ------------------------ CONSTANTS ---------------------------
@@ -80,16 +79,16 @@ namespace monero_utils
 
   // ------------------------------ RAPIDJSON ---------------------------------
 
-  string serialize(const rapidjson::Document& doc);
+  std::string serialize(const rapidjson::Document& doc);
 
-  void addJsonMember(string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(string key, string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
+  void addJsonMember(std::string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(std::string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(std::string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(std::string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
 
   // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<shared_ptr<T>>& vals) {
+  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<std::shared_ptr<T>>& vals) {
     rapidjson::Value value_arr(rapidjson::kArrayType);
     for (const auto& val : vals) {
       value_arr.PushBack(val->to_rapidjson_val(allocator), allocator);
@@ -98,7 +97,7 @@ namespace monero_utils
   }
 
   // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<T>& vals) {
+  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<T>& vals) {
     rapidjson::Value value_arr(rapidjson::kArrayType);
     for (const auto& val : vals) {
       value_arr.PushBack(val.to_rapidjson_val(allocator), allocator);
@@ -106,21 +105,21 @@ namespace monero_utils
     return value_arr;
   }
 
-  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs);
-  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums);
-  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums);
-  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<std::string>& strs);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint8_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint32_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<uint64_t>& nums);
 
   // ------------------------ PROPERTY TREES ---------------------------
 
   // TODO: fully switch from property trees to rapidjson
 
-  string serialize(const boost::property_tree::ptree& node);
-  void deserialize(const string& json, boost::property_tree::ptree& root);
+  std::string serialize(const boost::property_tree::ptree& node);
+  void deserialize(const std::string& json, boost::property_tree::ptree& root);
 
   // --------------------------------------------------------------------------
 
-  void deserialize(const string& json, boost::property_tree::ptree& root);
+  void deserialize(const std::string& json, boost::property_tree::ptree& root);
 
   /**
    * Convert a Monero Core cryptonote::block to a block in this library's native model.
@@ -128,7 +127,7 @@ namespace monero_utils
    * @param cn_block is the Core block to convert
    * @return a block in this library's native model
    */
-  shared_ptr<monero_block> cn_block_to_block(const cryptonote::block& cn_block);
+  std::shared_ptr<monero_block> cn_block_to_block(const cryptonote::block& cn_block);
 
   /**
    * Convert a Monero Core crpytonote::transaction to a transaction in this library's
@@ -137,10 +136,10 @@ namespace monero_utils
    * @param cn_tx is the Core transaction to convert
    * @param init_as_tx_wallet specifies if a monero_tx xor monero_tx_wallet should be initialized
    */
-  shared_ptr<monero_tx> cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet = false);
+  std::shared_ptr<monero_tx> cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet = false);
 
   /**
-   * Modified from core_rpc_server.cpp to return a string.
+   * Modified from core_rpc_server.cpp to return a std::string.
    *
    * TODO: remove this duplicate, use core_rpc_server instead
    */
@@ -158,15 +157,15 @@ namespace monero_utils
    *
    * @param block is the block to free
    */
-  static void free(shared_ptr<monero_block> block) {
-    for (shared_ptr<monero_tx>& tx : block->m_txs) {
+  static void free(std::shared_ptr<monero_block> block) {
+    for (std::shared_ptr<monero_tx>& tx : block->m_txs) {
       tx->m_block.reset();
       monero_tx_wallet* tx_wallet = dynamic_cast<monero_tx_wallet*>(tx.get());
       if (tx_wallet != nullptr) {
         if (tx_wallet->m_outgoing_transfer != boost::none) tx_wallet->m_outgoing_transfer.get()->m_tx.reset();
-        for (shared_ptr<monero_transfer> transfer : tx_wallet->m_incoming_transfers) transfer->m_tx.reset();
-        for (shared_ptr<monero_output> output : tx_wallet->m_outputs) output->m_tx.reset();
-        for (shared_ptr<monero_output> input : tx_wallet->m_inputs) {
+        for (std::shared_ptr<monero_transfer> transfer : tx_wallet->m_incoming_transfers) transfer->m_tx.reset();
+        for (std::shared_ptr<monero_output> output : tx_wallet->m_outputs) output->m_tx.reset();
+        for (std::shared_ptr<monero_output> input : tx_wallet->m_inputs) {
           input->m_key_image.reset();
           input->m_tx.reset();
         }
@@ -180,8 +179,8 @@ namespace monero_utils
    *
    * @param blocks are blocks to free
    */
-  static void free(vector<shared_ptr<monero_block>> blocks) {
-    for (shared_ptr<monero_block>& block : blocks) monero_utils::free(block);
+  static void free(std::vector<std::shared_ptr<monero_block>> blocks) {
+    for (std::shared_ptr<monero_block>& block : blocks) monero_utils::free(block);
   }
 }
 #endif /* monero_utils_h */
