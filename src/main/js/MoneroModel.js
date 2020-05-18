@@ -5,7 +5,7 @@
  */
 module.exports = function() {
   
-  // import utils
+  // export utils
   this.assert = require("assert");
   this.GenUtils = require("./common/GenUtils");
   this.BigInteger = require("./common/biginteger").BigInteger;

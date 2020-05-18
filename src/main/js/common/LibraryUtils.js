@@ -15,22 +15,41 @@ class LibraryUtils {
   }
   
   /**
+   * Get the total memory used by WebAssembly.
+   * 
+   * @return {int} the total memory used by WebAssembly
+   */
+  static async getWasmMemoryUsed() {
+    let total = 0;
+    if (LibraryUtils.WORKER) total += await LibraryUtils.invokeWorker(GenUtils.getUUID(), "getWasmMemoryUsed", []);
+    if (LibraryUtils.getWasmModule() && LibraryUtils.getWasmModule().HEAP8) total += LibraryUtils.getWasmModule().HEAP8.length;
+    return total;
+  }
+  
+  /**
+   * Get the WebAssembly module in the current context (nodejs, browser main thread or worker).
+   */
+  static getWasmModule() {
+    return LibraryUtils.WASM_MODULE;
+  }
+  
+  /**
    * Load the WebAssembly keys module with caching.
    */
   static async loadKeysModule() {
     
     // use cache if suitable, core module supersedes keys module because it is superset
-    if (MoneroUtils.WASM_MODULE) return MoneroUtils.WASM_MODULE;
+    if (LibraryUtils.WASM_MODULE) return LibraryUtils.WASM_MODULE;
     
     // load module
-    delete MoneroUtils.WASM_MODULE;
-    MoneroUtils.WASM_MODULE = require("../../../../dist/monero_core_keys")();
+    delete LibraryUtils.WASM_MODULE;
+    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_core_keys")();
     return new Promise(function(resolve, reject) {
-      MoneroUtils.WASM_MODULE.then(module => {
-        MoneroUtils.WASM_MODULE = module
-        delete MoneroUtils.WASM_MODULE.then;
-        LibraryUtils._initWasmModule(MoneroUtils.WASM_MODULE);
-        resolve(MoneroUtils.WASM_MODULE);
+      LibraryUtils.WASM_MODULE.then(module => {
+        LibraryUtils.WASM_MODULE = module
+        delete LibraryUtils.WASM_MODULE.then;
+        LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
+        resolve(LibraryUtils.WASM_MODULE);
       });
     });
   }
@@ -45,18 +64,18 @@ class LibraryUtils {
   static async loadCoreModule() {
     
     // use cache if suitable, core module supersedes keys module because it is superset
-    if (MoneroUtils.WASM_MODULE && MoneroUtils.CORE_LOADED) return MoneroUtils.WASM_MODULE;
+    if (LibraryUtils.WASM_MODULE && MoneroUtils.CORE_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
-    delete MoneroUtils.WASM_MODULE;
-    MoneroUtils.WASM_MODULE = require("../../../../dist/monero_core")();
+    delete LibraryUtils.WASM_MODULE;
+    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_core")();
     return new Promise(function(resolve, reject) {
-      MoneroUtils.WASM_MODULE.then(module => {
-        MoneroUtils.WASM_MODULE = module
-        delete MoneroUtils.WASM_MODULE.then;
+      LibraryUtils.WASM_MODULE.then(module => {
+        LibraryUtils.WASM_MODULE = module
+        delete LibraryUtils.WASM_MODULE.then;
         MoneroUtils.CORE_LOADED = true;
-        LibraryUtils._initWasmModule(MoneroUtils.WASM_MODULE);
-        resolve(MoneroUtils.WASM_MODULE);
+        LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
+        resolve(LibraryUtils.WASM_MODULE);
       });
     });
   }
