@@ -846,7 +846,7 @@ class TestMoneroWalletCommon {
           assert.equal(tx.isLocked(), false);
         }
         
-        // get confirmed transactions sent from/to same account with a transfer with destinations
+        // get confirmed transactions sent from/to same wallet with a transfer with destinations
         txs = await that.wallet.getTxs({isIncoming: true, isOutgoing: true, isConfirmed: true, includeOutputs: true, transferQuery: { hasDestinations: true }});
         for (let tx of txs) {
           assert(tx.isIncoming());

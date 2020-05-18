@@ -40,7 +40,7 @@ describe("Scratchpad", function() {
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
       rejectUnauthorized: false
     });
-    await walletWasm.sync();
+    await walletWasm.sync(new WalletSyncPrinter());
     console.log("WASM wallet daemon height: " + await walletWasm.getDaemonHeight());
     console.log("WASM wallet mnemonic: " + await walletWasm.getMnemonic());
     
