@@ -125,7 +125,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== output.getAccountIndex()) return false;
     if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== output.getSubaddressIndex()) return false;
     if (this.getAmount() !== undefined && this.getAmount().compare(output.getAmount()) !== 0) return false;
-    if (this.isSpent() != undefined && this.isSpent() !== output.isSpent()) return false;
+    if (this.isSpent() !== undefined && this.isSpent() !== output.isSpent()) return false;
     
     // filter on output's key image
     if (this.getKeyImage() !== undefined) {
