@@ -2,7 +2,9 @@
 
 ## MoneroWalletRpc
 
-The following example shows how to create a client connected to monero-wallet-rpc then create a wallet on monero-wallet-rpc.  See [createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletRpc.html#createWallet) in MoneroWalletRpc.js for all options.
+This example creates a client connected to monero-wallet-rpc then creates a wallet.
+
+See [MoneroWalletRpc.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletRpc.html#createWallet) for all options.
 
 ```javascript
 
@@ -20,7 +22,9 @@ await walletRpc.createWallet({
 
 ## MoneroWalletWasm
 
-The following example shows creating a wallet using WebAssembly bindings to Monero Core's wallet2.h.  See [createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletWasm.html#createWallet) for all options.
+This example creates a wallet using WebAssembly bindings to Monero Core's wallet2.h.
+
+See [MoneroWalletWasm.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletWasm.html#createWallet) for all options.
 
 ```javascript
 let wallet = await MoneroWalletWasm.createWallet({
@@ -35,7 +39,9 @@ let wallet = await MoneroWalletWasm.createWallet({
 
 ## MoneroWalletKeys
 
-The following example shows creating a wallet which only manages keys using WebAssembly bindings to Monero Core.  See [createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html#createWallet) for all options.
+This example creates a keys-only wallet using WebAssembly bindings to Monero Core.
+
+See [MoneroWalletKeys.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html#createWallet) for all options.
 
 ```javascript
 let wallet = await MoneroWalletKeys.createWallet({
