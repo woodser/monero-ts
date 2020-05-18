@@ -1,4 +1,4 @@
-# Query transactions, transers, and outputs
+# Query transactions, transfers, and outputs
 
 Wallet [transactions, transfers, and outputs](data_model.md) can be queried by their attributes using query objects.
 
