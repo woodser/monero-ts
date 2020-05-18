@@ -14,7 +14,7 @@ This project is a JavaScript library for using Monero with RPC and native bindin
 ### Architecture
 
 <p align="center">
-	<img width="85%" height="auto" src="architecture.png"/><br>
+	<img width="85%" height="auto" src="docs/architecture.png"/><br>
 	<i>Wallet implementations use RPC or WebAssembly bindings to Monero Core and are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
