@@ -215,6 +215,14 @@ add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/src/checkpoints/libcheckpoints.a)
 
+add_library(device STATIC IMPORTED)
+set_target_properties(device PROPERTIES IMPORTED_LOCATION
+    ${MONERO_CORE_BUILD}/src/device/libdevice.a)
+    
+add_library(device_trezor STATIC IMPORTED)
+set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
+    ${MONERO_CORE_BUILD}/src/device_trezor/libdevice_trezor.a)
+
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/src/multisig/libmultisig.a)
@@ -282,6 +290,8 @@ if (BUILD_LIBRARY)
 		blockchain_db
 		blocks
 		checkpoints
+		device
+		device_trezor
 		multisig
 		version
 		randomx
@@ -335,6 +345,8 @@ if (BUILD_SAMPLE)
 		blockchain_db
 		blocks
 		checkpoints
+		device
+		device_trezor
 		multisig
 		version
 		randomx
@@ -388,6 +400,8 @@ if (BUILD_SCRATCHPAD)
 		blockchain_db
 		blocks
 		checkpoints
+		device
+		device_trezor
 		multisig
 		version
 		randomx
