@@ -1,4 +1,4 @@
-## Transactions, transfers, and outputs
+# Transactions, transfers, and outputs
 
 The following JSON demonstrates the relationship among blocks, transactions, transfers, and outputs used in monero-javascript.
 
