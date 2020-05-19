@@ -33,24 +33,24 @@ include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
 message(STATUS EXTERNAL_LIBS_DIR : ${EXTERNAL_LIBS_DIR})
 
-# TODO: remove TRUEs, how are APPLE, DEPENDS, etc initialized?
-if (TRUE OR HIDAPI_FOUND OR LibUSB_COMPILE_TEST_PASSED)
-  if (TRUE OR APPLE)
-    if(TRUE OR DEPENDS)
-      list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")
-    else()
-      find_library(COREFOUNDATION CoreFoundation)
-      find_library(IOKIT IOKit)
-      list(APPEND EXTRA_LIBRARIES ${IOKIT})
-      list(APPEND EXTRA_LIBRARIES ${COREFOUNDATION})
-    endif()
-  endif()
-  if (WIN32)
-    list(APPEND EXTRA_LIBRARIES setupapi)
+####################
+# Extra libraries
+####################
+
+if (APPLE)
+  if (DEPENDS)
+    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")
+  else()
+    find_library(COREFOUNDATION CoreFoundation)
+    find_library(IOKIT IOKit)
+    list(APPEND EXTRA_LIBRARIES ${IOKIT})
+    list(APPEND EXTRA_LIBRARIES ${COREFOUNDATION})
   endif()
 endif()
+if (WIN32)
+  list(APPEND EXTRA_LIBRARIES setupapi)
+endif()
 
-#list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")
 message(STATUS EXTRA_LIBRARIES: ${EXTRA_LIBRARIES})
 
 ############
@@ -215,14 +215,6 @@ add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/src/checkpoints/libcheckpoints.a)
 
-add_library(device STATIC IMPORTED)
-set_target_properties(device PROPERTIES IMPORTED_LOCATION
-    ${MONERO_CORE_BUILD}/src/device/libdevice.a)
-    
-add_library(device_trezor STATIC IMPORTED)
-set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
-    ${MONERO_CORE_BUILD}/src/device_trezor/libdevice_trezor.a)
-
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/src/multisig/libmultisig.a)
@@ -234,24 +226,24 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/external/randomx/librandomx.a)
-
+    
 ########################
 # Build c++ library
 ########################
 
+set(
+    LIBRARY_SRC_FILES
+    src/utils/gen_utils.cpp
+    src/utils/monero_utils.cpp
+    src/daemon/monero_daemon_model.cpp
+    src/daemon/monero_daemon.cpp
+    src/wallet/monero_wallet_model.cpp
+    src/wallet/monero_wallet_keys.cpp
+    src/wallet/monero_wallet_core.cpp
+)
+
 if (BUILD_LIBRARY)
 
-	set(
-	    LIBRARY_SRC_FILES
-	    src/utils/gen_utils.cpp
-	    src/utils/monero_utils.cpp
-	    src/daemon/monero_daemon_model.cpp
-	    src/daemon/monero_daemon.cpp
-	    src/wallet/monero_wallet_model.cpp
-	    src/wallet/monero_wallet_keys.cpp
-	    src/wallet/monero_wallet_core.cpp
-	)
-	
 	add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
 	
 	target_link_libraries(monero-cpp
@@ -290,8 +282,6 @@ if (BUILD_LIBRARY)
 		blockchain_db
 		blocks
 		checkpoints
-		device
-		device_trezor
 		multisig
 		version
 		randomx
@@ -307,7 +297,7 @@ endif()
 if (BUILD_SAMPLE)
 	set(SAMPLE_CODE_SRC_FILES test/sample_code.cpp)
 	
-	add_executable(sample_code ${SAMPLE_CODE_SRC_FILES} ${LIBRARY_SRC_FILES})
+	add_executable(sample_code ${LIBRARY_SRC_FILES} ${SAMPLE_CODE_SRC_FILES})
 	
 	target_link_libraries(sample_code
 	
@@ -345,8 +335,6 @@ if (BUILD_SAMPLE)
 		blockchain_db
 		blocks
 		checkpoints
-		device
-		device_trezor
 		multisig
 		version
 		randomx
@@ -362,7 +350,7 @@ endif()
 if (BUILD_SCRATCHPAD)
 	set(SCRATCHPAD_SRC_FILES test/scratchpad.cpp)
 	
-	add_executable(scratchpad ${SCRATCHPAD_SRC_FILES} ${LIBRARY_SRC_FILES})
+	add_executable(scratchpad ${LIBRARY_SRC_FILES} ${SCRATCHPAD_SRC_FILES})
 	
 	target_link_libraries(scratchpad
 	
@@ -400,8 +388,6 @@ if (BUILD_SCRATCHPAD)
 		blockchain_db
 		blocks
 		checkpoints
-		device
-		device_trezor
 		multisig
 		version
 		randomx

@@ -53,6 +53,8 @@
 #pragma once
 
 #include "monero_wallet_model.h"
+#include <vector>
+#include <set>
 
 using namespace monero;
 

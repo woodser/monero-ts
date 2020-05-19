@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# Make libmonero-cpp.dylib
+# build monero-core dependencies
 cd ./external/monero-core/ && 
 make release-static -j8 &&
 
-# Make libmonero-cpp.dylib
+# build libmonero-cpp shared library
 cd ../../ &&
 mkdir -p build && 
 cd build && 
