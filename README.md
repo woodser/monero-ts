@@ -72,15 +72,16 @@ await walletWasm.addListener(new class extends MoneroWalletListener {
 });
 
 // send funds from RPC wallet to WebAssembly wallet
-let sentTx = await walletRpc.createTx({
+let createdTx = await walletRpc.createTx({
   accountIndex: 0,
   address: await walletWasm.getAddress(1, 0),
   amount: new BigInteger("50000"), // amount to transfer in atomic units
-  relay: true
+  relay: false // create transaction and relay to the network if true
 });
-let txHash = sentTx.getHash();
+let fee = createdTx.getFee(); // "Are you sure you want to send... ?"
+await walletRpc.relayTx(createdTx); // relay the transaction
 
-// wallet receives unconfirmed funds within 10 seconds
+// recipient receives unconfirmed funds within 10 seconds
 await new Promise(function(resolve) { setTimeout(resolve, 10000); });
 assert(fundsReceived);
 
