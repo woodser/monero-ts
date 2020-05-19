@@ -1,6 +1,6 @@
-# Creating Wallets
+## Creating Wallets
 
-## MoneroWalletRpc
+### MoneroWalletRpc
 
 This example creates a client connected to monero-wallet-rpc then creates a wallet.
 
@@ -20,7 +20,7 @@ await walletRpc.createWallet({
 }); 
 ```
 
-## MoneroWalletWasm
+### MoneroWalletWasm
 
 This example creates a wallet using WebAssembly bindings to Monero Core's wallet2.h.
 
@@ -37,7 +37,7 @@ let wallet = await MoneroWalletWasm.createWallet({
 });
 ```
 
-## MoneroWalletKeys
+### MoneroWalletKeys
 
 This example creates a keys-only wallet using WebAssembly bindings to Monero Core.
 
