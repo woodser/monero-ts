@@ -138,7 +138,7 @@ config.m_subaddress_indices = vector<uint32_t>();
 config.m_subaddress_indices.push_back(0);
 config.m_subaddress_indices.push_back(1);  // withdraw funds from these subaddresses within the account
 config.m_priority = monero_tx_priority::UNIMPORTANT;  // no rush
-config.m_relay = true;
+config.m_relay = false;  // create transaction and relay to the network if true
 vector<shared_ptr<monero_destination>> destinations;  // specify the recipients and their amounts
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(1, 0), 50000));
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
@@ -147,7 +147,11 @@ config.m_destinations = destinations;
 // create the transaction, confirm with the user, and relay to the network
 shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(config);
 uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
-wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
+wallet_restored->relay_tx(*created_tx); // recipient receives notification within 10 seconds
+
+// save and close the wallets
+wallet_restored->close(true);
+wallet_random->close(true);
 ```
 
 ## How to Run This Library
