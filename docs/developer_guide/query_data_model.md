@@ -1,8 +1,8 @@
-# Query transactions, transfers, and outputs
+## Query transactions, transfers, and outputs
 
 Wallet [transactions, transfers, and outputs](data_model.md) can be queried by their attributes using query objects.
 
-## Transaction queries
+### Transaction queries
 
 See [MoneroWallet.getTxs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTxs) for all query options.
 
@@ -35,7 +35,7 @@ txs = await wallet.getTxs({
 });
 ```
 
-## Transfer queries
+### Transfer queries
 
 See [MoneroWallet.getTransfers()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTransfers) for all query options.
 
@@ -67,7 +67,7 @@ transfers = await wallet.getTransfers({
 });
 ```
 
-## Output queries
+### Output queries
 
 See [MoneroWallet.getOutputs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getOutputs) for all query options.
 
