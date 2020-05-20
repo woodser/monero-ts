@@ -360,21 +360,21 @@ self.openWalletData = async function(walletId, path, password, networkType, keys
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
-self.createWalletRandom = async function(walletId, path, password, networkType, daemonUriOrConfig, language) {
+self._createWalletRandom = async function(walletId, path, password, networkType, daemonUriOrConfig, language) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.createWalletRandom("", password, networkType, daemonConnection, language, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletRandom("", password, networkType, daemonConnection, language, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
-self.createWalletFromMnemonic = async function(walletId, path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
+self._createWalletFromMnemonic = async function(walletId, path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
-self.createWalletFromKeys = async function(walletId, path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
+self._createWalletFromKeys = async function(walletId, path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
