@@ -121,12 +121,11 @@ await walletWasm.close(true);
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
 * [Query transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Sending funds](docs/developer_guide/sending_funds.md)
+* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
+* View-only and offline wallets
 * Getting started with monero-javascript web browser applications
 * Connecting to Monero nodes and RPC wallet servers
-* Initiating transfers
-* Building client-side wallets with MoneroWalletWasm
-* Managing view-only wallets
-* Using multisig wallets
 * Analyzing the blockchain
 
 ## How to include this library
