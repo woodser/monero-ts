@@ -9,7 +9,7 @@ For a full example of creating and sending funds from multisig wallets, see [thi
 let M = 3;
 let N = 5;
 
-// create participating wallets using WebAssembly
+// create participating wallets using RPC or WebAssembly
 let wallets = []
 for (let i = 0; i < N; i++) {
   wallets.push(await MoneroWalletWasm.createWallet({
