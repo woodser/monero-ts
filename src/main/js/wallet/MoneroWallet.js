@@ -474,7 +474,7 @@ class MoneroWallet {
    * @param {BigInteger} query.minAmount - get outputs greater than or equal to a minimum amount (optional)
    * @param {BigInteger} query.maxAmount - get outputs less than or equal to a maximum amount (optional)
    * @param {boolean} query.isSpent - get outputs that are spent or not (optional)
-   * @param {MoneroKeyImage} query.keyImage - get outputs that match the fields defined in the given key image (optional)
+   * @param {string|MoneroKeyImage} query.keyImage - get output with a key image or which matches fields defined in a MoneroKeyImage (optional)
    * @param {MoneroTxQuery} query.txQuery - get outputs whose transaction meets this filter (optional)
    * @return {MoneroOutputWallet[]} are queried outputs
    */

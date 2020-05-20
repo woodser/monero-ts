@@ -1,6 +1,6 @@
 HIGH (WASM)
 full tests including jni, sweeps
-update javadocs
+update c++ docs
 document creating txs
 testGetReserveProofAccount() exception, re-enable test reserves or report issue
 
