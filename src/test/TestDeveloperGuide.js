@@ -237,7 +237,7 @@ class TestDeveloperGuide {
         
         try {
           // sweep all unlocked funds in a wallet
-          let tx = await wallet.sweepUnlocked({
+          let txs = await wallet.sweepUnlocked({
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
             relay: true
           });
@@ -247,7 +247,7 @@ class TestDeveloperGuide {
         
         try {
           // sweep unlocked funds in an account
-          let tx = await wallet.sweepUnlocked({
+          let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
             relay: true
@@ -258,7 +258,7 @@ class TestDeveloperGuide {
         
         try {
           // sweep unlocked funds in a subaddress
-          let tx = await wallet.sweepUnlocked({
+          let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
             subaddressIndex: 0,
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
