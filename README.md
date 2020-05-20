@@ -1,5 +1,21 @@
 # Monero JavaScript Library
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Sample code](#sample-code)
+- [Developer guide](#developer-guide)
+- [How to include this library](#how-to-include-this-library)
+- [How to run Monero RPC](#how-to-run-monero-rpc)
+- [How to run Mocha tests](#how-to-run-mocha-tests)
+- [How to build WebAssembly files from source](#how-to-build-webassembly-files-from-source)
+- [See also](#see-also)
+- [License](#license)
+- [Donations](#donations)
+
+## Overview
+
 This project is a JavaScript library for using Monero with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
@@ -89,7 +105,9 @@ assert(fundsReceived);
 await walletWasm.close(true);
 ```
 
-## Developer Guide (wip)
+## Developer Guide
+
+(work in progress)
 
 * [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
 * [Getting started](docs/developer_guide/getting_started.md)
@@ -104,13 +122,13 @@ await walletWasm.close(true);
 * Using multisig wallets
 * Analyzing the blockchain
 
-## How to Use This Library
+## How to include this library
 
 1. `cd your/npm/project` or `mkdir your/npm/project && cd your/npm/project && npm init`
 2. `npm install monero-javascript`
 3. Add `require("monero-javascript")` to your code
 
-## How to Run Monero RPC
+## How to run Monero RPC
 
 1. Download and extract the latest [Monero CLI](https://getmonero.org/downloads/) for your platform.
 2. Start Monero daemon locally: `./monerod --stagenet` (or use a remote daemon).
@@ -121,14 +139,14 @@ await walletWasm.close(true);
 	
 	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
-## How to Run Mocha Tests
+## How to run Mocha tests
 
-1. Download this project and install its dependenices.  See [How to Use This Library](#how-to-use-this-library).
-2. Run monero-wallet-rpc and monero-daemon-rpc.  See [How to Run Monero RPC](#how-to-run-monero-rpc). 
+1. Download this project and install its dependenices.  See [How to include this library](#how-to-include-this-library).
+2. Run monero-wallet-rpc and monero-daemon-rpc.  See [How to run Monero RPC](#how-to-run-monero-rpc). 
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by hash" --timeout 2000000`
 
-## How to Build WebAssembly Source
+## How to build WebAssembly files from source
 
 This project uses WebAssembly to package and execute Monero Core's source code for use in a browser or other WebAssembly-supported environments.
 
