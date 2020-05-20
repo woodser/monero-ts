@@ -130,7 +130,7 @@ class TestUtils {
   }
   
   static async getRandomWalletAddress() {
-    let wallet = await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
+    let wallet = await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE});
     return await wallet.getPrimaryAddress();
   }
   

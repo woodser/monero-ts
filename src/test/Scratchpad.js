@@ -27,7 +27,7 @@ describe("Scratchpad", function() {
     //await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
     console.log("RPC wallet mnemonic: " + await walletRpc.getMnemonic());
     
-    // create in-memory wallet with random mnemonic
+    // create in-memory wallet with mnemonic
     let walletWasm = await MoneroWalletWasm.createWallet({
       //path: "./test_wallets/" + GenUtils.getUUID(), // in-memory wallet if not given
       password: "abctesting123",

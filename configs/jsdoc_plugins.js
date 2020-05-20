@@ -38,8 +38,8 @@ module.exports.handlers = {
       }
     } while (changes);
     
-    for (let doclet of e.doclets) {
-      console.log(doclet);
-    }
+//    for (let doclet of e.doclets) {
+//      console.log(doclet);
+//    }
   }
 };

@@ -3010,7 +3010,7 @@ await walletRpc.createWallet({<br>
 
             
 
-            <td class="description last">specifies if the current RPC wallet should be saved before being closed</td>
+            <td class="description last">specifies if the current RPC wallet should be saved before being closed (default true)</td>
         </tr>
 
     
@@ -3059,723 +3059,6 @@ await walletRpc.createWallet({<br>
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line148">line 148</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="createWalletFromKeys"><span class="type-signature">(async) </span>createWalletFromKeys<span class="signature">(name, password, networkType, address, viewKey, spendKey, restoreHeight, language)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Create a wallet on the RPC server from an address, view key, and (optionally) spend key.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the wallet to create on the RPC server</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password encrypt the wallet</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>networkType</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet's network type</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>address</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">address of the wallet to construct</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>viewKey</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">view key of the wallet to construct</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>spendKey</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">spend key of the wallet to construct or null to create a view-only wallet</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>restoreHeight</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">block height to restore (i.e. scan the chain) from (default = 0)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>language</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet and mnemonic's language (default = "English")</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line240">line 240</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="createWalletFromMnemonic"><span class="type-signature">(async) </span>createWalletFromMnemonic<span class="signature">(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Create and open a wallet from an existing mnemonic phrase on the RPC server,
-closing the currently open wallet if applicable.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the wallet to create on the RPC server</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet's password</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>mnemonic</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">mnemonic of the wallet to construct</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>restoreHeight</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">int</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">block height to restore from (default = 0)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>language</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">language of the mnemonic in case the old language is invalid</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>seedOffset</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>saveCurrent</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">specifies if the current RPC wallet should be saved before being closed</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line209">line 209</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="createWalletRandom"><span class="type-signature">(async) </span>createWalletRandom<span class="signature">(name, password, language)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Create and open a new wallet with a randomly generated seed on the RPC server.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the wallet file to create</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet's password</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>language</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">language for the wallet's mnemonic phrase</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="wallet_MoneroWalletRpc.js.html">wallet/MoneroWalletRpc.js</a>, <a href="wallet_MoneroWalletRpc.js.html#line182">line 182</a>
     </li></ul></dd>
     
 
@@ -7261,7 +6544,7 @@ given payment ID.  Generates a random payment ID if none is given.
 (i.e. that the wallet can spend one time).  Outputs are part of
 transactions which are stored in blocks on the blockchain.</p>
 
-<p>Results can be configured by passing a MoneroOutputQuery.  Outputs must
+<p>Results can be filtered by passing a query object.  Outputs must
 meet every criteria defined in the query in order to be returned.  All
 filtering is optional and no filtering is applied when not defined.</p>
 </div>
@@ -7360,7 +6643,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs associated with a specific account index</td>
+            <td class="description last">get outputs associated with a specific account index (optional)</td>
         </tr>
 
     
@@ -7383,7 +6666,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs associated with a specific subaddress index</td>
+            <td class="description last">get outputs associated with a specific subaddress index (optional)</td>
         </tr>
 
     
@@ -7406,7 +6689,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs associated with specific subaddress indices</td>
+            <td class="description last">get outputs associated with specific subaddress indices (optional)</td>
         </tr>
 
     
@@ -7429,7 +6712,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs with a specific amount</td>
+            <td class="description last">get outputs with a specific amount (optional)</td>
         </tr>
 
     
@@ -7452,7 +6735,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs greater than or equal to a minimum amount</td>
+            <td class="description last">get outputs greater than or equal to a minimum amount (optional)</td>
         </tr>
 
     
@@ -7475,7 +6758,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs less than or equal to a maximum amount</td>
+            <td class="description last">get outputs less than or equal to a maximum amount (optional)</td>
         </tr>
 
     
@@ -7498,7 +6781,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs that are spent or not</td>
+            <td class="description last">get outputs that are spent or not (optional)</td>
         </tr>
 
     
@@ -7521,7 +6804,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
             
 
-            <td class="description last">get outputs that match the fields defined in the given key image</td>
+            <td class="description last">get outputs that match the fields defined in the given key image (optional)</td>
         </tr>
 
     
@@ -9178,10 +8461,9 @@ own amount.  An incoming transfer represents a total amount received into
 a subaddress within an account.  Transfers belong to transactions which
 are stored on the blockchain.</p>
 
-<p>Query results can be configured or filtered by passing in a configuration.
-Transfers must meet every criteria defined in the configuration in order
-to be returned.  All configuration is optional and no filtering is applied
-when not defined.</p>
+<p>Results can be filtered by passing a query object.  Transfers must
+meet every criteria defined in the query in order to be returned.  All
+criteria are optional and no filtering is applied when not defined.</p>
 </div>
 
 
@@ -10153,13 +9435,9 @@ when not defined.</p>
     <p>Get wallet transactions.  Wallet transactions contain one or more
 transfers that are either incoming or outgoing to the wallet.<p>
 
-<p>Query results can be filtered by passing in a transaction query.
-Transactions must meet every criteria defined in the query in order to
-be returned.  All filtering is optional and no filtering is applied when
-not defined.</p>
-
-<p>Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
-array of tx hashes.</p>
+<p>Results can be filtered by passing a query object.  Transactions must
+meet every criteria defined in the query in order to be returned.  All
+criteria are optional and no filtering is applied when not defined.</p>
 </div>
 
 
@@ -12212,7 +11490,7 @@ spend key and can therefore only observe incoming outputs.
 <div class="description">
     <p>Open an existing wallet on the monero-wallet-rpc server.</p>
 
-<p>Examples:<p>
+<p>Example:<p>
 
 <code>
 let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");<br>
@@ -17017,7 +16295,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 20 2020 06:45:44 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 20 2020 09:32:52 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

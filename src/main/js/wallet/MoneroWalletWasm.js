@@ -150,20 +150,20 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // create wallet
     if (config.getMnemonic() !== undefined) {
       if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
-      return MoneroWalletWasm.createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getNetworkType(), config.getMnemonic(), config.getServer(), config.getRestoreHeight(), config.getSeedOffset(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletWasm._createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getNetworkType(), config.getMnemonic(), config.getServer(), config.getRestoreHeight(), config.getSeedOffset(), config.getProxyToWorker(), config.getFs());
     } else if (config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return MoneroWalletWasm.createWalletFromKeys(config.getPath(), config.getPassword(), config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getServer(), config.getRestoreHeight(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletWasm._createWalletFromKeys(config.getPath(), config.getPassword(), config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getServer(), config.getRestoreHeight(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
     } else {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      return MoneroWalletWasm.createWalletRandom(config.getPath(), config.getPassword(), config.getNetworkType(), config.getServer(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletWasm._createWalletRandom(config.getPath(), config.getPassword(), config.getNetworkType(), config.getServer(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
     }
   }
   
-  static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
+  static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
     if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
-    if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
+    if (proxyToWorker) return MoneroWalletWasmProxy._createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -204,9 +204,9 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return wallet;
   }
   
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
+  static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
     if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
-    if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
+    if (proxyToWorker) return MoneroWalletWasmProxy._createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -248,9 +248,9 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return wallet;
   }
   
-  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
+  static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
     if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
-    if (proxyToWorker) return MoneroWalletWasmProxy.createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
+    if (proxyToWorker) return MoneroWalletWasmProxy._createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -1813,31 +1813,31 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return wallet;
   }
   
-  static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
+  static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
+    await LibraryUtils.invokeWorker(walletId, "_createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
     let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
   
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
+  static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
+    await LibraryUtils.invokeWorker(walletId, "_createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
     let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
   
-  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
+  static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
     if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
+    await LibraryUtils.invokeWorker(walletId, "_createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     let wallet = new MoneroWalletWasmProxy(walletId, LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;

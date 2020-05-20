@@ -44,18 +44,18 @@ class MoneroWalletKeys extends MoneroWallet {
     // create wallet
     if (config.getMnemonic() !== undefined) {
       if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
-      return MoneroWalletKeys.createWalletFromMnemonic(config.getNetworkType(), config.getMnemonic(), config.getSeedOffset());
+      return MoneroWalletKeys._createWalletFromMnemonic(config.getNetworkType(), config.getMnemonic(), config.getSeedOffset());
     } else if (config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return MoneroWalletKeys.createWalletFromKeys(config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getLanguage());
+      return MoneroWalletKeys._createWalletFromKeys(config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getLanguage());
     } else {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      return MoneroWalletKeys.createWalletRandom(config.getNetworkType(), config.getLanguage());
+      return MoneroWalletKeys._createWalletRandom(config.getNetworkType(), config.getLanguage());
     }
   }
   
-  static async createWalletRandom(networkType, language) {
+  static async _createWalletRandom(networkType, language) {
 
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);
@@ -79,7 +79,7 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  static async createWalletFromMnemonic(networkType, mnemonic, seedOffset) {
+  static async _createWalletFromMnemonic(networkType, mnemonic, seedOffset) {
     
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);
@@ -104,7 +104,7 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  static async createWalletFromKeys(networkType, address, privateViewKey, privateSpendKey, language) {
+  static async _createWalletFromKeys(networkType, address, privateViewKey, privateSpendKey, language) {
     
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);

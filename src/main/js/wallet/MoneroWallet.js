@@ -351,13 +351,9 @@ class MoneroWallet {
    * <p>Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.<p>
    * 
-   * <p>Query results can be filtered by passing in a transaction query.
-   * Transactions must meet every criteria defined in the query in order to
-   * be returned.  All filtering is optional and no filtering is applied when
-   * not defined.</p>
-   * 
-   * <p>Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
-   * array of tx hashes.</p>
+   * <p>Results can be filtered by passing a query object.  Transactions must
+   * meet every criteria defined in the query in order to be returned.  All
+   * criteria are optional and no filtering is applied when not defined.</p>
    * 
    * @param {(MoneroTxQuery|string[]|object)} query - configures the query (optional)
    * @param {boolean} query.isConfirmed - get txs that are confirmed or not (optional)
@@ -390,10 +386,9 @@ class MoneroWallet {
    * a subaddress within an account.  Transfers belong to transactions which
    * are stored on the blockchain.</p>
    * 
-   * <p>Query results can be configured or filtered by passing in a configuration.
-   * Transfers must meet every criteria defined in the configuration in order
-   * to be returned.  All configuration is optional and no filtering is applied
-   * when not defined.</p>
+   * <p>Results can be filtered by passing a query object.  Transfers must
+   * meet every criteria defined in the query in order to be returned.  All
+   * criteria are optional and no filtering is applied when not defined.</p>
    * 
    * @param {(MoneroTransferQuery|object)} query - configures the query (optional)
    * @param {boolean} query.isOutgoing - get transfers that are outgoing or not (optional)
@@ -467,19 +462,19 @@ class MoneroWallet {
    * (i.e. that the wallet can spend one time).  Outputs are part of
    * transactions which are stored in blocks on the blockchain.</p>
    * 
-   * <p>Results can be configured by passing a MoneroOutputQuery.  Outputs must
+   * <p>Results can be filtered by passing a query object.  Outputs must
    * meet every criteria defined in the query in order to be returned.  All
    * filtering is optional and no filtering is applied when not defined.</p>
    * 
    * @param {(MoneroOutputQuery|object)} query - configures the query (optional)
-   * @param {int} query.accountIndex - get outputs associated with a specific account index
-   * @param {int} query.subaddressIndex - get outputs associated with a specific subaddress index
-   * @param {int[]} query.subaddressIndices - get outputs associated with specific subaddress indices
-   * @param {BigInteger} query.amount - get outputs with a specific amount
-   * @param {BigInteger} query.minAmount - get outputs greater than or equal to a minimum amount
-   * @param {BigInteger} query.maxAmount - get outputs less than or equal to a maximum amount
-   * @param {boolean} query.isSpent - get outputs that are spent or not
-   * @param {MoneroKeyImage} query.keyImage - get outputs that match the fields defined in the given key image
+   * @param {int} query.accountIndex - get outputs associated with a specific account index (optional)
+   * @param {int} query.subaddressIndex - get outputs associated with a specific subaddress index (optional)
+   * @param {int[]} query.subaddressIndices - get outputs associated with specific subaddress indices (optional)
+   * @param {BigInteger} query.amount - get outputs with a specific amount (optional)
+   * @param {BigInteger} query.minAmount - get outputs greater than or equal to a minimum amount (optional)
+   * @param {BigInteger} query.maxAmount - get outputs less than or equal to a maximum amount (optional)
+   * @param {boolean} query.isSpent - get outputs that are spent or not (optional)
+   * @param {MoneroKeyImage} query.keyImage - get outputs that match the fields defined in the given key image (optional)
    * @param {MoneroTxQuery} query.txQuery - get outputs whose transaction meets this filter (optional)
    * @return {MoneroOutputWallet[]} are queried outputs
    */
