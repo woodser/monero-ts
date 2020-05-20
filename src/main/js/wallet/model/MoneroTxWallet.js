@@ -69,6 +69,10 @@ class MoneroTxWallet extends MoneroTx {
     return json;
   }
   
+  async testing123() {
+    throw new Error("Not implemented");
+  }
+  
   getTxSet() {
     return this.state.txSet;
   }

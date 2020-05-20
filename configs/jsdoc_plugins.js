@@ -3,27 +3,43 @@
  */
 'use strict';
 
-const GenUtils = require("../src/main/js/common/GenUtils");
-
-// classes to not override undocumented which will lose jsdoc inheritance
-const INHERITS = ["MoneroWalletRpc", "MoneroWalletWasm", "MoneroWalletKeys", "MoneroDaemonRpc", "MoneroWalletListener", "MoneroIncomingTransfer", "MoneroOutgoingTransfer", "MoneroTxWallet", "MoneroOutputWallet", "MoneroTxQuery", "MoneroTransferQuery", "MoneroOutputQuery", "MoneroBlock", "MoneroCheckTx", "MoneroCheckReserve"];
-
 module.exports.handlers = {
   newDoclet : function(e) {
-    if (e.doclet.name.startsWith("_")) e.doclet.undocumented = true;
-    else if (e.doclet.undocumented && e.doclet.kind === "function" && e.doclet.scope === "instance" && !GenUtils.arrayContains(INHERITS, e.doclet.memberof)) {
-      e.doclet.undocumented = false;
+    if (e.doclet.name.startsWith("_")) e.doclet.undocumented = true;  // hide private methods starting with "_"
+    else if (e.doclet.undocumented && e.doclet.kind === "function" && !e.doclet.comment && (e.doclet.scope === "instance" || e.doclet.scope === "static")) {
+      e.doclet.undocumented = false;  // preserve doclet
     }
   },
-//  symbolFound : function(e) {
-//    if (e.astnode.type === "FunctionDeclaration") {
-//      // if (e.undocumented) {
-//      // console.log("undocumented!");
-//      // e.undocumented = false;
-//      // }
-//      if ((e.comment === "@undocumented")) {
-//        e.comment = '/** undocumented */';
-//      }
-//    }
-//  }
+  processingComplete: function(e) {
+    
+    // overwrite subclass comments and descriptions with superclass until no further changes
+    let changes;
+    do {
+      changes = false;
+      for (let doclet of e.doclets) {
+        if (!doclet.comment) {
+          let parentDoc = "";
+          if (doclet.implements) parentDoc = doclet.implements[0];
+          else if (doclet.overrides) parentDoc = doclet.overriddes;
+          if (parentDoc) {
+            for (let aDoclet of e.doclets) {
+              if (aDoclet.longname !== parentDoc) continue;
+              if (aDoclet.comment !== doclet.comment || aDoclet.description !== doclet.description) {
+                doclet.comment = aDoclet.comment;
+                doclet.description = aDoclet.description;
+                doclet.params = aDoclet.params;
+                doclet.returns = aDoclet.returns;
+                doclet.undocumented = false;
+                changes = true;
+              }
+            }
+          }
+        }
+      }
+    } while (changes);
+    
+    for (let doclet of e.doclets) {
+      console.log(doclet);
+    }
+  }
 };

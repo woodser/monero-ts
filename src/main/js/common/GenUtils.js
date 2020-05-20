@@ -593,7 +593,7 @@ class GenUtils {
   /**
    * Indicates if the given array contains the given object.
    * 
-   * @param {[]} arr - array that may or may not contain the object
+   * @param {object[]} arr - array that may or may not contain the object
    * @param {object} obj - object to check for inclusion in the array
    * @param {boolean} compareByReference - compare strictly by reference, forgoing deep equality check
    * @returns true if the array contains the object, false otherwise

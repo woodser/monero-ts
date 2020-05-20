@@ -1,10 +1,8 @@
 HIGH (WASM)
 full tests including jni, sweeps
-update jsdocs (inherit with or without comment, MoneroWalletWasm extends MoneroWalletKeys, MoneroTxWallet getIncomingTransfers(), missing jsdoc MoneroOutputWallet, MoneroCheckTx, MoneroCheckReserve)
 update javadocs
 document creating txs
 testGetReserveProofAccount() exception, re-enable test reserves or report issue
-confirm with user before sending tx in sample code
 
 git clone includes .git directory which is 95mbs
 update to monero core 0.16.0

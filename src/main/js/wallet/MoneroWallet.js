@@ -249,60 +249,22 @@ class MoneroWallet {
   }
   
   /**
-   * Get the wallet's balance.
+   * Get the balance of the wallet, account, or subaddress.
    * 
-   * @return {BigInteger} the wallet's balance
-   */
-  async getBalance() {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get an account's balance.
-   * 
-   * @param {int} accountIdx - index of the account to get the balance of
-   * @return {BigInteger} the account's balance
-   */
-  async getBalance(accountIdx) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get a subaddress's balance.
-   * 
-   * @param {int} accountIdx - index of the subaddress's account to get the balance of
-   * @param {int} subaddressIdx - index of the subaddress to get the balance of
-   * @return {BigInteger} the subaddress's balance
+   * @param {int} accountIdx - index of the account to get the balance of (optional)
+   * @param {int} subaddressIdx - index of the subaddress to get the balance of (optional)
+   * @return {BigInteger} the balance of the wallet, account, or subaddress
    */
   async getBalance(accountIdx, subaddressIdx) {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Get the wallet's unlocked balance.
+   * Get the unlocked balance of the wallet, account, or subaddress.
    * 
-   * @return {BigInteger} the wallet's unlocked balance
-   */
-  async getUnlockedBalance() {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get an account's unlocked balance.
-   * 
-   * @param {int} accountIdx - index of the account to get the unlocked balance of
-   * @return {BigInteger} the account's unlocked balance
-   */
-  async getUnlockedBalance(accountIdx) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get a subaddress's unlocked balance.
-   * 
-   * @param {int} accountIdx - index of the subaddress's account to get the unlocked balance of
-   * @param {int} subaddressIdx - index of the subaddress to get the unlocked balance of
-   * @return {BigInteger} the subaddress's balance
+   * @param {int} accountIdx - index of the account to get the unlocked balance of (optional)
+   * @param {int} subaddressIdx - index of the subaddress to get the unlocked balance of (optional)
+   * @return {BigInteger} the unlocked balance of the wallet, account, or subaddress
    */
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     throw new MoneroError("Not supported");

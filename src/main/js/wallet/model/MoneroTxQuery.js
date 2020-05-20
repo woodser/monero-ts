@@ -1,6 +1,7 @@
 /**
  * <p>Configuration to query transactions.</p>
  * 
+ * @class
  * @extends {MoneroTxWallet}
  */
 class MoneroTxQuery extends MoneroTxWallet {
