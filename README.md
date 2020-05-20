@@ -183,9 +183,9 @@ The following dependencies must be set up before running this project.
     2. cd ./external/monero-core
     3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
     4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
-6. Build this project as a dynamic library at `./build/libmonero-cpp.dylib`: `./bin/build_libmonero_cpp.sh`.
+6. Build this project as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`.
        
-This project may be compiled as part of another application, as a dynamic library, or as a shared library.  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using Java JNI.
+This project may be compiled as part of another application or as a shared or static library.  For example, the associated [monero-java](https://github.com/monero-ecosystem/monero-java) library depends on this project as a shared library using Java JNI.
 
 These build steps aspire to be automated further and [any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
 
