@@ -1172,7 +1172,7 @@ class MoneroWallet {
     assert.equal(config.getSweepEachSubaddress(), undefined);
     assert.equal(config.getBelowAmount(), undefined);
     assert.equal(config.getCanSplit(), undefined, "Cannot split transactions when sweeping an output");
-    if (config.getDestinations().length !== 1 || !config.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
+    if (!config.getDestinations() || config.getDestinations().length !== 1 || !config.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
     return config;
   }
   

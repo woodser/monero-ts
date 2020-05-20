@@ -9,5 +9,5 @@ module.exports = function() {
   this.TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
   this.TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
   this.TestMoneroWalletWasm = require("./TestMoneroWalletWasm");
-  this.TestQueries = require("./TestQueries");
+  this.TestDeveloperGuide = require("./TestDeveloperGuide");
 }
