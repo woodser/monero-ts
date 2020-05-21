@@ -2,7 +2,7 @@
 
 Wallet [transactions, transfers, and outputs](data_model.md) can be queried by their attributes using query objects.
 
-## Transaction queries
+## Get transactions with queries
 
 See [MoneroWallet.getTxs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTxs) for all query options.
 
@@ -41,7 +41,7 @@ let txs = await wallet.getTxs({
 });
 ```
 
-## Transfer queries
+## Get transfers with queries
 
 See [MoneroWallet.getTransfers()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTransfers) for all query options.
 
@@ -79,7 +79,7 @@ let transfers = await wallet.getTransfers({
 });
 ```
 
-## Output queries
+## Get outputs with queries
 
 See [MoneroWallet.getOutputs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getOutputs) for all query options.
 
@@ -100,7 +100,7 @@ let outputs = await wallet.getOutputs({
 
 ```javascript
 // get outputs received to a specific subaddress
-outputs = await wallet.getOutputs({
+let outputs = await wallet.getOutputs({
   accountIndex: 0,
   subaddressIndex: 1
 });
