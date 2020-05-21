@@ -112,11 +112,7 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__rpc__connection.html">monero_rpc_connection</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__send__request.html">monero_send_request</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__subaddress.html">monero_subaddress</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__sync__listener.html">monero_sync_listener</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__sync__result.html">monero_sync_result</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,6 +121,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__transfer__query.html">monero_transfer_query</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__config.html">monero_tx_config</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,8 +142,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html">serializable_struct</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1sync__listener__wrapper.html">sync_listener_wrapper</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1wallet2__listener.html">wallet2_listener</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -156,44 +152,52 @@ Enumerations</h2></td></tr>
 <b>STAGENET</b>
  }</td></tr>
 <tr class="separator:ac9023a1d513e2526775d1e061bb5beed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad102bb6207c4abe9d875f8b0edc1a45e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ad102bb6207c4abe9d875f8b0edc1a45e">monero_send_priority</a> : uint8_t { <b>DEFAULT</b> = 0, 
+<tr class="memitem:aaa3433e5c51f3ac269204e7cd1bd5c4c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#aaa3433e5c51f3ac269204e7cd1bd5c4c">monero_tx_priority</a> : uint8_t { <b>DEFAULT</b> = 0, 
 <b>UNIMPORTANT</b>, 
 <b>NORMAL</b>, 
 <b>ELEVATED</b>
  }</td></tr>
-<tr class="separator:ad102bb6207c4abe9d875f8b0edc1a45e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aaa3433e5c51f3ac269204e7cd1bd5c4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1c7c1641d7f03598591df8706c4756b6"><td class="memItemLeft" align="right" valign="top"><a id="a1c7c1641d7f03598591df8706c4756b6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_tx</b> (vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt;&gt; &amp;txs, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx)</td></tr>
-<tr class="separator:a1c7c1641d7f03598591df8706c4756b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a130524aedf0b5b05d7585e4ce396f978"><td class="memItemLeft" align="right" valign="top"><a id="a130524aedf0b5b05d7585e4ce396f978"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_tx</b> (std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt;&gt; &amp;txs, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx)</td></tr>
+<tr class="separator:a130524aedf0b5b05d7585e4ce396f978"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79119b467a6d4a2d5a4e38bc85f9a88d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a79119b467a6d4a2d5a4e38bc85f9a88d">decontextualize</a> (std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a> &gt; query)</td></tr>
+<tr class="separator:a79119b467a6d4a2d5a4e38bc85f9a88d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad248b19aa3bb6fe03313ad20dc37e465"><td class="memItemLeft" align="right" valign="top"><a id="ad248b19aa3bb6fe03313ad20dc37e465"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_contextual</b> (const <a class="el" href="structmonero_1_1monero__transfer__query.html">monero_transfer_query</a> &amp;query)</td></tr>
+<tr class="separator:ad248b19aa3bb6fe03313ad20dc37e465"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a060763963ea0e16727e6cdf10633764b"><td class="memItemLeft" align="right" valign="top"><a id="a060763963ea0e16727e6cdf10633764b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_contextual</b> (const <a class="el" href="structmonero_1_1monero__output__query.html">monero_output_query</a> &amp;query)</td></tr>
+<tr class="separator:a060763963ea0e16727e6cdf10633764b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfd808348981ceb56d9e431192c8ea46"><td class="memItemLeft" align="right" valign="top"><a id="adfd808348981ceb56d9e431192c8ea46"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>bool_equals</b> (bool val, const boost::optional&lt; bool &gt; &amp;opt_val)</td></tr>
 <tr class="separator:adfd808348981ceb56d9e431192c8ea46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88f00919fb1325b61cd6237e4d9fe8f2"><td class="memItemLeft" align="right" valign="top"><a id="a88f00919fb1325b61cd6237e4d9fe8f2"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;payment_id, const tools::wallet2::payment_details &amp;pd)</td></tr>
-<tr class="separator:a88f00919fb1325b61cd6237e4d9fe8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a117238e323de88917e320b620e98f592"><td class="memItemLeft" align="right" valign="top"><a id="a117238e323de88917e320b620e98f592"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;txid, const tools::wallet2::confirmed_transfer_details &amp;pd)</td></tr>
-<tr class="separator:a117238e323de88917e320b620e98f592"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa17b0eb02d37e6791d5d9bc77401e088"><td class="memItemLeft" align="right" valign="top"><a id="aa17b0eb02d37e6791d5d9bc77401e088"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;payment_id, const tools::wallet2::pool_payment_details &amp;ppd)</td></tr>
-<tr class="separator:aa17b0eb02d37e6791d5d9bc77401e088"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7fdf19aca40796039760e903f7b8912"><td class="memItemLeft" align="right" valign="top"><a id="ab7fdf19aca40796039760e903f7b8912"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;txid, const tools::wallet2::unconfirmed_transfer_details &amp;pd)</td></tr>
-<tr class="separator:ab7fdf19aca40796039760e903f7b8912"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab53dd173eba532704d9cf834dbc48d7"><td class="memItemLeft" align="right" valign="top"><a id="aab53dd173eba532704d9cf834dbc48d7"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_vout</b> (const tools::wallet2 &amp;m_w2, const tools::wallet2::transfer_details &amp;td)</td></tr>
-<tr class="separator:aab53dd173eba532704d9cf834dbc48d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f11313995339d1eef46ab00c4a9b187"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a5f11313995339d1eef46ab00c4a9b187">merge_tx</a> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, map&lt; string, shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;tx_map, map&lt; uint64_t, shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;block_map, bool skip_if_absent)</td></tr>
-<tr class="separator:a5f11313995339d1eef46ab00c4a9b187"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05561b00d2f4f98c1ff9d082326cf8a9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a05561b00d2f4f98c1ff9d082326cf8a9">tx_height_less_than</a> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx1, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx2)</td></tr>
-<tr class="separator:a05561b00d2f4f98c1ff9d082326cf8a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a289e7d9a279044252e447d725b2360b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a289e7d9a279044252e447d725b2360b3">incoming_transfer_before</a> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer1, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer2)</td></tr>
-<tr class="separator:a289e7d9a279044252e447d725b2360b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad88e2b182344e1c169cd028ad8366359"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ad88e2b182344e1c169cd028ad8366359">vout_before</a> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o1, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o2)</td></tr>
-<tr class="separator:ad88e2b182344e1c169cd028ad8366359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89772ae088ff0cc7d02077205910ff00"><td class="memItemLeft" align="right" valign="top"><a id="a89772ae088ff0cc7d02077205910ff00"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;payment_id, const tools::wallet2::payment_details &amp;pd)</td></tr>
+<tr class="separator:a89772ae088ff0cc7d02077205910ff00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45370700026f69d010e10b3998b5493c"><td class="memItemLeft" align="right" valign="top"><a id="a45370700026f69d010e10b3998b5493c"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;txid, const tools::wallet2::confirmed_transfer_details &amp;pd)</td></tr>
+<tr class="separator:a45370700026f69d010e10b3998b5493c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9cc5bd57f59b43e1066809cd38252ee"><td class="memItemLeft" align="right" valign="top"><a id="ad9cc5bd57f59b43e1066809cd38252ee"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;payment_id, const tools::wallet2::pool_payment_details &amp;ppd)</td></tr>
+<tr class="separator:ad9cc5bd57f59b43e1066809cd38252ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d031f5fc182d6ec71739d018d8c64ed"><td class="memItemLeft" align="right" valign="top"><a id="a0d031f5fc182d6ec71739d018d8c64ed"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;txid, const tools::wallet2::unconfirmed_transfer_details &amp;pd)</td></tr>
+<tr class="separator:a0d031f5fc182d6ec71739d018d8c64ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9616f818c756f0a94db2a485b72141c1"><td class="memItemLeft" align="right" valign="top"><a id="a9616f818c756f0a94db2a485b72141c1"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_vout</b> (const tools::wallet2 &amp;m_w2, const tools::wallet2::transfer_details &amp;td)</td></tr>
+<tr class="separator:a9616f818c756f0a94db2a485b72141c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5964a843299654ccde0e70be4727665"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab5964a843299654ccde0e70be4727665">merge_tx</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;tx_map, std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;block_map, bool skip_if_absent)</td></tr>
+<tr class="separator:ab5964a843299654ccde0e70be4727665"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9ff4ca60dce77e4685c22d25541e2bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab9ff4ca60dce77e4685c22d25541e2bc">tx_height_less_than</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx2)</td></tr>
+<tr class="separator:ab9ff4ca60dce77e4685c22d25541e2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d80896e08b3cf2698745f2e6bd510f2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a3d80896e08b3cf2698745f2e6bd510f2">incoming_transfer_before</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer2)</td></tr>
+<tr class="separator:a3d80896e08b3cf2698745f2e6bd510f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab48ce6a9c04ee42c0e4c33b7471a536b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab48ce6a9c04ee42c0e4c33b7471a536b">vout_before</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o2)</td></tr>
+<tr class="separator:ab48ce6a9c04ee42c0e4c33b7471a536b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab39fad177c2dd5acb39537280278043"><td class="memItemLeft" align="right" valign="top"><a id="aab39fad177c2dd5acb39537280278043"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_default_ringdb_path</b> (cryptonote::network_type nettype)</td></tr>
 <tr class="separator:aab39fad177c2dd5acb39537280278043"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,12 +207,12 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_default_ri
 template&lt;typename Ts , typename Tu &gt; </td></tr>
 <tr class="memitem:a85ad4bc6a98437b114bc85e57c12a567"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fill_response</b> (wallet2 *m_w2, std::vector&lt; tools::wallet2::pending_tx &gt; &amp;ptx_vector, bool get_tx_key, Ts &amp;tx_key, Tu &amp;amount, Tu &amp;fee, std::string &amp;multisig_txset, std::string &amp;unsigned_txset, bool do_not_relay, Ts &amp;tx_hash, bool get_tx_hex, Ts &amp;tx_blob, bool get_tx_metadata, Ts &amp;tx_metadata, epee::json_rpc::error &amp;er)</td></tr>
 <tr class="separator:a85ad4bc6a98437b114bc85e57c12a567"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bda6833d68c4d648a2ca8edbc8c6e2f"><td class="memItemLeft" align="right" valign="top"><a id="a1bda6833d68c4d648a2ca8edbc8c6e2f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_incoming_transfer</b> (vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt;&gt; &amp;transfers, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer)</td></tr>
-<tr class="separator:a1bda6833d68c4d648a2ca8edbc8c6e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0aec13aa4b46734649b1dbe45416d208"><td class="memItemLeft" align="right" valign="top"><a id="a0aec13aa4b46734649b1dbe45416d208"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>node_to_block_query</b> (const boost::property_tree::ptree &amp;node)</td></tr>
-<tr class="separator:a0aec13aa4b46734649b1dbe45416d208"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad28462ef279a5dddc5369e6a9dbc7d4b"><td class="memItemLeft" align="right" valign="top"><a id="ad28462ef279a5dddc5369e6a9dbc7d4b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_incoming_transfer</b> (std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt;&gt; &amp;transfers, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer)</td></tr>
+<tr class="separator:ad28462ef279a5dddc5369e6a9dbc7d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc81b021d5ceaa90dd5d96aee05ca15d"><td class="memItemLeft" align="right" valign="top"><a id="abc81b021d5ceaa90dd5d96aee05ca15d"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>node_to_block_query</b> (const boost::property_tree::ptree &amp;node)</td></tr>
+<tr class="separator:abc81b021d5ceaa90dd5d96aee05ca15d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Copyright (c) 2017-2019 woodser</p>
@@ -225,7 +229,6 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 <p>Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersPublic library intereface.</p>
-<p>Public library interface.</p>
 <p>Copyright (c) 2017-2019 woodser</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
 <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
@@ -240,7 +243,36 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 <p>Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersPublic library interface.</p>
-<p>Public interface for libmonero-cpp library. </p>
+<p>Copyright (c) 2017-2019 woodser</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<p>Parts of this file are originally copyright (c) 2014-2019, The Monero Project</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>All rights reserved.</p>
+<ol type="1">
+<li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersPublic interface for libmonero-cpp library.</p>
+<p>Public library interface.</p>
+<p>Implements a <a class="el" href="monero__wallet_8h_source.html">monero_wallet.h</a> by wrapping wallet2.h.</p>
+<p>Copyright (c) 2017-2019 woodser</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<p>Parts of this file are originally copyright (c) 2014-2019, The Monero Project</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<p>All rights reserved.</p>
+<ol type="1">
+<li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
+<li>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersImplements a <a class="el" href="monero__wallet_8h_source.html">monero_wallet.h</a> by wrapping wallet2.h. </p>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ac9023a1d513e2526775d1e061bb5beed"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9023a1d513e2526775d1e061bb5beed">&#9670;&nbsp;</a></span>monero_network_type</h2>
@@ -257,14 +289,14 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 
 </div>
 </div>
-<a id="ad102bb6207c4abe9d875f8b0edc1a45e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad102bb6207c4abe9d875f8b0edc1a45e">&#9670;&nbsp;</a></span>monero_send_priority</h2>
+<a id="aaa3433e5c51f3ac269204e7cd1bd5c4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa3433e5c51f3ac269204e7cd1bd5c4c">&#9670;&nbsp;</a></span>monero_tx_priority</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="namespacemonero.html#ad102bb6207c4abe9d875f8b0edc1a45e">monero::monero_send_priority</a> : uint8_t</td>
+          <td class="memname">enum <a class="el" href="namespacemonero.html#aaa3433e5c51f3ac269204e7cd1bd5c4c">monero::monero_tx_priority</a> : uint8_t</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -273,8 +305,34 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a289e7d9a279044252e447d725b2360b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a289e7d9a279044252e447d725b2360b3">&#9670;&nbsp;</a></span>incoming_transfer_before()</h2>
+<a id="a79119b467a6d4a2d5a4e38bc85f9a88d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79119b467a6d4a2d5a4e38bc85f9a88d">&#9670;&nbsp;</a></span>decontextualize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt;<a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a>&gt; monero::decontextualize </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a> &gt;&#160;</td>
+          <td class="paramname"><em>query</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Remove query criteria which require looking up other transfers/outputs to fulfill query.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">query</td><td>the query to decontextualize </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a reference to the query for convenience </dd></dl>
+
+</div>
+</div>
+<a id="a3d80896e08b3cf2698745f2e6bd510f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d80896e08b3cf2698745f2e6bd510f2">&#9670;&nbsp;</a></span>incoming_transfer_before()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -282,13 +340,13 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
         <tr>
           <td class="memname">bool monero::incoming_transfer_before </td>
           <td>(</td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>transfer1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>transfer2</em>&#160;</td>
         </tr>
         <tr>
@@ -302,8 +360,8 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 
 </div>
 </div>
-<a id="a5f11313995339d1eef46ab00c4a9b187"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f11313995339d1eef46ab00c4a9b187">&#9670;&nbsp;</a></span>merge_tx()</h2>
+<a id="ab5964a843299654ccde0e70be4727665"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5964a843299654ccde0e70be4727665">&#9670;&nbsp;</a></span>merge_tx()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -311,19 +369,19 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
         <tr>
           <td class="memname">void monero::merge_tx </td>
           <td>(</td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>tx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">map&lt; string, shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;&#160;</td>
+          <td class="paramtype">std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;&#160;</td>
           <td class="paramname"><em>tx_map</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">map&lt; uint64_t, shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;&#160;</td>
+          <td class="paramtype">std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;&#160;</td>
           <td class="paramname"><em>block_map</em>, </td>
         </tr>
         <tr>
@@ -339,7 +397,7 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Merges a transaction into a unique set of transactions.</p>
+<p>Merges a transaction into a unique std::set of transactions.</p>
 <p>TODO monero-core: skip_if_absent only necessary because incoming payments not returned when sent from/to same account #4500</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -353,8 +411,8 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 
 </div>
 </div>
-<a id="a05561b00d2f4f98c1ff9d082326cf8a9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a05561b00d2f4f98c1ff9d082326cf8a9">&#9670;&nbsp;</a></span>tx_height_less_than()</h2>
+<a id="ab9ff4ca60dce77e4685c22d25541e2bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9ff4ca60dce77e4685c22d25541e2bc">&#9670;&nbsp;</a></span>tx_height_less_than()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -362,13 +420,13 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
         <tr>
           <td class="memname">bool monero::tx_height_less_than </td>
           <td>(</td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>tx1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>tx2</em>&#160;</td>
         </tr>
         <tr>
@@ -447,8 +505,8 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
 
 </div>
 </div>
-<a id="ad88e2b182344e1c169cd028ad8366359"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad88e2b182344e1c169cd028ad8366359">&#9670;&nbsp;</a></span>vout_before()</h2>
+<a id="ab48ce6a9c04ee42c0e4c33b7471a536b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab48ce6a9c04ee42c0e4c33b7471a536b">&#9670;&nbsp;</a></span>vout_before()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -456,13 +514,13 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_bl
         <tr>
           <td class="memname">bool monero::vout_before </td>
           <td>(</td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>o1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>o2</em>&#160;</td>
         </tr>
         <tr>

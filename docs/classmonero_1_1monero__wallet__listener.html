@@ -74,31 +74,20 @@ $(function() {
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="monero__wallet_8h_source.html">monero_wallet.h</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for monero::monero_wallet_listener:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="classmonero_1_1monero__wallet__listener.png" usemap="#monero::monero_5Fwallet_5Flistener_map" alt=""/>
-  <map id="monero::monero_5Fwallet_5Flistener_map" name="monero::monero_5Fwallet_5Flistener_map">
-<area href="classmonero_1_1monero__sync__listener.html" alt="monero::monero_sync_listener" shape="rect" coords="0,0,189,24"/>
-<area href="structmonero_1_1sync__listener__wrapper.html" alt="monero::sync_listener_wrapper" shape="rect" coords="0,112,189,136"/>
-  </map>
-</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ad118f758ea41c8957cc75b7356e5370e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#ad118f758ea41c8957cc75b7356e5370e">on_sync_progress</a> (uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const std::string &amp;message)</td></tr>
+<tr class="separator:ad118f758ea41c8957cc75b7356e5370e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0276dc5dbe62b7df42e3eab1b5967895"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a0276dc5dbe62b7df42e3eab1b5967895">on_new_block</a> (uint64_t height)</td></tr>
 <tr class="separator:a0276dc5dbe62b7df42e3eab1b5967895"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a858412263ef3d02da6453334abacff18"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a858412263ef3d02da6453334abacff18">on_output_received</a> (const <a class="el" href="structmonero_1_1monero__output__wallet.html">monero_output_wallet</a> &amp;output)</td></tr>
 <tr class="separator:a858412263ef3d02da6453334abacff18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3938fd913222b0f107d5b133d1afd439"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a3938fd913222b0f107d5b133d1afd439">on_output_spent</a> (const <a class="el" href="structmonero_1_1monero__output__wallet.html">monero_output_wallet</a> &amp;output)</td></tr>
 <tr class="separator:a3938fd913222b0f107d5b133d1afd439"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classmonero_1_1monero__sync__listener"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmonero_1_1monero__sync__listener')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmonero_1_1monero__sync__listener.html">monero::monero_sync_listener</a></td></tr>
-<tr class="memitem:aa2c6e4a08d25e47d8a59ca2b3f2b0f40 inherit pub_methods_classmonero_1_1monero__sync__listener"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__sync__listener.html#aa2c6e4a08d25e47d8a59ca2b3f2b0f40">on_sync_progress</a> (uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string &amp;message)</td></tr>
-<tr class="separator:aa2c6e4a08d25e47d8a59ca2b3f2b0f40 inherit pub_methods_classmonero_1_1monero__sync__listener"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Receives notifications as a wallet is updated. </p>
+<div class="textblock"><p>Interface to receive wallet notifications.. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a0276dc5dbe62b7df42e3eab1b5967895"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0276dc5dbe62b7df42e3eab1b5967895">&#9670;&nbsp;</a></span>on_new_block()</h2>
@@ -126,7 +115,7 @@ Public Member Functions</h2></td></tr>
 <p>Invoked when a new block is processed.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">block</td><td>is the newly processed block </td></tr>
+    <tr><td class="paramname">block</td><td>- the newly processed block </td></tr>
   </table>
   </dd>
 </dl>
@@ -159,7 +148,7 @@ Public Member Functions</h2></td></tr>
 <p>Invoked when the wallet receives an output.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">output</td><td>is the incoming output to the wallet </td></tr>
+    <tr><td class="paramname">output</td><td>- the received output </td></tr>
   </table>
   </dd>
 </dl>
@@ -192,7 +181,72 @@ Public Member Functions</h2></td></tr>
 <p>Invoked when the wallet spends an output.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">output</td><td>the outgoing transfer from the wallet </td></tr>
+    <tr><td class="paramname">output</td><td>- the spent output </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ad118f758ea41c8957cc75b7356e5370e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad118f758ea41c8957cc75b7356e5370e">&#9670;&nbsp;</a></span>on_sync_progress()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void monero::monero_wallet_listener::on_sync_progress </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>start_height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>end_height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>percent_done</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>message</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Invoked when sync progress is made.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">height</td><td>- height of the synced block </td></tr>
+    <tr><td class="paramname">start_height</td><td>- starting height of the sync request </td></tr>
+    <tr><td class="paramname">end_height</td><td>- ending height of the sync request </td></tr>
+    <tr><td class="paramname">percent_done</td><td>- sync progress as a percentage </td></tr>
+    <tr><td class="paramname">message</td><td>- human-readable description of the current progress </td></tr>
   </table>
   </dd>
 </dl>

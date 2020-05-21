@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['make_5fmultisig',['make_multisig',['../classmonero_1_1monero__wallet.html#a34c794881d12b621ed3ef0eb543e8251',1,'monero::monero_wallet::make_multisig()'],['../classmonero_1_1monero__wallet__core.html#afe28bdcfcef5c92581e55117a09035c2',1,'monero::monero_wallet_core::make_multisig()']]],
-  ['merge_5ftx',['merge_tx',['../namespacemonero.html#a5f11313995339d1eef46ab00c4a9b187',1,'monero']]],
+  ['make_5fmultisig',['make_multisig',['../classmonero_1_1monero__wallet.html#a98d17406e8da363e0bab6c155aa87267',1,'monero::monero_wallet::make_multisig()'],['../classmonero_1_1monero__wallet__core.html#a70e674da412053b3172c4fcc1cfdda13',1,'monero::monero_wallet_core::make_multisig()']]],
+  ['merge_5ftx',['merge_tx',['../namespacemonero.html#ab5964a843299654ccde0e70be4727665',1,'monero']]],
   ['monero',['monero',['../namespacemonero.html',1,'']]],
   ['monero_5faccount',['monero_account',['../structmonero_1_1monero__account.html',1,'monero']]],
   ['monero_5faddress_5fbook_5fentry',['monero_address_book_entry',['../structmonero_1_1monero__address__book__entry.html',1,'monero']]],
@@ -24,14 +24,13 @@ var searchData=
   ['monero_5foutput_5fquery',['monero_output_query',['../structmonero_1_1monero__output__query.html',1,'monero']]],
   ['monero_5foutput_5fwallet',['monero_output_wallet',['../structmonero_1_1monero__output__wallet.html',1,'monero']]],
   ['monero_5frpc_5fconnection',['monero_rpc_connection',['../structmonero_1_1monero__rpc__connection.html',1,'monero']]],
-  ['monero_5fsend_5fpriority',['monero_send_priority',['../namespacemonero.html#ad102bb6207c4abe9d875f8b0edc1a45e',1,'monero']]],
-  ['monero_5fsend_5frequest',['monero_send_request',['../structmonero_1_1monero__send__request.html',1,'monero']]],
   ['monero_5fsubaddress',['monero_subaddress',['../structmonero_1_1monero__subaddress.html',1,'monero']]],
-  ['monero_5fsync_5flistener',['monero_sync_listener',['../classmonero_1_1monero__sync__listener.html',1,'monero']]],
   ['monero_5fsync_5fresult',['monero_sync_result',['../structmonero_1_1monero__sync__result.html',1,'monero']]],
   ['monero_5ftransfer',['monero_transfer',['../structmonero_1_1monero__transfer.html',1,'monero']]],
   ['monero_5ftransfer_5fquery',['monero_transfer_query',['../structmonero_1_1monero__transfer__query.html',1,'monero']]],
   ['monero_5ftx',['monero_tx',['../structmonero_1_1monero__tx.html',1,'monero']]],
+  ['monero_5ftx_5fconfig',['monero_tx_config',['../structmonero_1_1monero__tx__config.html',1,'monero']]],
+  ['monero_5ftx_5fpriority',['monero_tx_priority',['../namespacemonero.html#aaa3433e5c51f3ac269204e7cd1bd5c4c',1,'monero']]],
   ['monero_5ftx_5fquery',['monero_tx_query',['../structmonero_1_1monero__tx__query.html',1,'monero']]],
   ['monero_5ftx_5fset',['monero_tx_set',['../structmonero_1_1monero__tx__set.html',1,'monero']]],
   ['monero_5ftx_5fwallet',['monero_tx_wallet',['../structmonero_1_1monero__tx__wallet.html',1,'monero']]],
@@ -41,5 +40,5 @@ var searchData=
   ['monero_5fwallet_5fcore',['monero_wallet_core',['../classmonero_1_1monero__wallet__core.html',1,'monero']]],
   ['monero_5fwallet_5fkeys',['monero_wallet_keys',['../classmonero_1_1monero__wallet__keys.html',1,'monero']]],
   ['monero_5fwallet_5flistener',['monero_wallet_listener',['../classmonero_1_1monero__wallet__listener.html',1,'monero']]],
-  ['move_5fto',['move_to',['../classmonero_1_1monero__wallet.html#a27ce13b9690907bb3543391c04f26d74',1,'monero::monero_wallet::move_to()'],['../classmonero_1_1monero__wallet__core.html#acd0297d11c8b05903639e8c6eec6880a',1,'monero::monero_wallet_core::move_to()']]]
+  ['move_5fto',['move_to',['../classmonero_1_1monero__wallet.html#ad9ac7519494ba946c08ea294a564179d',1,'monero::monero_wallet::move_to()'],['../classmonero_1_1monero__wallet__core.html#a066f0fddb14a428d78dd0d6ab38bfa8c',1,'monero::monero_wallet_core::move_to()']]]
 ];

@@ -79,27 +79,27 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0843da9a2a4090cfca281f3cd31e7829"><td class="memItemLeft" align="right" valign="top"><a id="a0843da9a2a4090cfca281f3cd31e7829"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>monero_destination</b> (const string &amp;address, uint64_t amount)</td></tr>
-<tr class="separator:a0843da9a2a4090cfca281f3cd31e7829"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73d248db4f8cd4b69e5cc3c12db8fb8e"><td class="memItemLeft" align="right" valign="top"><a id="a73d248db4f8cd4b69e5cc3c12db8fb8e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>monero_destination</b> (boost::optional&lt; std::string &gt; address=boost::none, boost::optional&lt; uint64_t &gt; amount=boost::none)</td></tr>
+<tr class="separator:a73d248db4f8cd4b69e5cc3c12db8fb8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb8bdaa5255ebf44d13f78ad5f7acc4c"><td class="memItemLeft" align="right" valign="top"><a id="aeb8bdaa5255ebf44d13f78ad5f7acc4c"></a>
 rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><b>to_rapidjson_val</b> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
 <tr class="separator:aeb8bdaa5255ebf44d13f78ad5f7acc4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abdbeceac326cdb17defc9306b7cd8f93"><td class="memItemLeft" align="right" valign="top"><a id="abdbeceac326cdb17defc9306b7cd8f93"></a>
-shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;src, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;tgt) const</td></tr>
-<tr class="separator:abdbeceac326cdb17defc9306b7cd8f93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d8642560f449a6baa60c1f2d3639af4"><td class="memItemLeft" align="right" valign="top"><a id="a5d8642560f449a6baa60c1f2d3639af4"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;src, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;tgt) const</td></tr>
+<tr class="separator:a5d8642560f449a6baa60c1f2d3639af4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a472f7abb19fc3e8981e2d197907be6d6"><td class="memItemLeft" align="right" valign="top"><a id="a472f7abb19fc3e8981e2d197907be6d6"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;destination)</td></tr>
-<tr class="separator:a472f7abb19fc3e8981e2d197907be6d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7659ac5b8d8d4d3f7f10201ee8fb433"><td class="memItemLeft" align="right" valign="top"><a id="aa7659ac5b8d8d4d3f7f10201ee8fb433"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;destination)</td></tr>
+<tr class="separator:aa7659ac5b8d8d4d3f7f10201ee8fb433"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a61dd6c0d903607e7ecaa4a98cfdbb7a1"><td class="memItemLeft" align="right" valign="top"><a id="a61dd6c0d903607e7ecaa4a98cfdbb7a1"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_address</b></td></tr>
-<tr class="separator:a61dd6c0d903607e7ecaa4a98cfdbb7a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68a50f9f31c75a8e15e87586d1edb986"><td class="memItemLeft" align="right" valign="top"><a id="a68a50f9f31c75a8e15e87586d1edb986"></a>
+boost::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_address</b></td></tr>
+<tr class="separator:a68a50f9f31c75a8e15e87586d1edb986"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cbc705e3256dcb13c5a792010412088"><td class="memItemLeft" align="right" valign="top"><a id="a0cbc705e3256dcb13c5a792010412088"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_amount</b></td></tr>
 <tr class="separator:a0cbc705e3256dcb13c5a792010412088"><td class="memSeparator" colspan="2">&#160;</td></tr>

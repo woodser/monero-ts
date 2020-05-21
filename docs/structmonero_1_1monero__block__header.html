@@ -90,18 +90,18 @@ Inheritance diagram for monero::monero_block_header:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7d75c164db7b4b16c50bec984b32b134"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__block__header.html#a7d75c164db7b4b16c50bec984b32b134">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
 <tr class="separator:a7d75c164db7b4b16c50bec984b32b134"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a807990e684fd601d9cc3f7ff207b3e6a"><td class="memItemLeft" align="right" valign="top"><a id="a807990e684fd601d9cc3f7ff207b3e6a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;self, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;other)</td></tr>
-<tr class="separator:a807990e684fd601d9cc3f7ff207b3e6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeab1ac69c987c4d2fef96aede80bc178"><td class="memItemLeft" align="right" valign="top"><a id="aeab1ac69c987c4d2fef96aede80bc178"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;self, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;other)</td></tr>
+<tr class="separator:aeab1ac69c987c4d2fef96aede80bc178"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structmonero_1_1serializable__struct"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structmonero_1_1serializable__struct')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structmonero_1_1serializable__struct.html">monero::serializable_struct</a></td></tr>
-<tr class="memitem:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#aff4103707ee262cc4bd15d8e789adddc">serialize</a> () const</td></tr>
-<tr class="separator:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a723e44b22962d02d3f78bc7c2043dc1e inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#a723e44b22962d02d3f78bc7c2043dc1e">serialize</a> () const</td></tr>
+<tr class="separator:a723e44b22962d02d3f78bc7c2043dc1e inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:abc6577d18425be1058a5a3bd1caef2cf"><td class="memItemLeft" align="right" valign="top"><a id="abc6577d18425be1058a5a3bd1caef2cf"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_hash</b></td></tr>
-<tr class="separator:abc6577d18425be1058a5a3bd1caef2cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09db0aa7d5de56c2027002803659a537"><td class="memItemLeft" align="right" valign="top"><a id="a09db0aa7d5de56c2027002803659a537"></a>
+boost::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_hash</b></td></tr>
+<tr class="separator:a09db0aa7d5de56c2027002803659a537"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91782dd143527fc8439f8bbc6124b4cd"><td class="memItemLeft" align="right" valign="top"><a id="a91782dd143527fc8439f8bbc6124b4cd"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_height</b></td></tr>
 <tr class="separator:a91782dd143527fc8439f8bbc6124b4cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,24 +135,24 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:a1f945866aeb2bd4a6d7a11991c334c27"><td class="memItemLeft" align="right" valign="top"><a id="a1f945866aeb2bd4a6d7a11991c334c27"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_nonce</b></td></tr>
 <tr class="separator:a1f945866aeb2bd4a6d7a11991c334c27"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b519b2ad21a359a192a9fcad0041362"><td class="memItemLeft" align="right" valign="top"><a id="a8b519b2ad21a359a192a9fcad0041362"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_miner_tx_hash</b></td></tr>
-<tr class="separator:a8b519b2ad21a359a192a9fcad0041362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea3111ee9a008b9306f5a1e73a9dbedb"><td class="memItemLeft" align="right" valign="top"><a id="aea3111ee9a008b9306f5a1e73a9dbedb"></a>
+boost::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_miner_tx_hash</b></td></tr>
+<tr class="separator:aea3111ee9a008b9306f5a1e73a9dbedb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40bee2187b299cfd8b36bdcca26aed95"><td class="memItemLeft" align="right" valign="top"><a id="a40bee2187b299cfd8b36bdcca26aed95"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_txs</b></td></tr>
 <tr class="separator:a40bee2187b299cfd8b36bdcca26aed95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae71d9ab765ceb0e42fbc56bd2b82fb87"><td class="memItemLeft" align="right" valign="top"><a id="ae71d9ab765ceb0e42fbc56bd2b82fb87"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_orphan_status</b></td></tr>
 <tr class="separator:ae71d9ab765ceb0e42fbc56bd2b82fb87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11606387e12c8c5a41a0db52bc5931f9"><td class="memItemLeft" align="right" valign="top"><a id="a11606387e12c8c5a41a0db52bc5931f9"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_prev_hash</b></td></tr>
-<tr class="separator:a11606387e12c8c5a41a0db52bc5931f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6eada60655ad68f43ba8d11502582b7"><td class="memItemLeft" align="right" valign="top"><a id="aa6eada60655ad68f43ba8d11502582b7"></a>
+boost::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_prev_hash</b></td></tr>
+<tr class="separator:aa6eada60655ad68f43ba8d11502582b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeadec8e3252a65c6b479bc1239a35e97"><td class="memItemLeft" align="right" valign="top"><a id="aeadec8e3252a65c6b479bc1239a35e97"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_reward</b></td></tr>
 <tr class="separator:aeadec8e3252a65c6b479bc1239a35e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2d44394feba8cbd64ef2cc4c3dd4d55"><td class="memItemLeft" align="right" valign="top"><a id="af2d44394feba8cbd64ef2cc4c3dd4d55"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_pow_hash</b></td></tr>
-<tr class="separator:af2d44394feba8cbd64ef2cc4c3dd4d55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a171951be7d9074584d1ae6fe76f8f316"><td class="memItemLeft" align="right" valign="top"><a id="a171951be7d9074584d1ae6fe76f8f316"></a>
+boost::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_pow_hash</b></td></tr>
+<tr class="separator:a171951be7d9074584d1ae6fe76f8f316"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Models a Monero block header which contains information about the block.</p>
