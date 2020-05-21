@@ -13,6 +13,7 @@
     - [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
     - [Sending funds](docs/developer_guide/sending_funds.md)
     - [Multisig wallets](docs/developer_guide/multisig_wallets.md)
+    - [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 - [How to include this library](#how-to-include-this-library)
 - [How to run Monero RPC](#how-to-run-monero-rpc)
 - [How to run Mocha tests](#how-to-run-mocha-tests)
@@ -123,7 +124,7 @@ await walletWasm.close(true);
 * [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
 * [Sending funds](docs/developer_guide/sending_funds.md)
 * [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-* View-only and offline wallets
+* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 * Getting started with monero-javascript web browser applications
 * Connecting to Monero nodes and RPC wallet servers
 * Analyzing the blockchain
