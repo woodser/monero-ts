@@ -1,9 +1,6 @@
 HIGH (WASM)
 full tests including jni, sweeps
-update c++ docs
-document creating txs
 testGetReserveProofAccount() exception, re-enable test reserves or report issue
-
 git clone includes .git directory which is 95mbs
 update to monero core 0.16.0
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
