@@ -10,7 +10,7 @@
     - [Getting started](docs/developer_guide/getting_started.md)
     - [Creating wallets](docs/developer_guide/creating_wallets.md)
     - [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-    - [Query transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+    - [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
     - [Sending funds](docs/developer_guide/sending_funds.md)
     - [Multisig wallets](docs/developer_guide/multisig_wallets.md)
 - [How to include this library](#how-to-include-this-library)
@@ -120,7 +120,7 @@ await walletWasm.close(true);
 * [Getting started](docs/developer_guide/getting_started.md)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-* [Query transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
 * [Sending funds](docs/developer_guide/sending_funds.md)
 * [Multisig wallets](docs/developer_guide/multisig_wallets.md)
 * View-only and offline wallets

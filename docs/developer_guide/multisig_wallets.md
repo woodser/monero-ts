@@ -16,7 +16,7 @@ for (let i = 0; i < N; i++) {
     path: "./test_wallets/multisig_participant_" + (i + 1),
     password: "supersecretpassword123",
     networkType: stagenet
-  });
+  }));
 }
 
 // prepare and collect multisig hex from each participant
