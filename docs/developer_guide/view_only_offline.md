@@ -11,9 +11,9 @@ To sign and submit transactions using view-only and offline wallets:
 1. Use a view-only wallet to scan for received funds.
 2. Export outputs from the view-only wallet to an offline wallet.
 3. Export key images from the offline wallet to the view-only wallet.
-4. Create unsigned transaction using the view-only wallet.
-5. Sign transaction using the offline wallet.
-6. Broadcast signed transaction using the view-only wallet or any daemon.
+4. Create an unsigned transaction using the view-only wallet.
+5. Sign the transaction using the offline wallet.
+6. Broadcast the signed transaction using the view-only wallet or any daemon.
 
 The following code demonstrates creating, signing, and submitting transactions using view-only and offline wallets:
 
