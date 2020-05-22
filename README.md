@@ -1,23 +1,31 @@
-**Compatible with [Monero Core v0.15.0.1](https://web.getmonero.org/downloads/) Carbon Chameleon**
-
 # Monero C++ Library
 
-This project is a C++ library for using Monero wallets by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
+## Table of Contents
+
+- [Overview](#overview)
+- [Sample code](#sample-code)
+- [How to build this library](#how-to-build-this-library)
+- [See also](#see-also)
+- [License](#license)
+- [Donations](#donations)
+
+## Overview
+
+This project is a C++ library for using Monero wallets with native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
 In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
 This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java)), or a compliant REST/JSON-RPC API.
 
-## Main Features
+- Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
+- Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
+- Supports multisig, view-only, offline, wallets.
+- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+- Query wallet transactions, transfers, and outputs by their many attributes.
+- Receive notifications when wallets sync, send, or receive.
+- Tested by over 100 JUnit test cases using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
 
-- Manage Monero wallets which connect to a daemon
-- Cohesive APIs and models with focus on ease-of-use
-- Query wallet transactions, transfers, and outputs by their attributes
-- Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
-- Full multisig support
-- Tested by over 100 JUnit test cases using a [native Java library](https://github.com/monero-ecosystem/monero-java)
-
-## Sample Code
+## Sample code
 
 This code demonstrates the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
@@ -154,7 +162,7 @@ wallet_restored->close(true);
 wallet_random->close(true);
 ```
 
-## How to Run This Library
+## How to build this library
 
 The following dependencies must be set up before running this project.
 
@@ -189,7 +197,7 @@ This project may be compiled as part of another application or as a shared or st
 
 These build steps aspire to be automated further and [any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
 
-## See Also
+## See also
 
 [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
@@ -201,7 +209,7 @@ These build steps aspire to be automated further and [any help is greatly apprec
 
 This project is licensed under MIT.
 
-## Donate
+## Donations
 
 If this library brings you value, please consider donating.
 
