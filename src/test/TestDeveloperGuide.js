@@ -19,7 +19,7 @@ class TestDeveloperGuide {
       
       // save wallet
       after(async function() {
-        await wallet.save();
+        await wallet.close(true);
       });
       
       it("Test developer guide transaction queries", async function() {
