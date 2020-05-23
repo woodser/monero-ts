@@ -1,5 +1,7 @@
-# An introduction to the monero-javascript library
+# Getting Started with monero-javascript Part 1: Installation and Basic Usage
+
 ## What is monero-javascript?
+
 Monero-javascript is a Node.js-based Monero library for javascript.
 
 The library derives its object and method hierarchy from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, uniform, and intuitive API specification that also serves as the foundation for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://github.com/monero-ecosystem/monero-java) libraries.
@@ -9,27 +11,25 @@ In addition to traditional RPC wallet communication, monero-javascript can manag
 ![Monero-javascript hierarchy](../architecture.png?raw=true)*Monero-javascript manipulates XMR and communicates with the blockchain via three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
 
 ## Initial Setup
+
 ### Install Node.js and the Node package manager (npm)
+
 Make sure you have Node.js and npm installed; you need them to obtain and use the monero-javascript library. See the ["Node.js and npm"](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#nodejs-and-npm) section of the prerequisite installation guide for step-by-step instructions for downloading and installing Node.js and npm.
 
 ### Create a new Node.js project
+
 1. Create and enter a new directory to hold the project:
-  ### Linux/Mac
-  1. `mkdir ~/offline_wallet_generator`
-  2. `cd ~/offline_wallet_generator`
-
-  ### Windows
-  1. `mkdir C:\offline_wallet_generator`
-  2. `cd C:\offline_wallet_generator`
-
+  ```
+  mkdir ~/offline_wallet_generator
+  cd ~/offline_wallet_generator
+  ```
 2. Create the new project:
-  `npm init`
-  The npm setup utility will ask you for some information. Press enter at each prompt to use the default value.
-
+  `npm init -y`
 3. Add the monero-javascript library to the offline_wallet_generator package:
   `npm install --save monero-javascript`
 
 ## Write a monero-javascript program
+
 ### The offline wallet generator
 
 An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and mnemonic seed phrase. An offline wallet generator only needs to generate and display these wallet attributes; it does not need to communicate with a Monero network, transfer XMR, or track a wallet's balance or outputs.
@@ -64,7 +64,7 @@ Monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You
 var keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-The createWallet method accepts a [MoneroWalletConfig](moneroecosystem.org/monero-javascript/MoneroWalletConfig) argument. MoneroWalletConfig is a generic class for passing wallet attributes to any monero-javascript wallet creation method. Each wallet class can determine how to create the new wallet by evaluating which MoneroWalletConfig fields are present and which are absent. If the MoneroWalletConfig does not specify any identifying attributes such as an address or seed phrase, the wallet class will generate a random wallet address (In previous versions of monero-javascript, this would have been accomplished with the "createWalletRandom" method).
+The createWallet method accepts a [MoneroWalletConfig](moneroecosystem.org/monero-javascript/MoneroWalletConfig) argument. MoneroWalletConfig is a generic class for passing wallet attributes to any monero-javascript wallet creation method. Each wallet constructor can determine how to create the new wallet by evaluating which MoneroWalletConfig fields are present and which are absent. If the MoneroWalletConfig object passed to createWallet() does not specify any identifying attributes (such as an address or seed phrase), the wallet class will generate a random wallet address.
 
 Use the Wallet class's getter methods to obtain and log the wallet's basic attributes. These attributes are:
 * The seed phrase
@@ -72,7 +72,7 @@ Use the Wallet class's getter methods to obtain and log the wallet's basic attri
 * The spend key
 * The view key
 
-Get each attribute from the wallet and log it in the console.
+Get each wallet attribute and log it in the console.
 ```
 console.log("Seed phrase: " + await(walletKeys.getMnemonic()));
 console.log("Address: " + await(walletKeys.getAddress(0,0))); // MoneroWallet.getAddress(accountIndex, subAddress)
@@ -109,14 +109,6 @@ Spend key: 7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e
 View key: b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507
 ```
 
-## Next steps
+## The next step
 
-To learn how to build a monero-javascript web browser application, see the [web application guide](https://github.com/monero-javascript/docs/web_application)
-
-If you want to find out how to perform more advanced operations with monero-javascript, check out the instructional code samples:
-* [Connecting to Monero nodes and RPC wallet servers](dummy_link)
-* [Initiating transfers](dummy_link)
-* [Building client-side wallets with MoneroWalletWasm](dummy_link)
-* [Managing view-only wallets](dummy_link)
-* [Using multisig wallets](dummy_link)
-* [Analyzing the blockchain](dummy_link)
+Continue to [Getting Started with Monero Javascript Part 2: Creating a Web Application](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/web_app_guide.md) to learn how to write client-side web browser applications with monero-javascript.
