@@ -71,7 +71,7 @@ let walletWasm = await MoneroWalletWasm.createWallet({
   serverUri: "http://localhost:38081",
   serverUsername: "superuser",
   serverPassword: "abctesting123",
-  mnemonic: ""hefty value scenic..."",
+  mnemonic: "hefty value scenic...",
   restoreHeight: 573936,
 });
 
