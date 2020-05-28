@@ -319,8 +319,8 @@ namespace monero {
       else if (key == std::string("prunedHex")) tx->m_pruned_hex = it->second.data();
       else if (key == std::string("prunableHex")) tx->m_prunable_hex = it->second.data();
       else if (key == std::string("prunableHash")) tx->m_prunable_hash = it->second.data();
-      else if (key == std::string("size")) throw std::runtime_error("size deserialization not implemented");
-      else if (key == std::string("weight")) throw std::runtime_error("weight deserialization not implemented");
+      else if (key == std::string("size")) tx->m_size = it->second.get_value<uint64_t>();
+      else if (key == std::string("weight")) tx->m_weight = it->second.get_value<uint64_t>();
       else if (key == std::string("inputs")) throw std::runtime_error("inputs deserializationn not implemented");
       else if (key == std::string("outputs")) throw std::runtime_error("outputs deserializationn not implemented");
       else if (key == std::string("outputIndices")) throw std::runtime_error("m_output_indices deserialization not implemented");
