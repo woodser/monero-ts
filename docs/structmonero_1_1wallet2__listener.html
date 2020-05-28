@@ -92,18 +92,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>on_sync_start</b> (ui
 <tr class="memitem:aad9ba433b530ad165ad8d5f7e3569883"><td class="memItemLeft" align="right" valign="top"><a id="aad9ba433b530ad165ad8d5f7e3569883"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>on_sync_end</b> ()</td></tr>
 <tr class="separator:aad9ba433b530ad165ad8d5f7e3569883"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b8d563e2f1695df2f799a671c69a95a"><td class="memItemLeft" align="right" valign="top"><a id="a2b8d563e2f1695df2f799a671c69a95a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>on_new_block</b> (uint64_t height, const cryptonote::block &amp;cn_block)</td></tr>
-<tr class="separator:a2b8d563e2f1695df2f799a671c69a95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a710359e5882a806b1b6642340e68d614"><td class="memItemLeft" align="right" valign="top"><a id="a710359e5882a806b1b6642340e68d614"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>on_unconfirmed_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index)</td></tr>
-<tr class="separator:a710359e5882a806b1b6642340e68d614"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a956e4b003e0872bf4ffeaa7800d520f3"><td class="memItemLeft" align="right" valign="top"><a id="a956e4b003e0872bf4ffeaa7800d520f3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index, uint64_t unlock_time)</td></tr>
-<tr class="separator:a956e4b003e0872bf4ffeaa7800d520f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ead16a5f407ea9bd60802a3c423e858"><td class="memItemLeft" align="right" valign="top"><a id="a3ead16a5f407ea9bd60802a3c423e858"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spent</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx_in, uint64_t amount, const cryptonote::transaction &amp;cn_tx_out, const cryptonote::subaddress_index &amp;subaddr_index)</td></tr>
-<tr class="separator:a3ead16a5f407ea9bd60802a3c423e858"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a488e675685c55fa91b8408225ae741"><td class="memItemLeft" align="right" valign="top"><a id="a8a488e675685c55fa91b8408225ae741"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_new_block</b> (uint64_t height, const cryptonote::block &amp;cn_block) override</td></tr>
+<tr class="separator:a8a488e675685c55fa91b8408225ae741"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa32a65c7d452ca0e740dbaa8262ac06"><td class="memItemLeft" align="right" valign="top"><a id="afa32a65c7d452ca0e740dbaa8262ac06"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_unconfirmed_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index) override</td></tr>
+<tr class="separator:afa32a65c7d452ca0e740dbaa8262ac06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29448e44406249c38d53b9ae182ae81a"><td class="memItemLeft" align="right" valign="top"><a id="a29448e44406249c38d53b9ae182ae81a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index, bool is_change, uint64_t unlock_time) override</td></tr>
+<tr class="separator:a29448e44406249c38d53b9ae182ae81a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb44155c73587a7dd6c6c04fee44bae3"><td class="memItemLeft" align="right" valign="top"><a id="adb44155c73587a7dd6c6c04fee44bae3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spent</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx_in, uint64_t amount, const cryptonote::transaction &amp;cn_tx_out, const cryptonote::subaddress_index &amp;subaddr_index) override</td></tr>
+<tr class="separator:adb44155c73587a7dd6c6c04fee44bae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Listens to wallet2 notifications in order to notify external wallet listeners. </p>

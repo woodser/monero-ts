@@ -621,7 +621,6 @@ namespace monero {
     rapidjson::Value value_num(rapidjson::kNumberType);
     if (m_amount != boost::none) monero_utils::addJsonMember("amount", m_amount.get(), allocator, root, value_num);
     if (m_account_index != boost::none) monero_utils::addJsonMember("accountIndex", m_account_index.get(), allocator, root, value_num);
-    if (m_num_suggested_confirmations != boost::none) monero_utils::addJsonMember("numSuggestedConfirmations", m_num_suggested_confirmations.get(), allocator, root, value_num);
 
     // return root
     return root;
@@ -641,7 +640,6 @@ namespace monero {
     tgt->m_tx = src->m_tx;  // reference parent tx by default
     tgt->m_amount = src->m_amount;
     tgt->m_account_index = src->m_account_index;
-    tgt->m_num_suggested_confirmations = src->m_num_suggested_confirmations;
     return tgt;
   }
 
@@ -658,14 +656,11 @@ namespace monero {
     // otherwise merge transfer fields
     m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "acountIndex");
 
-    // TODO monero core: failed m_tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/m_num_suggested_confirmations of 0
+    // TODO monero core: failed m_tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
     if (m_amount != boost::none && other->m_amount != boost::none && *m_amount != *other->m_amount && (*m_amount == 0 || *other->m_amount == 0)) {
-      m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, boost::none, boost::none, true, "acountIndex");
-      m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, true, "m_num_suggested_confirmations");
-      MWARNING("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/m_num_suggested_confirmations of 0");
+      throw std::runtime_error("failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/m_num_suggested_confirmations of 0");
     } else {
       m_amount = gen_utils::reconcile(m_amount, other->m_amount, "transfer amount");
-      m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "m_num_suggested_confirmations");
     }
   }
 
@@ -679,6 +674,7 @@ namespace monero {
     // set num values
     rapidjson::Value value_num(rapidjson::kNumberType);
     if (m_subaddress_index != boost::none) monero_utils::addJsonMember("subaddressIndex", m_subaddress_index.get(), allocator, root, value_num);
+    if (m_num_suggested_confirmations != boost::none) monero_utils::addJsonMember("numSuggestedConfirmations", m_num_suggested_confirmations.get(), allocator, root, value_num);
 
     // set std::string values
     rapidjson::Value value_str(rapidjson::kStringType);
@@ -708,6 +704,7 @@ namespace monero {
     monero_transfer::merge(self, other);
     m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "incoming transfer m_subaddress_index");
     m_address = gen_utils::reconcile(m_address, other->m_address);
+    m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "m_num_suggested_confirmations");
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
