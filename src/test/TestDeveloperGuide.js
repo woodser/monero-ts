@@ -25,7 +25,7 @@ class TestDeveloperGuide {
       it("Test developer guide transaction queries", async function() {
         
         // get a transaction by hash
-        let tx = await wallet.getTx("0b30d7b7510a1aed88c87464dffdcfe9d24feffc8798e30e887e3c9c3558a814");
+        let tx = await wallet.getTx("48db7afb1e9eecb11303d4f49c955ffdee2ffc2fa513b8f05da35ff537744096");
         
         // get unconfirmed transactions
         let txs = await wallet.getTxs({

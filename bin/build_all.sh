@@ -18,8 +18,12 @@
 cd ./external/monero-cpp-library/external/monero-core || exit 1
 git submodule update --init --force || exit 1
 git fetch || exit 1
+git checkout tags/v0.16.0.0 || exit 1
 make release-static -j8		# don't exit because this will build translations directory even if build fails
 cd ../../../../ || exit 1
+
+# checkout monero-cpp-library master branch
+git --git-dir ./external/monero-cpp-library/.git checkout master || exit
 
 # build boost
 ./bin/build_boost_emscripten.sh || exit

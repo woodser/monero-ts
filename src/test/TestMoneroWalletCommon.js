@@ -371,7 +371,7 @@ class TestMoneroWalletCommon {
         assert.equal(subaddress.getIndex(), subaddressIdx);
 
         // test valid but unfound address
-        let nonWalletAddress = await TestUtils.getRandomWalletAddress();
+        let nonWalletAddress = await TestUtils.getExternalWalletAddress();
         try {
           subaddress = await that.wallet.getAddressIndex(nonWalletAddress);
           throw new Error("fail");
@@ -1770,7 +1770,7 @@ class TestMoneroWalletCommon {
         }
         
         // test different wallet address
-        let differentAddress = await TestUtils.getRandomWalletAddress();
+        let differentAddress = await TestUtils.getExternalWalletAddress();
         try {
           await that.wallet.checkReserveProof(differentAddress, "Test message", signature);
           throw new Error("Should have thrown exception");
@@ -1836,14 +1836,14 @@ class TestMoneroWalletCommon {
         
         // test error when not enough balance for requested minimum reserve amount
         try {
-          await that.wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
-          throw new Error("Should have thrown exception");
+          let reserveProof = await that.wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
+          fail("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595");
         } catch (e) {
           assert.equal(e.getCode(), -1);
         }
         
         // test different wallet address
-        let differentAddress = await TestUtils.getRandomWalletAddress();
+        let differentAddress = await TestUtils.getExternalWalletAddress();
         try {
           await that.wallet.checkReserveProof(differentAddress, "Test message", signature);
           throw new Error("Should have thrown exception");
@@ -1932,7 +1932,7 @@ class TestMoneroWalletCommon {
         let signature = await that.wallet.signMessage(msg);
         let verified = await that.wallet.verifyMessage(msg, await that.wallet.getAddress(0, 0), signature);
         assert.equal(verified, true);
-        verified = await that.wallet.verifyMessage(msg, await TestUtils.getRandomWalletAddress(), signature);
+        verified = await that.wallet.verifyMessage(msg, await TestUtils.getExternalWalletAddress(), signature);
         assert.equal(verified, false);
       });
       
@@ -2005,8 +2005,8 @@ class TestMoneroWalletCommon {
             if (idx === entry.getIndex()) {
               testAddressBookEntry(entry);
               assert.equal(entry.getDescription(), integratedDescriptions[idx]);
-              assert.equal(entry.getAddress(), integratedAddresses[idx].getStandardAddress());
-              assert(MoneroUtils.paymentIdsEqual(integratedAddresses[idx].getPaymentId(), entry.getPaymentId()));
+              assert.equal(entry.getAddress(), integratedAddresses[idx].toString());
+              assert.equal(entry.getPaymentId(), undefined);
               found = true;
               break;
             }
@@ -2307,7 +2307,7 @@ class TestMoneroWalletCommon {
         let unlockedBalance1 = await that.wallet.getUnlockedBalance();
         
         // send funds to external address
-        let tx = await that.wallet.createTx({accountIndex: 0, address: await TestUtils.getRandomWalletAddress(), amount: TestUtils.MAX_FEE.multiply(new BigInteger(3)), relay: true});
+        let tx = await that.wallet.createTx({accountIndex: 0, address: await TestUtils.getExternalWalletAddress(), amount: TestUtils.MAX_FEE.multiply(new BigInteger(3)), relay: true});
         
         // collect balances after
         let balance2 = await that.wallet.getBalance();
@@ -3290,7 +3290,7 @@ class TestMoneroWalletCommon {
     }
     
     // test common field types
-    testTxWalletTypes(tx);
+    testTxWalletTypes(tx, ctx);
     
     // test confirmed
     if (tx.isConfirmed()) {
@@ -3987,7 +3987,7 @@ async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
  * 
  * @param tx is the tx to test
  */
-function testTxWalletTypes(tx) {
+function testTxWalletTypes(tx, ctx) {
   assert.equal(typeof tx.getHash(), "string");
   assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.isMinerTx(), "boolean");
@@ -4001,7 +4001,8 @@ function testTxWalletTypes(tx) {
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
   assert(tx.getUnlockTime() >= 0);
   assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
-  assert.equal(tx.getWeight(), undefined);
+  if (ctx.isSendResponse) assert(tx.getWeight() > 0);
+  else assert.equal(tx.getWeight(), undefined);
   assert.equal(tx.getReceivedTimestamp(), undefined);  // TODO monero-wallet-rpc: return received timestamp (asked to file issue if wanted)
 }
 
@@ -4010,7 +4011,6 @@ function testTransfer(transfer, ctx) {
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (!ctx.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
-  if (!ctx.isSendResponse) assert(transfer.getNumSuggestedConfirmations() >= 0); // TODO monero-wallet-rpc: some outgoing transfers have suggested_confirmations_threshold = 0
   if (transfer.isIncoming()) testIncomingTransfer(transfer);
   else testOutgoingTransfer(transfer, ctx);
   

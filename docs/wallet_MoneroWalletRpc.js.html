@@ -1649,6 +1649,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "label") { if (val) subaddress.setLabel(val); }
       else if (key === "used") subaddress.setIsUsed(val);
       else if (key === "blocks_to_unlock") subaddress.setNumBlocksToUnlock(val);
+      else if (key == "time_to_unlock") {}  // ignoring
       else console.log("WARNING: ignoring unexpected subaddress field: " + key + ": " + val);
     }
     return subaddress;
@@ -1719,50 +1720,44 @@ class MoneroWalletRpc extends MoneroWallet {
     // build shared tx set
     let txSet = MoneroWalletRpc._convertRpcTxSet(rpcTxs);
     
-    // done if rpc contains no txs
-    if (rpcTxs.fee_list === undefined) {
-      if (txs !== undefined) throw new MoneorException("Txs must be null if rpcTxs are null");
+    // get number of txs
+    let numTxs = rpcTxs.fee_list ? rpcTxs.fee_list.length : 0;
+    
+    // done if rpc response contains no txs
+    if (numTxs === 0) {
+      assert.equal(txs, undefined);
       return txSet;
     }
     
-    // get lists
-    let hashes = rpcTxs.tx_hash_list;
-    let keys = rpcTxs.tx_key_list;
-    let blobs = rpcTxs.tx_blob_list;
-    let metadatas = rpcTxs.tx_metadata_list;
-    let fees = rpcTxs.fee_list;
-    let amounts = rpcTxs.amount_list
-    
-    // ensure all lists are the same size
-    let sizes = new Set();
-    if (hashes !== undefined) sizes.add(hashes.length);
-    if (keys !== undefined) sizes.add(keys.length);
-    if (blobs !== undefined) sizes.add(blobs.length);
-    if (metadatas !== undefined) sizes.add(metadatas.length);
-    if (fees !== undefined) sizes.add(fees.length);
-    if (amounts !== undefined) sizes.add(amounts.length);
-    assert.equal(sizes.size, 1, "RPC lists are different sizes");
-    
     // pre-initialize txs if none given
-    if (txs !== undefined) txSet.setTxs(txs);
+    if (txs) txSet.setTxs(txs);
     else {
       txs = [];
-      for (let i = 0; i &lt; fees.length; i++) txs.push(new MoneroTxWallet());
-      txSet.setTxs(txs);
+      for (let i = 0; i &lt; numTxs; i++) txs.push(new MoneroTxWallet());
     }
-
-    // build transactions
-    for (let i = 0; i &lt; fees.length; i++) {
-      let tx = txs[i];
-      if (hashes !== undefined) tx.setHash(hashes[i]);
-      if (keys !== undefined) tx.setKey(keys[i]);
-      if (blobs !== undefined) tx.setFullHex(blobs[i]);
-      if (metadatas !== undefined) tx.setMetadata(metadatas[i]);
-      tx.setFee(new BigInteger(fees[i]));
+    for (let tx of txs) {
+      tx.setTxSet(txSet);
       tx.setIsOutgoing(true);
-      if (tx.getOutgoingTransfer() !== undefined) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
-      else tx.setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(tx).setAmount(new BigInteger(amounts[i])));
-      tx.setTxSet(txSet); // link tx to parent set
+    }
+    txSet.setTxs(txs);
+    
+    // initialize txs from rpc lists
+    for (let key of Object.keys(rpcTxs)) {
+      let val = rpcTxs[key];
+      if (key === "tx_hash_list") for (let i = 0; i &lt; val.length; i++) txs[i].setHash(val[i]);
+      else if (key === "tx_key_list") for (let i = 0; i &lt; val.length; i++) txs[i].setKey(val[i]);
+      else if (key === "tx_blob_list") for (let i = 0; i &lt; val.length; i++) txs[i].setFullHex(val[i]);
+      else if (key === "tx_metadata_list") for (let i = 0; i &lt; val.length; i++) txs[i].setMetadata(val[i]);
+      else if (key === "fee_list") for (let i = 0; i &lt; val.length; i++) txs[i].setFee(new BigInteger(val[i]));
+      else if (key === "weight_list") for (let i = 0; i &lt; val.length; i++) txs[i].setWeight(val[i]);
+      else if (key === "amount_list") {
+        for (let i = 0; i &lt; val.length; i++) {
+          if (txs[i].getOutgoingTransfer() !== undefined) txs[i].getOutgoingTransfer().setAmount(new BigInteger(val[i]));
+          else txs[i].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[i]).setAmount(new BigInteger(val[i])));
+        }
+      }
+      else if (key === "multisig_txset" || key === "unsigned_txset" || key === "signed_txset") {} // handled elsewhere
+      else LOGGER.warning("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
     return txSet;
@@ -1813,6 +1808,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
       else if (key === "unlock_time") tx.setUnlockTime(val);
+      else if (key === "weight") tx.setWeight(val);
       else if (key === "locked") tx.setIsLocked(val);
       else if (key === "tx_blob") tx.setFullHex(val);
       else if (key === "tx_metadata") tx.setMetadata(val);
@@ -1831,18 +1827,16 @@ class MoneroWalletRpc extends MoneroWallet {
           // timestamp of unconfirmed tx is current request time
         }
       }
-      else if (key === "confirmations") {
-        if (!tx.isConfirmed()) tx.setNumConfirmations(0);
-        else tx.setNumConfirmations(val);
-      }
+      else if (key === "confirmations") tx.setNumConfirmations(val);
       else if (key === "suggested_confirmations_threshold") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);
-        transfer.setNumSuggestedConfirmations(val);
+        if (!isOutgoing) transfer.setNumSuggestedConfirmations(val);
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);
         transfer.setAmount(new BigInteger(val));
       }
+      else if (key === "amounts") {}  // ignoring, amounts sum to amount
       else if (key === "address") {
         if (!isOutgoing) {
           if (!transfer) transfer = new MoneroIncomingTransfer().setTx(tx);
@@ -1898,6 +1892,8 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize final fields
     if (transfer) {
+      if (tx.isConfirmed() === undefined) tx.setIsConfirmed(false);
+      if (!transfer.getTx().isConfirmed()) tx.setNumConfirmations(0);
       if (isOutgoing) {
         tx.setIsOutgoing(true);
         if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().merge(transfer);
@@ -2123,7 +2119,7 @@ module.exports = MoneroWalletRpc;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 20 2020 09:48:47 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed May 27 2020 20:41:00 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

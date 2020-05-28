@@ -89,15 +89,6 @@ class MoneroSubmitTxResult {
     return this;
   }
   
-  isRct() {
-    return this.state.isRct;
-  }
-  
-  setIsRct(isRct) {
-    this.state.isRct = isRct;
-    return this;
-  }
-  
   isOverspend() {
     return this.state.isOverspend;
   }

@@ -72,23 +72,6 @@ class MoneroTransfer {
   }
   
   /**
-   * Return how many confirmations till it's not economically worth re-writing the chain.
-   * That is, the number of confirmations before the transaction is highly unlikely to be
-   * double spent or overwritten and may be considered settled, e.g. for a merchant to trust
-   * as finalized.
-   * 
-   * @return Integer is the number of confirmations before it's not worth rewriting the chain
-   */
-  getNumSuggestedConfirmations() {
-    return this.state.numSuggestedConfirmations;
-  }
-  
-  setNumSuggestedConfirmations(numSuggestedConfirmations) {
-    this.state.numSuggestedConfirmations = numSuggestedConfirmations;
-    return this;
-  }
-  
-  /**
    * Updates this transaction by merging the latest information from the given
    * transaction.
    * 
@@ -111,14 +94,11 @@ class MoneroTransfer {
     // otherwise merge transfer fields
     this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
     
-    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/numSuggestedConfirmations of 0
+    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
     if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(BigInteger.parse("0")) === 0 || transfer.getAmount().compare(BigInteger.parse("0")) === 0)) {
-      this.setAmount(GenUtils.reconcile(this.getAmount(), transfer.getAmount(), {resolveMax: true}));
-      this.setNumSuggestedConfirmations(GenUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: true}));
-      console.log("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");
+      throw new Error("failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");
     } else {
       this.setAmount(GenUtils.reconcile(this.getAmount(), transfer.getAmount()));
-      this.setNumSuggestedConfirmations(GenUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: false}));  // TODO monero-wallet-rpc: outgoing txs become 0 when confirmed
     }
     
     return this;
@@ -126,10 +106,9 @@ class MoneroTransfer {
   
   toString(indent = 0) {
     let str = "";
-    str += GenUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
+    str += GenUtils.kvLine("Is incoming", this.isIncoming(), indent);
     str += GenUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += GenUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
-    str += GenUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);
     return str === "" ? str :  str.slice(0, str.length - 1);  // strip last newline
   }
 }

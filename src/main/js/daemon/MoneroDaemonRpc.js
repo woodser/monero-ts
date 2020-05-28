@@ -929,7 +929,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         GenUtils.safeSet(header, header.getHeight, header.setHeight, val);
       }
       else if (key === "last_relayed_time") GenUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
-      else if (key === "receive_time") GenUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
+      else if (key === "receive_time" || key === "received_timestamp") GenUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
       else if (key === "in_pool") {
         GenUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
         GenUtils.safeSet(tx, tx.inTxPool, tx.setInTxPool, val);
@@ -1207,7 +1207,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "invalid_output") result.setHasInvalidOutput(val);
       else if (key === "too_few_outputs") result.setHasTooFewOutputs(val);
       else if (key === "low_mixin") result.setIsMixinTooLow(val);
-      else if (key === "not_rct") result.setIsRct(!val);
       else if (key === "not_relayed") result.setIsRelayed(!val);
       else if (key === "overspend") result.setIsOverspend(val);
       else if (key === "reason") result.setReason(val === "" ? undefined : val);

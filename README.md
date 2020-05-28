@@ -24,7 +24,7 @@
 
 ## Overview
 
-This project is a JavaScript library for using Monero with RPC and native bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
+This project is a JavaScript library for using Monero with RPC and native bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
@@ -33,7 +33,7 @@ This project is a JavaScript library for using Monero with RPC and native bindin
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
 - Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-- Over 230 passing Mocha test cases.
+- Over 250 passing Mocha test cases.
 
 ## Architecture
 

@@ -58,8 +58,8 @@ class TestSampleCode {
           serverUri: "http://localhost:38081",
           serverUsername: "superuser",
           serverPassword: "abctesting123",
-          mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual boss vain dyslexic divers among unfit asleep bays ostrich maverick skirting jaunt scenic shuffled spying",
-          restoreHeight: 573936,
+          mnemonic: TestUtils.MNEMONIC,                 // *** REPLACE WITH MNEMONIC IN README ***
+          restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT // *** REPLACE WITH FIRST RECEIVE HEIGHT IN README ***
         });
         
         // synchronize with progress notifications

@@ -177,7 +177,6 @@ class WalletEqualityUtils {
     else {
       tgt.getOutgoingTransfer().setDestinations(src.getOutgoingTransfer().getDestinations());
       tgt.getOutgoingTransfer().setAmount(src.getOutgoingTransfer().getAmount());
-      tgt.getOutgoingTransfer().setNumSuggestedConfirmations(GenUtils.reconcile(src.getOutgoingTransfer().getNumSuggestedConfirmations(), tgt.getOutgoingTransfer().getNumSuggestedConfirmations(), {resolveMax: true}));  // suggested confirmations can grow with amount
     }
   }
   

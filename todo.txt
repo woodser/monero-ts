@@ -1,19 +1,23 @@
 HIGH (WASM)
-update to monero core 0.16.0
-docs: c++ table of contents and header case, js dev guide
 full tests including jni, sweeps
-testGetReserveProofAccount() exception, re-enable test reserves or report issue
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 release
 report core issues
 
+run testSendToMultiple() a few times to start wallet or send to random subaddress
+monerowalletrpc.js/java can use subaddr_indices_all instead of manually setting all indices (wallet_rpc_server.cpp:1420)
+simplify getting available outputs - alias isLocked? isAvailable?
+support sign(msg, accountIndex, subaddressIndex) default 0s
+support create_subaddress count up to 64 at a time
+support on_estimate_tx_size_and_weight
+wallet_rpc_server on_create_address "Count must be between 1 and 64."
 only get failed synchronize message for one wallet when multiple wallet syncs fail
 separate keys tests?
 test saving tx note when creating tx
 getBlockTemplate() getNextSeedHash sometimes not null
 free tx set, tx, transfer, outputs from getTxs(), createTxs(), etc
 why not waiting for tx pool?
-error when wallet alread open?
+error when wallet already open?
 inherit tx config fields in transfer, output configs?
 check for unrecognized tx config
 wallet2 1128 ::move() causes warning
@@ -44,7 +48,6 @@ low severity vulnerabilities
 find boost version in cmake lists
 externalize test config
 filesystem can be used in emscripten for wasm wallet, possibly supports memfs: https://emscripten.org/docs/api_reference/Filesystem-API.html
-Can prove reserves in an account
 open bug on check key no funds received despite transfer - caused by importing key images?
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports
 namespace exported types to object instead of this.?
@@ -76,7 +79,6 @@ MoneroTxTestConfig extends MoneroTxFilter
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)
 wallet.getTxById() for convenience?
-commonTxSets
 send priority has no default, must pick one
 don't differentiate in spec uint vs long, BigInteger? or specify detailed types (uint64)
 class diagram query txs, transfers, vouts

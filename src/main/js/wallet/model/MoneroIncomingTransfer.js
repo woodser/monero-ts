@@ -35,6 +35,23 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     this.state.address = address;
     return this;
   }
+  
+  /**
+   * Return how many confirmations till it's not economically worth re-writing the chain.
+   * That is, the number of confirmations before the transaction is highly unlikely to be
+   * double spent or overwritten and may be considered settled, e.g. for a merchant to trust
+   * as finalized.
+   * 
+   * @return {number} is the number of confirmations before it's not worth rewriting the chain
+   */
+  getNumSuggestedConfirmations() {
+    return this.state.numSuggestedConfirmations;
+  }
+  
+  setNumSuggestedConfirmations(numSuggestedConfirmations) {
+    this.state.numSuggestedConfirmations = numSuggestedConfirmations;
+    return this;
+  }
 
   copy() {
     return new MoneroIncomingTransfer(this.toJson());
@@ -55,6 +72,7 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     if (this === transfer) return this;
     this.setSubaddressIndex(GenUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
     this.setAddress(GenUtils.reconcile(this.getAddress(), transfer.getAddress()));
+    this.setNumSuggestedConfirmations(GenUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: false}));
     return this;
   }
   
@@ -66,6 +84,7 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     let str = super.toString(indent) + "\n";
     str += GenUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     str += GenUtils.kvLine("Address", this.getAddress(), indent);
+    str += GenUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

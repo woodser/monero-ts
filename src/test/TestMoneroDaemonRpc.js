@@ -1098,7 +1098,12 @@ class TestMoneroDaemonRpc {
         }
         
         // relay the txs
-        txHashes.length === 1 ? await that.daemon.relayTxByHash(txHashes[0]) : await that.daemon.relayTxsByHash(txHashes);
+        try {
+          txHashes.length === 1 ? await that.daemon.relayTxByHash(txHashes[0]) : await that.daemon.relayTxsByHash(txHashes);
+        } catch (e) {
+          await that.daemon.flushTxPool(txHashes); // flush txs when relay fails to prevent double spends in other tests  
+          throw e;
+        }
         
         // ensure txs are relayed
         for (let tx of txs) {
@@ -1405,7 +1410,7 @@ function testBlockTemplate(template) {
   assert(template.getSeedHeight() > 0);
   assert.equal(typeof template.getSeedHash(), "string");
   assert(template.getSeedHash());
-  assert.equal(template.getNextSeedHash(), undefined);
+  // next seed hash can be null or initialized  // TODO: test circumstances for each
 }
 
 function testInfo(info) {
@@ -1515,13 +1520,12 @@ function testOutputDistributionEntry(entry) {
 function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
   try {
-    assert.equal(result.isDoubleSpendSeen(), false);
+    assert.equal(result.isDoubleSpendSeen(), false, "tx submission is double spend.");
     assert.equal(result.isFeeTooLow(), false);
     assert.equal(result.isMixinTooLow(), false);
     assert.equal(result.hasInvalidInput(), false);
     assert.equal(result.hasInvalidOutput(), false);
     assert.equal(result.hasTooFewOutputs(), false);
-    assert.equal(result.isRct(), true);
     assert.equal(result.isOverspend(), false);
     assert.equal(result.isTooBig(), false);
     assert.equal(result.getSanityCheckFailed(), false);
@@ -1542,7 +1546,6 @@ function testSubmitTxResultDoubleSpend(result) {
   assert.equal(result.isMixinTooLow(), false);
   assert.equal(result.hasInvalidInput(), false);
   assert.equal(result.hasInvalidOutput(), false);
-  assert.equal(result.isRct(), true);
   assert.equal(result.isOverspend(), false);
   assert.equal(result.isTooBig(), false);
 }
@@ -1555,7 +1558,6 @@ function testSubmitTxResultCommon(result) {
   assert.equal(typeof result.isMixinTooLow(), "boolean");
   assert.equal(typeof result.hasInvalidInput(), "boolean");
   assert.equal(typeof result.hasInvalidOutput(), "boolean");
-  assert.equal(typeof result.isRct(), "boolean");
   assert.equal(typeof result.isOverspend(), "boolean");
   assert.equal(typeof result.isTooBig(), "boolean");
   assert.equal(typeof result.getSanityCheckFailed(), "boolean");
@@ -1687,16 +1689,15 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getHost(), "string");
   assert(typeof peer.getPort() === "number");
   assert(peer.getPort() > 0);
-  assert(typeof peer.getRpcPort() === "number");
-  assert(peer.getRpcPort() >= 0);
+  assert(peer.getRpcPort() === undefined || (typeof peer.getRpcPort() === "number" && peer.getRpcPort() >= 0));
   assert.equal(typeof peer.isOnline(), "boolean");
-  TestUtils.testUnsignedBigInteger(peer.getRpcCreditsPerHash());
+  if (peer.getRpcCreditsPerHash() !== undefined) TestUtils.testUnsignedBigInteger(peer.getRpcCreditsPerHash());
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else {
     if (peer.getLastSeenTimestamp() < 0) console("Last seen timestamp is invalid: " + peer.getLastSeenTimestamp());
     assert(peer.getLastSeenTimestamp() >= 0);
   }
-  assert(peer.getPruningSeed() >= 0);
+  assert(peer.getPruningSeed() === undefined || peer.getPruningSeed() >= 0);
 }
 
 function testUpdateCheckResult(result) {
