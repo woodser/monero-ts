@@ -19,7 +19,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
-- Supports multisig, view-only, offline, wallets.
+- Supports multisig, view-only, and offline wallets.
 - Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 - Query wallet transactions, transfers, and outputs by their many attributes.
 - Receive notifications when wallets sync, send, or receive.
