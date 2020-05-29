@@ -2977,21 +2977,24 @@ class TestMoneroWalletCommon {
           
           // sweep unlocked account
           let unlockedSubaddress = subaddressesUnlocked[i];
-          let txs = await that.wallet.sweepUnlocked({accountIndex: unlockedSubaddress.getAccountIndex(), subaddressIndex: unlockedSubaddress.getIndex(), address: await that.wallet.getPrimaryAddress(), relay: true});
+          let config = new MoneroTxConfig({
+            address: await that.wallet.getPrimaryAddress(),
+            accountIndex: unlockedSubaddress.getAccountIndex(),
+            subaddressIndex: unlockedSubaddress.getIndex(),
+            relay: true
+          });
+          let txs = await that.wallet.sweepUnlocked(config);
           
           // test transactions
           assert(txs.length > 0);
           for (let tx of txs) {
             assert(GenUtils.arrayContains(tx.getTxSet().getTxs(), tx));
-            let config = new MoneroTxConfig({address: await that.wallet.getPrimaryAddress()});
-            config.setAccountIndex(unlockedSubaddress.getAccountIndex());
-            config.setSubaddressIndices([unlockedSubaddress.getIndex()]);
             await that._testTxWallet(tx, {wallet: that.wallet, config: config, isSendResponse: true, isSweepResponse: true});
           }
           
-          // assert no unlocked funds in subaddress
+          // assert unlocked balance is less than max fee
           let subaddress = await that.wallet.getSubaddress(unlockedSubaddress.getAccountIndex(), unlockedSubaddress.getIndex());
-          assert(subaddress.getUnlockedBalance().compare(new BigInteger(0)) === 0);
+          assert(subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) < 0);
         }
         
         // test subaddresses after sweeping
@@ -3016,9 +3019,9 @@ class TestMoneroWalletCommon {
             }
           }
           
-          // test that unlocked balance is 0 if swept, unchanged otherwise
+          // assert unlocked balance is less than max fee if swept, unchanged otherwise
           if (swept) {
-            assert(subaddressAfter.getUnlockedBalance().compare(BigInteger.valueOf(0)) === 0);
+            assert(subaddressAfter.getUnlockedBalance().compare(TestUtils.MAX_FEE) < 0);
           } else {
             assert(subaddressBefore.getUnlockedBalance().compare(subaddressAfter.getUnlockedBalance()) === 0);
           }
@@ -3048,20 +3051,19 @@ class TestMoneroWalletCommon {
         for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
           
           // sweep unlocked account
-          let accountUnlocked = accountsUnlocked[i];
-          let txs = await that.wallet.sweepUnlocked({accountIndex: accountUnlocked.getIndex(), address: await that.wallet.getPrimaryAddress(), relay: true});
+          let unlockedAccount = accountsUnlocked[i];
+          let config = new MoneroTxConfig().setAddress(await that.wallet.getPrimaryAddress()).setAccountIndex(unlockedAccount.getIndex()).setRelay(true);
+          let txs = await that.wallet.sweepUnlocked(config);
           
           // test transactions
           assert(txs.length > 0);
           for (let tx of txs) {
-            let config = new MoneroTxConfig({address: await that.wallet.getPrimaryAddress()});
-            config.setAccountIndex(accountUnlocked.getIndex());
             await that._testTxWallet(tx, {wallet: that.wallet, config: config, isSendResponse: true, isSweepResponse: true});
           }
           
-          // assert no unlocked funds in account
-          let account = await that.wallet.getAccount(accountUnlocked.getIndex());
-          assert.equal(account.getUnlockedBalance().toJSValue(), 0);
+          // assert unlocked account balance less than max fee
+          let account = await that.wallet.getAccount(unlockedAccount.getIndex());
+          assert(account.getUnlockedBalance().compare(TestUtils.MAX_FEE) < 0);
         }
         
         // test accounts after sweeping
@@ -3080,9 +3082,9 @@ class TestMoneroWalletCommon {
             }
           }
           
-          // test that unlocked balance is 0 if swept, unchanged otherwise
+          // assert unlocked balance is less than max fee if swept, unchanged otherwise
           if (swept) {
-            assert.equal(accountAfter.getUnlockedBalance().toJSValue(), 0);
+            assert(accountAfter.getUnlockedBalance().compare(TestUtils.MAX_FEE) < 0);
           } else {
             assert.equal(accountBefore.getUnlockedBalance().compare(accountAfter.getUnlockedBalance()), 0);
           }
@@ -3119,20 +3121,23 @@ class TestMoneroWalletCommon {
         // sweep
         let destination = await that.wallet.getPrimaryAddress();
         let config = new MoneroTxConfig().setAddress(destination).setSweepEachSubaddress(sweepEachSubaddress).setRelay(true);
+        let copy = config.copy();
         let txs = await that.wallet.sweepUnlocked(config);
+        assert.deepEqual(config, copy); // config is unchanged
         for (let tx of txs) {
           assert(GenUtils.arrayContains(tx.getTxSet().getTxs(), tx));
           assert.equal(tx.getTxSet().getMultisigTxHex(), undefined);
           assert.equal(tx.getTxSet().getSignedTxHex(), undefined);
           assert.equal(tx.getTxSet().getUnsignedTxHex(), undefined);
-          for (let tx of txSet.getTxs()) txs.push(tx);
         }
         assert(txs.length > 0);
         for (let tx of txs) {
-          config = new MoneroTxConfig().setAddress(destination);
-          config.setAccountIndex(tx.getOutgoingTransfer().getAccountIndex());
-          config.setSweepEachSubaddress(sweepEachSubaddress);
-          config.setRelay(true);
+          config = new MoneroTxConfig({
+            address: destination,
+            accountIndex: tx.getOutgoingTransfer().getAccountIndex(),
+            sweepEachSubaddress: sweepEachSubaddress,
+            relay: true
+          });
           await that._testTxWallet(tx, {wallet: that.wallet, config: config, isSendResponse: true, isSweepResponse: true});
         }
         
@@ -4052,8 +4057,8 @@ function testOutgoingTransfer(transfer, ctx) {
       TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
       sum = sum.add(destination.getAmount());
     }
-    if (transfer.getAmount().compare(sum) !== 0) console.log(transfer.getTx().toString());
-    assert.equal(sum.toString(), transfer.getAmount().toString());
+    if (transfer.getAmount().compare(sum) !== 0) console.log(transfer.getTx().getTxSet() === undefined ? transfer.getTx().toString() : transfer.getTx().getTxSet().toString());
+    assert.equal(sum.toString(), transfer.getAmount().toString()); // TODO: sum of destinations != outgoing amount in split txs
   }
 }
 

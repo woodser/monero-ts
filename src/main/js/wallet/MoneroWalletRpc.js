@@ -1498,7 +1498,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getDestinations()[0].getAddress() === undefined) throw new MoneroError("Must provide destination address to sweep to");
     if (config.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep config");
     if (config.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
-    if (config.getSubaddressIndices() !== undefined && config.getSubaddressIndices().length === 0) config.setSubaddressIndices(undefined);
+    if (config.getSubaddressIndices() !== undefined && config.getSubaddressIndices().length === 0) throw new MoneroError("Empty list given for subaddresses indices to sweep");
     if (config.getSweepEachSubaddress()) throw new MoneroError("Cannot sweep each subaddress with RPC `sweep_all`");
     
     // sweep from all subaddresses if not otherwise defined
@@ -1538,7 +1538,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsLocked(true);
       tx.setIsConfirmed(false);
       tx.setNumConfirmations(0);
-      tx.setRelay(!relay);
+      tx.setRelay(relay);
       tx.setInTxPool(relay);
       tx.setIsRelayed(relay);
       tx.setIsMinerTx(false);

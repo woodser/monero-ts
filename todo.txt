@@ -1,6 +1,7 @@
 HIGH (WASM)
-full tests including jni, sweeps
+finish dev guide
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
+full tests java + js
 release
 report core issues
 
@@ -18,6 +19,7 @@ getBlockTemplate() getNextSeedHash sometimes not null
 free tx set, tx, transfer, outputs from getTxs(), createTxs(), etc
 why not waiting for tx pool?
 error when wallet already open?
+end-to-end sweep test which fans funds each block for 10 blocks then tests all sweeps, use singleton sweep wallet to re-use on tests for each wallet type
 inherit tx config fields in transfer, output configs?
 check for unrecognized tx config
 wallet2 1128 ::move() causes warning
