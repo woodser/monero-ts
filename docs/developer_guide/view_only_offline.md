@@ -1,6 +1,6 @@
 # View-only and offline wallets
 
-Transactions can be securely generated without exposing the private spend key to an internet-connected device using view-only and offline wallets.
+Transactions can be generated without exposing the private spend key to an internet-connected device using view-only and offline wallets.
 
 A view-only wallet uses the private view key to scan for received funds, but does not have the private spend key to determine which funds are spent or sign transactions.
 
