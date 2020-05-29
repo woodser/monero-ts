@@ -24,7 +24,7 @@
 
 ## Overview
 
-monero-javascript allows Monero to be used in NodeJS or the browser using RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
+monero-javascript is a library to use Monero in NodeJS or the browser using RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
 - Use a daemon and wallets in NodeJS or the browser.
 - Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
