@@ -7,7 +7,8 @@
 - [Sample code](#sample-code)
 - [Developer guide](#developer-guide)
     - [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
-    - [Getting started](docs/developer_guide/getting_started.md)
+    - [Getting started part 1: create a Node.js application](docs/developer_guide/getting_started.md)
+    - [Getting started part 2: create a web application](docs/developer_guide/web_app_guide.md)
     - [Creating wallets](docs/developer_guide/creating_wallets.md)
     - [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
     - [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
@@ -118,16 +119,13 @@ await walletWasm.close(true);
 (work in progress)
 
 * [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
-* [Getting started](docs/developer_guide/getting_started.md)
-* [Creating wallets](docs/developer_guide/creating_wallets.md)
+* [Getting started part 1: create a Node.js application](docs/developer_guide/getting_started.md)
+* [Getting started part 2: create a web application](docs/developer_guide/web_app_guide.md)* [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [Transactions, transfers, and outputs](docs/developer_guide/data_model.md)
 * [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
 * [Sending funds](docs/developer_guide/sending_funds.md)
 * [Multisig wallets](docs/developer_guide/multisig_wallets.md)
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
-* Getting started with monero-javascript web browser applications
-* Connecting to Monero nodes and RPC wallet servers
-* Analyzing the blockchain
 
 ## How to include this library
 
