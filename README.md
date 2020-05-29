@@ -147,12 +147,12 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## Running tests
 
-1. Start RPC servers
+1. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
+2. `cd monero-javascript`
+3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 	2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
-2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
-3. `cd monero-javascript`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
 
 ### Running tests in NodeJS
