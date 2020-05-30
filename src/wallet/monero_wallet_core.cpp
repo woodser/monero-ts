@@ -1705,7 +1705,7 @@ namespace monero {
       tx_metadatas_iter++;
     }
 
-    // build tx std::set and return txs
+    // build tx set and return txs
     std::shared_ptr<monero_tx_set> tx_set = std::make_shared<monero_tx_set>();
     tx_set->m_txs = txs;
     for (int i = 0; i < txs.size(); i++) txs[i]->m_tx_set = tx_set;

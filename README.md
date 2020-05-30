@@ -11,11 +11,11 @@
 
 ## Overview
 
-This project is a C++ library for using Monero wallets with native bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
+This project is a C++ library for using Monero wallets via native bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
-In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
+In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 
-This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java)), or a compliant REST/JSON-RPC API.
+This library may be used to build Monero-related applications, such as GUIs, REST/JSON-RPC APIs, or libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java), [monero-javascript](https://github.com/monero-ecosystem/monero-javascript)).
 
 - Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
 - Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
@@ -188,8 +188,8 @@ The following dependencies must be set up before running this project.
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
 5. Set up Monero Core
     1. Initialize submodules: `git submodule update --init --recursive`
-    2. cd ./external/monero-core
-    3. git checkout tags/v0.16.0.0
+    2. `cd ./external/monero-core`
+    3. `git checkout tags/v0.16.0.0`
     3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
     4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
 6. Build this project as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`.
