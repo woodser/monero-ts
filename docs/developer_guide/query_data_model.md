@@ -63,7 +63,7 @@ let transfers = await wallet.getTransfers({
 // get transfers in the tx pool
 let transfers = await wallet.getTransfers({
   txQuery: {
-    isConfirmed: false
+    inTxPool: true
   }
 });
 ```

@@ -102,7 +102,7 @@ class TestDeveloperGuide {
         // get transfers in the tx pool
         transfers = await wallet.getTransfers({
           txQuery: {
-            isConfirmed: false
+            inTxPool: true
           }
         });
         for (let transfer of transfers) {
