@@ -7,15 +7,6 @@
 - [Sample code](#sample-code)
 - [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
 - [Developer guide](#developer-guide)
-    - [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
-    - [Getting started part 1: build a NodeJS application](docs/developer_guide/getting_started.md)
-    - [Getting started part 2: build a web application](docs/developer_guide/web_app_guide.md)
-    - [Creating wallets](docs/developer_guide/creating_wallets.md)
-    - [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-    - [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
-    - [Sending funds](docs/developer_guide/sending_funds.md)
-    - [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-    - [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 - [Compiling WebAssembly binaries from source](#compiling-webassembly-binaries-from-source)
 - [Running tests](#running-tests)
 - [See also](#see-also)
@@ -24,13 +15,11 @@
 
 ## Overview
 
-monero-javascript is a library to use Monero in NodeJS or the browser using RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
+monero-javascript is a library for using Monero in Node.js or the browser via RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
-- Use a daemon and wallets in NodeJS or the browser.
 - Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
 - Supports fully client-side wallets using native WebAssembly bindings to Monero Core.
 - Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-- Wallet implementations are interchangeable by conforming to a [common wallet interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
 - [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
 - Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
@@ -39,7 +28,7 @@ monero-javascript is a library to use Monero in NodeJS or the browser using RPC 
 ## Architecture
 
 <p align="center">
-	<img width="85%" height="auto" src="docs/architecture.png"/><br>
+	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
 	<i>Wallet implementations use RPC or WebAssembly bindings to Monero Core and are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 

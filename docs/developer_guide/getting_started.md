@@ -8,7 +8,7 @@ The library derives its object and method hierarchy from [The Hidden Model](http
 
 In addition to traditional RPC wallet communication, monero-javascript can manage wallets natively with WebAssembly (Wasm). Monero-javascript's Wasm wallet lets developers perform completely trustless, client-side wallet operations by eliminating the need for an intermediary wallet RPC server.
 
-![Monero-javascript hierarchy](../architecture.png?raw=true)*Monero-javascript manipulates XMR and communicates with the blockchain via three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
+![Monero-javascript hierarchy](../img/architecture.png?raw=true)*Monero-javascript manipulates XMR and communicates with the blockchain via three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
 
 ## Initial Setup
 

@@ -1,8 +1,17 @@
 # The data model: blocks, transactions, transfers, and outputs
 
-The following JSON demonstrates the relationship among blocks, transactions, transfers, and outputs used in monero-javascript.
+## Overview
 
-This JSON is a serialized transaction which sends funds to two accounts in the same wallet, so it has both an outgoing transfer and incoming transfers.
+This section introduces the data model used in monero-javascript.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or JSDocs for more detail.
+
+<p align="center">
+	<img width="65%" height="auto" src="../img/data_model.png"/><br>
+	<i><a href="https://moneroecosystem.org/monero-javascript/MoneroBlock.html">Blocks</a> have <a href="https://moneroecosystem.org/monero-javascript/MoneroTxWallet.html">transactions</a> which can have <a href="https://moneroecosystem.org/monero-javascript/MoneroIncomingTransfer.html">incoming transfers</a>, an <a href="https://moneroecosystem.org/monero-javascript/MoneroOutgoingTransfer.html">outgoing transfer</a>, and <a href="https://moneroecosystem.org/monero-javascript/MoneroOutputWallet.html">outputs</a>.</i>
+</p>
+
+## JSON
+
+The following JSON demonstrates the data model used in monero-javascript as a serialized transaction which sends funds to two accounts in the same wallet, so it has both an outgoing transfer and incoming transfers.
 
 ```json
 {
@@ -106,4 +115,10 @@ This JSON is a serialized transaction which sends funds to two accounts in the s
 }
 ```
 
-The top level is a block which contains transactions.  Transactions can have incoming transfers and an outgoing transfer.  The outgoing transfer may have destination addresses and amounts (note: this information is only saved locally with the wallet file and is not stored on the blockchain).  Transactions can also have outputs received by the wallet.
+The top level is a block which contains transactions.
+
+Transactions can have incoming transfers and an outgoing transfer.
+
+The outgoing transfer may have destination addresses and amounts (note: this information is only saved locally with the wallet file and is not stored on the blockchain).
+
+Transactions can also have outputs received by the wallet.
