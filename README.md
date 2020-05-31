@@ -18,7 +18,7 @@
 This project is a JavaScript library for using Monero in Node.js or the browser via RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
 - Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
-- Supports fully client-side wallets using native WebAssembly bindings to Monero Core.
+- Supports fully client-side wallets using native WebAssembly bindings to [monero-project/monero](https://github.com/monero-project/monero).
 - Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 - [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
 - Fetch and process binary data from the daemon (e.g. raw blocks).
@@ -119,7 +119,7 @@ If using RPC servers:
 (work in progress)
 
 * [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
-* [Getting started part 1: build a NodeJS application](docs/developer_guide/getting_started.md)
+* [Getting started part 1: build a Node.js application](docs/developer_guide/getting_started.md)
 * [Getting started part 2: build a web application](docs/developer_guide/web_app_guide.md)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
@@ -130,7 +130,7 @@ If using RPC servers:
 
 ## Compiling WebAssembly binaries from source
 
-This project uses WebAssembly to package and execute Monero Core's source code for use in a browser or other WebAssembly-supported environments.
+This project uses WebAssembly to package and execute Monero's source code for use in a browser or other WebAssembly-supported environments.
 
 Compiled WebAssembly binaries are committed to ./dist for convenience, but these files can be built independently from source code:
 
@@ -153,7 +153,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
 
-### Running tests in NodeJS
+### Running tests in Node.js
 
 * Run all tests: `npm test`
 * Run tests by their description: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions" --timeout 2000000`
