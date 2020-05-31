@@ -29,7 +29,7 @@ This project is a Node.js library for creating Monero applications using RPC or 
 ## Architecture
 
 <p align="center">
-	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
+	<img width="75%" height="auto" src="docs/img/architecture.png"/><br>
 	<i>Build Node.js or browser applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
