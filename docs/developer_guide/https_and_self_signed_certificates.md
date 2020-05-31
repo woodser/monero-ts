@@ -17,4 +17,4 @@
 2. Generate certificates for localhost web app (set password, use defaults except common name "localhost"), e.g.: `openssl req -x509 -newkey rsa:4096 -keyout localhost-key.pem -out localhost-cert.pem -days 365`
 3. Modify run_server.py to use generated certificates by uncommenting commented lines
 4. Test in Chrome: chrome://flags/#allow-insecure-localhost, set "Allow invalid certificates for resources loaded from localhost." to "Enabled"
-5. Test in Firefox: authenticate with https://localhost:38081/json_rpc and https://localhost:38083/json_rpc first, then run https://localhost:9100/
+5. Test in Firefox: authenticate with https://localhost:38081/json_rpc and https://localhost:38083/json_rpc first, then access https://localhost:9100/
