@@ -15,11 +15,12 @@
 
 ## Overview
 
-This project is a JavaScript library for using Monero in Node.js or the browser via RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
+This project is a Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero-project/monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
-* Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
-* Supports fully client-side wallets using native WebAssembly bindings to [monero-project/monero](https://github.com/monero-project/monero).
-* Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* Supports wallet and daemon RPC clients.
+* Supports fully client-side wallets using WebAssembly.
+* Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* Wallet implementations are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
@@ -29,7 +30,7 @@ This project is a JavaScript library for using Monero in Node.js or the browser 
 
 <p align="center">
 	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
-	<i>Wallet implementations use RPC or WebAssembly bindings to Monero Core and are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
+	<i>Build browser and Node.js applications using RPC or WebAssembly bindings to monero-project/monero.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
 ## Sample Code
