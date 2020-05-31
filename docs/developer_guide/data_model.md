@@ -11,7 +11,7 @@ This section introduces the data model used in monero-javascript.  Refer to the 
 
 ## JSON
 
-The following JSON demonstrates the data model used in monero-javascript as a serialized transaction which sends funds to two accounts in the same wallet, so it has both an outgoing transfer and incoming transfers.
+The following JSON demonstrates the data model as a serialized transaction which sends funds to two accounts in the same wallet, so it has both an outgoing transfer and incoming transfers.
 
 ```json
 {
