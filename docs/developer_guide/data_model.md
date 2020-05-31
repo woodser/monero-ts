@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section introduces the data model used in monero-javascript.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or JSDocs for more detail.
+This section introduces the data model used in monero-javascript.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroTxWallet.html) for more information.
 
 <p align="center">
 	<img width="65%" height="auto" src="../img/data_model.png"/><br>
