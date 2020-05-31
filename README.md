@@ -5,6 +5,7 @@
 - [Overview](#overview)
 - [Sample code](#sample-code)
 - [How to build this library](#how-to-build-this-library)
+* [Developer guide](#developer-guide)
 - [See also](#see-also)
 - [License](#license)
 - [Donations](#donations)
@@ -197,6 +198,10 @@ The following dependencies must be set up before running this project.
 This project may be compiled as part of another application or as a shared or static library.  For example, the associated [monero-java](https://github.com/monero-ecosystem/monero-java) library depends on this project as a shared library using Java JNI.
 
 These build steps aspire to be automated further and [any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
+
+## Developer guide
+
+Please refer to [monero-javascript's developer guide](https://github.com/monero-ecosystem/monero-javascript#developer-guide) which mostly translates to this C++ library.
 
 ## See also
 
