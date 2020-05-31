@@ -15,7 +15,7 @@
 
 ## Overview
 
-This project is a Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero-project/monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
+This project is a Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
 * Supports wallet and daemon RPC clients.
 * Supports fully client-side wallets using WebAssembly.
@@ -30,7 +30,7 @@ This project is a Node.js library for creating Monero applications using RPC or 
 
 <p align="center">
 	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
-	<i>Build browser and Node.js applications using RPC or WebAssembly bindings to monero-project/monero.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
+	<i>Build Node.js and browser applications using RPC or native WebAssembly bindings to "Monero Core".  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
 ## Sample Code
