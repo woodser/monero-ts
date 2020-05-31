@@ -2,28 +2,28 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Sample code](#sample-code)
-- [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
-- [Developer guide](#developer-guide)
-- [Compiling WebAssembly binaries from source](#compiling-webassembly-binaries-from-source)
-- [Running tests](#running-tests)
-- [See also](#see-also)
-- [License](#license)
-- [Donations](#donations)
+* [Overview](#overview)
+* [Architecture](#architecture)
+* [Sample code](#sample-code)
+* [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
+* [Developer guide](#developer-guide)
+* [Compiling WebAssembly binaries from source](#compiling-webassembly-binaries-from-source)
+* [Running tests](#running-tests)
+* [See also](#see-also)
+* [License](#license)
+* [Donations](#donations)
 
 ## Overview
 
 This project is a JavaScript library for using Monero in Node.js or the browser via RPC and native WebAssembly bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
 
-- Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
-- Supports fully client-side wallets using native WebAssembly bindings to [monero-project/monero](https://github.com/monero-project/monero).
-- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-- [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
-- Fetch and process binary data from the daemon (e.g. raw blocks).
-- Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-- Over 250 passing Mocha test cases.
+* Supports RPC clients of monero-daemon-rpc and monero-wallet-rpc.
+* Supports fully client-side wallets using native WebAssembly bindings to [monero-project/monero](https://github.com/monero-project/monero).
+* Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
+* Fetch and process binary data from the daemon (e.g. raw blocks).
+* Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
+* Over 250 passing Mocha test cases.
 
 ## Architecture
 
@@ -114,7 +114,7 @@ If using RPC servers:
 2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
-## Developer Guide
+## Developer guide
 
 (work in progress)
 
@@ -127,6 +127,7 @@ If using RPC servers:
 * [Sending funds](docs/developer_guide/sending_funds.md)
 * [Multisig wallets](docs/developer_guide/multisig_wallets.md)
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
 
 ## Compiling WebAssembly binaries from source
 
