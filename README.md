@@ -162,7 +162,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 ### Running tests in the browser
 
 1. `./bin/build_browser_tests.sh`
-2. Open browser to http://localhost:9100/tests.html
+2. Access http://localhost:9100/tests.html in a browser
 
 ## See Also
 
