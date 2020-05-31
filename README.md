@@ -2,13 +2,13 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Sample code](#sample-code)
-- [How to build this library](#how-to-build-this-library)
+* [Overview](#overview)
+* [Sample code](#sample-code)
+* [How to build this library](#how-to-build-this-library)
 * [Developer guide](#developer-guide)
-- [See also](#see-also)
-- [License](#license)
-- [Donations](#donations)
+* [See also](#see-also)
+* [License](#license)
+* [Donations](#donations)
 
 ## Overview
 
@@ -18,13 +18,12 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 
 This library may be used to build Monero-related applications, such as GUIs, REST/JSON-RPC APIs, or libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java), [monero-javascript](https://github.com/monero-ecosystem/monero-javascript)).
 
-- Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc.
-- Supports client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core.
-- Supports multisig, view-only, and offline wallets.
-- Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-- Query wallet transactions, transfers, and outputs by their many attributes.
-- Receive notifications when wallets sync, send, or receive.
-- Tested by over 100 JUnit test cases using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
+* Supports client-side wallets connected to a daemon.
+* Supports multisig, view-only, and offline wallets.
+* Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* Query wallet transactions, transfers, and outputs by their many attributes.
+* Receive notifications when wallets sync, send, or receive.
+* Tested by over 100 JUnit test cases using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
 
 ## Sample code
 
