@@ -163,7 +163,7 @@ async function mainFunction() {
 }
 ```
 
-Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic seed phrase, spend key, and view key displayed in the browser window.
+Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic phrase, spend key, and view key displayed in the browser window.
 
 ## Porting the application to a custom server
 

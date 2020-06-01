@@ -2,7 +2,7 @@
 
 ## What is monero-javascript?
 
-monero-javascript is a JavaScript library for producing Monero applications. The library is built on [a model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and extensible interface to Monero Core.
+monero-javascript is a JavaScript library for producing Monero applications. The library is built on a [model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and extensible interface to [monero-project/monero](https://github.com/monero-project/monero).
 
 In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with an RPC wallet server intermediary.
 
@@ -33,11 +33,11 @@ Node.js and npm need to be installed before using the monero-javascript library.
 
 ### The offline wallet generator
 
-An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and mnemonic seed phrase. An offline wallet generator only needs to produce and display these wallet attributes; it does not need to communicate with a Monero network, transfer XMR, or track a wallet's balance or outputs.
+An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and mnemonic phrase. An offline wallet generator only needs to produce and display these wallet attributes; it does not need to communicate with a Monero network, transfer XMR, or track a wallet's balance or outputs.
 
-monero-javascript's keys-only wallet meets these requirements and is the ideal basis for a monero-javascript-based offline wallet generator. The keys-only wallet is a minimal Wasm wallet implementation that only tracks a wallet's _permanent_ attributes. It cannot initiate transfers, report its balance, or communicate with a Monero network.
+monero-javascript's keys-only wallet meets these requirements and is ideal for a monero-javascript-based offline wallet generator. The keys-only wallet is a minimal Wasm wallet implementation that only provides a wallet's _static_ attributes. It cannot initiate transfers, report its balance, or communicate with a Monero network.
 
-The keys-only wallet has a file size just under 1/5 that of a standard Wasm wallet. The smaller memory footprint allows programs to load and execute more efficiently, so you should use them whenever possible.
+The keys-only wallet has a file size just under 1/5 that of a standard Wasm wallet, allowing it to load more quickly.
 
 ### Write the essential monero-javascript code
 
@@ -48,36 +48,35 @@ require("monero-javascript");
 
 mainFunction();
 
-async mainFunction() {
+async function mainFunction() {
 }
 ```
 
 Note the program's two components:
 1. A "require" statement to import the monero-javascript library:
 `require("monero-javascript");`
-2. An asynchronous "main" function so that "await" statements can precede calls to asynchronous monero-javascript methods:
-`async mainFunction() {}`
-The asynchronous function is not strictly necessary, but most applications need to call monero-javascript methods from an ayschnronous function so that code execution can pause while monero-javascript methods run. Otherwise, the app may try to manage a wallet or query an RPC server connection before loading completely.
+2. An asynchronous "main" function so that calls to monero-javascript can be "awaited" (most calls are asynchronous):
+`async function mainFunction() {}`
 
 ### Building a keys-only wallet
 
-monero-javscript implements keys-only wallets in the MoneroWalletKeys class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method in mainFunction() as follows:
+monero-javscript implements keys-only wallets in the `MoneroWalletKeys` class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 let keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-The `createWallet()` method accepts a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) argument. A MoneroWalletConfig instance can contain any combination of wallet attributes, and the monero-javascript library will automatically determine how to create or restore the wallet based on the given attributes. For example, a MoneroWalletConfig that contains a view key but not a spend key will prompt the library to create a view-only wallet. The MoneroWalletConfig object in the offline wallet generator code above contains no identifying wallet information, so monero-javascript creates a new, random wallet rather than attempting to restore one from a mnemonic seed phrase or keys.
+The `createWallet()` method accepts a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JavaScript object. A MoneroWalletConfig instance can contain any combination of wallet attributes, and the monero-javascript library will automatically create or restore the wallet based on the given attributes. For example, a MoneroWalletConfig that contains a view key but not a spend key will prompt the library to create a view-only wallet. The MoneroWalletConfig object in the offline wallet generator code above contains no identifying wallet information, so monero-javascript creates a new, random wallet rather than restoring one from a mnemonic phrase or keys.
 
-The offline wallet generator should display four basic wallet attritubes:
-* The mnemonic seed phrase
+The offline wallet generator should display four basic wallet attributes:
+* The mnemonic phrase
 * The address
 * The spend key
 * The view key
 
-Use the wallet's getter methods to obtain the wallet's basic attributes and log them in the console.
+Wallet getters are used to obtain wallet attributes and log them to the console:
 ```
-console.log("Mnemonic seed phrase: " + await walletKeys.getMnemonic());
+console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
 console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -91,10 +90,11 @@ require("monero-javascript");
 await mainFunction();
 
 async function mainFunction() {
+  
   // create a random keys-only (offline) stagenet wallet
   let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 
-  console.log("Mnemonic seed phrase: " + await walletKeys.getMnemonic());
+  console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
   console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
   console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
   console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -105,12 +105,11 @@ Save the file as "offline_wallet_generator.js" and run the program with Node.js:
 `node offline_wallet_generator.js`
 
 The output should look similar to the following:
-```
-Mnemonic seed phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
+
+Mnemonic phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
 Address: 5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg
 Spend key: 7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e
 View key: b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507
-```
 
 ## The next step
 
