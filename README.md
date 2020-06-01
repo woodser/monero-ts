@@ -120,8 +120,8 @@ If using RPC servers:
 (work in progress)
 
 * [Installing prerequisites](docs/developer_guide/installing_prerequisite_software.md)
-* [Getting started part 1: build a Node.js application](docs/developer_guide/getting_started.md)
-* [Getting started part 2: build a web application](docs/developer_guide/web_app_guide.md)
+* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started.md)
+* [Getting started part 2: creating a web application](docs/developer_guide/web_app_guide.md)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
 * [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)

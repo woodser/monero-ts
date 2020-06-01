@@ -86,13 +86,13 @@ _Note_: In order for the server to reflect changes to source files, you need to 
     **Note:** _The starter web application includes a second script - "start_dev_server.sh" - in the "./bin/" folder. start_dev_server.sh hosts the existing browser build on a server without rebuilding the application from the source files. You can run this script instead of "build_browser_app.sh" if you have not modified any of the files in the "./src/" directory._
 10. Point a browser to http://localhost:9100/offline_wallet_generator.html to view the application.
 
-The browser displays a blank page, because index.html is empty, and because the index.js does not send any output to the browser display. You can verify that the program runs exactly as it did as a Node.js application at the command line, however, by opening your browser's developer console.
+The browser displays a blank page, because index.html is empty, and because the index.js does not add any output to the browser display. You can verify that the program runs exactly as it did as a Node.js application at the command line, however, by opening your browser's developer console.
 
 ### Creating html elements to display the wallet attributes
 
 The wallet generator is now _technically_ running on a server, but the typical end user should not have to open the developer console to see the result. Modify the application to print the wallet attributes to the browser window instead.
 
-A javascript program cannot print directly to a browser window; instead, it must manipulate the html elements that _do_ display in the browser so that _they_ display the data. Therefore, you need to modify the offline_wallet_generator.html file in "./src/" so that the javascript program has a place to send the wallet attributes. Add "div" elements to contain each wallet attribute between the opening and closing "body" tags
+A javascript program cannot print directly to a browser window; instead, it must manipulate the html elements that _do_ display in the browser so that _they_ display the data. Therefore, we need to modify the offline_wallet_generator.html file in "./src/" so that the javascript program has a place to assign the wallet attributes to. Add "div" elements to contain each wallet attribute between the opening and closing "body" tags
 
 ```
     <div id="wallet_address"></div>
@@ -101,7 +101,7 @@ A javascript program cannot print directly to a browser window; instead, it must
     <div id="wallet_view_key"></div>
 ```
 
-### Sending the wallet attributes to the html page
+### Assigning the wallet attributes to the html page
 
 Open offline_wallet_generator.js and find the lines that the print the wallet attributes to the console:
 
@@ -112,7 +112,7 @@ console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
 ```
 
-Note that the program passes a display string to `console.log()` function calls. Modify these lines to assign each string to its corresponding div element in index.html instead:
+Modify these lines to assign each string to its corresponding div element in index.html instead:
 
 ```
 // print the wallet's attributes in the browser window
@@ -163,7 +163,7 @@ async function mainFunction() {
 }
 ```
 
-Run the build_browser_app.sh script in the "./bin/" directory to rebuild the application, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic seed phrase, spend key, and view key displayed in the browser window.
+Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic seed phrase, spend key, and view key displayed in the browser window.
 
 ## Porting the application to a custom server
 

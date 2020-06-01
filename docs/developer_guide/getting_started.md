@@ -1,16 +1,21 @@
-# Getting started with monero-javascript part 1: installation and basic usage
+# Getting started with monero-javascript part 1: creating a Node.js application
 
 ## What is monero-javascript?
 
-monero-javascript is a JavaScript library for producing Monero applications. The library is built on [an API model](https://moneroecosystem.org/monero-java/monero-spec.pdf) that aims to serve as an intuitive, consistent, and future-proof interface to Monero Core. In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with an rpc wallet server intermediary.
+monero-javascript is a JavaScript library for producing Monero applications. The library is built on [a model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and extensible interface to Monero Core.
 
-![monero-javascript hierarchy](../architecture.png?raw=true)*monero-javascript uses Monero through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.*  
+In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with an RPC wallet server intermediary.
+
+<p align="center">
+	<img width="80%" height="auto" src="../img/architecture.png"/><br>
+	<i>monero-javascript uses Monero through three channels: RPC wallet servers, RPC daemon servers, and Wasm wallets.</i>
+</p>
 
 ## Initial Setup
 
 ### Install Node.js and the Node package manager (npm)
 
-Make sure you have Node.js and npm installed; you need to install Node.js and npm before you can install and use the monero-javascript library. See the ["Node.js and npm"](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#nodejs-and-npm) section of the prerequisite installation guide for step-by-step instructions for downloading and installing Node.js and npm.
+Node.js and npm need to be installed before using the monero-javascript library. See the ["Node.js and npm"](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#nodejs-and-npm) section of the prerequisite installation guide for instructions to download and install Node.js and npm.
 
 ### Create a new Node.js project
 
