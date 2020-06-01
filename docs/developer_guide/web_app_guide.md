@@ -4,12 +4,12 @@ _Note: Though it is not strictly necessary, we recommend reading [part 1 of the 
 
 ## Overview
 
-This guide describes a quick and convenient method for configuring and hosting a monero-javascript web application server using the monero-javascript web application starter script. The guide also explains how to convert the offline wallet generator from [part 1 the getting started guide](https://moneroecosystem.org/monero-javascript/docs/developer-guide/getting_started.md)) into a web browser application.
+This guide describes a convenient method for configuring and hosting a monero-javascript web application server using the monero-javascript web application starter script. The guide also explains how to convert the offline wallet generator from [part 1 of the getting started guide](https://moneroecosystem.org/monero-javascript/docs/developer-guide/getting_started.md) into a web browser application.
 
 The guide is divided into three major sections:
 1. [Generating a monero-javascript web application project](generating-a-monero-javascript-web-application-project): A walkthrough of how to download and run the monero-javascript web application starter script, which automatically builds a functioning monero-javascript web application template and server.
-2. [Modifying the offline wallet generator to display in a browser](modifying_the_offline_wallet_generator_to_display_in_a_browser): Explains how to refactor the offline wallet generator to output wallet attributes to an html page rather than to the console. Experienced JavaScript web developers may be able to safely skip this section.
-3. [Porting the application to a custom server](porting_the_application_to_a_custom_server): a brief guide to serving the application to an existing server rather than running it on the built-in Python server.
+2. [Modifying the offline wallet generator to display in a browser](modifying_the_offline_wallet_generator_to_display_in_a_browser): Explains how to refactor the offline wallet generator to print wallet attributes to an html page rather than to the console. Experienced JavaScript web developers may be able to safely skip this section.
+3. [Porting the application to a custom server](porting_the_application_to_a_custom_server): a brief guide to serving the application on a traditional server rather than the built-in Python server.
 
 ## Generating a monero-javascript web application project
 
@@ -25,7 +25,7 @@ Click the links above for more information on installing and configuring Python,
 
 ### Configuring the project directory
 
-monero-javascript provides a script that automatically downloads the files and configures the directories you need to host a functioning monero-javascript web application server. To automatically download and run the script:
+A script is available to automatically download and launch a functioning monero-javascript web app in an application server.  To download and run the script:
 
 1. Create a new folder for the project:
 `mkdir ~/monero-javascript_web_app`
@@ -34,77 +34,63 @@ monero-javascript provides a script that automatically downloads the files and c
 3. Download and run the web app starter script:
 `bash <(curl -sL https://raw.githubusercontent.com/woodser/xmr-sample-app/master/web_template_script.sh)`
 
-Alternately, you can [manually download the script.](https://github.com/timetherewere/monero-javascript/raw/include_compressed_template/web_template_script)
+
+Alternatively, you can [manually download](https://github.com/timetherewere/monero-javascript/raw/include_compressed_template/web_template_script) then run the script.
 
 The script configures a project folder and serves two example web applications on port 9100. Open a web browser and navigate to "localhost:9100" for links to the applications:
 * "Sample code" demonstrates a handful of common monero-javascript operations. Open the developer console to see the application's output.
-* "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application before getting started, open "src/offline_wallet_generator.html" and "src/offline_wallet_generator.js".
+* "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application, see "src/offline_wallet_generator.html" and "src/offline_wallet_generator.js".
 
-_Note_:
-* In order for the server to reflect changes to source files, you need to stop it by pressing "ctrl-c" in the terminal where the server is running and then rebuild the app and restart the server by typing
-`./bin/build_browser_app.sh`.
+_Note_: In order for the server to reflect changes to source files, you need to stop it by pressing "ctrl-c" in the terminal where the server is running and then rebuild the application and restart the server by typing: `./bin/build_browser_app.sh`.
 
 ## Modifying the offline wallet generator to display in a browser
 
 1. Navigate to the "./src/" directory.
-2. Delete the files "offline_wallet_generator.html" and "offline_wallet_generator.js". You will be rewriting them from scratch.
+2. Delete the files "offline_wallet_generator.html" and "offline_wallet_generator.js". We'll be rewriting them from scratch.
 3. Create the file "offline_wallet_generator.html" and insert the following:
-```
-<!DOCTYPE html>
-<html>
-	<head>
-	<meta charset="UTF-8">
-	<title>Offline Wallet Generator</title>
-	<meta name="viewport"
-		content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
-	</head>
-	<body>
-		<script type="text/javascript" src="offline_wallet_generator.dist.js"></script>
-	</body>
-</html>
-```
+    ```
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Offline Wallet Generator</title>
+            <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
+        </head>
+        <body>
+            <script type="text/javascript" src="offline_wallet_generator.dist.js"></script>
+        </body>
+    </html>
+    ```
+    Take note of the line with the `<script>` element:
+    `<script type="text/javascript" src="offline_wallet_generator.js"></script>`
+    This line will tell the browser to run your offline wallet generator javascript program.
+4. Save the file.
+5. While still in the "src" directory, create the file "offline_wallet_generator.js" and open it in a text editor.
+6. Copy the code from the Node.js version of the offline wallet generator that was [produced in part 1 of this guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md):
+    ```
+    require("monero-javascript");
+    
+    mainFunction();
+    async function mainFunction() {
+      // create a random keys-only (offline) stagenet wallet
+      let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
+      console.log("Seed phrase: " + await walletKeys.getMnemonic());
+      console.log("Address: " + await walletKeys.getAddress(0,0)); // MoneroWallet.getAddress(accountIndex, subAddress)
+      console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
+      console.log("View key: " + await walletKeys.getPrivateViewKey());
+    }
+    ```
+7. Paste the code into "offline_wallet_generator.js" and save the file.
+8. Return to the project's root directory: `cd ..`
+9. Run the build_browser_app.sh script to host the application on a server: `./bin/build_browser_app.sh`
+    **Note:** _The starter web application includes a second script - "start_dev_server.sh" - in the "./bin/" folder. start_dev_server.sh hosts the existing browser build on a server without rebuilding the application from the source files. You can run this script instead of "build_browser_app.sh" if you have not modified any of the files in the "./src/" directory._
+10. Point a browser to localhost:9100/offline_wallet_generator.html to view the application.
 
-Take note of the line with the `<script>` element:
-
-`<script type="text/javascript" src="offline_wallet_generator.js"></script>`
-
-This line will tell the browser to run your offline wallet generator javascript program.
-5. Save the file.
-6. While still in the "src" directory, create the file "offline_wallet_generator.js" and open it in a text editor.
-7. Copy the code from the Node.js version of the offline wallet generator that was [produced in part 1 of this guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md):
-
-```
-require("monero-javascript");
-
-await mainFunction();
-
-async function mainFunction() {
-  // create a random keys-only (offline) stagenet wallet
-  let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
-
-  console.log("Seed phrase: " + await walletKeys.getMnemonic());
-  console.log("Address: " + await walletKeys.getAddress(0,0)); // MoneroWallet.getAddress(accountIndex, subAddress)
-  console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
-  console.log("View key: " + await walletKeys.getPrivateViewKey());
-}
-```
-
-8. Paste the code into "offline_wallet_generator.js" and save the file.
-
-* Return to the project's root directory
-`cd ..`
-* Run the build_browser_app.sh script to host the application on a server:
-`./bin/build_browser_app.sh`
-
-**Note:** _The starter web application includes a second script - "start_dev_server.sh" - in the "./bin/" folder. start_dev_server.sh hosts the existing browser build on a server without rebuilding the application from the source files. You can run this script instead of "build_browser_app.sh" if you have not modified any of the files in the "./src/" directory._
-
-Point a browser to localhost:9100/offline_wallet_generator.html to view the application. The browser displays a blank page, because index.html is empty, and because the index.js does not send any output to the browser display. You can verify that the program runs exactly as it did as a Node.js application at the command line, however, by opening your browser's developer console.
-
-## Displaying the offline wallet details in the browser Window
-
-The wallet generator is now _technically_ running on a server, but the typical end user should not have to open the developer console to see the result. Modify the application to print the wallet attributes to the browser window instead.
+The browser displays a blank page, because index.html is empty, and because the index.js does not send any output to the browser display. You can verify that the program runs exactly as it did as a Node.js application at the command line, however, by opening your browser's developer console.
 
 ### Creating html elements to display the wallet attributes
+
+The wallet generator is now _technically_ running on a server, but the typical end user should not have to open the developer console to see the result. Modify the application to print the wallet attributes to the browser window instead.
 
 A javascript program cannot print directly to a browser window; instead, it must manipulate the html elements that _do_ display in the browser so that _they_ display the data. Therefore, you need to modify the offline_wallet_generator.html file in "./src/" so that the javascript program has a place to send the wallet attributes. Add "div" elements to contain each wallet attribute between the opening and closing "body" tags
 
@@ -126,7 +112,7 @@ console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
 ```
 
-Note that the program passes a display string with the format '"Wallet attribute: " + await walletKeys.getWalletAttribute()'to each console.log() function call. Modify these lines to send each display string to its corresponding div element in index.html instead:
+Note that the program passes a display string to `console.log()` function calls. Modify these lines to assign each string to its corresponding div element in index.html instead:
 
 ```
 // print the wallet's attributes in the browser window
@@ -164,10 +150,7 @@ The final html and javascript files should match the following:
 ```
 require("monero-javascript");
 
-console.log("console log test");
-
 mainFunction();
-
 async function mainFunction() {
   // create a random keys-only (offline) stagenet wallet
   let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
@@ -202,9 +185,10 @@ To host the application on your own server, copy the contents of the "[applicati
 
 Read through the rest of the guides to learn more about using monero-javascript:
 
-* [Creating wallets](docs/developer_guide/creating_wallets.md)
-* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
-* [Sending funds](docs/developer_guide/sending_funds.md)
-* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [Creating wallets](./creating_wallets.md)
+* [The data model: blocks, transactions, transfers, and outputs](./data_model.md)
+* [Getting transactions, transfers, and outputs](./query_data_model.md)
+* [Sending funds](./sending_funds.md)
+* [Multisig wallets](./multisig_wallets.md)
+* [View-only and offline wallets](./view_only_offline.md)
+* [HTTPS and self-signed certificates](./https_and_self_signed_certificates.md)
