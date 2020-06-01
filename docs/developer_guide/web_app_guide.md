@@ -15,17 +15,15 @@ This guide is divided into three major sections:
 
 ### Required software
 
-The web application starter script relies on two external programs:
-* [Python (version 3)](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#python)
-* [Node.js and the node package manager (npm)](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#nodejs-and-npm)
+The web application starter script relies on:
+* [Python 3](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisites.md#python)
+* [Node.js and the node package manager (npm)](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisites.md#nodejs-and-npm)
 
-_If you followed the [getting started guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md), you should have already installed Node.js._
-
-Click the links above for more information on installing and configuring Python, Node.js, and npm.
+_Note_: These are already installed if you followed [part 1 of the getting started guide](getting_started.md).
 
 ### Configuring the project directory
 
-A script is available to automatically download and launch a functioning monero-javascript web app in an application server.  To download and run the script:
+A script is available to automatically download and launch a functioning monero-javascript web application in an application server.  To download and run the script:
 
 1. Create a new folder for the project:
 `mkdir ~/monero-javascript_web_app`
@@ -33,7 +31,6 @@ A script is available to automatically download and launch a functioning monero-
 `cd ~/monero-javascript_web_app`
 3. Download and run the web app starter script:
 `bash <(curl -sL https://raw.githubusercontent.com/woodser/xmr-sample-app/master/web_template_script.sh)`
-
 
 Alternatively, you can [manually download](https://raw.githubusercontent.com/woodser/xmr-sample-app/master/web_template_script.sh) the script then run it.
 
@@ -106,7 +103,7 @@ A javascript program cannot print directly to a browser window; instead, it must
 Open offline_wallet_generator.js and find the lines that the print the wallet attributes to the console:
 
 ```
-console.log("Mnemonic seed phrase: " + await walletKeys.getMnemonic());
+console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
 console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -116,7 +113,7 @@ Modify these lines to assign each string to its corresponding div element in ind
 
 ```
 // print the wallet's attributes in the browser window
-document.getElementById("wallet_seed_phrase").innerHTML = "Mnemonic seed phrase: " + await walletKeys.getMnemonic();
+document.getElementById("wallet_seed_phrase").innerHTML = "Mnemonic phrase: " + await walletKeys.getMnemonic();
 document.getElementById("wallet_address").innerHTML = "Address: " + await walletKeys.getAddress(0, 0); // get address of account 0, subaddress 0
 document.getElementById("wallet_spend_key").innerHTML = "Spend key: " + await walletKeys.getPrivateSpendKey();
 document.getElementById("wallet_view_key").innerHTML = "View key: " + await walletKeys.getPrivateViewKey();
@@ -155,7 +152,7 @@ async function mainFunction() {
   let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 
   // print the wallet's attributes in the browser window
-  document.getElementById("wallet_seed_phrase").innerHTML = "Mnemonic seed phrase: " + await walletKeys.getMnemonic();
+  document.getElementById("wallet_seed_phrase").innerHTML = "Mnemonic phrase: " + await walletKeys.getMnemonic();
   document.getElementById("wallet_address").innerHTML = "Address: " + await walletKeys.getAddress(0, 0); // get address at account 0, subaddress 0
   document.getElementById("wallet_spend_key").innerHTML = "Spend key: " + await walletKeys.getPrivateSpendKey();
   document.getElementById("wallet_view_key").innerHTML = "View key: " + await walletKeys.getPrivateViewKey();

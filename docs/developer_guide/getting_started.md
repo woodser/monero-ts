@@ -4,7 +4,7 @@
 
 monero-javascript is a JavaScript library for producing Monero applications. The library is built on a [model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and extensible interface to [monero-project/monero](https://github.com/monero-project/monero).
 
-In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with an RPC wallet server intermediary.
+In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with a RPC wallet server intermediary.
 
 <p align="center">
 	<img width="80%" height="auto" src="../img/architecture.png"/><br>
@@ -15,15 +15,15 @@ In addition to standard RPC wallet and daemon server queries, monero-javascript 
 
 ### Install Node.js and the Node package manager (npm)
 
-Node.js and npm need to be installed before using the monero-javascript library. See the ["Node.js and npm"](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisite_software.md#nodejs-and-npm) section of the prerequisite installation guide for instructions to download and install Node.js and npm.
+Node.js and npm need to be installed before using the monero-javascript library. See the ["Node.js and npm"](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/installing_prerequisites.md#nodejs-and-npm) section of the prerequisite installation guide for instructions to download and install Node.js and npm.
 
 ### Create a new Node.js project
 
 1. Create and enter a new directory to hold the project:
-  ```
-  mkdir ~/offline_wallet_generator
-  cd ~/offline_wallet_generator
-  ```
+    ```
+    mkdir ~/offline_wallet_generator
+    cd ~/offline_wallet_generator
+    ```
 2. Create the new project:
   `npm init -y`
 3. Add the monero-javascript library to the offline_wallet_generator package:

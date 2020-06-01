@@ -1,4 +1,4 @@
-# External software
+# Installing prerequisites
 
 ## Python
 
@@ -38,4 +38,4 @@ To install Node.js and npm:
 
 ## Monero CLI tools
 
-_Coming soon..._
+Download and install for your platform: https://web.getmonero.org/downloads/
