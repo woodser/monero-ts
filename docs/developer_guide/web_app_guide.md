@@ -6,7 +6,7 @@ _Note: Though it is not strictly necessary, we recommend reading [part 1 of the 
 
 This guide describes a convenient method for configuring and hosting a monero-javascript web application server using the monero-javascript web application starter script. The guide also explains how to convert the offline wallet generator from [part 1 of the getting started guide](https://moneroecosystem.org/monero-javascript/docs/developer-guide/getting_started.md) into a web browser application.
 
-The guide is divided into three major sections:
+This guide is divided into three major sections:
 1. [Generating a monero-javascript web application project](generating-a-monero-javascript-web-application-project): A walkthrough of how to download and run the monero-javascript web application starter script, which automatically builds a functioning monero-javascript web application template and server.
 2. [Modifying the offline wallet generator to display in a browser](modifying_the_offline_wallet_generator_to_display_in_a_browser): Explains how to refactor the offline wallet generator to print wallet attributes to an html page rather than to the console. Experienced JavaScript web developers may be able to safely skip this section.
 3. [Porting the application to a custom server](porting_the_application_to_a_custom_server): a brief guide to serving the application on a traditional server rather than the built-in Python server.
@@ -35,11 +35,11 @@ A script is available to automatically download and launch a functioning monero-
 `bash <(curl -sL https://raw.githubusercontent.com/woodser/xmr-sample-app/master/web_template_script.sh)`
 
 
-Alternatively, you can [manually download](https://github.com/timetherewere/monero-javascript/raw/include_compressed_template/web_template_script) then run the script.
+Alternatively, you can [manually download](https://raw.githubusercontent.com/woodser/xmr-sample-app/master/web_template_script.sh) the script then run it.
 
-The script configures a project folder and serves two example web applications on port 9100. Open a web browser and navigate to "localhost:9100" for links to the applications:
-* "Sample code" demonstrates a handful of common monero-javascript operations. Open the developer console to see the application's output.
+The script configures a project folder and serves two example web applications on port 9100. Open a web browser and navigate to http://localhost:9100 for links to the applications:
 * "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application, see "src/offline_wallet_generator.html" and "src/offline_wallet_generator.js".
+* "Sample code" demonstrates a handful of common monero-javascript operations. Open the developer console to see the application's output.
 
 _Note_: In order for the server to reflect changes to source files, you need to stop it by pressing "ctrl-c" in the terminal where the server is running and then rebuild the application and restart the server by typing: `./bin/build_browser_app.sh`.
 
@@ -84,7 +84,7 @@ _Note_: In order for the server to reflect changes to source files, you need to 
 8. Return to the project's root directory: `cd ..`
 9. Run the build_browser_app.sh script to host the application on a server: `./bin/build_browser_app.sh`
     **Note:** _The starter web application includes a second script - "start_dev_server.sh" - in the "./bin/" folder. start_dev_server.sh hosts the existing browser build on a server without rebuilding the application from the source files. You can run this script instead of "build_browser_app.sh" if you have not modified any of the files in the "./src/" directory._
-10. Point a browser to localhost:9100/offline_wallet_generator.html to view the application.
+10. Point a browser to http://localhost:9100/offline_wallet_generator.html to view the application.
 
 The browser displays a blank page, because index.html is empty, and because the index.js does not send any output to the browser display. You can verify that the program runs exactly as it did as a Node.js application at the command line, however, by opening your browser's developer console.
 
@@ -163,7 +163,7 @@ async function mainFunction() {
 }
 ```
 
-Run the build_browser_app.sh script in the "./bin/" directory to rebuild the application, then point your browser to "localhost:9100/offline_wallet_generator.html". You should see the wallet's address, mnemonic seed phrase, spend key, and view key displayed in the browser window.
+Run the build_browser_app.sh script in the "./bin/" directory to rebuild the application, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic seed phrase, spend key, and view key displayed in the browser window.
 
 ## Porting the application to a custom server
 
