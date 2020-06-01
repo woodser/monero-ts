@@ -1,4 +1,4 @@
-# Getting started with monero-javascript part 1: creating a Node.js application
+# Getting started part 1: creating a Node.js application
 
 ## What is monero-javascript?
 
@@ -66,11 +66,11 @@ monero-javscript implements keys-only wallets in the `MoneroWalletKeys` class. Y
 let keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-The `createWallet()` method accepts a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JavaScript object. A MoneroWalletConfig instance can contain any combination of wallet attributes, and the monero-javascript library will automatically create or restore the wallet based on the given attributes. For example, a MoneroWalletConfig that contains a view key but not a spend key will prompt the library to create a view-only wallet. The MoneroWalletConfig object in the offline wallet generator code above contains no identifying wallet information, so monero-javascript creates a new, random wallet rather than restoring one from a mnemonic phrase or keys.
+The `createWallet()` method accepts a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JavaScript object.  The monero-javascript library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-javascript generates a new, random wallet rather than restoring an existing wallet.
 
-The offline wallet generator should display four basic wallet attributes:
+The offline wallet generator displays four basic wallet attributes:
 * The mnemonic phrase
-* The address
+* The primary address
 * The spend key
 * The view key
 
@@ -106,11 +106,13 @@ Save the file as "offline_wallet_generator.js" and run the program with Node.js:
 
 The output should look similar to the following:
 
+```
 Mnemonic phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
 Address: 5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg
 Spend key: 7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e
 View key: b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507
+```
 
 ## The next step
 
-Continue to [Getting Started with monero-javascript Part 2: Creating a Web Application](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/web_app_guide.md) to learn how to write client-side web browser applications with monero-javascript.
+Continue to [Getting started part 2: creating a web application](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/web_app_guide.md) to learn how to write client-side web browser applications with monero-javascript.

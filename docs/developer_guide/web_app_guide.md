@@ -1,4 +1,4 @@
-# Getting started with monero-javascript part 2: creating a web application
+# Getting started part 2: creating a web application
 
 _Note: Though it is not strictly necessary, we recommend reading [part 1 of the monero-javascript getting started guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md) before learning about monero-javascript web application development._
 
@@ -132,8 +132,7 @@ The final html and javascript files should match the following:
 	<head>
 	<meta charset="UTF-8">
 	<title>Offline Wallet Generator</title>
-	<meta name="viewport"
-		content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
 	</head>
   <body>
     <div id="wallet_address"></div>
