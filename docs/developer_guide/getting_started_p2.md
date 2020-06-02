@@ -166,7 +166,7 @@ Run `./bin/build_browser_app.sh` to rebuild the application and launch the serve
 
 ## Running the application on your own application server
 
-To host the application on your own application server, copy the contents of the "./browser_build" folder to the source directory of your application server.
+To host the application on your own application server, copy the contents of the "./browser_build" folder to the source directory for your application server.
 
 For example, to host the application on a standard apache server: `cp ./browser_build/* [app_server_path]/var/www/html`
 
