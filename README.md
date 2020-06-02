@@ -25,7 +25,7 @@ This project is a C++ library for creating Monero applications with native bindi
 
 This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
-Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome.
+_Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome._
 
 ```c++
 // create a wallet from a mnemonic phrase
@@ -182,17 +182,17 @@ The following dependencies must be set up before running this project.
     1. Build libsodium for your system.
     2. Copy libsodium.a to ./external-libs/libsodium.<br>
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
-5. Set up Monero Core
+5. Set up monero-project/monero:
     1. Initialize submodules: `git submodule update --init --recursive`
     2. `cd ./external/monero-core`
     3. `git checkout tags/v0.16.0.0`
     3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
-    4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
+    4. Build *twice* to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
 6. Build this project as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`.
        
-This project may be compiled as part of another application or as a shared or static library.  For example, the associated [monero-java](https://github.com/monero-ecosystem/monero-java) library depends on this project as a shared library using Java JNI.
+This project may be compiled as part of another application or included as a shared or static library.  For example, the associated [monero-java](https://github.com/monero-ecosystem/monero-java) library depends on this project as a shared library for Java JNI.
 
-These build steps aspire to be automated further and [any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
+These build steps aspire to be automated further.  [Any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
 
 ## Developer guide
 
@@ -200,11 +200,9 @@ Please refer to [monero-javascript's developer guide](https://github.com/monero-
 
 ## See also
 
-[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
-
-[monero-java](https://github.com/monero-ecosystem/monero-java)
-
-[monero-javascript](https://github.com/monero-ecosystem/monero-javascript)
+* [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [monero-java](https://github.com/monero-ecosystem/monero-java)
+* [monero-javascript](https://github.com/monero-ecosystem/monero-javascript)
 
 ## License
 
