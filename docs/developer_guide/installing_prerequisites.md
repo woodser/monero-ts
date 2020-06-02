@@ -1,25 +1,10 @@
 # Installing prerequisites
 
-## Python
-
-The starter web application uses a Python command to run its server, so you need to install Python before running the application.
-
-To install Python:
-
-1. Open a terminal.
-2. Use a package manager to download and install Python 3:
-### Debian/Ubuntu:
-
-  `$ sudo apt-get install python3`
-### Fedora:
-
-  `$ sudo dnf install python3`
-
 ## Node.js and npm
 
 JavaScript is designed to run client-side in web browsers, so JavaScript programs cannot run as standalone or server-side applications out of the box. Node.js solves this limitation by providing a runtime environment, allowing JavaScript programs to execute outside of a web browser.
 
-[Part 1 of the monero-JavaScript "getting started" guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md) illustrates the use of Node.js to run a monero-JavaScript program in a unix terminal, so you need to install it to follow the guide.
+[Part 1 of the monero-javascript "getting started" guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md) illustrates the use of Node.js to run a monero-javascript program in a unix terminal, so you need to install it to follow the guide.
 
 In addition, Node.js includes the Node Package Manger (npm). npm installs Node modules including the monero-javascript module, which is required to use the monero-javascript library.
 
@@ -39,3 +24,18 @@ To install Node.js and npm:
 ## Monero CLI tools
 
 Download and install for your platform: https://web.getmonero.org/downloads/
+
+## Python
+
+The starter web application uses a Python command to run its server, so you need to install Python before running the application.
+
+To install Python:
+
+1. Open a terminal.
+2. Use a package manager to download and install Python 3:
+### Debian/Ubuntu:
+
+  `$ sudo apt-get install python3`
+### Fedora:
+
+  `$ sudo dnf install python3`

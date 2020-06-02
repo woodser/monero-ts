@@ -2,9 +2,9 @@
 
 ## What is monero-javascript?
 
-monero-javascript is a JavaScript library for producing Monero applications. The library is built on a [model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and extensible interface to [monero-project/monero](https://github.com/monero-project/monero).
+monero-javascript is a JavaScript library for producing Monero applications. The library conforms to a [model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and robust interface to [monero-project/monero](https://github.com/monero-project/monero).
 
-In addition to standard RPC wallet and daemon server queries, monero-javascript is capable of performing native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with a RPC wallet server intermediary.
+In addition to RPC wallet and daemon server queries, monero-javascript can perform native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with a RPC wallet server intermediary.
 
 <p align="center">
 	<img width="80%" height="auto" src="../img/architecture.png"/><br>
@@ -22,8 +22,7 @@ Node.js and npm need to be installed before using the monero-javascript library.
 1. Create and enter a new directory to hold the project:
     ```
     mkdir ~/offline_wallet_generator
-    cd ~/offline_wallet_generator
-    ```
+    cd ~/offline_wallet_generator```
 2. Create the new project:
   `npm init -y`
 3. Add the monero-javascript library to the offline_wallet_generator package:
