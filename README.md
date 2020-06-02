@@ -19,7 +19,8 @@ This project is a C++ library for creating Monero applications with native bindi
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * Query wallet transactions, transfers, and outputs by their many attributes.
 * Receive notifications when wallets sync, send, or receive.
-* Tested by over 100 JUnit tests using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
+* Supports native wallets in [monero-java](https://github.com/monero-ecosystem/monero-java) and [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) via JNI and WebAssembly bindings.
+* Tested by over 100 JUnit tests in [monero-java](https://github.com/monero-ecosystem/monero-java) via JNI bindings.
 
 ## Sample code
 
