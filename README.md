@@ -1,8 +1,19 @@
 # Monero JavaScript Library
 
-## Table of Contents
+A Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
-* [Overview](#overview)
+* Supports wallet and daemon RPC clients.
+* Supports client-side wallets in Node.js or the browser using WebAssembly.
+* Supports multisig, view-only, and offline wallets.
+* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
+* Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
+* Fetch and process binary data from the daemon (e.g. raw blocks).
+* Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
+* Over 250 passing Mocha tests.
+
+## Table of contents
+
 * [Architecture](#architecture)
 * [Sample code](#sample-code)
 * [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
@@ -12,20 +23,6 @@
 * [See also](#see-also)
 * [License](#license)
 * [Donations](#donations)
-
-## Overview
-
-This project is a Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
-
-* Supports wallet and daemon RPC clients.
-* Supports fully client-side wallets using native WebAssembly bindings.
-* Supports multisig, view-only, and offline wallets.
-* Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
-* [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
-* Fetch and process binary data from the daemon (e.g. raw blocks).
-* Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-* Over 250 passing Mocha test cases.
 
 ## Architecture
 
@@ -111,7 +108,7 @@ await walletWasm.close(true);
 2. `npm install monero-javascript`
 3. Add `require("monero-javascript")` to your application code.
 
-### If using RPC servers:
+#### If using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
@@ -154,12 +151,12 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
 
-### Running tests in Node.js
+#### Running tests in Node.js
 
 * Run all tests: `npm test`
 * Run tests by their description: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions" --timeout 2000000`
 
-### Running tests in the browser
+#### Running tests in the browser
 
 1. `./bin/build_browser_tests.sh`
 2. Access http://localhost:9100/tests.html in a browser
