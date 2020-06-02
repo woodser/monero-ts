@@ -7,7 +7,7 @@
 * [Sample code](#sample-code)
 * [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
 * [Developer guide](#developer-guide)
-* [Compiling WebAssembly binaries from source](#compiling-webassembly-binaries-from-source)
+* [Building WebAssembly binaries from source](#building-webassembly-binaries-from-source)
 * [Running tests](#running-tests)
 * [See also](#see-also)
 * [License](#license)
@@ -18,7 +18,8 @@
 This project is a Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
 * Supports wallet and daemon RPC clients.
-* Supports fully client-side wallets using WebAssembly.
+* Supports fully client-side wallets using native WebAssembly bindings.
+* Supports multisig, view-only, and offline wallets.
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * Wallet implementations are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
@@ -33,9 +34,9 @@ This project is a Node.js library for creating Monero applications using RPC or 
 	<i>Build Node.js or browser applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
-## Sample Code
+## Sample code
 
-This code introduces the API used in monero-javascript.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html) or [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) for more detail.
+This code introduces the API used in monero-javascript.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html), [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test) for more detail.
 
 ```js
 // import library
@@ -110,7 +111,7 @@ await walletWasm.close(true);
 2. `npm install monero-javascript`
 3. Add `require("monero-javascript")` to your application code.
 
-If using RPC servers:
+### If using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
@@ -128,7 +129,7 @@ If using RPC servers:
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 * [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
 
-## Compiling WebAssembly binaries from source
+## Building WebAssembly binaries from source
 
 This project uses WebAssembly to package and execute Monero's source code for use in a browser or other WebAssembly-supported environments.
 
@@ -145,7 +146,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## Running tests
 
-1. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
+1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 2. `cd monero-javascript`
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
@@ -165,6 +166,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## See Also
 
+* [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-cpp-library](https://github.com/woodser/monero-cpp-library)
 * [xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)

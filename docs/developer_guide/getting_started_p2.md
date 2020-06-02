@@ -69,6 +69,8 @@ _Note: In order for the server to reflect changes to source files, you need to s
     
       // create a random keys-only (offline) stagenet wallet
       let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
+      
+      // print wallet attributes
       console.log("Seed phrase: " + await walletKeys.getMnemonic());
       console.log("Address: " + await walletKeys.getAddress(0,0)); // MoneroWallet.getAddress(accountIndex, subAddress)
       console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
@@ -164,7 +166,7 @@ Run `./bin/build_browser_app.sh` to rebuild the application and launch the serve
 
 ## Running the application on a traditional application server
 
-To host the application on your own application server, copy the contents of the "./browser_build" folder to the root directory of your application server.
+To host the application on your own application server, copy the contents of the "./browser_build" folder to the source directory of your application server.
 
 For example, to host the application on a standard apache server: `cp ./browser_build/* [app_server_path]/var/www/html`
 
