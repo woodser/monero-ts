@@ -14,13 +14,12 @@
 
 This project is a C++ library for creating Monero applications with native bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
-* Supports client-side wallets connected to a daemon.
+* Supports fully client-side wallets connected to a daemon.
 * Supports multisig, view-only, and offline wallets.
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * Query wallet transactions, transfers, and outputs by their many attributes.
 * Receive notifications when wallets sync, send, or receive.
-* Supports native wallets in [monero-java](https://github.com/monero-ecosystem/monero-java) and [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) via JNI and WebAssembly bindings.
-* Tested by over 100 JUnit tests in [monero-java](https://github.com/monero-ecosystem/monero-java) via JNI bindings.
+* Tested by over 100 tests in [monero-java](https://github.com/monero-ecosystem/monero-java) and [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) using JNI and WebAssembly bindings.
 
 ## Sample code
 
@@ -161,38 +160,39 @@ wallet_random->close(true);
 
 ## Using this library in your project
 
-The following dependencies must be set up to use this library in your project.
+This project may be compiled as part of another application or built as a shared or static library.
 
-1. Set up Boost
-    1. Download and extract the boost 1.72.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
-    2. `cd ./external/boost-sdk/`
-    3. `./bootstrap.sh`
-    4. `./b2`
-    5. Copy .a files from ./external/boost-sdk/bin.v2/libs/\*/link-static/\* to ./external-libs/boost according to CMakeLists.txt.
-2. Set up OpenSSL
-    1. Download and extract the latest OpenSSL source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
-    2. Build for your system.<br>
+For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
+
+1. Set up dependencies
+	1. Set up Boost
+		1. Download and extract the boost 1.72.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
+		2. `cd ./external/boost-sdk/`
+		3. `./bootstrap.sh`
+		4. `./b2`
+		5. Copy .a files from ./external/boost-sdk/bin.v2/libs/\*/link-static/\* to ./external-libs/boost according to CMakeLists.txt.
+	2. Set up OpenSSL
+		1. Download and extract the latest OpenSSL source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
+		2. Build for your system.<br>
        Mac: installed through boost at /usr/local/opt/openssl/lib
-    3. Copy libcrypto.a and libssl.a ./external-libs/openssl
-3. Set up hidapi
-    1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
-    2. Build hidapi for your system.<br>
+		3. Copy libcrypto.a and libssl.a ./external-libs/openssl
+	3. Set up hidapi
+		1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
+		2. Build hidapi for your system.<br>
        Mac requires autoreconf: `brew install automake`
-    3. Copy libhidapi.a to ./external-libs/hidapi.
-4. Set up libsodium
-    1. Build libsodium for your system.
-    2. Copy libsodium.a to ./external-libs/libsodium.<br>
+		3. Copy libhidapi.a to ./external-libs/hidapi.
+	4. Set up libsodium
+		1. Build libsodium for your system.
+		2. Copy libsodium.a to ./external-libs/libsodium.<br>
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
-5. Set up monero-project/monero:
-    1. Initialize submodules: `git submodule update --init --recursive`
-    2. `cd ./external/monero-core`
-    3. `git checkout tags/v0.16.0.0`
-    3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
-    4. Build *twice* to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
-6. Build this project as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`.
+	5. Set up monero-project/monero:
+		1. Initialize submodules: `git submodule update --init --recursive`
+		2. `cd ./external/monero-core`
+		3. `git checkout tags/v0.16.0.0`
+		3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
+		4. Build **twice** to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
+2. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
        
-This project may be compiled as part of another application or included as a shared or static library.  For example, the associated [monero-java](https://github.com/monero-ecosystem/monero-java) library depends on this project as a shared library for Java JNI.
-
 These build steps aspire to be automated further.  [Any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
 
 ## Developer guide
