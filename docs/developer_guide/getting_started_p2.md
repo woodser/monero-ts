@@ -9,7 +9,7 @@ This guide describes a convenient method for downloading, building, and launchin
 This guide is divided into three sections:
 1. [Creating a monero-javascript web application project](#creating-a-monero-javascript-web-application-project): A walkthrough of how to download and run the monero-javascript web application starter script, which automatically downloads, builds, and launches monero-javascript sample web applications in an application server.
 2. [Modifying the offline wallet generator to display in a browser](#modifying-the-offline-wallet-generator-to-display-in-a-browser): Explains how to modify the offline wallet generator to display wallet attributes to an HTML page rather than the console.
-3. [Running the application on a traditional application server](#running-the-application-on-a-traditional-application-server): Describes how to run the web application on your own application server rather than the built-in Python server.
+3. [Running the application on your own application server](#running-the-application-on-your-own-application-server): Describes how to run the web application on your own application server rather than the built-in Python server.
 
 ## Creating a monero-javascript web application project
 
@@ -164,7 +164,7 @@ async function main() {
 
 Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic phrase, spend key, and view key displayed in the browser window.
 
-## Running the application on a traditional application server
+## Running the application on your own application server
 
 To host the application on your own application server, copy the contents of the "./browser_build" folder to the source directory of your application server.
 
