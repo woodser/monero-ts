@@ -2,12 +2,12 @@
 
 A C++ library for creating Monero applications using native bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
-* Supports fully client-side wallets connected to a daemon.
+* Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * Query wallet transactions, transfers, and outputs by their many attributes.
 * Receive notifications when wallets sync, send, or receive.
-* Over 100 passing tests in [monero-java](https://github.com/monero-ecosystem/monero-java) and [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) using JNI and WebAssembly bindings.
+* Tested by over 100 tests in [monero-java](https://github.com/monero-ecosystem/monero-java) and [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) using JNI and WebAssembly bindings.
 
 ## Table of contents
 
