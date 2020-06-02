@@ -161,7 +161,7 @@ wallet_random->close(true);
 
 ## Using this library in your project
 
-The following dependencies must be set up before running this project.
+The following dependencies must be set up to use this library in your project.
 
 1. Set up Boost
     1. Download and extract the boost 1.72.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
