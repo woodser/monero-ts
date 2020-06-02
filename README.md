@@ -21,7 +21,7 @@ This project is a Node.js library for creating Monero applications using RPC or 
 * Supports fully client-side wallets using native WebAssembly bindings.
 * Supports multisig, view-only, and offline wallets.
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-* Wallet implementations are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
+* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their many attributes.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
