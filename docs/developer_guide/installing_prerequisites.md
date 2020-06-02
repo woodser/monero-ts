@@ -4,7 +4,7 @@
 
 JavaScript is designed to run client-side in web browsers, so JavaScript programs cannot run as standalone or server-side applications out of the box. Node.js solves this limitation by providing a runtime environment, allowing JavaScript programs to execute outside of a web browser.
 
-[Part 1 of the monero-javascript "getting started" guide](https://github.com/monero-ecosystem/monero-javascript/blob/master/docs/developer_guide/getting_started.md) illustrates the use of Node.js to run a monero-javascript program in a unix terminal, so you need to install it to follow the guide.
+[Part 1 of the monero-javascript "getting started" guide](getting_started_p1.md) illustrates the use of Node.js to run a monero-javascript program in a unix terminal, so you need to install it to follow the guide.
 
 In addition, Node.js includes the Node Package Manger (npm). npm installs Node modules including the monero-javascript module, which is required to use the monero-javascript library.
 

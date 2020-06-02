@@ -1,4 +1,10 @@
-# Creating Wallets
+# Creating wallets
+
+Three types of wallets can be created:
+
+* [MoneroWalletRpc](#monerowalletrpc) - client connected to a monero-wallet-rpc server.
+* [MoneroWalletWasm](#monerowalletwasm) - client-side wallet which communicates directly with a daemon.
+* [MoneroWalletKeys](#monerowalletkeys) - client-side wallet which supports only basic key management.
 
 ## MoneroWalletRpc
 
