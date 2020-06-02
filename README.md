@@ -4,7 +4,7 @@
 
 * [Overview](#overview)
 * [Sample code](#sample-code)
-* [How to build this library](#how-to-build-this-library)
+* [Using this library in your project](#using-this-library-in-your-project)
 * [Developer guide](#developer-guide)
 * [See also](#see-also)
 * [License](#license)
@@ -12,22 +12,18 @@
 
 ## Overview
 
-This project is a C++ library for using Monero wallets via native bindings to [Monero Core v0.16.0.0 'Nitrogen Nebula'](https://web.getmonero.org/downloads/).
-
-In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
-
-This library may be used to build Monero-related applications, such as GUIs, REST/JSON-RPC APIs, or libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java), [monero-javascript](https://github.com/monero-ecosystem/monero-javascript)).
+This project is a C++ library for creating Monero applications with native bindings to [monero v0.16.0.0 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.0).
 
 * Supports client-side wallets connected to a daemon.
 * Supports multisig, view-only, and offline wallets.
-* Conforms to an [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * Query wallet transactions, transfers, and outputs by their many attributes.
 * Receive notifications when wallets sync, send, or receive.
-* Tested by over 100 JUnit test cases using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
+* Tested by over 100 JUnit tests using JNI bindings in [monero-java](https://github.com/monero-ecosystem/monero-java).
 
 ## Sample code
 
-This code demonstrates the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
+This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
 Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome.
 
@@ -162,7 +158,7 @@ wallet_restored->close(true);
 wallet_random->close(true);
 ```
 
-## How to build this library
+## Using this library in your project
 
 The following dependencies must be set up before running this project.
 
