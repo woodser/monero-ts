@@ -161,7 +161,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 1. `./bin/build_browser_tests.sh`
 2. Access http://localhost:9100/tests.html in a browser
 
-## See Also
+## See also
 
 * [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
