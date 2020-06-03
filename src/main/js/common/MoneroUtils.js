@@ -169,6 +169,7 @@ class MoneroUtils {
     // allocate space in c++ heap for binary
     let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    if (ptr !== heap.byteOffset) throw new Error("Memory ptr !== heap.byteOffset"); // should be equal
     
     // write binary to heap
     heap.set(new Uint8Array(uint8arr.buffer));
@@ -180,7 +181,6 @@ class MoneroUtils {
     const ret_string = LibraryUtils.getWasmModule().binary_to_json(JSON.stringify(binMemInfo));
     
     // free binary on heap
-    LibraryUtils.getWasmModule()._free(heap.byteOffset);
     LibraryUtils.getWasmModule()._free(ptr);
     
     // parse and return json
@@ -201,6 +201,7 @@ class MoneroUtils {
     // allocate space in c++ heap for binary
     let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    if (ptr !== heap.byteOffset) throw new Error("Memory ptr !== heap.byteOffset"); // should be equal
     
     // write binary to heap
     heap.set(new Uint8Array(uint8arr.buffer));
@@ -212,7 +213,6 @@ class MoneroUtils {
     const json_str = LibraryUtils.getWasmModule().binary_blocks_to_json(JSON.stringify(binMemInfo));
     
     // free memory
-    LibraryUtils.getWasmModule()._free(heap.byteOffset);
     LibraryUtils.getWasmModule()._free(ptr);
     
     // parse result to json
