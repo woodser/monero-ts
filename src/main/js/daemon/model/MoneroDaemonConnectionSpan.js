@@ -65,12 +65,12 @@ class MoneroDaemonConnectionSpan {
     return this;
   }
   
-  getStartBlockHeight() {
-    return this.state.startBlockHeight;
+  getStartHeight() {
+    return this.state.startHeight;
   }
   
-  setStartBlockHeight(startBlockHeight) {
-    this.state.startBlockHeight = startBlockHeight;
+  setStartHeight(startHeight) {
+    this.state.startHeight = startHeight;
     return this;
   }
 }

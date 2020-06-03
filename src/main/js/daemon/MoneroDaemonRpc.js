@@ -1177,7 +1177,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "remote_address") { if (val !== "") span.setRemoteAddress(val); }
       else if (key === "size") span.setSize(val);
       else if (key === "speed") span.setSpeed(val);
-      else if (key === "start_block_height") span.setStartBlockHeight(val);
+      else if (key === "start_block_height") span.setStartHeight(val);
       else console.log("WARNING: ignoring unexpected field in daemon connection span: " + key + ": " + val);
     }
     return span;
