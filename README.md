@@ -169,10 +169,11 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
 		4. `./b2`
 		5. Copy .a files from ./external/boost-sdk/bin.v2/libs/\*/link-static/\* to ./external-libs/boost according to CMakeLists.txt.
 	2. Set up OpenSSL
-		1. Download and extract the latest OpenSSL source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
+		1. Download and extract the OpenSSL 1.1.1 source code zip from https://github.com/openssl/openssl/tree/OpenSSL_1_1_1 to ./external/openssl-sdk/.
 		2. Build for your system.<br>
+       Unix: `./config && make`
+		3. Copy libcrypto.a and libssl.a ./external-libs/openssl<br>
        Mac: installed through boost at /usr/local/opt/openssl/lib
-		3. Copy libcrypto.a and libssl.a ./external-libs/openssl
 	3. Set up hidapi
 		1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
 		2. Build hidapi for your system.<br>
