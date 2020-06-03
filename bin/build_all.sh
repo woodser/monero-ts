@@ -22,10 +22,10 @@ cd ../../../../ || exit 1
 git --git-dir ./external/monero-cpp/.git checkout master || exit 1
 
 # build boost
-#./bin/build_boost_emscripten.sh || exit 1
+./bin/build_boost_emscripten.sh || exit 1
 
 # build openssl
-#./bin/build_openssl_emscripten.sh || exit 1
+./bin/build_openssl_emscripten.sh || exit 1
 
 # build webassembly for distribution
 ./bin/build_wasm_emscripten.sh || exit 1
