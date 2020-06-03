@@ -185,7 +185,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
 	5. Set up monero-project/monero:
 		1. Initialize submodules: `git submodule update --init --recursive`
 		2. `cd ./external/monero-core`
-		3. `git checkout tags/v0.16.0.0`
+		3. `git checkout master`
 		3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
 		4. Build **twice** to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
 2. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
