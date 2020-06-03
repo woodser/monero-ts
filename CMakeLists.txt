@@ -18,10 +18,10 @@ set(BUILD_MONERO_CORE_KEYS_WASM ON)
 include_directories("src/cpp")
 
 #####################
-# monero-cpp-library
+# monero-cpp
 #####################
 
-set(MONERO_CPP "external/monero-cpp-library")
+set(MONERO_CPP "external/monero-cpp")
 set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
@@ -148,7 +148,7 @@ set(
     src/main/cpp/index.cpp
     src/main/cpp/monero_wasm_bridge.cpp
     
-    # monero-cpp-library (modified for WASM)
+    # monero-cpp (modified for WASM)
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
@@ -208,7 +208,7 @@ set(
     # monero-javascript WASM bridge
     src/main/cpp/http_client_wasm.cpp
     
-    # monero-cpp-library (modified for WASM)
+    # monero-cpp (modified for WASM)
     ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
     
     # monero-project (modified for WASM)

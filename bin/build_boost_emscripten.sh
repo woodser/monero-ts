@@ -6,7 +6,7 @@ source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk_
 
 PLATFORM="emscripten"
 
-SRC_DIR="external/monero-cpp-library/external/boost-sdk"
+SRC_DIR="external/monero-cpp/external/boost-sdk"
 INSTALL_DIR="build/boost"
 
 SRC_PATH="$(pwd)/$SRC_DIR"

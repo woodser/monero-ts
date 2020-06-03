@@ -1,6 +1,6 @@
 HIGH (WASM)
 finish dev guide
-/Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
+/Users/xxx/git/monero-javascript/external/monero-cpp/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 full tests java + js
 release
 report core issues
@@ -65,7 +65,7 @@ update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tes
 port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
-libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
+libsodium dependency in monero-cpp, why doesn't monero-project's work?
 test "Can get transactions by id" passes tx query where txs is array of characters
 mymonero monero_wallet_utils.cpp 182 mnemonic sanitation
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
