@@ -20,7 +20,7 @@ A C++ library for creating Monero applications using native bindings to [monero 
 
 ## Sample code
 
-This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
+This code introduces the API.  See the [documentation](https://moneroecosystem.org/monero-cpp/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
 _Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome._
 
@@ -190,7 +190,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
 		4. Build **twice** to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
 2. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
        
-These build steps aspire to be automated further.  [Any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
+These build steps aspire to be automated further.  [Any help is greatly appreciated](https://github.com/monero-ecosystem/monero-cpp/issues/1).
 
 ## Developer guide
 
