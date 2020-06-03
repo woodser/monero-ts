@@ -35,6 +35,7 @@ git --git-dir ./external/monero-cpp-library/.git checkout master || exit 1
 ./bin/build_wasm_emscripten.sh || exit 1
 
 # build web worker
+npm install || exit 1
 ./bin/build_web_worker.sh || exit 1
 
 # build browser tests
