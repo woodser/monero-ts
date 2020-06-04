@@ -346,7 +346,6 @@ self.daemonAddBlockListener = async function(daemonId, listenerId) {
 }
 
 self.daemonRemoveBlockListener = async function(daemonId, listenerId) {
-  console.log("daemonRemoveBlockListener");
   if (!self.daemonListeners[listenerId]) throw new MoneroError("No daemon worker listener registered with id: " + listenerId);
   await self.WORKER_OBJECTS[daemonId].removeBlockListener(self.daemonListeners[listenerId]);
   delete self.daemonListeners[listenerId];
