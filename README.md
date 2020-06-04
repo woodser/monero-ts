@@ -172,7 +172,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
 		1. Download and extract the OpenSSL 1.1.1 source code zip from https://github.com/openssl/openssl/tree/OpenSSL_1_1_1 to ./external/openssl-sdk/.
 		2. Build for your system.<br>
        Unix: `./config && make`
-		3. Copy libcrypto.a and libssl.a ./external-libs/openssl<br>
+		3. Copy libcrypto.a and libssl.a to ./external-libs/openssl<br>
 	3. Set up hidapi
 		1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
 		2. Build hidapi for your system.<br>
