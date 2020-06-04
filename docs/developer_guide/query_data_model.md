@@ -1,6 +1,6 @@
 # Getting transactions, transfers, and outputs
 
-Wallet [transactions, transfers, and outputs](data_model.md) can be queried by their attributes using query objects.
+Wallet [transactions, transfers, and outputs](data_model.md) can be queried by their properties using query objects.
 
 ## Getting transactions with queries
 
