@@ -17,8 +17,8 @@ A Node.js library for creating Monero applications using RPC or WebAssembly bind
 * [Architecture](#architecture)
 * [Sample code](#sample-code)
 * [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
-* [Developer guide](#developer-guide)
 * [Building WebAssembly binaries from source](#building-webassembly-binaries-from-source)
+* [Developer guide](#developer-guide)
 * [Running tests](#running-tests)
 * [See also](#see-also)
 * [License](#license)
@@ -113,19 +113,6 @@ await walletWasm.close(true);
 2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
-## Developer guide
-
-* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
-* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
-* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
-* [Creating wallets](docs/developer_guide/creating_wallets.md)
-* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
-* [Sending funds](docs/developer_guide/sending_funds.md)
-* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
-* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
-
 ## Building WebAssembly binaries from source
 
 This project uses WebAssembly to package and execute Monero's source code for use in a browser or other WebAssembly-supported environments.
@@ -140,6 +127,19 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 3. `cd monero-javascript`
 4. `./bin/build_all.sh`
+
+## Developer guide
+
+* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
+* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
+* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
+* [Creating wallets](docs/developer_guide/creating_wallets.md)
+* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
+* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Sending funds](docs/developer_guide/sending_funds.md)
+* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
+* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
 
 ## Running tests
 
