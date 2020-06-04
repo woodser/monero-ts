@@ -1,10 +1,3 @@
-HIGH (WASM)
-finish dev guide
-/Users/xxx/git/monero-javascript/external/monero-cpp/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
-full tests java + js
-release
-report core issues
-
 run testSendToMultiple() a few times to start wallet or send to random subaddress
 monerowalletrpc.js/java can use subaddr_indices_all instead of manually setting all indices (wallet_rpc_server.cpp:1420)
 simplify getting available outputs - alias isLocked? isAvailable?
