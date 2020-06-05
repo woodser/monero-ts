@@ -571,7 +571,7 @@ class MoneroWalletRpc extends MoneroWallet {
 
   async createSubaddress(accountIdx, label) {
     
-    // tx config
+    // send request
     let resp = await this.rpc.sendJsonRequest("create_address", {account_index: accountIdx, label: label});
     
     // build subaddress object
@@ -731,7 +731,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // convert key images to rpc parameter
     let rpcKeyImages = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
     
-    // tx config
+    // send request
     let resp = await this.rpc.sendJsonRequest("import_key_images", {signed_key_images: rpcKeyImages});
     
     // build and return result
@@ -788,7 +788,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getCanSplit()) params.get_tx_keys = true; // param to get tx key(s) depends if split
     else params.get_tx_key = true;
     
-    // tx config
+    // send request
     let resp = await this.rpc.sendJsonRequest(config.getCanSplit() ? "transfer_split" : "transfer", params);
     let result = resp.result;
     
@@ -829,7 +829,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
     
-    // tx config
+    // send request
     let resp = await this.rpc.sendJsonRequest("sweep_single", params);
     let result = resp.result;
     
@@ -958,7 +958,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async checkTxKey(txHash, txKey, address) {
     try {
       
-      // tx config
+      // send request
       let resp = await this.rpc.sendJsonRequest("check_tx_key", {txid: txHash, tx_key: txKey, address: address});
       
       // interpret result
@@ -987,7 +987,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async checkTxProof(txHash, address, message, signature) {
     try {
       
-      // tx config
+      // send request
       let resp = await this.rpc.sendJsonRequest("check_tx_proof", {
         txid: txHash,
         address: address,
@@ -1054,7 +1054,7 @@ class MoneroWalletRpc extends MoneroWallet {
 
   async checkReserveProof(address, message, signature) {
     
-    // tx config
+    // send request
     let resp = await this.rpc.sendJsonRequest("check_reserve_proof", {
       address: address,
       message: message,
@@ -1328,7 +1328,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // check if pool txs explicitly requested without daemon connection
     let txQuery = query.getTxQuery();
     if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnected()) {
-      throw new MoneroError("Cannot fetch pool transactions because because wallet has no daemon connection");
+      throw new MoneroError("Cannot fetch pool transactions because wallet has no daemon connection");
     }
     
     // build params for get_transfers rpc call
@@ -1442,7 +1442,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     
-      // tx config
+      // send request
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
       let resp = await this.rpc.sendJsonRequest("incoming_transfers", params);
