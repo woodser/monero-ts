@@ -176,7 +176,7 @@ class TestDeveloperGuide {
         });
         
         try {
-          // create a transaction to send fund to a single destination, but do not relay
+          // create a transaction to send funds to an address, but do not relay
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
