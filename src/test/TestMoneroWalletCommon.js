@@ -2672,6 +2672,7 @@ class TestMoneroWalletCommon {
         config.setAccountIndex(srcAccount.getIndex());
         config.setDestinations([]);
         config.setCanSplit(canSplit);
+        config.setPriority(MoneroTxPriority.NORMAL);
         config.setRelay(true);
         for (let i = 0; i < destinationAddresses.length; i++) {
           config.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
