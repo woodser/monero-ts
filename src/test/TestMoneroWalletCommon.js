@@ -1,6 +1,27 @@
-const MoneroDaemon = require("../main/js/daemon/MoneroDaemon");
-const MoneroWallet = require("../main/js/wallet/MoneroWallet")
-const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc")
+const assert = require("assert");
+const StartMining = require("./utils/StartMining");
+const TestUtils = require("./utils/TestUtils");
+const monerojs = require("../../index");
+const MoneroTxPriority = monerojs.MoneroTxPriority;
+const MoneroWalletRpc = monerojs.MoneroWalletRpc;
+const MoneroWalletKeys = monerojs.MoneroWalletKeys;
+const MoneroWallet = monerojs.MoneroWallet;
+const MoneroUtils = monerojs.MoneroUtils;
+const GenUtils = monerojs.GenUtils;
+const MoneroSyncResult = monerojs.MoneroSyncResult;
+const BigInteger = monerojs.BigInteger;
+const MoneroTxQuery = monerojs.MoneroTxQuery;
+const MoneroTransfer = monerojs.MoneroTransfer;
+const MoneroTransferQuery = monerojs.MoneroTransferQuery;
+const MoneroOutputQuery = monerojs.MoneroOutputQuery;
+const MoneroOutputWallet = monerojs.MoneroOutputWallet;
+const MoneroTxConfig = monerojs.MoneroTxConfig;
+const MoneroTxWallet = monerojs.MoneroTxWallet;
+const MoneroDestination = monerojs.MoneroDestination;
+const MoneroAddressBookEntry = monerojs.MoneroAddressBookEntry;
+const MoneroKeyImage = monerojs.MoneroKeyImage;
+const Filter = monerojs.Filter; // TODO: don't export filter
+const MoneroTx = monerojs.MoneroTx;
 
 // test constants
 const MIXIN = 11;
@@ -125,6 +146,14 @@ class TestMoneroWalletCommon {
             } catch(e) {
               assert.equal(e.message, "Wallet already exists: " + path);
             }
+          }
+          
+          // attempt to create wallet with unknown language
+          try {
+            await that.createWallet({language: "english"}); // TODO: support lowercase?
+            throw new Error("Should have thrown error");
+          } catch (e) {
+            assert.equal(e.message, "Unknown language: english");
           }
         } catch (e) {
           e1 = e;

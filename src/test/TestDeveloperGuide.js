@@ -1,3 +1,10 @@
+const assert = require("assert");
+const TestUtils = require("./utils/TestUtils");
+const monerojs = require("../../index");
+const MoneroWalletWasm = monerojs.MoneroWalletWasm;
+const MoneroNetworkType = monerojs.MoneroNetworkType;
+const MoneroTxPriority = monerojs.MoneroTxPriority;
+
 /**
  * Test the code in the developer guide.
  */
@@ -167,7 +174,7 @@ class TestDeveloperGuide {
       it("Test developer guide send funds", async function() {
         
         // create in-memory test wallet with randomly generated mnemonic
-        let wallet = await MoneroWalletWasm.createWallet({
+        let wallet = await monerojs.createWalletWasm({
           password: "abctesting123",
           networkType: "stagenet",
           serverUri: "http://localhost:38081",
@@ -180,7 +187,7 @@ class TestDeveloperGuide {
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-            amount: new BigInteger("1000000000000") // send 1 XMR (denominated in atomic units)
+            amount: "1000000000000" // send 1 XMR (denominated in atomic units)
           });
           
           // can confirm with the user
@@ -197,7 +204,7 @@ class TestDeveloperGuide {
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-            amount: new BigInteger("1000000000000"), // send 1 XMR (denominated in atomic units)
+            amount: "1000000000000", // send 1 XMR (denominated in atomic units)
             relay: true // relay the transaction to the network
           });
         } catch (e) {
@@ -212,10 +219,10 @@ class TestDeveloperGuide {
             subaddressIndex: 1, // source subaddress to send funds from
             destinations: [{
                 address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-                amount: new BigInteger("500000000000"), // send 0.5 XMR (denominated in atomic units)
+                amount: "500000000000", // send 0.5 XMR (denominated in atomic units)
               }, {
                 address: "52f7hei1UMrbvYUNtDMKZJMQjcfVyufYnezER8wVK271VmGbzE2kN7cMMG6qFjrb6Ub6qPkNt815a98kJmo874qG9GYZKD5",
-                amount: new BigInteger("500000000000"), // send 0.5 XMR (denominated in atomic units)
+                amount: "500000000000", // send 0.5 XMR (denominated in atomic units)
               }],
             priority: MoneroTxPriority.IMPORTANT,
             relay: true // relay the transaction to the network

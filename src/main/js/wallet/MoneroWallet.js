@@ -1,5 +1,13 @@
+const assert = require("assert");
+const MoneroBlock = require("../daemon/model/MoneroBlock");
+const MoneroError = require("../common/MoneroError");
+const MoneroOutputQuery = require("./model/MoneroOutputQuery");
+const MoneroTransferQuery = require("./model/MoneroTransferQuery");
+const MoneroTxConfig = require("./model/MoneroTxConfig");
+const MoneroTxQuery = require("./model/MoneroTxQuery");
+
 /**
- * Copyright (c) 2017-2019 woodser
+ * Copyright (c) woodser
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -534,7 +542,7 @@ class MoneroWallet {
    * 
    * @param {MoneroTxConfig|object} config - configures the transaction to create (required)
    * @param {string} config.address - single destination address (required unless `destinations` provided)
-   * @param {BigInteger} config.amount - single destination amount (required unless `destinations` provided)
+   * @param {BigInteger|string} config.amount - single destination amount (required unless `destinations` provided)
    * @param {int} config.accountIndex - source account index to transfer funds from (required)
    * @param {int} config.subaddressIndex - source subaddress index to transfer funds from (optional)
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from (optional)
@@ -557,7 +565,7 @@ class MoneroWallet {
    * 
    * @param {MoneroTxConfig|object} config - configures the transactions to create (required)
    * @param {string} config.address - single destination address (required unless `destinations` provided)
-   * @param {BigInteger} config.amount - single destination amount (required unless `destinations` provided)
+   * @param {BigInteger|string} config.amount - single destination amount (required unless `destinations` provided)
    * @param {int} config.accountIndex - source account index to transfer funds from (required)
    * @param {int} config.subaddressIndex - source subaddress index to transfer funds from (optional)
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from (optional)

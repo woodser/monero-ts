@@ -60,23 +60,22 @@ _Note: In order for the server to reflect changes to source files, you need to s
     This line will tell the browser to run your offline wallet generator program.
 4. Save the file.
 5. While still in the "src" directory, create the file "offline_wallet_generator.js" and insert the following from [part 1 of this guide](getting_started_p1.md):
-    ```
-    require("monero-javascript");
-    
-    main();
-    
-    async function main() {
-    
-      // create a random keys-only (offline) stagenet wallet
-      let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
-      
-      // print wallet attributes
-      console.log("Seed phrase: " + await walletKeys.getMnemonic());
-      console.log("Address: " + await walletKeys.getAddress(0,0)); // MoneroWallet.getAddress(accountIndex, subAddress)
-      console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
-      console.log("View key: " + await walletKeys.getPrivateViewKey());
-    }
-    ```
+	```
+	const monerojs = require("monero-javascript");
+	
+	main();
+	async function main() {
+	  
+	  // create a random keys-only (offline) stagenet wallet
+	  let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
+	
+	  // print wallet attributes
+	  console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
+	  console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
+	  console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
+	  console.log("View key: " + await walletKeys.getPrivateViewKey());
+	}
+	```
 7. Save the file.
 8. Return to the project's root directory: `cd ..`
 9. Run the build_browser_app.sh script to host the application on a server: `./bin/build_browser_app.sh`
@@ -145,15 +144,14 @@ The final HTML and JavaScript files should match the following:
 ### offline_wallet_generator.js
 
 ```
-require("monero-javascript");
+const monerojs = require("monero-javascript");
 
 main();
-
 async function main() {
   
   // create a random keys-only (offline) stagenet wallet
-  let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
-
+  let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
+  
   // print the wallet's attributes in the browser window
   document.getElementById("wallet_mnemonic_phrase").innerHTML = "Mnemonic phrase: " + await walletKeys.getMnemonic();
   document.getElementById("wallet_address").innerHTML = "Address: " + await walletKeys.getAddress(0, 0); // get address at account 0, subaddress 0

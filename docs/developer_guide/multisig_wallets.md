@@ -10,12 +10,13 @@ let M = 3;
 let N = 5;
 
 // create participating wallets using RPC or WebAssembly
+const monerojs = require("monero-javascript");
 let wallets = []
 for (let i = 0; i < N; i++) {
-  wallets.push(await MoneroWalletWasm.createWallet({
+  wallets.push(await monerojs.createWalletWasm({
     path: "./test_wallets/multisig_participant_" + (i + 1),
     password: "supersecretpassword123",
-    networkType: stagenet
+    networkType: "stagenet"
   }));
 }
 

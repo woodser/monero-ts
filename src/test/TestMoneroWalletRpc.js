@@ -1,5 +1,11 @@
+const assert = require("assert");
+const TestUtils = require("./utils/TestUtils");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
+const monerojs = require("../../index");
+const GenUtils = monerojs.GenUtils;
+const MoneroWalletConfig = monerojs.MoneroWalletConfig;
+const MoneroUtils = monerojs.MoneroUtils;
+const MoneroAccountTag = monerojs.MoneroAccountTag;
 
 /**
  * Tests the Monero Wallet RPC client and server.

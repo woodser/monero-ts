@@ -24,14 +24,14 @@ class MoneroWalletListener {
   /**
    * Invoked when the wallet receives an output.
    * 
-   * @param output - the received output
+   * @param {MoneroOutputWallet} output - the received output
    */
   onOutputReceived(output) { }
   
   /**
    * Invoked when the wallet spends an output.
    * 
-   * @param output - the spent output
+   * @param {MoneroOutputWallet} output - the spent output
    */
   onOutputSpent(output) { }
 }

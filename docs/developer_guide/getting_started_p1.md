@@ -38,10 +38,9 @@ The keys-only wallet has a file size just under 1/5 that of a standard Wasm wall
 Open your preferred text editor or IDE and copy the following code to a new, blank file:
 
 ```
-require("monero-javascript");
+const monerojs = require("monero-javascript");
 
 main();
-
 async function main() {
   // to be implemented
 }
@@ -49,19 +48,20 @@ async function main() {
 
 Note the program's two components:
 1. A "require" statement to import the monero-javascript library:
-`require("monero-javascript");`
+`const monerojs = require("monero-javascript");`
 2. An asynchronous "main" function so that calls to monero-javascript can be "awaited" (most calls are asynchronous):
 `async function main() {}`
 
 ### Building a keys-only wallet
 
-monero-javscript implements keys-only wallets in the `MoneroWalletKeys` class. You can create a random keys-only wallet by calling the [MoneroWalletKeys](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class's `createWallet()` method as follows:
+monero-javscript implements keys-only wallets in the [MoneroWalletKeys]((https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
-let keysOnlyWallet = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
+let monerojs = require("monero-javascript");
+let keysOnlyWallet = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
 ```
 
-The `createWallet()` method accepts a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JSON object.  The monero-javascript library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-javascript generates a new, random wallet rather than restoring an existing wallet.
+Wallets are created with a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JSON object.  The monero-javascript library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-javascript generates a new, random wallet rather than restoring an existing wallet.
 
 The offline wallet generator displays four basic wallet attributes:
 * The mnemonic phrase
@@ -79,14 +79,13 @@ console.log("View key: " + await walletKeys.getPrivateViewKey());
 
 The finished program should match the following:
 ```
-require("monero-javascript");
+const monerojs = require("monero-javascript");
 
-await main();
-
+main();
 async function main() {
   
   // create a random keys-only (offline) stagenet wallet
-  let walletKeys = await MoneroWalletKeys.createWallet({networkType: MoneroNetworkType.STAGENET, language: "English"});
+  let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
 
   // print wallet attributes
   console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());

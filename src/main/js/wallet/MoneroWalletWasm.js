@@ -1,3 +1,32 @@
+const assert = require("assert");
+const BigInteger = require("../common/biginteger").BigInteger;
+const GenUtils = require("../common/GenUtils");
+const LibraryUtils = require("../common/LibraryUtils");
+const MoneroAccount = require("./model/MoneroAccount");
+const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
+const MoneroBlock = require("../daemon/model/MoneroBlock");
+const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
+const MoneroError = require("../common/MoneroError");
+const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
+const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
+const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
+const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
+const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
+const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
+const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
+const MoneroOutputWallet = require("./model/MoneroOutputWallet");
+const MoneroRpcConnection = require("../common/MoneroRpcConnection");
+const MoneroSubaddress = require("./model/MoneroSubaddress");
+const MoneroSyncResult = require("./model/MoneroSyncResult");
+const MoneroTxConfig = require("./model/MoneroTxConfig");
+const MoneroTxSet = require("./model/MoneroTxSet");
+const MoneroTxWallet = require("./model/MoneroTxWallet");
+const MoneroUtils = require("../common/MoneroUtils");
+const MoneroWallet = require("./MoneroWallet");
+const MoneroWalletConfig = require("./model/MoneroWalletConfig");
+const MoneroWalletKeys = require("./MoneroWalletKeys");
+const MoneroWalletListener = require("./model/MoneroWalletListener");
+
 /**
  * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
  * 
@@ -13,7 +42,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * Check if a wallet exists at a given path.
    * 
    * @param {string} path - path of the wallet on the file system
-   * @param {fs} - node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
+   * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
   static async walletExists(path, fs) {
@@ -59,12 +88,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
    * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
-   * @param {fs} configOrPath.fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {fs} configOrPath.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {string} password - password of the wallet to open
    * @param {string|number} networkType - network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
    * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
-   * @param {fs} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @return {MoneroWalletWasm} the opened wallet
    */
   static async openWallet(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
 
@@ -118,7 +148,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * 
    * @param {object|MoneroWalletConfig} config - MoneroWalletConfig or equivalent config object
    * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
-   * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
    * @param {string} config.password - password of the wallet to create
    * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
    * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
@@ -134,7 +163,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
-   * @param {fs} config.fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @return {MoneroWalletWasm} the created wallet
    */
   static async createWallet(config) {
     
@@ -190,8 +220,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
-          resolve(wallet);
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -234,8 +264,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
-          resolve(wallet);
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -281,8 +311,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
-          resolve(wallet);
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -441,7 +471,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   /**
-   * Register a listener receive wallet notifications.
+   * Register a listener to receive wallet notifications.
    * 
    * @param {MoneroWalletListener} listener - listener to receive wallet notifications
    */
@@ -1536,8 +1566,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId);
-          resolve(wallet);
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletWasm(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -1796,7 +1826,7 @@ class SyncListenerWrapper extends MoneroWalletListener {
  * TODO: sort these methods according to master sort in MoneroWallet.js
  * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
- * TODO: using MoneroUtils.WORKER_OBJECTS directly breaks encapsulation
+ * TODO: using LibraryUtils.WORKER_OBJECTS directly breaks encapsulation
  * 
  * @private
  */
@@ -1968,10 +1998,10 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   async addListener(listener) {
     let wrappedListener = new WalletWorkerListener(listener);
     let listenerId = wrappedListener.getId();
-    MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId] = [wrappedListener.onSyncProgress, wrappedListener];
-    MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId] = [wrappedListener.onNewBlock, wrappedListener];
-    MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
-    MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
+    LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId] = [wrappedListener.onSyncProgress, wrappedListener];
+    LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId] = [wrappedListener.onNewBlock, wrappedListener];
+    LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
+    LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
     this._wrappedListeners.push(wrappedListener);
     return this._invokeWorker("addListener", [listenerId]);
   }
@@ -1981,10 +2011,10 @@ class MoneroWalletWasmProxy extends MoneroWallet {
       if (this._wrappedListeners[i].getListener() === listener) {
         let listenerId = this._wrappedListeners[i].getId();
         await this._invokeWorker("removeListener", [listenerId]);
-        delete MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId];
-        delete MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId];
-        delete MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId];
-        delete MoneroUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId];
+        delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId];
+        delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId];
+        delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId];
+        delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId];
         this._wrappedListeners.splice(i, 1);
         return;
       }
@@ -2354,7 +2384,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     if (save) await this.save();
     while (this._wrappedListeners.length) await this.removeListener(this._wrappedListeners[0].getListener());
     await this._invokeWorker("close");
-    delete MoneroUtils.WORKER_OBJECTS[this._walletId];
+    delete LibraryUtils.WORKER_OBJECTS[this._walletId];
   }
   
   async isClosed() {

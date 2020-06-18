@@ -1,3 +1,13 @@
+const assert = require("assert");
+const LibraryUtils = require("../common/LibraryUtils");
+const MoneroError = require("../common/MoneroError");
+const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
+const MoneroSubaddress = require("./model/MoneroSubaddress");
+const MoneroUtils = require("../common/MoneroUtils");
+const MoneroVersion = require("../daemon/model/MoneroVersion");
+const MoneroWallet = require("./MoneroWallet");
+const MoneroWalletConfig = require("./model/MoneroWalletConfig");
+
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  * 
@@ -29,6 +39,7 @@ class MoneroWalletKeys extends MoneroWallet {
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
    * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @return {MoneroWalletKeys} the created wallet
    */
   static async createWallet(config) {
     
@@ -70,7 +81,8 @@ class MoneroWalletKeys extends MoneroWallet {
         
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          resolve(new MoneroWalletKeys(cppAddress));
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletKeys(cppAddress));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -95,7 +107,8 @@ class MoneroWalletKeys extends MoneroWallet {
         
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          resolve(new MoneroWalletKeys(cppAddress));
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletKeys(cppAddress));
         };
         
         // create wallet in wasm and invoke callback when done
@@ -122,8 +135,8 @@ class MoneroWalletKeys extends MoneroWallet {
         
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletKeys(cppAddress);
-          resolve(wallet);
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletKeys(cppAddress));
         };
         
         // create wallet in wasm and invoke callback when done

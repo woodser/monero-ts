@@ -2,20 +2,22 @@
 
 Three types of wallets can be created:
 
-* [MoneroWalletRpc](#monerowalletrpc) - client connected to a monero-wallet-rpc server.
-* [MoneroWalletWasm](#monerowalletwasm) - client-side wallet which communicates directly with a daemon.
-* [MoneroWalletKeys](#monerowalletkeys) - client-side wallet which supports only basic key management.
+* [RPC wallet](#rpc-wallet) - client connected to a monero-wallet-rpc server.
+* [WebAssembly wallet](#webassembly-wallet) - client-side wallet which communicates directly with a daemon.
+* [Keys-only wallet](#keys-only-wallet) - client-side wallet which supports only basic key management.
 
-## MoneroWalletRpc
+## RPC wallet
 
 This example creates a client connected to monero-wallet-rpc then creates a wallet.
 
 See [MoneroWalletRpc.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletRpc.html#createWallet) for all options.
 
 ```javascript
+// import library
+let monerojs = require("monero-javascript");
 
 // create a client connected to monero-wallet-rpc
-let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123");
+let walletRpc = monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");
 
 // create a wallet on monero-wallet-rpc
 await walletRpc.createWallet({
@@ -26,33 +28,43 @@ await walletRpc.createWallet({
 }); 
 ```
 
-## MoneroWalletWasm
+## WebAssembly wallet
 
-This example creates a wallet using WebAssembly bindings to Monero Core's wallet2.h.
+This example creates a wallet using WebAssembly bindings to [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
 See [MoneroWalletWasm.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletWasm.html#createWallet) for all options.
 
 ```javascript
-let wallet = await MoneroWalletWasm.createWallet({
+// import library
+let monerojs = require("monero-javascript");
+
+// create wallet using WebAssembly
+let wallet = await monerojs.createWalletWasm({
    path: "./test_wallets/wallet1", // leave blank for in-memory wallet
    password: "supersecretpassword",
-   networkType: MoneroNetworkType.STAGENET,
+   networkType: "stagenet",
    mnemonic: "coexist igloo pamphlet lagoon...",
    restoreHeight: 1543218,
-   server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),
+   serverUri: "http://localhost:38081",
+   serverUsername: "daemon_user",
+   serverPassword: "daemon_password_123"
 });
 ```
 
-## MoneroWalletKeys
+## Keys-only wallet
 
-This example creates a keys-only wallet using WebAssembly bindings to Monero Core.
+This example creates a keys-only wallet using WebAssembly bindings to monero-project/monero.
 
 See [MoneroWalletKeys.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html#createWallet) for all options.
 
 ```javascript
-let wallet = await MoneroWalletKeys.createWallet({
+// import library
+let monerojs = require("monero-javascript");
+
+// create keys-only wallet
+let wallet = await monerojs.createWalletKeys({
    password: "abc123",
    networkType: MoneroNetworkType.STAGENET,
    mnemonic: "coexist igloo pamphlet lagoon..."
-}); 
+});
 ```

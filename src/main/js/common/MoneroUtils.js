@@ -1,5 +1,12 @@
+const assert = require("assert");
+const GenUtils = require("./GenUtils");
+const LibraryUtils = require("./LibraryUtils");
+const MoneroError = require("./MoneroError");
+
 /**
  * Collection of Monero utilities.
+ * 
+ * @hideconstructor
  */
 class MoneroUtils {
   
