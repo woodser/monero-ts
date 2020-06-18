@@ -75,6 +75,9 @@ namespace monero {
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_random(const monero_network_type network_type, const std::string& language) {
 
+    // validate language
+    if (!monero_utils::is_valid_language(language)) throw std::runtime_error("Unknown language: " + language);
+
     // initialize random wallet account
     monero_wallet_keys* wallet = new monero_wallet_keys();
     crypto::secret_key spend_key_sk = wallet->m_account.generate();
@@ -166,6 +169,9 @@ namespace monero {
       if (info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
     }
 
+    // validate language
+    if (!monero_utils::is_valid_language(language)) throw std::runtime_error("Unknown language: " + language);
+
     // initialize wallet account
     monero_wallet_keys* wallet = new monero_wallet_keys();
     if (has_spend_key && has_view_key) {
@@ -194,7 +200,7 @@ namespace monero {
 
   std::vector<std::string> monero_wallet_keys::get_mnemonic_languages() {
     std::vector<std::string> languages;
-    crypto::ElectrumWords::get_language_list(languages, true);
+    crypto::ElectrumWords::get_language_list(languages, true);  // TODO: support getting names in language
     return languages;
   }
 

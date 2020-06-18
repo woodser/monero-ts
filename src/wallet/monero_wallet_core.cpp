@@ -853,6 +853,7 @@ namespace monero {
 
   monero_wallet_core* monero_wallet_core::create_wallet_random(const std::string& path, const std::string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const std::string& language, std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory) {
     MTRACE("create_wallet_random(...)");
+    if (!monero_utils::is_valid_language(language)) throw std::runtime_error("Unknown language: " + language);
     monero_wallet_core* wallet = new monero_wallet_core();
     if (http_client_factory == nullptr) wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, std::move(http_client_factory)));
@@ -935,6 +936,9 @@ namespace monero {
       if (!crypto::secret_key_to_public_key(view_key_sk, pkey)) throw std::runtime_error("failed to verify secret view key");
       if (info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
     }
+
+    // validate language
+    if (!monero_utils::is_valid_language(language)) throw std::runtime_error("Unknown language: " + language);
 
     // initialize wallet
     if (http_client_factory == nullptr) wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
