@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2019 woodser
+ * Copyright (c) woodser
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,6 +54,8 @@
 #include "rpc/core_rpc_server_commands_defs.h"
 #include "storages/portable_storage_template_helper.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
+#include "mnemonics/electrum-words.h"
+#include "mnemonics/english.h"
 #include "string_tools.h"
 
 using namespace cryptonote;
@@ -230,8 +232,19 @@ void monero_utils::deserialize(const std::string& json, boost::property_tree::pt
 
 // ----------------------------------------------------------------------------
 
-// TODO: this is unused
+bool monero_utils::is_valid_language(const std::string& language) {
+  std::vector<std::string> languages;
+  crypto::ElectrumWords::get_language_list(languages, false);
+  std::vector<std::string>::iterator it = std::find(languages.begin(), languages.end(), language);
+  if (it == languages.end()) {
+    crypto::ElectrumWords::get_language_list(languages, true);
+    it = std::find(languages.begin(), languages.end(), language);
+  }
+  if (it == languages.end()) return false;
+  return true;
+}
 
+// TODO: this is unused
 std::shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
   cryptonote::block temp = cn_block;
   std::cout << cryptonote::obj_to_json_str(temp) << std::endl;

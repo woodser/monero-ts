@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2019 woodser
+ * Copyright (c) woodser
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -77,7 +77,7 @@ namespace monero {
      * @param network_type is the wallet's network type (default = monero_network_type.MAINNET)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_keys* create_wallet_random(const monero_network_type network_type, const std::string& language);
+    static monero_wallet_keys* create_wallet_random(const monero_network_type network_type, const std::string& language = "English");
 
     /**
      * Create a wallet from an existing mnemonic phrase.

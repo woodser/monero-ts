@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2019 woodser
+ * Copyright (c) woodser
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -119,7 +119,13 @@ namespace monero_utils
 
   // --------------------------------------------------------------------------
 
-  void deserialize(const std::string& json, boost::property_tree::ptree& root);
+  /**
+   * Indicates if the given language is valid.
+   *
+   * @param language is the language to validate
+   * @return true if the language is valid, false otherwise
+   */
+  bool is_valid_language(const std::string& language);
 
   /**
    * Convert a Monero Core cryptonote::block to a block in this library's native model.
