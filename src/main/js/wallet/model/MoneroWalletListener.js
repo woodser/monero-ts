@@ -22,7 +22,7 @@ class MoneroWalletListener {
   onNewBlock(height) { }
   
   /**
-   * Invoked when the wallet's balance changes.
+   * Invoked when the wallet's balances change.
    * 
    * @param {BigInteger} newBalance - new wallet balance
    * @param {BigInteger} newUnlockedBalance - new unlocked wallet balance
