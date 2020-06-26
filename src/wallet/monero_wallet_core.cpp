@@ -731,6 +731,13 @@ namespace monero {
       }
     }
 
+    void on_balances_changed(uint64_t new_balance, uint64_t new_unlocked_balance) {
+      if (m_wallet.get_listeners().empty()) return;
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_balances_changed(new_balance, new_unlocked_balance);
+      }
+    }
+
     void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) override {
       if (m_wallet.get_listeners().empty()) return;
 
@@ -748,6 +755,9 @@ namespace monero {
       for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
         listener->on_output_received(*output);
       }
+
+      // notify if balances changed
+      m_wallet.check_for_changed_balances();
 
       // free memory
       output.reset();
@@ -777,6 +787,9 @@ namespace monero {
         listener->on_output_received(*output);
       }
 
+      // notify if balances changed
+      m_wallet.check_for_changed_balances();
+
       // free memory
       monero_utils::free(block);
       output.reset();
@@ -805,6 +818,9 @@ namespace monero {
       for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
         listener->on_output_spent(*output);
       }
+
+      // notify if balances changed
+      m_wallet.check_for_changed_balances();
 
       // free memory
       monero_utils::free(block);
@@ -3036,6 +3052,8 @@ namespace monero {
     MTRACE("monero_wallet_core.cpp init_common()");
     m_w2_listener = std::unique_ptr<wallet2_listener>(new wallet2_listener(*this, *m_w2));
     if (get_daemon_connection() == boost::none) m_is_connected = false;
+    m_prev_balance = get_balance();
+    m_prev_unlocked_balance = get_unlocked_balance();
     m_is_synced = false;
     m_rescan_on_sync = false;
     m_syncing_enabled = false;
@@ -3046,6 +3064,14 @@ namespace monero {
     #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
       tools::set_max_concurrency(1);  // TODO: single-threaded emscripten tools::get_max_concurrency() correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
     #endif
+  }
+
+  void monero_wallet_core::check_for_changed_balances() {
+    if (m_prev_balance != get_balance() || m_prev_unlocked_balance != get_unlocked_balance()) {
+      m_prev_balance = get_balance();
+      m_prev_unlocked_balance = get_unlocked_balance();
+      m_w2_listener->on_balances_changed(m_prev_balance, m_prev_unlocked_balance);
+    }
   }
 
   std::vector<std::shared_ptr<monero_transfer>> monero_wallet_core::get_transfers_aux(const monero_transfer_query& query) const {
@@ -3337,7 +3363,7 @@ namespace monero {
     uint64_t sync_start_height = start_height == boost::none ? std::max(get_height(), get_sync_height()) : *start_height;
     if (sync_start_height < get_sync_height()) set_sync_height(sync_start_height); // TODO monero core: start height processed > requested start height unless sync height manually std::set
 
-    // signal start of sync to registered listeners
+    // notify listeners of sync start
     m_w2_listener->on_sync_start(sync_start_height);
     monero_sync_result result;
 
@@ -3354,8 +3380,9 @@ namespace monero {
     // find and save rings
     m_w2->find_and_save_rings(false);
 
-    // signal end of sync to registered listeners
+    // notify listeners of sync end and check for updated balances
     m_w2_listener->on_sync_end();
+    check_for_changed_balances();
     return result;
   }
 }

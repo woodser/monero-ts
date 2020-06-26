@@ -90,6 +90,14 @@ namespace monero {
     virtual void on_new_block(uint64_t height) {};
 
     /**
+     * Invoked when the wallet's balances change.
+     *
+     * @param new_balance - new balance
+     * @param new_unlocked_balance - new unlocked balance
+     */
+    virtual void on_balances_changed(uint64_t new_balance, uint64_t new_unlocked_balance) {};
+
+    /**
      * Invoked when the wallet receives an output.
      *
      * @param output - the received output
