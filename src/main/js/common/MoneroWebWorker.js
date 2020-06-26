@@ -512,6 +512,10 @@ self.addListener = async function(walletId, listenerId) {
     onNewBlock(height) { 
       this.worker.postMessage([this.walletId, "onNewBlock_" + this.getId(), height]);
     }
+    
+    onBalancesChanged(newBalance, newUnlockedBalance) {
+      this.worker.postMessage([this.walletId, "onBalancesChanged_" + this.getId(), newBalance.toString(), newUnlockedBalance.toString()]);
+    }
 
     onOutputReceived(output) {
       let block = output.getTx().getBlock();

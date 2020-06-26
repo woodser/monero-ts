@@ -1612,10 +1612,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
             that._wasmListenerHandle,
             function(height, startHeight, endHeight, percentDone, message) { that._wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
             function(height) { that._wasmListener.onNewBlock(height); },
+            function(newBalanceStr, newUnlockedBalanceStr) { that._wasmListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
             function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) { that._wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime); },
             function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that._wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
       } else {
-        that._wasmListenerHandle = that._module.set_listener(that._cppAddress, that._wasmListenerHandle, undefined, undefined, undefined, undefined);
+        that._wasmListenerHandle = that._module.set_listener(that._cppAddress, that._wasmListenerHandle, undefined, undefined, undefined, undefined, undefined);
       }
     });
   }
@@ -1743,6 +1744,10 @@ class WalletWasmListener {
   
   onNewBlock(height) {
     for (let listener of this._wallet.getListeners()) listener.onNewBlock(height);
+  }
+  
+  onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    for (let listener of this._wallet.getListeners()) listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
   
   onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) {
@@ -2000,6 +2005,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     let listenerId = wrappedListener.getId();
     LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId] = [wrappedListener.onSyncProgress, wrappedListener];
     LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId] = [wrappedListener.onNewBlock, wrappedListener];
+    LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onBalancesChanged_" + listenerId] = [wrappedListener.onBalancesChanged, wrappedListener];
     LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
     LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
     this._wrappedListeners.push(wrappedListener);
@@ -2013,6 +2019,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
         await this._invokeWorker("removeListener", [listenerId]);
         delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onSyncProgress_" + listenerId];
         delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onNewBlock_" + listenerId];
+        delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onBalancesChanged_" + listenerId];
         delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputReceived_" + listenerId];
         delete LibraryUtils.WORKER_OBJECTS[this._walletId].callbacks["onOutputSpent_" + listenerId];
         this._wrappedListeners.splice(i, 1);
@@ -2424,6 +2431,10 @@ class WalletWorkerListener {
 
   onNewBlock(height) {
     this._listener.onNewBlock(height);
+  }
+  
+  onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
 
   onOutputReceived(blockJson) {

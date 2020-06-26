@@ -1234,12 +1234,23 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         }
         
         // since sending from/to the same wallet, the net amount spent = tx fee = outputs spent - outputs received
+        let numConfirmedOutputs = 0;
         let netAmount = BigInteger.parse("0");
         for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
-        for (let outputReceived of listener.getOutputsReceived()) if (outputReceived.getTx().isConfirmed()) netAmount = netAmount.subtract(outputReceived.getAmount());
+        for (let outputReceived of listener.getOutputsReceived()) {
+          if (outputReceived.getTx().isConfirmed()) {
+            numConfirmedOutputs++;
+            netAmount = netAmount.subtract(outputReceived.getAmount());
+          }
+        }
         if (tx.getFee().compare(netAmount) !== 0) {
           errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
           return errors;
+        }
+        
+        // receives balance notification per confirmed output
+        if (listener.getBalanceNotifications().length < numConfirmedOutputs) {
+          errors.push("ERROR: expected at least one updated balance notification per confirmed output received");
         }
         
         // test wallet's balance
@@ -1338,8 +1349,17 @@ class OutputNotificationCollector extends MoneroWalletListener {
   
   constructor() {
     super();
+    this.balanceNotifications = [];
     this.outputsReceived = [];
     this.outputsSpent = [];
+  }
+  
+  onBalancesChanged(newBalance, newUnlockedBalance) {
+    if (this.balanceNotifications.length > 0) {
+      this.lastNotification = this.balanceNotifications[this.balanceNotifications.length - 1];
+      assert(newBalance.toString() !== this.lastNotification.balance.toString() || newUnlockedBalance.toString() !== this.lastNotification.unlockedBalance.toString());
+    }
+    this.balanceNotifications.push({balance: newBalance, unlockedBalance: newUnlockedBalance});
   }
   
   onOutputReceived(output) {
@@ -1348,6 +1368,10 @@ class OutputNotificationCollector extends MoneroWalletListener {
   
   onOutputSpent(output) {
     this.outputsSpent.push(output);
+  }
+  
+  getBalanceNotifications() {
+    return this.balanceNotifications;
   }
   
   getOutputsReceived() {
@@ -1449,6 +1473,14 @@ class WalletSyncTester extends SyncProgressTester {
     assert(height >= this.startHeight);
     this.walletTesterPrevHeight = height;
   }
+  
+  async onBalancesChanged(newBalance, newUnlockedBalance) {
+    //assert.equal(newBalance.toString(), (await this.wallet.getBalance()).toString()); // TODO: asynchronous balance queries block until done syncing
+    //assert.equal(newUnlockedBalance.toString(), (await this.wallet.getUnlockedBalance()).toString());
+    if (this.prevBalance !== undefined) assert(newBalance.toString() !== this.prevBalance.toString() || newUnlockedBalance.toString() !== this.prevUnlockedBalance.toString());
+    this.prevBalance = newBalance;
+    this.prevUnlockedBalance = newUnlockedBalance;
+  }
 
   onOutputReceived(output) {
     assert.notEqual(output, undefined);
@@ -1512,6 +1544,8 @@ class WalletSyncTester extends SyncProgressTester {
     let balance = this.incomingTotal.subtract(this.outgoingTotal);
     assert.equal((await this.wallet.getBalance()).toString(), balance.toString());
     this.onNewBlockAfterDone = false;  // test subsequent onNewBlock() calls
+    assert.equal(this.prevBalance.toString(), (await this.wallet.getBalance()).toString());
+    assert.equal(this.prevUnlockedBalance.toString(), (await this.wallet.getUnlockedBalance()).toString());
   }
   
   getOnNewBlockAfterDone() {

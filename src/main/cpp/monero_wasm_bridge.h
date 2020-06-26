@@ -62,7 +62,7 @@ namespace monero_wasm_bridge
   //void add_listener(int handle, monero_wallet_listener& listener);
   //void remove_listener(int handle, monero_wallet_listener& listener);
   //set<monero_wallet_listener*> get_listeners(int handle);
-  int set_listener(int wallet_handle, int old_listener_handle, emscripten::val on_sync_progress = emscripten::val::undefined(), emscripten::val on_new_block = emscripten::val::undefined(), emscripten::val on_output_received = emscripten::val::undefined(), emscripten::val on_output_spent = emscripten::val::undefined());
+  int set_listener(int wallet_handle, int old_listener_handle, emscripten::val on_sync_progress = emscripten::val::undefined(), emscripten::val on_new_block = emscripten::val::undefined(), emscripten::val on_balances_changed = emscripten::val::undefined(), emscripten::val on_output_received = emscripten::val::undefined(), emscripten::val on_output_spent = emscripten::val::undefined());
   void sync(int handle, long start_height, emscripten::val callback);
   void rescan_spent(int handle, emscripten::val callback);
   void rescan_blockchain(int handle, emscripten::val callback);
