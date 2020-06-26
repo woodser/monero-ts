@@ -81,6 +81,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad118f758ea41c8957cc75b7356e5370e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0276dc5dbe62b7df42e3eab1b5967895"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a0276dc5dbe62b7df42e3eab1b5967895">on_new_block</a> (uint64_t height)</td></tr>
 <tr class="separator:a0276dc5dbe62b7df42e3eab1b5967895"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98c1ace6690b5cbb2a72de61275f83e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a98c1ace6690b5cbb2a72de61275f83e0">on_balances_changed</a> (uint64_t new_balance, uint64_t new_unlocked_balance)</td></tr>
+<tr class="separator:a98c1ace6690b5cbb2a72de61275f83e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a858412263ef3d02da6453334abacff18"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a858412263ef3d02da6453334abacff18">on_output_received</a> (const <a class="el" href="structmonero_1_1monero__output__wallet.html">monero_output_wallet</a> &amp;output)</td></tr>
 <tr class="separator:a858412263ef3d02da6453334abacff18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3938fd913222b0f107d5b133d1afd439"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html#a3938fd913222b0f107d5b133d1afd439">on_output_spent</a> (const <a class="el" href="structmonero_1_1monero__output__wallet.html">monero_output_wallet</a> &amp;output)</td></tr>
@@ -89,6 +91,50 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Interface to receive wallet notifications.. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a98c1ace6690b5cbb2a72de61275f83e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98c1ace6690b5cbb2a72de61275f83e0">&#9670;&nbsp;</a></span>on_balances_changed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void monero::monero_wallet_listener::on_balances_changed </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>new_balance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>new_unlocked_balance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Invoked when the wallet's balances change.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">new_balance</td><td>- new balance </td></tr>
+    <tr><td class="paramname">new_unlocked_balance</td><td>- new unlocked balance </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a0276dc5dbe62b7df42e3eab1b5967895"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0276dc5dbe62b7df42e3eab1b5967895">&#9670;&nbsp;</a></span>on_new_block()</h2>
 
