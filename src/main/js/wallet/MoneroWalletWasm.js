@@ -5,6 +5,7 @@ const LibraryUtils = require("../common/LibraryUtils");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
+const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
 const MoneroError = require("../common/MoneroError");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");

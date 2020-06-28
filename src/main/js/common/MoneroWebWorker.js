@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("./GenUtils");
 const LibraryUtils = require("./LibraryUtils");
 const MoneroBan = require("../daemon/model/MoneroBan");
 const MoneroBlock = require("../daemon/model/MoneroBlock");

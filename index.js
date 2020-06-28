@@ -121,9 +121,9 @@ module.exports.connectToDaemonRpc = function() { return new module.exports.Moner
  * <p>Examples:</p>
  * 
  * <code>
- * let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+ * let walletRpc = monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
  * 
- * let walletRpc = new MoneroWalletRpc({<br>
+ * let walletRpc = monerojs.connectToWalletRpc({<br>
  * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
  * &nbsp;&nbsp; username: "superuser",<br>
  * &nbsp;&nbsp; password: "abctesting123",<br>

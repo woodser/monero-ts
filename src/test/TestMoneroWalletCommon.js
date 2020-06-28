@@ -1673,7 +1673,7 @@ class TestMoneroWalletCommon {
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(that.wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(that.wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
         } catch (e) {
           if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
