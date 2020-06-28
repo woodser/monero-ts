@@ -101,6 +101,7 @@ module.exports.MoneroWalletWasm = require("./src/main/js/wallet/MoneroWalletWasm
  * </code>
  * 
  * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+ * @param {string} uriOrConfigOrConnection.uri - uri of monero-daemon-rpc
  * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-daemon-rpc (optional)
  * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-daemon-rpc (optional)
  * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
@@ -132,6 +133,7 @@ module.exports.connectToDaemonRpc = function() { return new module.exports.Moner
  * </code>
  * 
  * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
+ * @param {string} uriOrConfigOrConnection.uri - uri of monero-wallet-rpc
  * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-wallet-rpc (optional)
  * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-wallet-rpc (optional)
  * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)

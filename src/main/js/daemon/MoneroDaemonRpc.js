@@ -71,6 +71,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * </code>
    * 
    * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfigOrConnection.uri - uri of monero-daemon-rpc
    * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-daemon-rpc (optional)
    * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)

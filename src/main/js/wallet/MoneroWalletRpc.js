@@ -81,6 +81,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * </code>
    * 
    * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfigOrConnection.uri - uri of monero-wallet-rpc
    * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-wallet-rpc (optional)
    * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-wallet-rpc (optional)
    * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
