@@ -3841,6 +3841,172 @@ not too big.
     
 
     
+    <h4 class="name" id="getKeyImageSpentStatus"><span class="type-signature">(async) </span>getKeyImageSpentStatus<span class="signature">(keyImage)</span><span class="type-signature"> &rarr; {<a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get the spent status of the given key image.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>keyImage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">key image hex to get the status of</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#getKeyImageSpentStatus">MoneroDaemon#getKeyImageSpentStatus</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line753">line 753</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    status of the key image
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getKeyImageSpentStatuses"><span class="type-signature">(async) </span>getKeyImageSpentStatuses<span class="signature">(keyImages)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a>>}</span></h4>
     
 
@@ -5486,6 +5652,408 @@ RingCT outputs counts as 0 amount.
     <dd>
         
 <span class="param-type"><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getTx"><span class="type-signature">(async) </span>getTx<span class="signature">(txHash, prune)</span><span class="type-signature"> &rarr; {<a href="MoneroTx.html">MoneroTx</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a transaction by hash.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txHash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">hash of the transaction to get</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prune</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">specifies if the returned tx should be pruned (defaults to false)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#getTx">MoneroDaemon#getTx</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line751">line 751</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    transaction with the given hash
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroTx.html">MoneroTx</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getTxHex"><span class="type-signature">(async) </span>getTxHex<span class="signature">(txHash, prune)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a transaction hex by hash.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txHash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">hash of the transaction to get hex from</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prune</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">specifies if the returned tx hex should be pruned (defaults to false)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#getTxHex">MoneroDaemon#getTxHex</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line752">line 752</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    tx hex with the given hash
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
 
 
     </dd>
@@ -7818,6 +8386,150 @@ as spent key image information for the tx pool.
     
 
     
+    <h4 class="name" id="setPeerBan"><span class="type-signature">(async) </span>setPeerBan<span class="signature">(ban)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Ban a peer node.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ban</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroBan.html">MoneroBan</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">contains information about a node to ban</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#setPeerBan">MoneroDaemon#setPeerBan</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line754">line 754</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="setPeerBans"><span class="type-signature">(async) </span>setPeerBans<span class="signature">(bans)</span><span class="type-signature"></span></h4>
     
 
@@ -8526,6 +9238,150 @@ as spent key image information for the tx pool.
     
 
     
+    <h4 class="name" id="submitBlock"><span class="type-signature">(async) </span>submitBlock<span class="signature">(blockBlob)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Submit a mined block to the network.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>blockBlob</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">mined block to submit</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#submitBlock">MoneroDaemon#submitBlock</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line755">line 755</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="submitBlocks"><span class="type-signature">(async) </span>submitBlocks<span class="signature">(blockBlobs)</span><span class="type-signature"></span></h4>
     
 
@@ -8875,7 +9731,7 @@ as spent key image information for the tx pool.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun Jun 28 2020 17:39:11 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jun 30 2020 15:40:07 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

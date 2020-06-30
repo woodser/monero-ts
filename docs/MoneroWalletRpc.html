@@ -2140,6 +2140,434 @@ let walletRpc = new MoneroWalletRpc({<br>
     
 
     
+    <h4 class="name" id="createTx"><span class="type-signature">(async) </span>createTx<span class="signature">(config)</span><span class="type-signature"> &rarr; {<a href="MoneroTxWallet.html">MoneroTxWallet</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Create a transaction to transfer funds from this wallet.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxConfig.html">MoneroTxConfig</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">configures the transaction to create (required)
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">single destination address (required unless `destinations` provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">single destination amount (required unless `destinations` provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">source account index to transfer funds from (required)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">source subaddress index to transfer funds from (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndices</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;int></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">source subaddress indices to transfer funds from (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>relay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">relay the transaction to peers to commit to the blockchain (default false)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>priority</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxPriority.html">MoneroTxPriority</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">transaction priority (default MoneroTxPriority.NORMAL)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destinations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroDestination.html">MoneroDestination</a>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>paymentId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">transaction payment ID (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>unlockTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of confirmations before the recipient can spend the funds (default 0)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#createTx">MoneroWallet#createTx</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1328">line 1328</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the created transaction
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroTxWallet.html">MoneroTxWallet</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="createTxs"><span class="type-signature">(async) </span>createTxs<span class="signature">(config)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroTxWallet.html">MoneroTxWallet</a>>}</span></h4>
     
 
@@ -5579,6 +6007,167 @@ This process must be repeated with participants exactly N-M times.
     
 
     
+    <h4 class="name" id="getIncomingTransfers"><span class="type-signature">(async) </span>getIncomingTransfers<span class="signature">(query)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get all of the wallet's incoming transfers.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>query</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">passed to getTransfers() with isIncoming=true</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#getIncomingTransfers">MoneroWallet#getIncomingTransfers</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1326">line 1326</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the wallet's incoming transfers
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getIntegratedAddress"><span class="type-signature">(async) </span>getIntegratedAddress<span class="signature">(paymentId)</span><span class="type-signature"> &rarr; {<a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a>}</span></h4>
     
 
@@ -6541,6 +7130,167 @@ given payment ID.  Generates a random payment ID if none is given.
     <dd>
         
 <span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroKeyImage.html">MoneroKeyImage</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getOutgoingTransfers"><span class="type-signature">(async) </span>getOutgoingTransfers<span class="signature">(query)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get all of the wallet's outgoing transfers.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>query</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">passed to getTransfers() with isOutgoing=true</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#getOutgoingTransfers">MoneroWallet#getOutgoingTransfers</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1327">line 1327</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the wallet's outgoing transfers
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a>></span>
 
 
     </dd>
@@ -8909,6 +9659,172 @@ criteria are optional and no filtering is applied when not defined.</p>
     
 
     
+    <h4 class="name" id="getTx"><span class="type-signature">(async) </span>getTx<span class="signature">(txHash)</span><span class="type-signature"> &rarr; {<a href="MoneroTxWallet.html">MoneroTxWallet</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a wallet transaction by hash.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txHash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hash of a transaction to get</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#getTx">MoneroWallet#getTx</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1325">line 1325</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the identified transactions
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroTxWallet.html">MoneroTxWallet</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getTxKey"><span class="type-signature">(async) </span>getTxKey<span class="signature">(txHash)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
@@ -9047,6 +9963,172 @@ criteria are optional and no filtering is applied when not defined.</p>
         
 <div class="param-desc">
     - transaction's secret key
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getTxNote"><span class="type-signature">(async) </span>getTxNote<span class="signature">(txHash)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a transaction note.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txHash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">transaction to get the note of</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#getTxNote">MoneroWallet#getTxNote</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1330">line 1330</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the tx note
 </div>
 
 
@@ -12328,6 +13410,175 @@ multisig wallet.
     
 
     
+    <h4 class="name" id="relayTx"><span class="type-signature">(async) </span>relayTx<span class="signature">(txOrMetadata)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Relay a previously created transaction.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txOrMetadata</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxWallet.html">MoneroTxWallet</a></span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">transaction or its metadata to relay</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#relayTx">MoneroWallet#relayTx</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1329">line 1329</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the hash of the relayed tx
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="relayTxs"><span class="type-signature">(async) </span>relayTxs<span class="signature">(txsOrMetadatas)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;string>}</span></h4>
     
 
@@ -13284,6 +14535,173 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line317">line 317</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setTxNote"><span class="type-signature">(async) </span>setTxNote<span class="signature">(txHash, note)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Set a note for a specific transaction.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>txHash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hash of the transaction to set a note for</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>note</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the transaction note</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#setTxNote">MoneroWallet#setTxNote</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletRpc.js.html">src/main/js/wallet/MoneroWalletRpc.js</a>, <a href="src_main_js_wallet_MoneroWalletRpc.js.html#line1331">line 1331</a>
     </li></ul></dd>
     
 
@@ -16324,7 +17742,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun Jun 28 2020 17:39:12 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jun 30 2020 15:40:08 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
