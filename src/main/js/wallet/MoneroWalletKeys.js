@@ -192,6 +192,9 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
+  /**
+   * @ignore
+   */
   getPath() {
     this._assertNotClosed();
     throw new Error("MoneroWalletKeys does not support a persisted path");
@@ -312,6 +315,11 @@ class MoneroWalletKeys extends MoneroWallet {
   async isClosed() {
     return this._isClosed;
   }
+  
+  // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
+  
+  async getPrimaryAddress() { return super.getPrimaryAddress(...arguments); }
+  async getSubaddress() { return super.getSubaddress(...arguments); }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
   

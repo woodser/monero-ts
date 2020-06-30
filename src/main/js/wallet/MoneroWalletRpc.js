@@ -1320,6 +1320,16 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.rpc.sendJsonRequest("stop_wallet");
   }
   
+  // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
+  
+  async getTx() { return super.getTx(...arguments); }
+  async getIncomingTransfers() { return super.getIncomingTransfers(...arguments); }
+  async getOutgoingTransfers() { return super.getOutgoingTransfers(...arguments); }
+  async createTx() { return super.createTx(...arguments); }
+  async relayTx() { return super.relayTx(...arguments); }
+  async getTxNote() { return super.getTxNote(...arguments); }
+  async setTxNote() { return super.setTxNote(...arguments); }
+  
   // -------------------------------- PRIVATE ---------------------------------
   
   async _clear() {

@@ -1539,6 +1539,16 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     LibraryUtils.setRejectUnauthorizedFn(this._rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
   }
   
+  // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
+  
+  async getTx() { return super.getTx(...arguments); }
+  async getIncomingTransfers() { return super.getIncomingTransfers(...arguments); }
+  async getOutgoingTransfers() { return super.getOutgoingTransfers(...arguments); }
+  async createTx() { return super.createTx(...arguments); }
+  async relayTx() { return super.relayTx(...arguments); }
+  async getTxNote() { return super.getTxNote(...arguments); }
+  async setTxNote() { return super.setTxNote(...arguments); }
+  
   // ---------------------------- PRIVATE HELPERS ----------------------------
   
   static async _openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {

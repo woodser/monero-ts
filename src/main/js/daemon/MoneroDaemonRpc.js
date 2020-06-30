@@ -746,6 +746,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (this.listeners.length === 0) this._stopPollingHeaders();
   }
   
+  // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
+  
+  async getTx() { return super.getTx(...arguments); }
+  async getTxHex() { return super.getTxHex(...arguments); }
+  async getKeyImageSpentStatus() { return super.getKeyImageSpentStatus(...arguments); }
+  async setPeerBan() { return super.setPeerBan(...arguments); }
+  async submitBlock() { return super.submitBlock(...arguments); }
+  
   // ------------------------------- PRIVATE ----------------------------------
   
   async _getDaemonProxy() {
