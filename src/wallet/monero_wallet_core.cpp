@@ -3060,9 +3060,14 @@ namespace monero {
     m_sync_loop_running = false;
     m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
-    // single-threaded if emscripten
-    #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-      tools::set_max_concurrency(1);  // TODO: single-threaded emscripten tools::get_max_concurrency() correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
+    // emscripten config
+    #if defined(__EMSCRIPTEN__)
+      m_w2->enable_dns(false);
+
+      // single-threaded if emscripten pthreads not defined
+      #if !defined(__EMSCRIPTEN_PTHREADS__)
+        tools::set_max_concurrency(1);  // TODO: single-threaded emscripten tools::get_max_concurrency() correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
+      #endif
     #endif
   }
 
