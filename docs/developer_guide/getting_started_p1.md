@@ -54,7 +54,7 @@ Note the program's two components:
 
 ### Building a keys-only wallet
 
-monero-javscript implements keys-only wallets in the [MoneroWalletKeys]((https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
+monero-javscript implements keys-only wallets in the [MoneroWalletKeys](https://moneroecosystem.org/monero-javascript/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
 ```
 // create a random keys-only (offline) stagenet wallet
 let monerojs = require("monero-javascript");
