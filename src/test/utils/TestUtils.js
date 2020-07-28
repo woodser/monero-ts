@@ -2,6 +2,7 @@ const assert = require("assert");
 const WalletSyncPrinter = require("./WalletSyncPrinter");
 const monerojs = require("../../../index");
 const LibraryUtils = monerojs.LibraryUtils;
+const GenUtils = monerojs.GenUtils;
 const MoneroRpcError = monerojs.MoneroRpcError;
 const MoneroRpcConnection = monerojs.MoneroRpcConnection;
 const BigInteger = monerojs.BigInteger;
@@ -13,6 +14,16 @@ const MoneroNetworkType = monerojs.MoneroNetworkType;
  * TODO: move hard coded to config
  */
 class TestUtils {
+  
+  /**
+   * Get a default file system.  Uses an in-memory file system if running in the browser.
+   * 
+   * @return nodejs-compatible file system
+   */
+  static getDefaultFs() {
+    if (!LibraryUtils.FS) LibraryUtils.FS = GenUtils.isBrowser() ? require('memfs') : require('fs');
+    return LibraryUtils.FS;
+  }
   
   /**
    * Get a singleton daemon RPC instance shared among tests.
@@ -80,7 +91,7 @@ class TestUtils {
       if (!await monerojs.MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH)) {
         
         // create directory for test wallets if it doesn't exist
-        let fs = LibraryUtils.getDefaultFs();
+        let fs = TestUtils.getDefaultFs();
         if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
           if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
           fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
@@ -165,9 +176,9 @@ TestUtils.MAX_FEE = new BigInteger("7500000").multiply(new BigInteger("10000"));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 
 // default keypair to test
-TestUtils.MNEMONIC = "hijack lucky rally sober hockey robot gumball amaze gave fifteen organs gecko skater wizard demonstrate upright system vegan tobacco tsunami lurk withdrawn tomorrow uphill organs";
-TestUtils.ADDRESS = "52FnB7ABUrKJzVQRpbMNrqDFWbcKLjFUq8Rgek7jZEuB6WE2ZggXaTf4FK6H8gQymvSrruHHrEuKhMN3qTMiBYzREKsmRKM";
-TestUtils.FIRST_RECEIVE_HEIGHT = 589429;   // NOTE: this value MUST be the height of the wallet's first tx for tests
+TestUtils.MNEMONIC = "lucky yoyo items listen zones upstairs civilian roster waking organs pavements industrial ruffled sadness skydive pitched roster ripped typist mostly umbrella frying dummy duration pitched";
+TestUtils.ADDRESS = "58zMLFEnse1Y6MH8552ej5bLqrSxMVyeXFAsYnU18FhY8ujGXvJM3WoMxGgSBr2j5N7myGur3LJfofQv3otAB7XvKbtFdgf";
+TestUtils.FIRST_RECEIVE_HEIGHT = 4537;   // NOTE: this value MUST be the height of the wallet's first tx for tests
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
