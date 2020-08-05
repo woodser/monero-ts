@@ -16,7 +16,8 @@
 
 # build monero-core translations directory
 cd ./external/monero-cpp/external/monero-core || exit 1
-make release-static -j8		# don't exit because this will build translations directory even if build fails
+HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
+make release-static -j$HOST_NCORES		# don't exit because this will build translations directory even if build fails
 cd ../../../../ || exit 1
 
 # build boost
