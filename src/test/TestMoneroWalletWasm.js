@@ -44,6 +44,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     if (config.getServer() === undefined && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
+    if (config.getFs() === undefined) config.setFs(TestUtils.getDefaultFs());
     
     // open wallet
     let wallet = await monerojs.openWalletWasm(config);
@@ -62,6 +63,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
     if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
+    if (config.getFs() === undefined) config.setFs(TestUtils.getDefaultFs());
     
     // create wallet
     let wallet = await monerojs.createWalletWasm(config);
@@ -72,7 +74,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   
   async getWalletGt() {
     let path = TestUtils.TEST_WALLETS_DIR + "/ground_truth";
-    let wallet = await monerojs.MoneroWalletWasm.walletExists(path) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
+    let wallet = await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
     await wallet.sync();
     return wallet;
   }
@@ -873,7 +875,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         let path = TestMoneroWalletWasm._getRandomWalletPath();
         
         // wallet does not exist
-        assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
+        assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
         
         // cannot open non-existant wallet
         try {
@@ -890,7 +892,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // test wallet at newly created state
         let err;
         try {
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getDaemonConnection(), undefined);
@@ -911,7 +913,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           wallet = await that.openWallet({path: path});
           
           // test wallet is at newly created state
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getDaemonConnection(), undefined);
@@ -944,7 +946,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert(await wallet.isConnected());
           assert.equal(await wallet.getHeight(), prevHeight);
           assert.equal(await wallet.getSyncHeight(), 0); // TODO monero core: restoreHeight is reset to 0 after closing
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getMnemonicLanguage(), "English");
@@ -971,7 +973,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           let path = TestUtils.TEST_WALLETS_DIR + "/" + walletName;
           
           // wallet does not exist
-          assert(!await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(!await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           
           // create wallet at the path
           let restoreHeight = await that.daemon.getHeight() - 200;
@@ -981,19 +983,19 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           await wallet.save();
           
           // wallet exists
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           
           // move wallet to a subdirectory
           let movedPath = TestUtils.TEST_WALLETS_DIR + "/moved/" + walletName;
           await wallet.moveTo(movedPath, TestUtils.WALLET_PASSWORD);
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(!(await MoneroWalletWasm.walletExists(movedPath))); // wallet does not exist until saved
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()))); // wallet does not exist until saved
           await wallet.save();
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(await MoneroWalletWasm.walletExists(movedPath));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()));
           await wallet.close();
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(await MoneroWalletWasm.walletExists(movedPath));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()));
           
           // re-open and test wallet
           wallet = await that.openWallet({path: movedPath, serverUri: ""});
@@ -1001,14 +1003,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // move wallet back
           await wallet.moveTo(path, TestUtils.WALLET_PASSWORD);
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));  // wallet does not exist until saved
-          assert(!(await MoneroWalletWasm.walletExists(movedPath)));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));  // wallet does not exist until saved
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
           await wallet.save();
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
-          assert(!(await MoneroWalletJni.walletExists(movedPath)));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
           await wallet.close();
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
-          assert(!(await MoneroWalletWasm.walletExists(movedPath)));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
         } catch (e) {
           err = e;
         }

@@ -41,7 +41,7 @@ describe("Scratchpad", function() {
       serverUsername: "superuser",
       serverPassword: "abctesting123",
       mnemonic: "hijack lucky rally sober hockey robot gumball amaze gave fifteen organs gecko skater wizard demonstrate upright system vegan tobacco tsunami lurk withdrawn tomorrow uphill organs",
-      restoreHeight: 589429,
+      restoreHeight: 0,
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
       rejectUnauthorized: false
     });

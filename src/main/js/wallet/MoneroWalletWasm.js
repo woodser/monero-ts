@@ -1665,7 +1665,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
     let blocksJson = JSON.parse(GenUtils.stringifyBIs(blocksJsonStr));
     let blocks = [];
-    for (let blockJson of blocksJson.blocks) blocks.push(MoneroWalletWasm._sanitizeBlock(new MoneroBlock(blockJson, txType)));
+    if (blocksJson.blocks) for (let blockJson of blocksJson.blocks) blocks.push(MoneroWalletWasm._sanitizeBlock(new MoneroBlock(blockJson, txType)));
     return blocks
   }
   
