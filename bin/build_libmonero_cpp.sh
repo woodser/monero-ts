@@ -19,7 +19,7 @@ cp ./external/boost-sdk/bin.v2/libs/serialization/build/clang-darwin-11.0/releas
 cp ./external/boost-sdk/bin.v2/libs/system/build/clang-darwin-11.0/release/link-static/threading-multi/visibility-hidden/libboost_system.a ./external-libs/boost || exit 1
 cp ./external/boost-sdk/bin.v2/libs/thread/build/clang-darwin-11.0/release/link-static/threadapi-pthread/threading-multi/visibility-hidden/libboost_thread.a ./external-libs/boost || exit 1
 
-# copy openssl .a files to ./external-libs/boost
+# copy openssl .a files to ./external-libs/openssl
 mkdir -p ./external-libs/openssl || exit 1
 cp ./external/openssl-sdk/libcrypto.a ./external-libs/openssl || exit 1
 cp ./external/openssl-sdk/libssl.a ./external-libs/openssl || exit 1
