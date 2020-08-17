@@ -196,6 +196,7 @@ namespace monero {
     void set_sync_height(uint64_t sync_height) override;
     uint64_t get_daemon_height() const override;
     uint64_t get_daemon_max_peer_height() const override;
+    uint64_t get_height_by_date(uint16_t year, uint8_t month, uint8_t day) const override;
     void add_listener(monero_wallet_listener& listener) override;
     void remove_listener(monero_wallet_listener& listener) override;
     std::set<monero_wallet_listener*> get_listeners() override;

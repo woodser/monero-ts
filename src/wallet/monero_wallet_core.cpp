@@ -1265,6 +1265,10 @@ namespace monero {
     if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
     return result;
   }
+  
+  uint64_t monero_wallet_core::get_height_by_date(uint16_t year, uint8_t month, uint8_t day) const {
+    return m_w2->get_blockchain_height_by_date(year, month, day);
+  }
 
   void monero_wallet_core::add_listener(monero_wallet_listener& listener) {
     MTRACE("add_listener()");
