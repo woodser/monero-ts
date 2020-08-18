@@ -1698,6 +1698,8 @@ namespace monero {
     std::list<tools::wallet_rpc::transfer_destination> tr_destinations;
     for (const std::shared_ptr<monero_destination>& destination : config.get_normalized_destinations()) {
       tools::wallet_rpc::transfer_destination tr_destination;
+      if (destination->m_amount == boost::none) throw std::runtime_error("Destination amount not defined");
+      if (destination->m_address == boost::none) throw std::runtime_error("Destination address not defined");
       tr_destination.amount = destination->m_amount.get();
       tr_destination.address = destination->m_address.get();
       tr_destinations.push_back(tr_destination);
