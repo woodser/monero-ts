@@ -437,7 +437,7 @@ class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get the miner transaction sum", async function() {
-        let sum = await that.daemon.getMinerTxSum(0, 50000);
+        let sum = await that.daemon.getMinerTxSum(0, Math.min(50000, await that.daemon.getHeight()));
         testMinerTxSum(sum);
       });
       
