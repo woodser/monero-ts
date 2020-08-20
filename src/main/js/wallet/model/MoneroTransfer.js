@@ -25,6 +25,9 @@ class MoneroTransfer {
     
     // deserialize fields if necessary
     if (state.amount !== undefined && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
+    
+    // validate state
+    this._validate();
   }
   
   copy() {
@@ -63,6 +66,7 @@ class MoneroTransfer {
 
   setAccountIndex(accountIndex) {
     this.state.accountIndex = accountIndex;
+    this._validate();
     return this;
   }
 
@@ -114,6 +118,10 @@ class MoneroTransfer {
     str += GenUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += GenUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
     return str === "" ? str :  str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  _validate() {
+    if (this.getAccountIndex() !== undefined && this.getAccountIndex() < 0) throw new MoneroError("Account index must be >= 0");
   }
 }
 

@@ -899,11 +899,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     // copy and normalize query up to block
     query = MoneroWallet._normalizeTransferQuery(query);
     
-    // minimal validation
-    if (query.getAccountIndex() !== undefined) assert(query.getAccountIndex() >= 0);
-    if (query.getSubaddressIndex() !== undefined) assert(query.getSubaddressIndex() >= 0);
-    if (query.getSubaddressIndices() !== undefined) for (let subaddressIdx of query.getSubaddressIndices()) assert(subaddressIdx >= 0);
-    
     // return promise which resolves on callback
     let that = this;
     return that._module.queueTask(async function() {

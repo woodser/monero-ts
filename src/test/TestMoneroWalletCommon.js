@@ -1285,7 +1285,7 @@ class TestMoneroWalletCommon {
         
         // test invalid subaddress index
         try {
-          let transfers = await that.wallet.getTransfers({accountIndex: 0, subaddressIndex: -10});
+          let transfers = await that.wallet.getTransfers({accountIndex: 0, subaddressIndex: -1});
           throw new Error("Should have failed");
         } catch (e) {
           assert.notEqual(e.message, "Should have failed");
