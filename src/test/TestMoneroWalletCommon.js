@@ -465,9 +465,42 @@ class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the height that the wallet is synchronized to", async function() {
+      it("Can get the current height that the wallet is synchronized to", async function() {
         let height = await that.wallet.getHeight();
         assert(height >= 0);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get a blockchain height by date", async function() {
+        
+        // collect dates to test starting 100 days ago
+        const DAY_MS = 24 * 60 * 60 * 1000;
+        let yesterday = new Date(new Date().getTime() - DAY_MS); // TODO monero-core: today's date can throw exception as "in future" so we test up to yesterday
+        let dates = [];
+        for (let i = 99; i >= 0; i--) {
+          dates.push(new Date(yesterday.getTime() - DAY_MS * i)); // subtract i days
+        }
+    
+        // test heights by date
+        let lastHeight = undefined;
+        for (let date of dates) {
+          let height = await that.wallet.getHeightByDate(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+          assert(height >= 0);
+          if (lastHeight != undefined) assert(height >= lastHeight);
+          lastHeight = height;
+        }
+        assert(lastHeight > 0);
+        let height = await that.wallet.getHeight();
+        assert(height >= 0);
+        
+        // test future date
+        try {
+          let tomorrow = new Date(yesterday.getTime() + DAY_MS * 2);
+          await that.wallet.getHeightByDate(tomorrow.getYear() + 1900, tomorrow.getMonth() + 1, tomorrow.getDate());
+          throw new Error("Expected exception on future date");
+        } catch (err) {
+          assert.equal(err.message, "specified date is in the future");
+        }
       });
       
       if (testConfig.testNonRelays)
@@ -3724,7 +3757,7 @@ class TestMoneroWalletCommon {
         // start mining to push the network along
         await StartMining.startMining();
         
-        // wait for the multisig wallet's funds to unlock
+        // wait for the multisig wallet's funds to unlock // TODO: replace with MoneroWalletListener.onOutputReceived() which is called when output unlocked
         let lastNumConfirmations = undefined;
         while (true) {
           
@@ -3931,7 +3964,7 @@ class TestMoneroWalletCommon {
       await wallet.close(true);
     }
     
-    // import each wallet's peer multisig hexIt 
+    // import each wallet's peer multisig hex 
     for (let i = 0; i < walletIds.length; i++) {
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(multisigHexes[j]);

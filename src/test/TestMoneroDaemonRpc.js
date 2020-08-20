@@ -494,7 +494,7 @@ class TestMoneroDaemonRpc {
           // submit tx hex
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isGood(), true);
+          assert.equal(result.isGood(), true, "Bad tx submit result: " + result.toJson());
           
           // test stats
           try {

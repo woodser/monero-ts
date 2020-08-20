@@ -1286,6 +1286,95 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         return false;
       }
       
+      if (!testConfig.liteMode && testConfig.testNotifications)
+      it("Can receive notifications when outputs are received, confirmed, and unlocked", async function() {
+        await testReceivedOutputNotificationsWithUnlockTime(0);
+      });
+      
+      if (!testConfig.liteMode && testConfig.testNotifications)
+      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock time", async function() {
+        await testReceivedOutputNotificationsWithUnlockTime(13);
+      });
+      
+      async function testReceivedOutputNotificationsWithUnlockTime(unlockDelay) {
+        let expectedUnlockHeight = await that.daemon.getHeight() + unlockDelay;
+        
+        // create wallet to test received output notifications
+        let receiver = await that.createWallet(new MoneroWalletConfig());
+        
+        // create tx to transfer funds to receiver
+        let tx = await that.wallet.createTx(new MoneroTxConfig()
+          .setAccountIndex(0)
+          .setAddress(await receiver.getPrimaryAddress())
+          .setAmount(TestUtils.MAX_FEE.multiply(BigInteger.parse("10")))
+          .setUnlockTime(expectedUnlockHeight)
+          .setRelay(false)
+        );
+        
+        // register listener to test notifications
+        let listener = new ReceivedOutputNotificationTester(tx.getHash());
+        await receiver.addListener(listener);
+        
+        // flush tx to prevent double spends from previous tests
+        await that.daemon.flushTxPool();
+        
+        // relay transaction to pool
+        let submitHeight = await that.daemon.getHeight();
+        //await that.wallet.relayTx(tx);
+        let result = await that.daemon.submitTxHex(tx.getFullHex());
+        assert(result.isGood(), "Bad submit tx result: " + result.toJson());
+        
+        // test notification of tx in pool within 10 seconds
+        await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+        assert(listener.lastNotifiedOutput);
+        assert(!listener.lastNotifiedOutput.getTx().isConfirmed());
+        
+        // listen for new blocks to test output notifications
+        receiver.addListener(new class extends MoneroWalletListener {
+          async onNewBlock(height) {
+            if (listener.testComplete) return;
+            try {
+                
+              // first confirmation expected within 10 seconds of new block
+              if (listener.confirmedHeight === undefined) {
+                await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+                if (listener.confirmedHeight === undefined && listener.lastNotifiedOutput.getTx().isConfirmed()) { // only run by first thread after confirmation
+                  listener.confirmedHeight = listener.lastNotifiedOutput.getTx().getHeight();
+                  if (listener.confirmedHeight !== submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);
+                }
+              }
+              
+              // output should be locked until max of expected unlock height and 10 blocks after confirmation
+              if ((listener.confirmedHeight === undefined || height < Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) && false === listener.lastNotifiedOutput.isLocked()) throw new Error("Last notified output expected to be locked but isLocked=" + listener.lastNotifiedOutput.isLocked() + " at height " + height);
+              
+              // test unlock notification
+              if (listener.confirmedHeight !== undefined && height === Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) {
+                
+                // receives notification of unlocked tx within 1 second of block notification
+                await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+                if (listener.lastNotifiedOutput.isLocked() !== false) throw new Error("Last notified output expected to be unlocked but isLocked=" + listener.lastNotifiedOutput.isLocked());
+                listener.unlockedSeen = true;
+                listener.testComplete = true;
+              }
+            } catch (err) {
+              console.log(err);
+              listener.testComplete = true;
+              listener.testError = err.message;
+            }
+          }
+        });
+        
+        // mine until complete
+        await StartMining.startMining();
+        
+        // run until test completes
+        while (!listener.testComplete) await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+        if ((await that.daemon.getMiningStatus()).isActive()) await that.daemon.stopMining();
+        assert.equal(undefined, listener.testError);
+        assert(listener.confirmedHeight !== undefined, "No notification of output confirmed", );
+        assert(listener.unlockedSeen, "No notification of output unlocked");
+      }
+      
       if (testConfig.testNotifications)
       it("Can be created and receive funds", async function() {
         let err;
@@ -1555,4 +1644,24 @@ class WalletSyncTester extends SyncProgressTester {
   }
 }
 
+/**
+ * Internal tester for output notifications.
+ */
+class ReceivedOutputNotificationTester extends MoneroWalletListener {
+
+  constructor(txHash) {
+    super();
+    this.txHash = txHash;
+    this.lastNotifiedOutput = undefined;
+    this.testComplete = false;
+    this.testError = undefined;
+    this.unlockedSeen = false;
+    this.confirmedHeight = undefined;
+  }
+  
+  onOutputReceived(output) {
+    if (output.getTx().getHash() === this.txHash) this.lastNotifiedOutput = output;
+  }
+}
+  
 module.exports = TestMoneroWalletWasm;

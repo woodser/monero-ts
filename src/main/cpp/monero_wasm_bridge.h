@@ -52,6 +52,7 @@ namespace monero_wasm_bridge
   string decode_integrated_address(int handle, const string& integrated_address);
   void get_height(int handle, emscripten::val callback);
   void get_daemon_height(int handle, emscripten::val callback);
+  void get_height_by_date(int handle, uint16_t year, uint8_t month, uint8_t day, emscripten::val callback);
   void is_daemon_synced(int handle, emscripten::val callback);
   void is_synced(int handle, emscripten::val callback);
   int get_network_type(int handle);

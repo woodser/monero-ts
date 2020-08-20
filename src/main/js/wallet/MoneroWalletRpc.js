@@ -449,6 +449,10 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new MoneroError("monero-wallet-rpc does not support getting the chain height");
   }
   
+  async getHeightByDate(year, month, day) {
+    throw new MoneroError("monero-wallet-rpc does not support getting a height by date");
+  }
+  
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
@@ -626,7 +630,8 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
   
-  async getTxs(query) {
+  async getTxs(query, missingTxHashes) {
+    if (missingTxHashes) throw new Error("MoneroWalletRpc.getTxs() does not support collecting unfound tx hashes");
     
     // copy query
     query = MoneroWallet._normalizeTxQuery(query);
@@ -2112,14 +2117,14 @@ class MoneroWalletRpc extends MoneroWallet {
     let heightComparison = MoneroWalletRpc._compareTxsByHeight(o1.getTx(), o2.getTx());
     if (heightComparison !== 0) return heightComparison;
     
-    // compare by account index, subaddress index, and output
-    if (o1.getAccountIndex() < o2.getAccountIndex()) return -1;
-    else if (o1.getAccountIndex() === o2.getAccountIndex()) {
-      let compare = o1.getSubaddressIndex() - o2.getSubaddressIndex();
-      if (compare !== 0) return compare;
-      return o1.getIndex() - o2.getIndex();
-    }
-    return 1;
+    // compare by account index, subaddress index, output index, then key image hex
+    let compare = ow1.getAccountIndex().compare(ow2.getAccountIndex());
+    if (compare !== 0) return compare;
+    compare = ow1.getSubaddressIndex().compare(ow2.getSubaddressIndex());
+    if (compare !== 0) return compare;
+    compare = ow1.getIndex().compare(ow2.getIndex());
+    if (compare !== 0) return compare;
+    return ow1.getKeyImage().getHex().compare(ow2.getKeyImage().getHex());
   }
 }
 

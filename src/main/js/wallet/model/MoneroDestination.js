@@ -27,6 +27,7 @@ class MoneroDestination {
     }
       
     // deserialize amount  
+    if (amount) this.state.amount = amount;
     if (this.state.amount !== undefined && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
   }
   

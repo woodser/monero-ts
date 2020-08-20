@@ -216,6 +216,18 @@ class MoneroWallet {
   }
   
   /**
+   * Get the blockchain's height by date as a conservative estimate for scanning.
+   * 
+   * @param {int} year - year of the height to get
+   * @param {int} month - month of the height to get as a number between 1 and 12
+   * @param {int} day - day of the height to get as a number between 1 and 31
+   * @return the blockchain's approximate height at the given date
+   */
+  async getHeightByDate(year, month, day) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
    * Synchronize the wallet with the daemon as a one-time synchronous process.
    * 
    * @param {MoneroWalletListener|number} listenerOrStartHeight - listener xor start height (defaults to no sync listener, the last synced block)
@@ -380,9 +392,10 @@ class MoneroWallet {
    * @param {boolean} query.isIncoming - get txs with an incoming transfer or not (optional)
    * @param {MoneroTransferQuery} query.transferQuery - get txs that have a transfer that meets this query (optional)
    * @param {boolean} query.includeOutputs - specifies that tx outputs should be returned with tx results (optional)
+   * @param {string[]} missingTxHashes - populated with hashes of unfound or unmet transactions that were queried by hash (throws error if undefined and queried transaction hashes are unfound or unmet) 
    * @return {MoneroTxWallet[]} wallet transactions per the configuration
    */
-  async getTxs(query) {
+  async getTxs(query, missingTxHashes) {
     throw new MoneroError("Not supported");
   }
 

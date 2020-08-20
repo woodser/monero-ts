@@ -454,6 +454,7 @@ class MoneroTx {
     this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
     this.setRingSize(GenUtils.reconcile(this.getRingSize(), tx.getRingSize()));
     this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
+    this.setIsMinerTx(GenUtils.reconcile(this.isMinerTx(), tx.isMinerTx(), null, null, null));
     this.setRelay(GenUtils.reconcile(this.getRelay(), tx.getRelay(), {resolveTrue: true}));       // tx can become relayed
     this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true})); // tx can become relayed
     this.setIsDoubleSpend(GenUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
@@ -508,57 +509,41 @@ class MoneroTx {
         for (let output of tx.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
         assert(numIndices === 0 || this.getOutputs().length + tx.getOutputs().length == numIndices, "Some outputs have an output index and some do not");
         
-        // merge by output indices if present
-        if (numIndices > 0) {
-          for (let merger of tx.getOutputs()) {
+        // determine if key images present
+        let numKeyImages = 0;
+        for (let output of this.getOutputs()) {
+          if (output.getKeyImage() !== undefined) {
+            GenUtils.assertNotNull(output.getKeyImage().getHex());
+            numKeyImages++;
+          }
+        }
+        for (let output of tx.getOutputs()) {
+          if (output.getKeyImage() !== undefined) {
+            GenUtils.assertNotNull(output.getKeyImage().getHex());
+            numKeyImages++;
+          }
+        }
+        GenUtils.assertTrue(numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages, "Some outputs have a key image and some do not");
+                
+        // merge outputs
+        for (let merger of tx.getOutputs()) {
+        
+          // merge by key images if present
+          if (numKeyImages > 0) {
             let merged = false;
             merger.setTx(this);
             if (this.getOutputs() === undefined) this.setOutputs([]);
             for (let mergee of this.getOutputs()) {
-              if (mergee.getIndex() === merger.getIndex()) {
+              if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
                 mergee.merge(merger);
                 merged = true;
                 break;
               }
             }
-            if (!merged) this.getOutputs().push(merger);
-          }
-        } else {
-          
-          // determine if key images present
-          let numKeyImages = 0;
-          for (let output of this.getOutputs()) {
-            if (output.getKeyImage() !== undefined) {
-              assert.notEqual(output.getKeyImage().getHex(), undefined);
-              numKeyImages++;
-            }
-          }
-          for (let output of tx.getOutputs()) {
-            if (output.getKeyImage() !== undefined) {
-              assert.notEqual(output.getKeyImage().getHex(), undefined);
-              numKeyImages++;
-            }
-          }
-          assert("Some outputs have a key image and some do not", numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages);
-          
-          // merge by key images if present
-          if (numKeyImages > 0) {
-            for (let merger of tx.getOutputs()) {
-              let merged = false;
-              merger.setTx(this);
-              if (this.getOutputs() === undefined) this.setOutputs([]);
-              for (let mergee of this.getOutputs()) {
-                if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
-                  mergee.merge(merger);
-                  merged = true;
-                  break;
-                }
-              }
-              if (!merged) this.getOutputs().push(merger);
-            }
+            if (!merged) this.getOutputs().push(merger); // add new key image
           }
 
-          // otherwise merge by position
+          // otherwise merge by position (cannot merge by global index because pre-RingCT output indices are not unique)
           else {
             assert.equal(tx.getOutputs().length, this.getOutputs().length);
             for (let i = 0; i < tx.getOutputs().length; i++) {
@@ -659,8 +644,8 @@ class MoneroTx {
   toString(indent = 0) {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
-    str += GenUtils.kvLine("Tx hash: ", this.getHash(), indent);
-    str += GenUtils.kvLine("Height: ", this.getHeight(), indent);
+    str += GenUtils.kvLine("Tx hash", this.getHash(), indent);
+    str += GenUtils.kvLine("Height", this.getHeight(), indent);
     str += GenUtils.kvLine("Version", this.getVersion(), indent);
     str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
     str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
