@@ -2118,13 +2118,13 @@ class MoneroWalletRpc extends MoneroWallet {
     if (heightComparison !== 0) return heightComparison;
     
     // compare by account index, subaddress index, output index, then key image hex
-    let compare = ow1.getAccountIndex().compare(ow2.getAccountIndex());
+    let compare = o1.getAccountIndex() - o2.getAccountIndex();
     if (compare !== 0) return compare;
-    compare = ow1.getSubaddressIndex().compare(ow2.getSubaddressIndex());
+    compare = o1.getSubaddressIndex() - o2.getSubaddressIndex();
     if (compare !== 0) return compare;
-    compare = ow1.getIndex().compare(ow2.getIndex());
+    compare = o1.getIndex() - o2.getIndex();
     if (compare !== 0) return compare;
-    return ow1.getKeyImage().getHex().compare(ow2.getKeyImage().getHex());
+    return o1.getKeyImage().getHex().compare(o2.getKeyImage().getHex());
   }
 }
 
