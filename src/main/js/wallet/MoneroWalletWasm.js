@@ -1671,7 +1671,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
             function(height, startHeight, endHeight, percentDone, message) { that._wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
             function(height) { that._wasmListener.onNewBlock(height); },
             function(newBalanceStr, newUnlockedBalanceStr) { that._wasmListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
-            function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked) { that._wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked); },
+            function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { that._wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); },
             function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that._wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
       } else {
         that._wasmListenerHandle = that._module.set_listener(that._cppAddress, that._wasmListenerHandle, undefined, undefined, undefined, undefined, undefined);
@@ -1818,7 +1818,7 @@ class WalletWasmListener {
     for (let listener of this._wallet.getListeners()) listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
   
-  onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked) {
+  onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
     
     // build received output
     let output = new MoneroOutputWallet();
@@ -1828,7 +1828,7 @@ class WalletWasmListener {
     let tx = new MoneroTxWallet();
     tx.setHash(txHash);
     tx.setVersion(version);
-    tx.setUnlockTime(unlockTime);
+    tx.setUnlockHeight(unlockHeight);
     output.setTx(tx);
     tx.setOutputs([output]);
     tx.setIsIncoming(true);

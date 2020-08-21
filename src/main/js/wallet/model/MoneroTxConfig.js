@@ -32,7 +32,7 @@ class MoneroTxConfig {
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
    * @param {string} config.paymentId - transaction payment ID
-   * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds
+   * @param {int} config.unlockHeight - minimum height for the tx to unlock
    * @param {string} config.note - transaction note saved locally with the wallet
    * @param {string} config.recipientName - recipient name saved locally with the wallet
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions
@@ -203,12 +203,12 @@ class MoneroTxConfig {
     return this;
   }
   
-  getUnlockTime() {
-    return this.state.unlockTime;
+  getUnlockHeight() {
+    return this.state.unlockHeight;
   }
   
-  setUnlockTime(unlockTime) {
-    this.state.unlockTime = unlockTime;
+  setUnlockHeight(unlockHeight) {
+    this.state.unlockHeight = unlockHeight;
     return this;
   }
   

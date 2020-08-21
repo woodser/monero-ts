@@ -1288,15 +1288,15 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       if (!testConfig.liteMode && testConfig.testNotifications)
       it("Can receive notifications when outputs are received, confirmed, and unlocked", async function() {
-        await testReceivedOutputNotificationsWithUnlockTime(0);
+        await testReceivedOutputNotificationsWithUnlockHeight(0);
       });
       
       if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock time", async function() {
-        await testReceivedOutputNotificationsWithUnlockTime(13);
+      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock height", async function() {
+        await testReceivedOutputNotificationsWithUnlockHeight(13);
       });
       
-      async function testReceivedOutputNotificationsWithUnlockTime(unlockDelay) {
+      async function testReceivedOutputNotificationsWithUnlockHeight(unlockDelay) {
         let expectedUnlockHeight = await that.daemon.getHeight() + unlockDelay;
         
         // create wallet to test received output notifications
@@ -1307,7 +1307,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           .setAccountIndex(0)
           .setAddress(await receiver.getPrimaryAddress())
           .setAmount(TestUtils.MAX_FEE.multiply(BigInteger.parse("10")))
-          .setUnlockTime(expectedUnlockHeight)
+          .setUnlockHeight(expectedUnlockHeight)
           .setRelay(false)
         );
         
@@ -1588,7 +1588,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert(output.getTx().getUnlockTime() >= 0);
+    assert(output.getTx().getUnlockHeight() >= 0);
     assert.equal(output.getTx().getInputs(), undefined);
     assert.equal(output.getTx().getOutputs().length, 1);
     assert(output.getTx().getOutputs()[0] === output);
@@ -1615,7 +1615,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert.equal(output.getTx().getUnlockTime(), undefined);
+    assert.equal(output.getTx().getUnlockHeight(), undefined);
     assert.equal(output.getTx().getInputs().length, 1);
     assert(output.getTx().getInputs()[0] === output);
     assert.equal(output.getTx().getOutputs(), undefined);

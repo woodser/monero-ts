@@ -96,7 +96,7 @@ not directly testing sweepUnlocked()
 daemon binary tests
 daemon notification test needs to test tx merging
 merge asserts type
-how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
+how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock height?
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency

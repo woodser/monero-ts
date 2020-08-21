@@ -158,12 +158,12 @@ class MoneroTx {
     return this;
   }
   
-  getUnlockTime() {
-    return this.state.unlockTime;
+  getUnlockHeight() {
+    return this.state.unlockHeight;
   }
   
-  setUnlockTime(unlockTime) {
-    this.state.unlockTime = unlockTime;
+  setUnlockHeight(unlockHeight) {
+    this.state.unlockHeight = unlockHeight;
     return this;
   }
   
@@ -477,7 +477,7 @@ class MoneroTx {
     this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
     this.setMaxUsedBlockHash(GenUtils.reconcile(this.getMaxUsedBlockHash(), tx.getMaxUsedBlockHash()));
     this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
-    this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
+    this.setUnlockHeight(GenUtils.reconcile(this.getUnlockHeight(), tx.getUnlockHeight()));
     this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
     // merge inputs
@@ -549,7 +549,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
     str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);
     str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
+    str += GenUtils.kvLine("Unlock height", this.getUnlockHeight(), indent);
     str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += GenUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
     str += GenUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
