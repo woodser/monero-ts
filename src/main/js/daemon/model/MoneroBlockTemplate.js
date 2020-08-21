@@ -115,7 +115,7 @@ class MoneroBlockTemplate {
   
   setNextSeedHash(nextSeedHash) {
     this.state.nextSeedHash = nextSeedHash;
-    return this;s
+    return this;
   }
 }
 

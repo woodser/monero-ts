@@ -158,12 +158,12 @@ class MoneroTx {
     return this;
   }
   
-  getUnlockTime() {
-    return this.state.unlockTime;
+  getUnlockHeight() {
+    return this.state.unlockHeight;
   }
   
-  setUnlockTime(unlockTime) {
-    this.state.unlockTime = unlockTime;
+  setUnlockHeight(unlockHeight) {
+    this.state.unlockHeight = unlockHeight;
     return this;
   }
   
@@ -454,6 +454,7 @@ class MoneroTx {
     this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
     this.setRingSize(GenUtils.reconcile(this.getRingSize(), tx.getRingSize()));
     this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
+    this.setIsMinerTx(GenUtils.reconcile(this.isMinerTx(), tx.isMinerTx(), null, null, null));
     this.setRelay(GenUtils.reconcile(this.getRelay(), tx.getRelay(), {resolveTrue: true}));       // tx can become relayed
     this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true})); // tx can become relayed
     this.setIsDoubleSpend(GenUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
@@ -476,7 +477,7 @@ class MoneroTx {
     this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
     this.setMaxUsedBlockHash(GenUtils.reconcile(this.getMaxUsedBlockHash(), tx.getMaxUsedBlockHash()));
     this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
-    this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
+    this.setUnlockHeight(GenUtils.reconcile(this.getUnlockHeight(), tx.getUnlockHeight()));
     this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
     // merge inputs
@@ -499,145 +500,22 @@ class MoneroTx {
     // merge outputs
     if (tx.getOutputs()) {
       for (let output of tx.getOutputs()) output.setTx(this);
-      if (this.getOutputs() === undefined) this.setOutputs(tx.getOutputs());
+      if (!this.getOutputs()) this.setOutputs(tx.getOutputs());
       else {
         
-        // validate output indices if present
-        let numIndices = 0;
-        for (let output of this.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
-        for (let output of tx.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
-        assert(numIndices === 0 || this.getOutputs().length + tx.getOutputs().length == numIndices, "Some outputs have an output index and some do not");
-        
-        // merge by output indices if present
-        if (numIndices > 0) {
-          for (let merger of tx.getOutputs()) {
-            let merged = false;
-            merger.setTx(this);
-            if (this.getOutputs() === undefined) this.setOutputs([]);
-            for (let mergee of this.getOutputs()) {
-              if (mergee.getIndex() === merger.getIndex()) {
-                mergee.merge(merger);
-                merged = true;
-                break;
-              }
-            }
-            if (!merged) this.getOutputs().push(merger);
-          }
-        } else {
-          
-          // determine if key images present
-          let numKeyImages = 0;
-          for (let output of this.getOutputs()) {
-            if (output.getKeyImage() !== undefined) {
-              assert.notEqual(output.getKeyImage().getHex(), undefined);
-              numKeyImages++;
+        // merge outputs if key image or stealth public key present, otherwise append
+        for (let merger of tx.getOutputs()) {
+          let merged = false;
+          merger.setTx(this);
+          for (let mergee of this.getOutputs()) {
+            if ((merger.getKeyImage() && mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) ||
+                (merger.getStealthPublicKey() && mergee.getStealthPublicKey() === merger.getStealthPublicKey())) {
+             mergee.merge(merger);
+             merged = true;
+             break;
             }
           }
-          for (let output of tx.getOutputs()) {
-            if (output.getKeyImage() !== undefined) {
-              assert.notEqual(output.getKeyImage().getHex(), undefined);
-              numKeyImages++;
-            }
-          }
-          assert("Some outputs have a key image and some do not", numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages);
-          
-          // merge by key images if present
-          if (numKeyImages > 0) {
-            for (let merger of tx.getOutputs()) {
-              let merged = false;
-              merger.setTx(this);
-              if (this.getOutputs() === undefined) this.setOutputs([]);
-              for (let mergee of this.getOutputs()) {
-                if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
-                  mergee.merge(merger);
-                  merged = true;
-                  break;
-                }
-              }
-              if (!merged) this.getOutputs().push(merger);
-            }
-          }
-
-          // otherwise merge by position
-          else {
-            assert.equal(tx.getOutputs().length, this.getOutputs().length);
-            for (let i = 0; i < tx.getOutputs().length; i++) {
-              this.getOutputs()[i].merge(tx.getOutputs()[i]);
-            }
-          }
-        }
-      }
-    }
-    
-    // merge outputs
-    if (tx.getOutputs()) {
-      for (let output of tx.getOutputs()) output.setTx(this);
-      if (this.getOutputs() == null) this.setOutputs(tx.getOutputs());
-      else {
-        
-        // validate output indices if present
-        let numIndices = 0;
-        for (let output of this.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
-        for (let output of tx.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
-        assert(numIndices === 0 || this.getOutputs().length + tx.getOutputs().length === numIndices, "Some outputs have an output index and some do not");
-        
-        // merge by output indices if present
-        if (numIndices > 0) {
-          for (let merger of tx.getOutputs()) {
-            let merged = false;
-            merger.setTx(this);
-            if (this.getOutputs() === undefined) this.setOutputs([]);
-            for (let mergee of this.getOutputs()) {
-              if (mergee.getIndex() === merger.getIndex()) {
-                mergee.merge(merger);
-                merged = true;
-                break;
-              }
-            }
-            if (!merged) this.getOutputs().push(merger);
-          }
-        } else {
-
-          // determine if key images present
-          let numKeyImages = 0;
-          for (let output of this.getOutputs()) {
-            if (output.getKeyImage()) {
-              assert(output.getKeyImage().getHex());
-              numKeyImages++;
-            }
-          }
-          for (let output of tx.getOutputs()) {
-            if (output.getKeyImage()) {
-              assert(output.getKeyImage().getHex());
-              numKeyImages++;
-            }
-          }
-          assert(numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages, "Some outputs have a key image and some do not");
-          
-          // merge by key images
-          if (numKeyImages > 0) {
-            for (let merger of tx.getOutputs()) {
-              let merged = false;
-              merger.setTx(this);
-              if (this.getOutputs() === undefined) this.setOutputs([]);
-              for (let mergee of this.getOutputs()) {
-                if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
-                  mergee.merge(merger);
-                  merged = true;
-                  break;
-                }
-              }
-              if (!merged) this.getOutputs().push(merger);
-            }
-          }
-          
-          // merge by position
-          else {
-            assert.equal(tx.getOutputs().length, this.getOutputs().length);
-            for (let i = 0; i < tx.getOutputs().length; i++) {
-              this.getOutputs()[i].merge(tx.getOutputs()[i]);
-            }
-          }
+          if (!merged) this.getOutputs().push(merger); // append output
         }
       }
     }
@@ -659,8 +537,8 @@ class MoneroTx {
   toString(indent = 0) {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
-    str += GenUtils.kvLine("Tx hash: ", this.getHash(), indent);
-    str += GenUtils.kvLine("Height: ", this.getHeight(), indent);
+    str += GenUtils.kvLine("Tx hash", this.getHash(), indent);
+    str += GenUtils.kvLine("Height", this.getHeight(), indent);
     str += GenUtils.kvLine("Version", this.getVersion(), indent);
     str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
     str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
@@ -671,7 +549,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
     str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);
     str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
+    str += GenUtils.kvLine("Unlock height", this.getUnlockHeight(), indent);
     str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += GenUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
     str += GenUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);

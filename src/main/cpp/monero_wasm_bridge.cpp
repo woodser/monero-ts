@@ -52,7 +52,9 @@ struct wallet_wasm_listener : public monero_wallet_listener {
 
   void on_output_received(const monero_output_wallet& output) override {
     boost::optional<uint64_t> height = output.m_tx->get_height();
-    m_on_output_received(height == boost::none ? (long) 0 : (long) *height, output.m_tx->m_hash.get(), to_string(*output.m_amount), (int) *output.m_account_index, (int) *output.m_subaddress_index, (int) *output.m_tx->m_version, (int) *output.m_tx->m_unlock_time);
+    int version = output.m_tx->m_version == boost::none ? 1 : *output.m_tx->m_version;  // TODO: version not present in unlocked output notification, defaulting to 1
+    bool is_locked = std::static_pointer_cast<monero_tx_wallet>(output.m_tx)->m_is_locked.get();
+    m_on_output_received(height == boost::none ? (long) 0 : (long) *height, output.m_tx->m_hash.get(), to_string(*output.m_amount), (int) *output.m_account_index, (int) *output.m_subaddress_index, version, (int) *output.m_tx->m_unlock_height, is_locked);
   }
 
   void on_output_spent(const monero_output_wallet& output) override {
@@ -323,6 +325,15 @@ void monero_wasm_bridge::get_daemon_height(int handle, emscripten::val callback)
   callback((long) wallet->get_daemon_height());
 }
 
+void monero_wasm_bridge::get_height_by_date(int handle, uint16_t year, uint8_t month, uint8_t day, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    callback((long) wallet->get_height_by_date(year, month, day));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::is_daemon_synced(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   callback(wallet->is_daemon_synced());
@@ -521,12 +532,6 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   vector<string> missing_tx_hashes;
   vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_hashes);
 
-  // return error as string if missing requested tx hashes
-  if (!missing_tx_hashes.empty()) {
-    callback("Tx not found in wallet: " + missing_tx_hashes[0]);
-    return;
-  }
-
   // collect unique blocks to preserve model relationships as trees
   shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
   vector<shared_ptr<monero_block>> blocks;
@@ -548,6 +553,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+  if (!missing_tx_hashes.empty()) doc.AddMember("missingTxHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), missing_tx_hashes), doc.GetAllocator());
   callback(monero_utils::serialize(doc));
 
   // free memory

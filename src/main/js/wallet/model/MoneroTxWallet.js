@@ -369,14 +369,14 @@ class MoneroTxWallet extends MoneroTx {
       str += GenUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
-    str += GenUtils.kvLine("Note: ", this.getNote(), indent);
-    str += GenUtils.kvLine("Is locked: ", this.isLocked(), indent);
-    str += GenUtils.kvLine("Input sum: ", this.getInputSum(), indent);
-    str += GenUtils.kvLine("Output sum: ", this.getOutputSum(), indent);
-    str += GenUtils.kvLine("Change address: ", this.getChangeAddress(), indent);
-    str += GenUtils.kvLine("Change amount: ", this.getChangeAmount(), indent);
-    str += GenUtils.kvLine("Num dummy outputs: ", this.getNumDummyOutputs(), indent);
-    str += GenUtils.kvLine("Extra hex: ", this.getExtraHex(), indent);
+    str += GenUtils.kvLine("Note", this.getNote(), indent);
+    str += GenUtils.kvLine("Is locked", this.isLocked(), indent);
+    str += GenUtils.kvLine("Input sum", this.getInputSum(), indent);
+    str += GenUtils.kvLine("Output sum", this.getOutputSum(), indent);
+    str += GenUtils.kvLine("Change address", this.getChangeAddress(), indent);
+    str += GenUtils.kvLine("Change amount", this.getChangeAmount(), indent);
+    str += GenUtils.kvLine("Num dummy outputs", this.getNumDummyOutputs(), indent);
+    str += GenUtils.kvLine("Extra hex", this.getExtraHex(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
   

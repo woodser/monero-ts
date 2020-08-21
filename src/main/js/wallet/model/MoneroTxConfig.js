@@ -32,7 +32,7 @@ class MoneroTxConfig {
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
    * @param {string} config.paymentId - transaction payment ID
-   * @param {int} config.unlockTime - number of confirmations before the recipient can spend the funds
+   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
    * @param {string} config.note - transaction note saved locally with the wallet
    * @param {string} config.recipientName - recipient name saved locally with the wallet
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions
@@ -92,9 +92,9 @@ class MoneroTxConfig {
    * @return {MoneroTxConfig} this configuration for chaining
    */
   setAddress(address) {
-    if (this.destinations !== undefined && this.destinations.length > 1) throw new MoneroError("Cannot set address because MoneroTxConfig already has multiple destinations");
-    if (this.destinations === undefined || this.destinations.length === 0) this.addDestination(new MoneroDestination(address));
-    else this.destinations[0].setAddress(address);
+    if (this.state.destinations !== undefined && this.state.destinations.length > 1) throw new MoneroError("Cannot set address because MoneroTxConfig already has multiple destinations");
+    if (this.state.destinations === undefined || this.state.destinations.length === 0) this.addDestination(new MoneroDestination(address));
+    else this.state.destinations[0].setAddress(address);
     return this;
   }
   
@@ -104,8 +104,8 @@ class MoneroTxConfig {
    * @return {string} the address of the single destination
    */
   getAddress() {
-    if (this.destinations === undefined || this.destinations.length !== 1) throw new MoneroError("Cannot get address because MoneroTxConfig does not have exactly one destination");
-    return this.destinations[0].getAddress();
+    if (this.state.destinations === undefined || this.state.destinations.length !== 1) throw new MoneroError("Cannot get address because MoneroTxConfig does not have exactly one destination");
+    return this.state.destinations[0].getAddress();
   }
   
   /**
@@ -115,9 +115,9 @@ class MoneroTxConfig {
    * @return {MoneroTxConfig} this configuration for chaining
    */
   setAmount(amount) {
-    if (this.destinations !== undefined && this.destinations.length > 1) throw new MoneroError("Cannot set amount because MoneroTxConfig already has multiple destinations");
-    if (this.destinations === undefined || this.destinations.length === 0) this.addDestination(new MoneroDestination(undefined, amount));
-    else this.destinations[0].setAmount(amount);
+    if (this.state.destinations !== undefined && this.state.destinations.length > 1) throw new MoneroError("Cannot set amount because MoneroTxConfig already has multiple destinations");
+    if (this.state.destinations === undefined || this.state.destinations.length === 0) this.addDestination(new MoneroDestination(undefined, amount));
+    else this.state.destinations[0].setAmount(amount);
     return this;
   }
   
@@ -127,8 +127,8 @@ class MoneroTxConfig {
    * @return {BigInteger} the amount of the single destination
    */
   getAmount() {
-    if (this.destinations === undefined || this.destinations.length !== 1) throw new MoneroError("Cannot get amount because MoneroTxConfig does not have exactly one destination");
-    return this.destinations[0].getAmount();
+    if (this.state.destinations === undefined || this.state.destinations.length !== 1) throw new MoneroError("Cannot get amount because MoneroTxConfig does not have exactly one destination");
+    return this.state.destinations[0].getAmount();
   }
   
   addDestination(destination) {
@@ -203,12 +203,12 @@ class MoneroTxConfig {
     return this;
   }
   
-  getUnlockTime() {
-    return this.state.unlockTime;
+  getUnlockHeight() {
+    return this.state.unlockHeight;
   }
   
-  setUnlockTime(unlockTime) {
-    this.state.unlockTime = unlockTime;
+  setUnlockHeight(unlockHeight) {
+    this.state.unlockHeight = unlockHeight;
     return this;
   }
   

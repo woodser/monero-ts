@@ -465,9 +465,42 @@ class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the height that the wallet is synchronized to", async function() {
+      it("Can get the current height that the wallet is synchronized to", async function() {
         let height = await that.wallet.getHeight();
         assert(height >= 0);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get a blockchain height by date", async function() {
+        
+        // collect dates to test starting 100 days ago
+        const DAY_MS = 24 * 60 * 60 * 1000;
+        let yesterday = new Date(new Date().getTime() - DAY_MS); // TODO monero-core: today's date can throw exception as "in future" so we test up to yesterday
+        let dates = [];
+        for (let i = 99; i >= 0; i--) {
+          dates.push(new Date(yesterday.getTime() - DAY_MS * i)); // subtract i days
+        }
+    
+        // test heights by date
+        let lastHeight = undefined;
+        for (let date of dates) {
+          let height = await that.wallet.getHeightByDate(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+          assert(height >= 0);
+          if (lastHeight != undefined) assert(height >= lastHeight);
+          lastHeight = height;
+        }
+        assert(lastHeight > 0);
+        let height = await that.wallet.getHeight();
+        assert(height >= 0);
+        
+        // test future date
+        try {
+          let tomorrow = new Date(yesterday.getTime() + DAY_MS * 2);
+          await that.wallet.getHeightByDate(tomorrow.getYear() + 1900, tomorrow.getMonth() + 1, tomorrow.getDate());
+          throw new Error("Expected exception on future date");
+        } catch (err) {
+          assert.equal(err.message, "specified date is in the future");
+        }
       });
       
       if (testConfig.testNonRelays)
@@ -1015,64 +1048,64 @@ class TestMoneroWalletCommon {
         
         // valid, invalid, and unknown tx hashes for tests
         let txHash = randomTxs[0].getHash();
-        let invalidId = "invalid_id";
-        let unknownId1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
-        let unknownId2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
+        let invalidHash = "invalid_id";
+        let unknownHash1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
+        let unknownHash2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
         
         // fetch unknown tx hash
         try {
-          await that.wallet.getTx(unknownId1);
+          await that.wallet.getTx(unknownHash1);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hash using query
         try {
-          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownId1));
+          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownHash1));
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hash in collection
         try {
-          await that.wallet.getTxs([txHash, unknownId1]);
+          await that.wallet.getTxs([txHash, unknownHash1]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hashes in collection
         try {
-          await that.wallet.getTxs([txHash, unknownId1, unknownId2]);
+          await that.wallet.getTxs([txHash, unknownHash1, unknownHash2]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1); // TODO: list all invalid hashes in error description?
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1, unknownHash2]);
         }
         
         // fetch invalid hash
         try {
-          await that.wallet.getTx(invalidId);
+          await that.wallet.getTx(invalidHash);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
         }
         
         // fetch invalid hash collection
         try {
-          await that.wallet.getTxs([txHash, invalidId]);
+          await that.wallet.getTxs([txHash, invalidHash]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
         }
         
         // fetch invalid hashes in collection
         try {
-          await that.wallet.getTxs([txHash, invalidId, "invalid_id_2"]);
+          await that.wallet.getTxs([txHash, invalidHash, "invalid_hash_2"]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash, "invalid_hash_2"]);
         }
       });
 
@@ -1252,7 +1285,7 @@ class TestMoneroWalletCommon {
         
         // test invalid subaddress index
         try {
-          let transfers = await that.wallet.getTransfers({accountIndex: 0, subaddressIndex: -10});
+          let transfers = await that.wallet.getTransfers({accountIndex: 0, subaddressIndex: -1});
           throw new Error("Should have failed");
         } catch (e) {
           assert.notEqual(e.message, "Should have failed");
@@ -2162,30 +2195,30 @@ class TestMoneroWalletCommon {
       
       if (testConfig.testRelays && testConfig.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: 3, canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: 3, canSplit: true, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: true, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: 3, canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: 3, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       /**
-       * Tests sending a tx with an unlock time then tracking and updating it as
+       * Tests sending a tx with an unlock height then tracking and updating it as
        * blocks are added to the chain.
        * 
        * TODO: test wallet accounting throughout this; dedicated method? probably.
@@ -3456,7 +3489,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isConfirmed(), false);
       testTransfer(tx.getOutgoingTransfer(), ctx);
       assert.equal(tx.getRingSize(), MoneroUtils.RING_SIZE);
-      assert.equal(tx.getUnlockTime(), config.getUnlockTime() ? config.getUnlockTime() : 0);
+      assert.equal(tx.getUnlockHeight(), config.getUnlockHeight() ? config.getUnlockHeight() : 0);
       assert.equal(tx.getBlock(), undefined);
       assert(tx.getKey().length > 0);
       assert.equal(typeof tx.getFullHex(), "string");
@@ -3466,7 +3499,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isLocked(), true);
       
       // test locked state
-      if (tx.getUnlockTime() === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
+      if (tx.getUnlockHeight() === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
       else assert.equal(tx.isLocked(), true);
       if (tx.getOutputs() !== undefined) {
         for (let output of tx.getOutputs()) {
@@ -3724,7 +3757,7 @@ class TestMoneroWalletCommon {
         // start mining to push the network along
         await StartMining.startMining();
         
-        // wait for the multisig wallet's funds to unlock
+        // wait for the multisig wallet's funds to unlock // TODO: replace with MoneroWalletListener.onOutputReceived() which is called when output unlocked
         let lastNumConfirmations = undefined;
         while (true) {
           
@@ -3931,7 +3964,7 @@ class TestMoneroWalletCommon {
       await wallet.close(true);
     }
     
-    // import each wallet's peer multisig hexIt 
+    // import each wallet's peer multisig hex 
     for (let i = 0; i < walletIds.length; i++) {
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(multisigHexes[j]);
@@ -4034,7 +4067,7 @@ function testTxWalletTypes(tx, ctx) {
   assert.equal(tx.getInputs(), undefined);  // TODO no way to expose inputs?
   if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
-  assert(tx.getUnlockTime() >= 0);
+  assert(tx.getUnlockHeight() >= 0);
   assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
   if (ctx.isSendResponse) assert(tx.getWeight() > 0);
   else assert.equal(tx.getWeight(), undefined);
@@ -4202,7 +4235,7 @@ function testParsedTxSet(parsedTxSet) {
     if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);
     else MoneroUtils.validateAddress(parsedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
     assert(parsedTx.getRingSize() > 1);
-    assert(parsedTx.getUnlockTime() >= 0);
+    assert(parsedTx.getUnlockHeight() >= 0);
     assert(parsedTx.getNumDummyOutputs() >= 0);
     assert(parsedTx.getExtraHex());
     assert(parsedTx.getPaymentId() === undefined || parsedTx.getPaymentId().length > 0);

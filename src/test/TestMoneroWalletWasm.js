@@ -44,6 +44,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     if (config.getServer() === undefined && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
+    if (config.getFs() === undefined) config.setFs(TestUtils.getDefaultFs());
     
     // open wallet
     let wallet = await monerojs.openWalletWasm(config);
@@ -62,6 +63,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
     if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
+    if (config.getFs() === undefined) config.setFs(TestUtils.getDefaultFs());
     
     // create wallet
     let wallet = await monerojs.createWalletWasm(config);
@@ -72,7 +74,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   
   async getWalletGt() {
     let path = TestUtils.TEST_WALLETS_DIR + "/ground_truth";
-    let wallet = await monerojs.MoneroWalletWasm.walletExists(path) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
+    let wallet = await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
     await wallet.sync();
     return wallet;
   }
@@ -110,7 +112,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         
         // remove non-whitelisted wallets
         let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
-        let items = LibraryUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
+        let items = TestUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
         for (let item of items) {
           let found = false;
           for (let whitelisted of whitelist) {
@@ -119,7 +121,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
               break;
             }
           }
-          if (!found) LibraryUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+          if (!found) TestUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
         }
       });
       
@@ -873,7 +875,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         let path = TestMoneroWalletWasm._getRandomWalletPath();
         
         // wallet does not exist
-        assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
+        assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
         
         // cannot open non-existant wallet
         try {
@@ -890,7 +892,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // test wallet at newly created state
         let err;
         try {
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getDaemonConnection(), undefined);
@@ -911,7 +913,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           wallet = await that.openWallet({path: path});
           
           // test wallet is at newly created state
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getDaemonConnection(), undefined);
@@ -944,7 +946,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert(await wallet.isConnected());
           assert.equal(await wallet.getHeight(), prevHeight);
           assert.equal(await wallet.getSyncHeight(), 0); // TODO monero core: restoreHeight is reset to 0 after closing
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
           assert.equal(await wallet.getMnemonicLanguage(), "English");
@@ -971,7 +973,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           let path = TestUtils.TEST_WALLETS_DIR + "/" + walletName;
           
           // wallet does not exist
-          assert(!await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(!await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           
           // create wallet at the path
           let restoreHeight = await that.daemon.getHeight() - 200;
@@ -981,19 +983,19 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           await wallet.save();
           
           // wallet exists
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
           
           // move wallet to a subdirectory
           let movedPath = TestUtils.TEST_WALLETS_DIR + "/moved/" + walletName;
           await wallet.moveTo(movedPath, TestUtils.WALLET_PASSWORD);
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(!(await MoneroWalletWasm.walletExists(movedPath))); // wallet does not exist until saved
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()))); // wallet does not exist until saved
           await wallet.save();
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(await MoneroWalletWasm.walletExists(movedPath));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()));
           await wallet.close();
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));
-          assert(await MoneroWalletWasm.walletExists(movedPath));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));
+          assert(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs()));
           
           // re-open and test wallet
           wallet = await that.openWallet({path: movedPath, serverUri: ""});
@@ -1001,14 +1003,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
           // move wallet back
           await wallet.moveTo(path, TestUtils.WALLET_PASSWORD);
-          assert(!(await monerojs.MoneroWalletWasm.walletExists(path)));  // wallet does not exist until saved
-          assert(!(await MoneroWalletWasm.walletExists(movedPath)));
+          assert(!(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs())));  // wallet does not exist until saved
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
           await wallet.save();
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
-          assert(!(await MoneroWalletJni.walletExists(movedPath)));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
           await wallet.close();
-          assert(await monerojs.MoneroWalletWasm.walletExists(path));
-          assert(!(await MoneroWalletWasm.walletExists(movedPath)));
+          assert(await monerojs.MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()));
+          assert(!(await MoneroWalletWasm.walletExists(movedPath, TestUtils.getDefaultFs())));
         } catch (e) {
           err = e;
         }
@@ -1284,6 +1286,95 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         return false;
       }
       
+      if (!testConfig.liteMode && testConfig.testNotifications)
+      it("Can receive notifications when outputs are received, confirmed, and unlocked", async function() {
+        await testReceivedOutputNotificationsWithUnlockHeight(0);
+      });
+      
+      if (!testConfig.liteMode && testConfig.testNotifications)
+      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock height", async function() {
+        await testReceivedOutputNotificationsWithUnlockHeight(13);
+      });
+      
+      async function testReceivedOutputNotificationsWithUnlockHeight(unlockDelay) {
+        let expectedUnlockHeight = await that.daemon.getHeight() + unlockDelay;
+        
+        // create wallet to test received output notifications
+        let receiver = await that.createWallet(new MoneroWalletConfig());
+        
+        // create tx to transfer funds to receiver
+        let tx = await that.wallet.createTx(new MoneroTxConfig()
+          .setAccountIndex(0)
+          .setAddress(await receiver.getPrimaryAddress())
+          .setAmount(TestUtils.MAX_FEE.multiply(BigInteger.parse("10")))
+          .setUnlockHeight(expectedUnlockHeight)
+          .setRelay(false)
+        );
+        
+        // register listener to test notifications
+        let listener = new ReceivedOutputNotificationTester(tx.getHash());
+        await receiver.addListener(listener);
+        
+        // flush tx to prevent double spends from previous tests
+        await that.daemon.flushTxPool();
+        
+        // relay transaction to pool
+        let submitHeight = await that.daemon.getHeight();
+        //await that.wallet.relayTx(tx);
+        let result = await that.daemon.submitTxHex(tx.getFullHex());
+        assert(result.isGood(), "Bad submit tx result: " + result.toJson());
+        
+        // test notification of tx in pool within 10 seconds
+        await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+        assert(listener.lastNotifiedOutput);
+        assert(!listener.lastNotifiedOutput.getTx().isConfirmed());
+        
+        // listen for new blocks to test output notifications
+        receiver.addListener(new class extends MoneroWalletListener {
+          async onNewBlock(height) {
+            if (listener.testComplete) return;
+            try {
+                
+              // first confirmation expected within 10 seconds of new block
+              if (listener.confirmedHeight === undefined) {
+                await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+                if (listener.confirmedHeight === undefined && listener.lastNotifiedOutput.getTx().isConfirmed()) { // only run by first thread after confirmation
+                  listener.confirmedHeight = listener.lastNotifiedOutput.getTx().getHeight();
+                  if (listener.confirmedHeight !== submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);
+                }
+              }
+              
+              // output should be locked until max of expected unlock height and 10 blocks after confirmation
+              if ((listener.confirmedHeight === undefined || height < Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) && false === listener.lastNotifiedOutput.isLocked()) throw new Error("Last notified output expected to be locked but isLocked=" + listener.lastNotifiedOutput.isLocked() + " at height " + height);
+              
+              // test unlock notification
+              if (listener.confirmedHeight !== undefined && height === Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) {
+                
+                // receives notification of unlocked tx within 1 second of block notification
+                await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+                if (listener.lastNotifiedOutput.isLocked() !== false) throw new Error("Last notified output expected to be unlocked but isLocked=" + listener.lastNotifiedOutput.isLocked());
+                listener.unlockedSeen = true;
+                listener.testComplete = true;
+              }
+            } catch (err) {
+              console.log(err);
+              listener.testComplete = true;
+              listener.testError = err.message;
+            }
+          }
+        });
+        
+        // mine until complete
+        await StartMining.startMining();
+        
+        // run until test completes
+        while (!listener.testComplete) await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+        if ((await that.daemon.getMiningStatus()).isActive()) await that.daemon.stopMining();
+        assert.equal(undefined, listener.testError);
+        assert(listener.confirmedHeight !== undefined, "No notification of output confirmed", );
+        assert(listener.unlockedSeen, "No notification of output unlocked");
+      }
+      
       if (testConfig.testNotifications)
       it("Can be created and receive funds", async function() {
         let err;
@@ -1497,7 +1588,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert(output.getTx().getUnlockTime() >= 0);
+    assert(output.getTx().getUnlockHeight() >= 0);
     assert.equal(output.getTx().getInputs(), undefined);
     assert.equal(output.getTx().getOutputs().length, 1);
     assert(output.getTx().getOutputs()[0] === output);
@@ -1524,7 +1615,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert.equal(output.getTx().getUnlockTime(), undefined);
+    assert.equal(output.getTx().getUnlockHeight(), undefined);
     assert.equal(output.getTx().getInputs().length, 1);
     assert(output.getTx().getInputs()[0] === output);
     assert.equal(output.getTx().getOutputs(), undefined);
@@ -1553,4 +1644,24 @@ class WalletSyncTester extends SyncProgressTester {
   }
 }
 
+/**
+ * Internal tester for output notifications.
+ */
+class ReceivedOutputNotificationTester extends MoneroWalletListener {
+
+  constructor(txHash) {
+    super();
+    this.txHash = txHash;
+    this.lastNotifiedOutput = undefined;
+    this.testComplete = false;
+    this.testError = undefined;
+    this.unlockedSeen = false;
+    this.confirmedHeight = undefined;
+  }
+  
+  onOutputReceived(output) {
+    if (output.getTx().getHash() === this.txHash) this.lastNotifiedOutput = output;
+  }
+}
+  
 module.exports = TestMoneroWalletWasm;

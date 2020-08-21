@@ -1,6 +1,7 @@
 const MoneroIncomingTransfer = require("./MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("./MoneroOutgoingTransfer");
 const MoneroTransfer = require("./MoneroTransfer");
+const MoneroError = require("../../common/MoneroError")
 
 /**
  * Configuration to query wallet transfers.
@@ -46,6 +47,9 @@ class MoneroTransferQuery extends MoneroTransfer {
     
     // alias isOutgoing to isIncoming
     if (this.state.isOutgoing !== undefined) this.state.isIncoming = !this.state.isOutgoing;
+    
+    // validate state
+    this._validate();
   }
   
   copy() {
@@ -110,6 +114,7 @@ class MoneroTransferQuery extends MoneroTransfer {
   
   setSubaddressIndex(subaddressIndex) {
     this.state.subaddressIndex = subaddressIndex;
+    this._validate();
     return this;
   }
   
@@ -119,6 +124,7 @@ class MoneroTransferQuery extends MoneroTransfer {
   
   setSubaddressIndices(subaddressIndices) {
     this.state.subaddressIndices = subaddressIndices;
+    this._validate();
     return this;
   }
   
@@ -204,6 +210,11 @@ class MoneroTransferQuery extends MoneroTransfer {
     // filter with tx filter
     if (queryParent && this.getTxQuery() !== undefined && !this.getTxQuery().meetsCriteria(transfer.getTx())) return false;    
     return true;
+  }
+  
+  _validate() {
+    if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() < 0) throw new MoneroError("Subaddress index must be >= 0");
+    if (this.getSubaddressIndices() !== undefined) for (let subaddressIdx of this.getSubaddressIndices()) if (subaddressIdx < 0) throw new MoneroError("Subaddress indices must be >= 0");
   }
 }
 

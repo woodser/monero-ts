@@ -32,7 +32,7 @@ class TestDeveloperGuide {
       it("Test developer guide transaction queries", async function() {
         
         // get a transaction by hash
-        let tx = await wallet.getTx("48db7afb1e9eecb11303d4f49c955ffdee2ffc2fa513b8f05da35ff537744096");
+        let tx = await wallet.getTx("2bcb953fcd29c02474edc495c1ae069d25689039bd605331dcb9bb467615d362");
         
         // get unconfirmed transactions
         let txs = await wallet.getTxs({
@@ -121,14 +121,14 @@ class TestDeveloperGuide {
           isOutgoing: true,
           txQuery: {
             isConfirmed: true,
-            minHeight: 582106,
+            minHeight: TestUtils.FIRST_RECEIVE_HEIGHT   // *** REPLACE WITH NUMBER IN .MD FILE ***
           }
         });
         assert(transfers.length > 0);
         for (let transfer of transfers) {
           assert(transfer.isOutgoing());
           assert(transfer.getTx().isConfirmed());
-          assert(transfer.getTx().getHeight() >= 582106);
+          assert(transfer.getTx().getHeight() >= TestUtils.FIRST_RECEIVE_HEIGHT);
         }
       });
       

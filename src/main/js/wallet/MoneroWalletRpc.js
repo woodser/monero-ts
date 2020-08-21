@@ -15,6 +15,7 @@ const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
+const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
 const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
 const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
 const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
@@ -449,6 +450,10 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new MoneroError("monero-wallet-rpc does not support getting the chain height");
   }
   
+  async getHeightByDate(year, month, day) {
+    throw new MoneroError("monero-wallet-rpc does not support getting a height by date");
+  }
+  
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
@@ -626,7 +631,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
   
-  async getTxs(query) {
+  async getTxs(query, missingTxHashes) {
     
     // copy query
     query = MoneroWallet._normalizeTxQuery(query);
@@ -683,8 +688,9 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     txs = txsQueried;
     
-    // verify all specified tx hashes found
+    // collect unfound tx hashes
     if (query.getHashes()) {
+      let unfoundTxHashes = [];
       for (let txHash of query.getHashes()) {
         let found = false;
         for (let tx of txs) {
@@ -693,8 +699,12 @@ class MoneroWalletRpc extends MoneroWallet {
             break;
           }
         }
-        if (!found) throw new MoneroError("Tx not found in wallet: " + txHash);
+        if (!found) unfoundTxHashes.push(txHash);
       }
+     
+      // if txs not found, collect missing hashes or throw error if no collection given
+      if (missingTxHashes) for (let unfoundTxHash of unfoundTxHashes) missingTxHashes.push(unfoundTxHash);
+      else if (unfoundTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + unfoundTxHashes);
     }
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
@@ -817,7 +827,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = config.getPaymentId();
-    params.unlock_time = config.getUnlockTime();
+    params.unlock_time = config.getUnlockHeight();
     params.do_not_relay = config.getRelay() !== true;
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
@@ -858,7 +868,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = config.getAccountIndex();
     params.subaddr_indices = config.getSubaddressIndices();
     params.key_image = config.getKeyImage();
-    params.unlock_time = config.getUnlockTime();
+    params.unlock_time = config.getUnlockHeight();
     params.do_not_relay = config.getRelay() !== true;
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
@@ -1566,7 +1576,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.address = config.getDestinations()[0].getAddress();
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
-    params.unlock_time = config.getUnlockTime();
+    params.unlock_time = config.getUnlockHeight();
     params.payment_id = config.getPaymentId();
     params.do_not_relay = !relay;
     params.below_amount = config.getBelowAmount();
@@ -1599,7 +1609,7 @@ class MoneroWalletRpc extends MoneroWallet {
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(config.getPaymentId());
-      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+      if (tx.getUnlockHeight() === undefined) tx.setUnlockHeight(config.getUnlockHeight() === undefined ? 0 : config.getUnlockHeight());
       if (tx.getRelay()) {
         if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
         if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
@@ -1702,7 +1712,7 @@ class MoneroWalletRpc extends MoneroWallet {
     transfer.setDestinations(destCopies);
     tx.setOutgoingTransfer(transfer);
     tx.setPaymentId(config.getPaymentId());
-    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+    if (tx.getUnlockHeight() === undefined) tx.setUnlockHeight(config.getUnlockHeight() === undefined ? 0 : config.getUnlockHeight());
     if (config.getRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
       if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
@@ -1827,7 +1837,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
-      else if (key === "unlock_time") tx.setUnlockTime(val);
+      else if (key === "unlock_time") tx.setUnlockHeight(val);
       else if (key === "weight") tx.setWeight(val);
       else if (key === "locked") tx.setIsLocked(val);
       else if (key === "tx_blob") tx.setFullHex(val);
@@ -1942,7 +1952,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcOutput[key];
       if (key === "amount") output.setAmount(new BigInteger(val));
       else if (key === "spent") output.setIsSpent(val);
-      else if (key === "key_image") output.setKeyImage(new MoneroKeyImage(val));
+      else if (key === "key_image") { if ("" !== val) output.setKeyImage(new MoneroKeyImage(val)); }
       else if (key === "global_index") output.setIndex(val);
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
@@ -2112,14 +2122,14 @@ class MoneroWalletRpc extends MoneroWallet {
     let heightComparison = MoneroWalletRpc._compareTxsByHeight(o1.getTx(), o2.getTx());
     if (heightComparison !== 0) return heightComparison;
     
-    // compare by account index, subaddress index, and output
-    if (o1.getAccountIndex() < o2.getAccountIndex()) return -1;
-    else if (o1.getAccountIndex() === o2.getAccountIndex()) {
-      let compare = o1.getSubaddressIndex() - o2.getSubaddressIndex();
-      if (compare !== 0) return compare;
-      return o1.getIndex() - o2.getIndex();
-    }
-    return 1;
+    // compare by account index, subaddress index, output index, then key image hex
+    let compare = o1.getAccountIndex() - o2.getAccountIndex();
+    if (compare !== 0) return compare;
+    compare = o1.getSubaddressIndex() - o2.getSubaddressIndex();
+    if (compare !== 0) return compare;
+    compare = o1.getIndex() - o2.getIndex();
+    if (compare !== 0) return compare;
+    return o1.getKeyImage().getHex().compare(o2.getKeyImage().getHex());
   }
 }
 

@@ -10,16 +10,6 @@ const MoneroError = require("./MoneroError");
 class LibraryUtils {
   
   /**
-   * Get a default file system.  Uses an in-memory file system if running in the browser.
-   * 
-   * @return nodejs-compatible file system
-   */
-  static getDefaultFs() {
-    if (!LibraryUtils.FS) LibraryUtils.FS = GenUtils.isBrowser() ? require('memfs') : require('fs');
-    return LibraryUtils.FS;
-  }
-  
-  /**
    * Get the total memory used by WebAssembly.
    * 
    * @return {int} the total memory used by WebAssembly

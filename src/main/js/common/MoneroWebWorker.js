@@ -476,6 +476,10 @@ self.getDaemonMaxPeerHeight = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getDaemonMaxPeerHeight()
 }
 
+self.getHeightByDate = async function(walletId, year, month, day) {
+  return self.WORKER_OBJECTS[walletId].getHeightByDate(year, month, day);
+}
+
 self.isDaemonSynced = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].isDaemonSynced();
 }

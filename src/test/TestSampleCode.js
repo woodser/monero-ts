@@ -22,7 +22,7 @@ class TestSampleCode {
           
           // create directory for test wallets if it doesn't exist
           const monerojs = require("../../index");
-          let fs = monerojs.LibraryUtils.getDefaultFs();
+          let fs = TestUtils.getDefaultFs();
           if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
             if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
             fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
@@ -62,7 +62,8 @@ class TestSampleCode {
           serverUsername: "superuser",
           serverPassword: "abctesting123",
           mnemonic: TestUtils.MNEMONIC,                 // *** REPLACE README WITH MNEMONIC ***
-          restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT // *** REPLACE README WITH FIRST RECEIVE HEIGHT ***
+          restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, // *** REPLACE README WITH FIRST RECEIVE HEIGHT ***
+          fs: TestUtils.getDefaultFs()
         });
         
         // synchronize with progress notifications

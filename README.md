@@ -1,6 +1,6 @@
 # Monero JavaScript Library
 
-A Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.1 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.1).
+A Node.js library for creating Monero applications using RPC or WebAssembly bindings to [monero v0.16.0.3 'Nitrogen Nebula'](https://github.com/monero-project/monero/tree/v0.16.0.3).
 
 * Supports wallet and daemon RPC clients.
 * Supports client-side wallets in Node.js or the browser using WebAssembly.
@@ -123,7 +123,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	1. Clone emscripten repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
 	3. `git pull && ./emsdk install latest-upstream && ./emsdk activate latest-upstream && source ./emsdk_env.sh`
-	4. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (change for your system)
+	4. `export EMSCRIPTEN=path/to/emsdk/upstream/emscripten` (change for your system)
 2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 3. `cd monero-javascript`
 4. `./bin/build_all.sh`
