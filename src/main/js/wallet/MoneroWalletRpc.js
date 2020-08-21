@@ -631,7 +631,6 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getTxs(query, missingTxHashes) {
-    if (missingTxHashes) throw new Error("MoneroWalletRpc.getTxs() does not support collecting unfound tx hashes");
     
     // copy query
     query = MoneroWallet._normalizeTxQuery(query);
@@ -688,8 +687,9 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     txs = txsQueried;
     
-    // verify all specified tx hashes found
+    // collect unfound tx hashes
     if (query.getHashes()) {
+      let unfoundTxHashes = [];
       for (let txHash of query.getHashes()) {
         let found = false;
         for (let tx of txs) {
@@ -698,8 +698,12 @@ class MoneroWalletRpc extends MoneroWallet {
             break;
           }
         }
-        if (!found) throw new MoneroError("Tx not found in wallet: " + txHash);
+        if (!found) unfoundTxHashes.push(txHash);
       }
+     
+      // if txs not found, collect missing hashes or throw error if no collection given
+      if (missingTxHashes) for (let unfoundTxHash of unfoundTxHashes) missingTxHashes.push(unfoundTxHash);
+      else if (unfoundTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + unfoundTxHashes);
     }
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
@@ -1947,7 +1951,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcOutput[key];
       if (key === "amount") output.setAmount(new BigInteger(val));
       else if (key === "spent") output.setIsSpent(val);
-      else if (key === "key_image") output.setKeyImage(new MoneroKeyImage(val));
+      else if (key === "key_image") { if ("" !== val) output.setKeyImage(new MoneroKeyImage(val)); }
       else if (key === "global_index") output.setIndex(val);
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);

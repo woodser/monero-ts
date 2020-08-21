@@ -1048,64 +1048,64 @@ class TestMoneroWalletCommon {
         
         // valid, invalid, and unknown tx hashes for tests
         let txHash = randomTxs[0].getHash();
-        let invalidId = "invalid_id";
-        let unknownId1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
-        let unknownId2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
+        let invalidHash = "invalid_id";
+        let unknownHash1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
+        let unknownHash2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
         
         // fetch unknown tx hash
         try {
-          await that.wallet.getTx(unknownId1);
+          await that.wallet.getTx(unknownHash1);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hash using query
         try {
-          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownId1));
+          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownHash1));
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hash in collection
         try {
-          await that.wallet.getTxs([txHash, unknownId1]);
+          await that.wallet.getTxs([txHash, unknownHash1]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
         }
         
         // fetch unknown tx hashes in collection
         try {
-          await that.wallet.getTxs([txHash, unknownId1, unknownId2]);
+          await that.wallet.getTxs([txHash, unknownHash1, unknownHash2]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1); // TODO: list all invalid hashes in error description?
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1, unknownHash2]);
         }
         
         // fetch invalid hash
         try {
-          await that.wallet.getTx(invalidId);
+          await that.wallet.getTx(invalidHash);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
         }
         
         // fetch invalid hash collection
         try {
-          await that.wallet.getTxs([txHash, invalidId]);
+          await that.wallet.getTxs([txHash, invalidHash]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
         }
         
         // fetch invalid hashes in collection
         try {
-          await that.wallet.getTxs([txHash, invalidId, "invalid_id_2"]);
+          await that.wallet.getTxs([txHash, invalidHash, "invalid_hash_2"]);
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash, "invalid_hash_2"]);
         }
       });
 

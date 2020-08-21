@@ -1715,7 +1715,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
-    if (missingTxHashes === undefined && deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
+    if (missingTxHashes === undefined && deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
     for (let missingTxHash of deserializedBlocks.missingTxHashes) missingTxHashes.push(missingTxHash);
     let blocks = deserializedBlocks.blocks;
     
@@ -1745,7 +1745,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
-    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
+    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
     let blocks = deserializedBlocks.blocks;
     
     // collect transfers
@@ -1767,7 +1767,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
-    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
+    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
     let blocks = deserializedBlocks.blocks;
     
     // collect outputs
