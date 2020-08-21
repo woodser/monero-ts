@@ -191,7 +191,7 @@ These build steps aspire to be automated further.  [Any help is greatly apprecia
 
 ## Developer guide
 
-Please refer to [monero-javascript's developer guide](https://github.com/monero-ecosystem/monero-javascript#developer-guide) which mostly translates to this C++ library.
+Refer to [monero-javascript's developer guide](https://github.com/monero-ecosystem/monero-javascript#developer-guide) which mostly translates to this C++ library.
 
 ## See also
 
