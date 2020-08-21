@@ -563,7 +563,7 @@ class MoneroWallet {
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {string} config.paymentId - transaction payment ID (optional)
-   * @param {int} config.unlockHeight - number of confirmations before the recipient can spend the funds (default 0)
+   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
    * @return {MoneroTxWallet} the created transaction
    */
   async createTx(config) {
@@ -586,7 +586,7 @@ class MoneroWallet {
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {string} config.paymentId - transaction payment ID (optional)
-   * @param {int} config.unlockHeight - number of confirmations before the recipient can spend the funds (default 0)
+   * @param {int} config.unlockHeight - minimum height for the transactions to unlock (default 0)
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions (default true)
    * @return {MoneroTxWallet[]} the created transactions
    */
@@ -601,7 +601,7 @@ class MoneroWallet {
    * @param {string} config.address - single destination address (required)
    * @param {string} config.keyImage - key image to sweep (required)
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain (default false)
-   * @param {int} config.unlockHeight - number of confirmations before the recipient can spend the funds (default 0)
+   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @return {MoneroTxWallet} the created transaction
    */
@@ -619,7 +619,7 @@ class MoneroWallet {
    * @param {int[]} config.subaddressIndices - source subaddress indices to sweep from (optional)
    * @param {boolean} config.relay - relay the transactions to peers to commit to the blockchain (default false)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
-   * @param {int} config.unlockHeight - number of confirmations before the recipient can spend the funds (default 0)
+   * @param {int} config.unlockHeight - minimum height for the transactions to unlock (default 0)
    * @return {MoneroTxWallet[]} the created transactions
    */
   async sweepUnlocked(config) {
