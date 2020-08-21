@@ -1735,6 +1735,7 @@ namespace monero {
     bool get_tx_hex = true;
     bool get_tx_metadata = true;
     bool relay = config.m_relay != boost::none && config.m_relay.get();
+    if (config.m_relay != boost::none && config.m_relay.get() == true && is_multisig()) throw std::runtime_error("Cannot relay multisig trasaction until co-signed");
 
     // commit txs (if relaying) and get response using wallet rpc's fill_response()
     std::list<std::string> tx_keys;
@@ -2922,7 +2923,7 @@ namespace monero {
     return m_w2->multisig() && m_w2->has_multisig_partial_key_images();
   }
 
-  monero_multisig_info monero_wallet_core::get_multisig_info() {
+  monero_multisig_info monero_wallet_core::get_multisig_info() const {
     monero_multisig_info info;
     info.m_is_multisig = m_w2->multisig(&info.m_is_ready, &info.m_threshold, &info.m_num_participants);
     return info;

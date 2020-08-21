@@ -1196,14 +1196,21 @@ namespace monero {
       throw std::runtime_error("is_multisig_import_needed() not supported");
     }
 
-    // TODO: bool is_multisig()
+    /**
+     * Indicates if this wallet is a multisig wallet.
+     *
+     * @return true if this is a multisig wallet, false otherwise
+     */
+    virtual bool is_multisig() const {
+      return get_multisig_info().m_is_multisig;
+    }
 
     /**
      * Get multisig info about this wallet.
      *
      * @return multisig info about this wallet
      */
-    virtual monero_multisig_info get_multisig_info() {
+    virtual monero_multisig_info get_multisig_info() const {
       throw std::runtime_error("get_multisig_info() not supported");
     }
 
