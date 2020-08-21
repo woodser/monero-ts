@@ -350,7 +350,7 @@ namespace monero {
     boost::optional<uint64_t> m_fee;
     boost::optional<uint32_t> m_account_index;
     std::vector<uint32_t> m_subaddress_indices;
-    boost::optional<uint64_t> m_unlock_time;
+    boost::optional<uint64_t> m_unlock_height;
     boost::optional<bool> m_can_split;
     boost::optional<bool> m_relay;
     boost::optional<std::string> m_note;

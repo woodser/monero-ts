@@ -179,7 +179,7 @@ namespace monero {
     boost::optional<bool> m_is_confirmed;
     boost::optional<bool> m_in_tx_pool;
     boost::optional<uint64_t> m_num_confirmations;
-    boost::optional<uint64_t> m_unlock_time;
+    boost::optional<uint64_t> m_unlock_height;
     boost::optional<uint64_t> m_last_relayed_timestamp;
     boost::optional<uint64_t> m_received_timestamp;
     boost::optional<bool> m_is_double_spend_seen;

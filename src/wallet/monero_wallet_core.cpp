@@ -132,7 +132,7 @@ namespace monero {
     tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
-    tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
@@ -185,7 +185,7 @@ namespace monero {
     tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
-    tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
@@ -248,7 +248,7 @@ namespace monero {
     tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
-    tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = true;
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
@@ -290,7 +290,7 @@ namespace monero {
     tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
-    tx->m_unlock_time = pd.m_tx.unlock_time;
+    tx->m_unlock_height = pd.m_tx.unlock_time;
     tx->m_is_locked = true;
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
@@ -767,7 +767,7 @@ namespace monero {
       tx.reset();
     }
 
-    void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, bool is_change, uint64_t unlock_time) override {
+    void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, bool is_change, uint64_t unlock_height) override {
       if (m_wallet.get_listeners().empty()) return;
 
       // create native library tx
@@ -777,7 +777,7 @@ namespace monero {
       block->m_txs.push_back(tx);
       tx->m_block = block;
       tx->m_hash = epee::string_tools::pod_to_hex(txid);
-      tx->m_unlock_time = unlock_time;
+      tx->m_unlock_height = unlock_height;
       tx->m_is_locked = true;
       std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
       tx->m_outputs.push_back(output);
@@ -1716,13 +1716,13 @@ namespace monero {
     // prepare parameters for wallet2's create_transactions_2()
     uint64_t mixin = m_w2->adjust_mixin(0); // get mixin for call to 'create_transactions_2'
     uint32_t priority = m_w2->adjust_priority(config.m_priority == boost::none ? 0 : config.m_priority.get());
-    uint64_t unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
+    uint64_t unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
     uint32_t account_index = config.m_account_index.get();
     std::set<uint32_t> subaddress_indices;
     for (const uint32_t& subaddress_idx : config.m_subaddress_indices) subaddress_indices.insert(subaddress_idx);
 
     // prepare transactions
-    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_2(dsts, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
+    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_2(dsts, mixin, unlock_height, priority, extra, account_index, subaddress_indices);
     if (ptx_vector.empty()) throw std::runtime_error("No transaction created");
 
     // check if request cannot be fulfilled due to splitting
@@ -1786,7 +1786,7 @@ namespace monero {
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
-      tx->m_unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
+      tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
@@ -1907,13 +1907,13 @@ namespace monero {
     uint64_t below_amount = config.m_below_amount == boost::none ? 0 : config.m_below_amount.get();
     uint64_t mixin = m_w2->adjust_mixin(0);
     uint32_t priority = m_w2->adjust_priority(config.m_priority == boost::none ? 0 : config.m_priority.get());
-    uint64_t unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
+    uint64_t unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
     uint32_t account_index = config.m_account_index.get();
     std::set<uint32_t> subaddress_indices;
     for (const uint32_t& subaddress_idx : config.m_subaddress_indices) subaddress_indices.insert(subaddress_idx);
 
     // prepare transactions
-    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_all(below_amount, dsts[0].addr, dsts[0].is_subaddress, num_outputs, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
+    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_all(below_amount, dsts[0].addr, dsts[0].is_subaddress, num_outputs, mixin, unlock_height, priority, extra, account_index, subaddress_indices);
 
     // config for fill_response()
     bool get_tx_keys = true;
@@ -1974,7 +1974,7 @@ namespace monero {
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
-      tx->m_unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
+      tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
@@ -2029,8 +2029,8 @@ namespace monero {
     // create transaction
     uint64_t mixin = m_w2->adjust_mixin(0);
     uint32_t priority = m_w2->adjust_priority(config.m_priority == boost::none ? 0 : config.m_priority.get());
-    uint64_t unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
-    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlock_time, priority, extra);
+    uint64_t unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
+    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlock_height, priority, extra);
 
     // validate created transaction
     if (ptx_vector.empty()) throw std::runtime_error("No outputs found");
@@ -2094,7 +2094,7 @@ namespace monero {
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
-      tx->m_unlock_time = config.m_unlock_time == boost::none ? 0 : config.m_unlock_time.get();
+      tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
@@ -2184,7 +2184,7 @@ namespace monero {
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
-      tx->m_unlock_time = 0;
+      tx->m_unlock_height = 0;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_destinations[0]->m_amount = *tx_amounts_iter;
 
@@ -2389,7 +2389,7 @@ namespace monero {
         }
 
         tx->m_fee = tx->m_input_sum.get() - tx->m_output_sum.get();
-        tx->m_unlock_time = cd.unlock_time;
+        tx->m_unlock_height = cd.unlock_time;
         tx->m_extra_hex = epee::to_hex::string({cd.extra.data(), cd.extra.size()});
         txs.push_back(tx);
       }

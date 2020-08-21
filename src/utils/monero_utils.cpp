@@ -264,7 +264,7 @@ std::shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::
 std::shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet) {
   std::shared_ptr<monero_tx> tx = init_as_tx_wallet ? std::make_shared<monero_tx_wallet>() : std::make_shared<monero_tx>();
   tx->m_version = cn_tx.version;
-  tx->m_unlock_time = cn_tx.unlock_time;
+  tx->m_unlock_height = cn_tx.unlock_time;
   tx->m_hash = epee::string_tools::pod_to_hex(cn_tx.hash);
   tx->m_extra = cn_tx.extra;
 
