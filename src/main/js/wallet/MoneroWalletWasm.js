@@ -2062,6 +2062,10 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("getDaemonMaxPeerHeight");
   }
   
+  async getHeightByDate(year, month, day) {
+    return this._invokeWorker("getHeightByDate", [year, month, day]);
+  }
+  
   async isDaemonSynced() {
     return this._invokeWorker("isDaemonSynced");
   }

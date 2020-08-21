@@ -15,6 +15,7 @@ const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
+const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
 const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
 const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
 const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
