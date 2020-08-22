@@ -1008,7 +1008,7 @@ class MoneroWallet {
    * @return {boolean} true if this is a multisig wallet, false otherwise
    */
   async isMultisig() {
-    throw new MoneroError("Not supported");
+    return (await this.getMultisigInfo()).isMultisig();
   }
   
   /**

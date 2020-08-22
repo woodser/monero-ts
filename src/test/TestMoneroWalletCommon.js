@@ -3802,7 +3802,7 @@ class TestMoneroWalletCommon {
         
         // attempt creating and relaying transaction without synchronizing with participants
         try {
-          await curWallet.createTxs({accountIndex: 1, address: returnAddress, amount: TestUtils.MAX_FEE.multiply(new BigInteger(3)), relay: true});
+          await curWallet.createTxs({accountIndex: 1, address: returnAddress, amount: TestUtils.MAX_FEE.multiply(new BigInteger(3))});
           throw new Error("Should have failed sending funds without synchronizing with peers");
         } catch (e) {
           assert.equal(e.message, "No transaction created");
@@ -3813,9 +3813,17 @@ class TestMoneroWalletCommon {
         curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
         assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
         
+        // attempt relaying created transactions without co-signing
+        try {
+          await curWallet.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: 1, subaddressIndex: 0, relay: true});
+          throw new RuntimeException("Should have failed");
+        } catch (e) {
+          assert.equal(e.message, "Cannot relay multisig transaction until co-signed");
+        }
+        
         // send funds from a subaddress in the multisig wallet
         console.log("Sending");
-        let txs = await curWallet.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: 1, subaddressIndex: 0, relay: true});
+        let txs = await curWallet.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: 1, subaddressIndex: 0});
         assert(txs.length > 0);
         let txSet = txs[0].getTxSet();
         assert.notEqual(txSet.getMultisigTxHex(), undefined);

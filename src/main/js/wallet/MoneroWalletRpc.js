@@ -810,6 +810,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // validate, copy, and normalize config
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     if (config.getCanSplit() === undefined) config.setCanSplit(true);
+    if (config.getRelay() === true && await this.isMultisig()) throw new MoneroError("Cannot relay multisig transaction until co-signed");
 
     // determine account and subaddresses to send from
     let accountIdx = config.getAccountIndex();
