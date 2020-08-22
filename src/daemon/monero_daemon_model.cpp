@@ -476,46 +476,19 @@ namespace monero {
       if (m_outputs.empty()) m_outputs = other->m_outputs;
       else {
 
-        // validate output indices if present
-        int num_indices = 0;
-        for (const std::shared_ptr<monero_output>& output : this->m_outputs) if (output->m_index != boost::none) num_indices++;
-        for (const std::shared_ptr<monero_output>& output : other->m_outputs) if (output->m_index != boost::none) num_indices++;
-        if (num_indices != 0 && this->m_outputs.size() + other->m_outputs.size() != num_indices) {
-          throw std::runtime_error("Some outputs have an output index and some do not");
-        }
-
-        // determine if key images present
-        int numKeyImages = 0;
-        for (const std::shared_ptr<monero_output> output : m_outputs) {
-          if (output->m_key_image != boost::none) {
-            if ((*output->m_key_image)->m_hex == boost::none) throw std::runtime_error("Key image hex cannot be null");
-            numKeyImages++;
-          }
-        }
-        for (const std::shared_ptr<monero_output>& output : other->m_outputs) {
-          if (output->m_key_image != boost::none) {
-            if ((*output->m_key_image)->m_hex == boost::none) throw std::runtime_error("Key image hex cannot be null");
-            numKeyImages++;
-          }
-        }
-        if (numKeyImages != 0 && m_outputs.size() + other->m_outputs.size() != numKeyImages) throw std::runtime_error("Some outputs have a key image and some do not");
-
-        // merge outputs by key image if present, otherwise append (cannot merge by global index because pre-RingCT output indices are not unique)
+        // merge outputs if key image or stealth public key present, otherwise append
         for (const std::shared_ptr<monero_output>& merger : other->m_outputs) {
-          if (numKeyImages > 0) {
-            bool merged = false;
-            merger->m_tx = self;
-            for (const std::shared_ptr<monero_output>& mergee : m_outputs) {
-              if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
-                mergee->merge(mergee, merger);
-                merged = true;
-                break;
-              }
+          bool merged = false;
+          merger->m_tx = self;
+          for (const std::shared_ptr<monero_output>& mergee : m_outputs) {
+            if ((merger->m_key_image != boost::none && (*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) ||
+                (merger->m_stealth_public_key != boost::none && *mergee->m_stealth_public_key == *merger->m_stealth_public_key)) {
+              mergee->merge(mergee, merger);
+              merged = true;
+              break;
             }
-            if (!merged) m_outputs.push_back(merger); // add new key image
-          } else {
-            m_outputs.push_back(merger); // no key images present, append
           }
+          if (!merged) m_outputs.push_back(merger); // append output
         }
       }
     }
