@@ -1899,8 +1899,9 @@ class TestMoneroWalletCommon {
         // test error when not enough balance for requested minimum reserve amount
         try {
           let reserveProof = await that.wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
-          fail("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595");
+          throw new Error("should have thrown error");
         } catch (e) {
+          if (e.message === "should have thrown error") throw new Error("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595"); 
           assert.equal(e.getCode(), -1);
         }
         
