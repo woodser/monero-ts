@@ -1349,6 +1349,7 @@ namespace monero {
    */
   void monero_wallet_core::stop_syncing() {
     m_syncing_enabled = false;
+    m_w2->stop();
   }
 
   void monero_wallet_core::rescan_spent() {
