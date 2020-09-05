@@ -54,6 +54,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("set_sync_height", &monero_wasm_bridge::set_sync_height);
   emscripten::function("set_listener", &monero_wasm_bridge::set_listener);
   emscripten::function("sync", &monero_wasm_bridge::sync);
+  emscripten::function("stop_syncing", &monero_wasm_bridge::stop_syncing);
   emscripten::function("rescan_spent", &monero_wasm_bridge::rescan_spent);
   emscripten::function("rescan_blockchain", &monero_wasm_bridge::rescan_blockchain);
   emscripten::function("get_balance_wallet", &monero_wasm_bridge::get_balance_wallet);

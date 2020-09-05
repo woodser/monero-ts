@@ -245,6 +245,13 @@ class MoneroWallet {
   }
   
   /**
+   * Stop synchronizing the wallet with the daemon.
+   */
+  async stopSyncing() {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
    * <p>Rescan the blockchain for spent outputs.</p>
    * 
    * <p>Note: this can only be called with a trusted daemon.</p>

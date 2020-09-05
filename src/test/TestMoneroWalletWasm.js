@@ -697,6 +697,8 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert.equal((await wallet.getDaemonConnection()).getPassword(), (await that.daemon.getRpcConnection()).getPassword());
           await wallet.stopSyncing();
           await wallet.sync();
+          await wallet.stopSyncing();
+          await wallet.stopSyncing();
         } catch (e) {
           err = e;
         }

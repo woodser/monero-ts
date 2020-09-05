@@ -386,6 +386,11 @@ void monero_wasm_bridge::sync(int handle, long start_height, emscripten::val cal
   }
 }
 
+void monero_wasm_bridge::stop_syncing(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->stop_syncing();
+}
+
 void monero_wasm_bridge::rescan_spent(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   wallet->rescan_spent();

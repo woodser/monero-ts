@@ -43,7 +43,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * Check if a wallet exists at a given path.
    * 
    * @param {string} path - path of the wallet on the file system
-   * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
+   * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
   static async walletExists(path, fs) {
@@ -734,6 +734,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   async stopSyncing() {
     this._assertNotClosed();
     this._syncingEnabled = false;
+    this._module.stop_syncing(this._cppAddress); // task is not queued so wallet stops immediately
   }
   
   async rescanSpent() {
