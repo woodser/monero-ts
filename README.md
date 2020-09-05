@@ -52,7 +52,7 @@ let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz
 let balance = await walletRpc.getBalance();               // 533648366742
 let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
 
-// create wallet from mnemonic phrase using WebAssembly bindings to Monero Core
+// create wallet from mnemonic phrase using WebAssembly bindings to monero-project
 let walletWasm = await monerojs.createWalletWasm({
   path: "sample_wallet_wasm",
   password: "supersecretpassword123",

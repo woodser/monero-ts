@@ -53,7 +53,7 @@ class TestSampleCode {
         let balance = await walletRpc.getBalance();               // 533648366742
         let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
         
-        // create wallet from mnemonic phrase using WebAssembly bindings to Monero Core
+        // create wallet from mnemonic phrase using WebAssembly bindings to monero-project
         let walletWasm = await monerojs.createWalletWasm({
           path: "./test_wallets/" + monerojs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_wasm"
           password: "supersecretpassword123",
