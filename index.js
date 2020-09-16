@@ -86,6 +86,15 @@ module.exports.MoneroWalletWasm = require("./src/main/js/wallet/MoneroWalletWasm
 // ---------------------------- GLOBAL FUNCTIONS ------------------------------
 
 /**
+ * <p>Get the version of the monero-javascript library.<p>
+ * 
+ * @return {string} the version of this monero-javascript library
+ */
+module.exports.getVersion = function() {
+    return module.exports.LibraryUtils.getVersion();
+}
+
+/**
  * <p>Create a client connected to monero-daemon-rpc.<p>
  * 
  * <p>Examples:<p>
