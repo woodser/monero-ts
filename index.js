@@ -91,7 +91,7 @@ module.exports.MoneroWalletWasm = require("./src/main/js/wallet/MoneroWalletWasm
  * @return {string} the version of this monero-javascript library
  */
 module.exports.getVersion = function() {
-    return module.exports.LibraryUtils.getVersion();
+    return module.exports.MoneroUtils.getVersion();
 }
 
 /**

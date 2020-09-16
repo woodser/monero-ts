@@ -9,6 +9,16 @@ const MoneroError = require("./MoneroError");
  * @hideconstructor
  */
 class MoneroUtils {
+    
+        
+  /**
+   * <p>Get the version of the monero-javascript library.<p>
+   * 
+   * @return {string} the version of this monero-javascript library
+   */
+  static getVersion() {
+    return "0.4.3_master";
+  }
   
   // TODO: improve validation
   static validateMnemonic(mnemonic) {
