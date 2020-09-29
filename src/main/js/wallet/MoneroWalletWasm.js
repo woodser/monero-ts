@@ -48,7 +48,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
-  static async walletExists(path, fs) {
+  static walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = MoneroWalletWasm._getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
@@ -513,12 +513,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Move the wallet from its current path to the given path.
    * 
-   * @param {string} path is the new wallet's path
-   * @param {string} password is the new wallet's password
+   * @param {string} path - the wallet's destination path
    */
-  async moveTo(path, password) {
-    this._assertNotClosed();
-    throw new Error("Not implemented");
+  async moveTo(path) {
+    return MoneroWalletWasm._moveTo(path, this);
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -1575,19 +1573,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
 
   async save() {
-    this._assertNotClosed();
-        
-    // path must be set
-    let path = await this.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write address file
-    this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
-    
-    // write keys and cache data
-    let data = await this.getData();
-    this._fs.writeFileSync(path + ".keys", data[0], "binary");
-    this._fs.writeFileSync(path, data[1], "binary");
+    return MoneroWalletWasm._save(this);
   }
   
   async close(save) {
@@ -1810,6 +1796,56 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    */
   _setBrowserMainPath(browserMainPath) {
     this._browserMainPath = browserMainPath;
+  }
+  
+  // TODO: accessing wallet._fs and wallet._path breaks encapcapsulation, getter and setter?
+  static async _moveTo(path, wallet) {
+    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+    if (!path) throw new MoneroError("Must provide path of destination wallet");
+    
+    // save and return if same path
+    const Path = require("path");
+    if (Path.normalize(wallet._path) === Path.normalize(path)) {
+      await wallet.save();
+      return;
+    }
+    
+    // create destination directory if it doesn't exist
+    let walletDir = Path.dirname(path);
+    if (!wallet._fs.existsSync(walletDir)) {
+      try { wallet._fs.mkdirSync(walletDir); }
+      catch (e) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + e.message); }
+    }
+    
+    // write new wallet files
+    let data = await wallet.getData();
+    wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
+    wallet._fs.writeFileSync(path, data[1], "binary");
+    wallet._fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
+    let oldPath = wallet._path;
+    wallet._path = path;
+    
+    // delete old wallet files
+    if (oldPath) {
+      wallet._fs.unlinkSync(oldPath + ".address.txt");
+      wallet._fs.unlinkSync(oldPath + ".keys");
+      wallet._fs.unlinkSync(oldPath);
+    }
+  }
+  
+  // TODO: accessing wallet._fs breaks encapcapsulation, getter?
+  static async _save(wallet) {
+    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+        
+    // path must be set
+    let path = await wallet.getPath();
+    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
+    
+    // write wallet files
+    let data = await wallet.getData();
+    wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
+    wallet._fs.writeFileSync(path, data[1], "binary");
+    wallet._fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
   }
 }
 
@@ -2462,25 +2498,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("getData");
   }
   
-  async moveTo(path, password) {
-    throw new Error("MoneroWalletWasmProxy.moveTo() not implemented");
+  async moveTo(path) {
+    return MoneroWalletWasm._moveTo(path, this);
   }
   
-  // TODO: factor this duplicate code with MoneroWalletWasm save(), common util
   async save() {
-    assert(!await this.isClosed(), "Wallet is closed");
-    
-    // path must be set
-    let path = await this.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write address file
-    this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
-    
-    // write keys and cache data
-    let data = await this.getData();
-    this._fs.writeFileSync(path + ".keys", data[0], "binary");
-    this._fs.writeFileSync(path, data[1], "binary");
+    return MoneroWalletWasm._save(this);
   }
   
   async close(save) {
