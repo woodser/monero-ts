@@ -143,6 +143,14 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
   });
 });
 
+bool http_client_wasm::set_proxy(const std::string& address) {
+  if (!address.empty()) {
+    std::cout << "WARNING: http_client_wasm::set_proxy() not supported, returning false" << std::endl;
+    return false;
+  }
+  return true;
+}
+
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
   disconnect();
   m_host = host;

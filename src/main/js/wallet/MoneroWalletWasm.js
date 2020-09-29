@@ -27,6 +27,8 @@ const MoneroWallet = require("./MoneroWallet");
 const MoneroWalletConfig = require("./model/MoneroWalletConfig");
 const MoneroWalletKeys = require("./MoneroWalletKeys");
 const MoneroWalletListener = require("./model/MoneroWalletListener");
+const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
+const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
 
 /**
  * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
@@ -1164,11 +1166,18 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     });
   }
   
-  async signMessage(message) {
+  async signMessage(message, signatureType, accountIdx, subaddressIdx) {
+    
+    // assign defaults
+    signatureType = signatureType || MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY;
+    accountIdx = accountIdx || 0;
+    subaddressIdx = subaddressIdx || 0;
+    
+    // queue task to sign message
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.sign_message(that._cppAddress, message);
+      return that._module.sign_message(that._cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx);
     });
   }
   
@@ -1176,7 +1185,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.verify_message(that._cppAddress, message, address, signature);
+      let resultJson;
+      try {
+        MoneroUtils.validateAddress(address);   // avoid tools::dns_utils::get_account_address_as_str_from_url() on bad address
+        resultJson = JSON.parse(that._module.verify_message(that._cppAddress, message, address, signature));
+      } catch (err) {
+        resultJson = {isGood: false};
+      }
+      let result = new MoneroMessageSignatureResult(
+        resultJson.isGood,
+        !resultJson.isGood ? undefined : resultJson.isOld,
+        !resultJson.isGood ? undefined : resultJson.signatureType === "spend" ? MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY : MoneroMessageSignatureType.SIGN_WITH_VIEW_KEY,
+        !resultJson.isGood ? undefined : resultJson.version);
+      return result;
     });
   }
   
@@ -2283,12 +2304,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("submitTxs", Array.from(arguments));
   }
   
-  async signMessage(message) {
+  async signMessage(message, signatureType, accountIdx, subaddressIdx) {
     return this._invokeWorker("signMessage", Array.from(arguments));
   }
   
   async verifyMessage(message, address, signature) {
-    return this._invokeWorker("verifyMessage", Array.from(arguments));
+    return new MoneroMessageSignatureResult(await this._invokeWorker("verifyMessage", Array.from(arguments)));
   }
   
   async getTxKey(txHash) {
