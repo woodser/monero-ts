@@ -130,8 +130,8 @@ namespace monero {
     monero_integrated_address decode_integrated_address(const std::string& integrated_address) const override;
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const override;
     std::vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const std::vector<uint32_t>& subaddress_indices) const override;
-    std::string sign_message(const std::string& msg) const override;
-    bool verify_message(const std::string& msg, const std::string& address, const std::string& signature) const override;
+    std::string sign_message(const std::string& msg, monero_message_signature_type signature_type, uint32_t account_idx = 0, uint32_t subaddress_idx = 0) const override;
+    monero_message_signature_result verify_message(const std::string& msg, const std::string& address, const std::string& signature) const override;
     void close(bool save = false) override;
 
     // --------------------------------- PRIVATE --------------------------------

@@ -379,6 +379,26 @@ namespace monero {
   };
 
   /**
+   * Enumerates message verification results.
+   */
+  enum monero_message_signature_type : uint8_t {
+    SIGN_WITH_SPEND_KEY = 0,
+    SIGN_WITH_VIEW_KEY
+  };
+
+  /**
+   * Enumerates message verification results.
+   */
+  struct monero_message_signature_result : public serializable_struct {
+    bool m_is_good;
+    uint32_t m_version;
+    bool m_is_old;
+    monero_message_signature_type m_signature_type;
+
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+  };
+
+  /**
    * Base class for results from checking a transaction or reserve proof.
    */
   struct monero_check : public serializable_struct {

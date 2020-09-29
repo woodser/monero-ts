@@ -154,10 +154,14 @@ message(STATUS MONERO_CORE_BUILD : ${MONERO_CORE_BUILD})
 add_library(wallet_merged STATIC IMPORTED)
 set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/lib/libwallet_merged.a)
-
+    
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
     ${MONERO_CORE_BUILD}/lib/libwallet.a)
+    
+add_library(wallet_crypto STATIC IMPORTED)
+set_target_properties(wallet_crypto PROPERTIES IMPORTED_LOCATION
+    ${MONERO_CORE_BUILD}/src/crypto/wallet/libwallet-crypto.a)
     
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
@@ -272,6 +276,7 @@ if (BUILD_LIBRARY)
 		crypto
 		
 		wallet_merged
+		wallet_crypto
 		#wallet_api
 		wallet
 		lmdb
@@ -327,6 +332,7 @@ if (BUILD_SAMPLE)
 		crypto
 		
 		wallet_merged
+		wallet_crypto
 		#wallet_api
 		wallet
 		lmdb
@@ -382,6 +388,7 @@ if (BUILD_SCRATCHPAD)
 		crypto
 		
 		wallet_merged
+		wallet_crypto
 		#wallet_api
 		wallet
 		lmdb

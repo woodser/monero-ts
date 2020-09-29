@@ -274,12 +274,12 @@ namespace monero {
     return subaddresses;
   }
 
-  std::string monero_wallet_keys::sign_message(const std::string& msg) const {
+  std::string monero_wallet_keys::sign_message(const std::string& msg, monero_message_signature_type signature_type, uint32_t account_idx, uint32_t subaddress_idx) const {
     std::cout << "monero_wallet_keys::sign_message()" << std::endl;
     throw std::runtime_error("monero_wallet_keys::sign_message() not implemented");
   }
 
-  bool monero_wallet_keys::verify_message(const std::string& msg, const std::string& address, const std::string& signature) const {
+  monero_message_signature_result monero_wallet_keys::verify_message(const std::string& msg, const std::string& address, const std::string& signature) const {
     std::cout << "monero_wallet_keys::verify_message()" << std::endl;
     throw std::runtime_error("monero_wallet_keys::verify_message() not implemented");
   }

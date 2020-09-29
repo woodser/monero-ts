@@ -913,22 +913,25 @@ namespace monero {
     /**
      * Sign a message.
      *
-     * @param msg is the message to sign
-     * @return the signature
+     * @param msg - the message to sign
+     * @param signature_type - sign with spend key or spend key
+     * @param account_idx - the account index of the message signature (default 0)
+     * @param subaddress_idx - the subaddress index of the message signature (default 0)
+     * @return the message signature
      */
-    virtual std::string sign_message(const std::string& msg) const {
+    virtual std::string sign_message(const std::string& msg, monero_message_signature_type signature_type, uint32_t account_idx = 0, uint32_t subaddress_idx = 0) const {
       throw std::runtime_error("sign_message() not supported");
     }
 
     /**
-     * Verify a signature on a message.
+     * Verify a message signature.
      *
-     * @param msg is the signed message
-     * @param address is the signing address
-     * @param signature is the signature
-     * @return true if the signature is good, false otherwise
+     * @param msg - the signed message
+     * @param address - signing address
+     * @param signature - signature
+     * @return the message signature result
      */
-    virtual bool verify_message(const std::string& msg, const std::string& address, const std::string& signature) const {
+    virtual monero_message_signature_result verify_message(const std::string& msg, const std::string& address, const std::string& signature) const {
       throw std::runtime_error("verify_message() not supported");
     }
 

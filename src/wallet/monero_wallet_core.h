@@ -236,8 +236,8 @@ namespace monero {
     monero_tx_set parse_tx_set(const monero_tx_set& tx_set) override;
     std::string sign_txs(const std::string& unsigned_tx_hex) override;
     std::vector<std::string> submit_txs(const std::string& signed_tx_hex) override;
-    std::string sign_message(const std::string& msg) const override;
-    bool verify_message(const std::string& msg, const std::string& address, const std::string& signature) const override;
+    std::string sign_message(const std::string& msg, monero_message_signature_type signature_type, uint32_t account_idx = 0, uint32_t subaddress_idx = 0) const override;
+    monero_message_signature_result verify_message(const std::string& msg, const std::string& address, const std::string& signature) const override;
     std::string get_tx_key(const std::string& tx_hash) const override;
     std::shared_ptr<monero_check_tx> check_tx_key(const std::string& tx_hash, const std::string& txKey, const std::string& address) const override;
     std::string get_tx_proof(const std::string& tx_hash, const std::string& address, const std::string& message) const override;
