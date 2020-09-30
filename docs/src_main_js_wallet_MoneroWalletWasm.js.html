@@ -55,6 +55,8 @@ const MoneroWallet = require("./MoneroWallet");
 const MoneroWalletConfig = require("./model/MoneroWalletConfig");
 const MoneroWalletKeys = require("./MoneroWalletKeys");
 const MoneroWalletListener = require("./model/MoneroWalletListener");
+const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
+const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
 
 /**
  * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
@@ -74,7 +76,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
-  static async walletExists(path, fs) {
+  static walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = MoneroWalletWasm._getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
@@ -539,12 +541,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   /**
    * Move the wallet from its current path to the given path.
    * 
-   * @param {string} path is the new wallet's path
-   * @param {string} password is the new wallet's password
+   * @param {string} path - the wallet's destination path
    */
-  async moveTo(path, password) {
-    this._assertNotClosed();
-    throw new Error("Not implemented");
+  async moveTo(path) {
+    return MoneroWalletWasm._moveTo(path, this);
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -1192,11 +1192,18 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     });
   }
   
-  async signMessage(message) {
+  async signMessage(message, signatureType, accountIdx, subaddressIdx) {
+    
+    // assign defaults
+    signatureType = signatureType || MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY;
+    accountIdx = accountIdx || 0;
+    subaddressIdx = subaddressIdx || 0;
+    
+    // queue task to sign message
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.sign_message(that._cppAddress, message);
+      return that._module.sign_message(that._cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx);
     });
   }
   
@@ -1204,7 +1211,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.verify_message(that._cppAddress, message, address, signature);
+      let resultJson;
+      try {
+        MoneroUtils.validateAddress(address);   // avoid tools::dns_utils::get_account_address_as_str_from_url() on bad address
+        resultJson = JSON.parse(that._module.verify_message(that._cppAddress, message, address, signature));
+      } catch (err) {
+        resultJson = {isGood: false};
+      }
+      let result = new MoneroMessageSignatureResult(
+        resultJson.isGood,
+        !resultJson.isGood ? undefined : resultJson.isOld,
+        !resultJson.isGood ? undefined : resultJson.signatureType === "spend" ? MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY : MoneroMessageSignatureType.SIGN_WITH_VIEW_KEY,
+        !resultJson.isGood ? undefined : resultJson.version);
+      return result;
     });
   }
   
@@ -1582,19 +1601,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
 
   async save() {
-    this._assertNotClosed();
-        
-    // path must be set
-    let path = await this.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write address file
-    this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
-    
-    // write keys and cache data
-    let data = await this.getData();
-    this._fs.writeFileSync(path + ".keys", data[0], "binary");
-    this._fs.writeFileSync(path, data[1], "binary");
+    return MoneroWalletWasm._save(this);
   }
   
   async close(save) {
@@ -1817,6 +1824,56 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    */
   _setBrowserMainPath(browserMainPath) {
     this._browserMainPath = browserMainPath;
+  }
+  
+  // TODO: accessing wallet._fs and wallet._path breaks encapcapsulation, getter and setter?
+  static async _moveTo(path, wallet) {
+    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+    if (!path) throw new MoneroError("Must provide path of destination wallet");
+    
+    // save and return if same path
+    const Path = require("path");
+    if (Path.normalize(wallet._path) === Path.normalize(path)) {
+      await wallet.save();
+      return;
+    }
+    
+    // create destination directory if it doesn't exist
+    let walletDir = Path.dirname(path);
+    if (!wallet._fs.existsSync(walletDir)) {
+      try { wallet._fs.mkdirSync(walletDir); }
+      catch (e) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + e.message); }
+    }
+    
+    // write new wallet files
+    let data = await wallet.getData();
+    wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
+    wallet._fs.writeFileSync(path, data[1], "binary");
+    wallet._fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
+    let oldPath = wallet._path;
+    wallet._path = path;
+    
+    // delete old wallet files
+    if (oldPath) {
+      wallet._fs.unlinkSync(oldPath + ".address.txt");
+      wallet._fs.unlinkSync(oldPath + ".keys");
+      wallet._fs.unlinkSync(oldPath);
+    }
+  }
+  
+  // TODO: accessing wallet._fs breaks encapcapsulation, getter?
+  static async _save(wallet) {
+    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+        
+    // path must be set
+    let path = await wallet.getPath();
+    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
+    
+    // write wallet files
+    let data = await wallet.getData();
+    wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
+    wallet._fs.writeFileSync(path, data[1], "binary");
+    wallet._fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
   }
 }
 
@@ -2311,12 +2368,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("submitTxs", Array.from(arguments));
   }
   
-  async signMessage(message) {
+  async signMessage(message, signatureType, accountIdx, subaddressIdx) {
     return this._invokeWorker("signMessage", Array.from(arguments));
   }
   
   async verifyMessage(message, address, signature) {
-    return this._invokeWorker("verifyMessage", Array.from(arguments));
+    return new MoneroMessageSignatureResult(await this._invokeWorker("verifyMessage", Array.from(arguments)));
   }
   
   async getTxKey(txHash) {
@@ -2469,25 +2526,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("getData");
   }
   
-  async moveTo(path, password) {
-    throw new Error("MoneroWalletWasmProxy.moveTo() not implemented");
+  async moveTo(path) {
+    return MoneroWalletWasm._moveTo(path, this);
   }
   
-  // TODO: factor this duplicate code with MoneroWalletWasm save(), common util
   async save() {
-    assert(!await this.isClosed(), "Wallet is closed");
-    
-    // path must be set
-    let path = await this.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write address file
-    this._fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
-    
-    // write keys and cache data
-    let data = await this.getData();
-    this._fs.writeFileSync(path + ".keys", data[0], "binary");
-    this._fs.writeFileSync(path, data[1], "binary");
+    return MoneroWalletWasm._save(this);
   }
   
   async close(save) {
@@ -2561,13 +2605,13 @@ module.exports = MoneroWalletWasm;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ConnectionType.html">ConnectionType</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="LibraryUtils.html">LibraryUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroNetworkType.html">MoneroNetworkType</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxConfig.html">MoneroTxConfig</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxPriority.html">MoneroTxPriority</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="SslOptions.html">SslOptions</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#connectToDaemonRpc">connectToDaemonRpc</a></li><li><a href="global.html#connectToWalletRpc">connectToWalletRpc</a></li><li><a href="global.html#createWalletKeys">createWalletKeys</a></li><li><a href="global.html#createWalletWasm">createWalletWasm</a></li><li><a href="global.html#openWalletWasm">openWalletWasm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ConnectionType.html">ConnectionType</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="LibraryUtils.html">LibraryUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></li><li><a href="MoneroMessageSignatureResult.html">MoneroMessageSignatureResult</a></li><li><a href="MoneroMessageSignatureType.html">MoneroMessageSignatureType</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroNetworkType.html">MoneroNetworkType</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxConfig.html">MoneroTxConfig</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxPriority.html">MoneroTxPriority</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="SslOptions.html">SslOptions</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#connectToDaemonRpc">connectToDaemonRpc</a></li><li><a href="global.html#connectToWalletRpc">connectToWalletRpc</a></li><li><a href="global.html#createWalletKeys">createWalletKeys</a></li><li><a href="global.html#createWalletWasm">createWalletWasm</a></li><li><a href="global.html#getVersion">getVersion</a></li><li><a href="global.html#openWalletWasm">openWalletWasm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Sep 05 2020 14:21:46 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Sep 30 2020 13:59:49 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

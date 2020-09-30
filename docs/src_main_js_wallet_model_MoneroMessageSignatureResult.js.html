@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: src/main/js/wallet/model/MoneroTxSet.js</title>
+    <title>JSDoc: Source: src/main/js/wallet/model/MoneroMessageSignatureResult.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: src/main/js/wallet/model/MoneroTxSet.js</h1>
+    <h1 class="page-title">Source: src/main/js/wallet/model/MoneroMessageSignatureResult.js</h1>
 
     
 
@@ -26,119 +26,67 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroTxWallet = require("./MoneroTxWallet");
-const MoneroUtils = require("../../common/MoneroUtils");
-
-/**
- * Groups transactions who share common hex data which is needed in order to
- * sign and submit the transactions.
+            <pre class="prettyprint source linenums"><code>/**
+ * Message signature verification result.
  * 
- * For example, multisig transactions created from createTxs() share a common
- * hex string which is needed in order to sign and submit the multisig
- * transactions.
+ * @class
  */
-class MoneroTxSet {
+class MoneroMessageSignatureResult {
   
-  constructor(state) {
-    
-    // initialize internal state
-    if (!state) state = {};
-    else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new MoneroError("state must be JavaScript object");
-    this.state = state;
-    
-    // deserialize txs
-    if (state.txs) {
-      for (let i = 0; i &lt; state.txs.length; i++) {
-        if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]);
-        state.txs[i].setTxSet(this);
-      }
+  constructor(stateOrIsGood, isOld, signatureType, version) {
+    if (typeof stateOrIsGood === "boolean") {
+      this.state = {};
+      this.state.isGood = stateOrIsGood;
+      this.state.isOld = isOld;
+      this.state.signatureType = signatureType;
+      this.state.version = version;
+    } else {
+      this.state = stateOrIsGood;
     }
   }
   
   toJson() {
-    let json = Object.assign({}, this.state); // copy state
-    if (this.getTxs()) {
-      json.txs = [];
-      for (let tx of this.getTxs()) json.txs.push(tx.toJson());
-    }
-    return json;
+    return Object.assign({}, this.state);
   }
 
-  getTxs() {
-    return this.state.txs;
+  isGood() {
+    return this.state.isGood;
   }
 
-  setTxs(txs) {
-    this.state.txs = txs;
+  setIsGood(isGood) {
+    this.state.isGood = isGood;
     return this;
   }
   
-  getMultisigTxHex() {
-    return this.state.multisigTxHex;
+  isOld() {
+    return this.state.isOld;
   }
-  
-  setMultisigTxHex(multisigTxHex) {
-    this.state.multisigTxHex = multisigTxHex;
-    return this;
-  }
-  
-  getUnsignedTxHex() {
-    return this.state.unsignedTxHex;
-  }
-  
-  setUnsignedTxHex(unsignedTxHex) {
-    this.state.unsignedTxHex = unsignedTxHex;
-    return this;
-  }
-  
-  getSignedTxHex() {
-    return this.state.signedTxHex;
-  }
-  
-  setSignedTxHex(signedTxHex) {
-    this.state.signedTxHex = signedTxHex;
-    return this;
-  }
-  
-  merge(txSet) {
-    assert(txSet instanceof MoneroTxSet);
-    if (this === txSet) return this;
-    
-    // merge sets
-    this.setMultisigTxHex(GenUtils.reconcile(this.getMultisigTxHex(), txSet.getMultisigTxHex()));
-    this.setUnsignedTxHex(GenUtils.reconcile(this.getUnsignedTxHex(), txSet.getUnsignedTxHex()));
-    this.setSignedTxHex(GenUtils.reconcile(this.getSignedTxHex(), txSet.getSignedTxHex()));
-    
-    // merge txs
-    if (txSet.getTxs() !== undefined) {
-      for (let tx of txSet.getTxs()) {
-        tx.setTxSet(this);
-        MoneroUtils.mergeTx(this.getTxs(), tx);
-      }
-    }
 
+  setIsOld(isOld) {
+    this.state.isOld = isOld;
     return this;
   }
   
-  toString(indent = 0) {
-    let str = "";
-    str += GenUtils.kvLine("Multisig tx hex: ", this.getMultisigTxHex(), indent);
-    str += GenUtils.kvLine("Unsigned tx hex: ", this.getUnsignedTxHex(), indent);
-    str += GenUtils.kvLine("Signed tx hex: ", this.getSignedTxHex(), indent);
-    if (this.getTxs() !== undefined) {
-      str += GenUtils.kvLine("Txs", "", indent);
-      for (let tx of this.getTxs()) {
-        str += tx.toString(indent + 1) + "\n";
-      }
-    }
-    return str;
+  getSignatureType() {
+    return this.state.signatureType;
+  }
+
+  setSignatureType(signatureType) {
+    this.state.signatureType = signatureType;
+    return this;
+  }
+  
+  getVersion() {
+    return this.state.version;
+  }
+
+  setVersion(version) {
+    this.state.version = version;
+    return this;
   }
 }
 
-module.exports = MoneroTxSet;</code></pre>
+module.exports = MoneroMessageSignatureResult;</code></pre>
         </article>
     </section>
 
