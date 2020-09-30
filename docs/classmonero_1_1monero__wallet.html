@@ -243,10 +243,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7610e05a65fa72df26b6890dbe2c630a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae249093f69c4646af6b04c2a2d9bf3ec"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#ae249093f69c4646af6b04c2a2d9bf3ec">submit_txs</a> (const std::string &amp;signed_tx_hex)</td></tr>
 <tr class="separator:ae249093f69c4646af6b04c2a2d9bf3ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac13a5b5d80cfe24f16752ebad14dee55"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#ac13a5b5d80cfe24f16752ebad14dee55">sign_message</a> (const std::string &amp;msg) const</td></tr>
-<tr class="separator:ac13a5b5d80cfe24f16752ebad14dee55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc414619a0d246a014331f4a9d54d914"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#adc414619a0d246a014331f4a9d54d914">verify_message</a> (const std::string &amp;msg, const std::string &amp;address, const std::string &amp;signature) const</td></tr>
-<tr class="separator:adc414619a0d246a014331f4a9d54d914"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af65667677cd03973ab87389c1dc0c545"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#af65667677cd03973ab87389c1dc0c545">sign_message</a> (const std::string &amp;msg, <a class="el" href="namespacemonero.html#a5ada8f66cddd59159701650a6a8c078b">monero_message_signature_type</a> signature_type, uint32_t account_idx=0, uint32_t subaddress_idx=0) const</td></tr>
+<tr class="separator:af65667677cd03973ab87389c1dc0c545"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d124fdc9f8586974aa03cbaad0e315d"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="structmonero_1_1monero__message__signature__result.html">monero_message_signature_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a1d124fdc9f8586974aa03cbaad0e315d">verify_message</a> (const std::string &amp;msg, const std::string &amp;address, const std::string &amp;signature) const</td></tr>
+<tr class="separator:a1d124fdc9f8586974aa03cbaad0e315d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28f5607877a4e580e0b6e49666544d1e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a28f5607877a4e580e0b6e49666544d1e">get_tx_key</a> (const std::string &amp;tx_hash) const</td></tr>
 <tr class="separator:a28f5607877a4e580e0b6e49666544d1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd6db95d19e36fbf3d7d79082c7e591e"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__check__tx.html">monero_check_tx</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#afd6db95d19e36fbf3d7d79082c7e591e">check_tx_key</a> (const std::string &amp;tx_hash, const std::string &amp;tx_key, const std::string &amp;address) const</td></tr>
@@ -297,8 +297,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:abd0de2804af1b35aa6271f5884bd22c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c67e3f47a838e2837840a055d420403"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a4c67e3f47a838e2837840a055d420403">is_multisig_import_needed</a> () const</td></tr>
 <tr class="separator:a4c67e3f47a838e2837840a055d420403"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a991ad27cf326dd82ecd302238412afa3"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="structmonero_1_1monero__multisig__info.html">monero_multisig_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a991ad27cf326dd82ecd302238412afa3">get_multisig_info</a> ()</td></tr>
-<tr class="separator:a991ad27cf326dd82ecd302238412afa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef46bda9bf991cedc2ff68c317e68018"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#aef46bda9bf991cedc2ff68c317e68018">is_multisig</a> () const</td></tr>
+<tr class="separator:aef46bda9bf991cedc2ff68c317e68018"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6e19b5d3eead2d07f2546f48c7cf11e"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="structmonero_1_1monero__multisig__info.html">monero_multisig_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#aa6e19b5d3eead2d07f2546f48c7cf11e">get_multisig_info</a> () const</td></tr>
+<tr class="separator:aa6e19b5d3eead2d07f2546f48c7cf11e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f9b31c8abcbb90caf1c4c00538dbf83"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a8f9b31c8abcbb90caf1c4c00538dbf83">prepare_multisig</a> ()</td></tr>
 <tr class="separator:a8f9b31c8abcbb90caf1c4c00538dbf83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98d17406e8da363e0bab6c155aa87267"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="structmonero_1_1monero__multisig__init__result.html">monero_multisig_init_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a98d17406e8da363e0bab6c155aa87267">make_multisig</a> (const std::vector&lt; std::string &gt; &amp;multisig_hexes, int threshold, const std::string &amp;password)</td></tr>
@@ -1938,8 +1940,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a991ad27cf326dd82ecd302238412afa3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a991ad27cf326dd82ecd302238412afa3">&#9670;&nbsp;</a></span>get_multisig_info()</h2>
+<a id="aa6e19b5d3eead2d07f2546f48c7cf11e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6e19b5d3eead2d07f2546f48c7cf11e">&#9670;&nbsp;</a></span>get_multisig_info()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1951,7 +1953,7 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual <a class="el" href="structmonero_1_1monero__multisig__info.html">monero_multisig_info</a> monero::monero_wallet::get_multisig_info </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -1963,7 +1965,7 @@ Public Member Functions</h2></td></tr>
 <p>Get multisig info about this wallet.</p>
 <dl class="section return"><dt>Returns</dt><dd>multisig info about this wallet </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__core.html#af170b0e9935ea43139f593b26a80d7ad">monero::monero_wallet_core</a>.</p>
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__core.html#aeb6c3010eb56dabb74cbb2adf8938b8d">monero::monero_wallet_core</a>.</p>
 
 </div>
 </div>
@@ -3176,6 +3178,33 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aef46bda9bf991cedc2ff68c317e68018"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef46bda9bf991cedc2ff68c317e68018">&#9670;&nbsp;</a></span>is_multisig()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool monero::monero_wallet::is_multisig </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Indicates if this wallet is a multisig wallet.</p>
+<dl class="section return"><dt>Returns</dt><dd>true if this is a multisig wallet, false otherwise </dd></dl>
+
+</div>
+</div>
 <a id="a4c67e3f47a838e2837840a055d420403"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4c67e3f47a838e2837840a055d420403">&#9670;&nbsp;</a></span>is_multisig_import_needed()</h2>
 
@@ -3984,8 +4013,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac13a5b5d80cfe24f16752ebad14dee55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac13a5b5d80cfe24f16752ebad14dee55">&#9670;&nbsp;</a></span>sign_message()</h2>
+<a id="af65667677cd03973ab87389c1dc0c545"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af65667677cd03973ab87389c1dc0c545">&#9670;&nbsp;</a></span>sign_message()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -3997,8 +4026,30 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual std::string monero::monero_wallet::sign_message </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>msg</em></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>msg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacemonero.html#a5ada8f66cddd59159701650a6a8c078b">monero_message_signature_type</a>&#160;</td>
+          <td class="paramname"><em>signature_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>account_idx</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>subaddress_idx</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -4010,13 +4061,16 @@ Public Member Functions</h2></td></tr>
 <p>Sign a message.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">msg</td><td>is the message to sign </td></tr>
+    <tr><td class="paramname">msg</td><td>- the message to sign </td></tr>
+    <tr><td class="paramname">signature_type</td><td>- sign with spend key or spend key </td></tr>
+    <tr><td class="paramname">account_idx</td><td>- the account index of the message signature (default 0) </td></tr>
+    <tr><td class="paramname">subaddress_idx</td><td>- the subaddress index of the message signature (default 0) </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>the signature </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the message signature </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__keys.html#a07e8b1b4555e38f7f47b0861b214add6">monero::monero_wallet_keys</a>, and <a class="el" href="classmonero_1_1monero__wallet__core.html#a059f9944dcf5d114859a3d94b77b3d51">monero::monero_wallet_core</a>.</p>
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__keys.html#a817780c43761f5471bea5153e705f1d5">monero::monero_wallet_keys</a>, and <a class="el" href="classmonero_1_1monero__wallet__core.html#a4708bb3863916db4b82c6d1549ebbe55">monero::monero_wallet_core</a>.</p>
 
 </div>
 </div>
@@ -4557,8 +4611,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="adc414619a0d246a014331f4a9d54d914"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc414619a0d246a014331f4a9d54d914">&#9670;&nbsp;</a></span>verify_message()</h2>
+<a id="a1d124fdc9f8586974aa03cbaad0e315d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d124fdc9f8586974aa03cbaad0e315d">&#9670;&nbsp;</a></span>verify_message()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -4567,7 +4621,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual bool monero::monero_wallet::verify_message </td>
+          <td class="memname">virtual <a class="el" href="structmonero_1_1monero__message__signature__result.html">monero_message_signature_result</a> monero::monero_wallet::verify_message </td>
           <td>(</td>
           <td class="paramtype">const std::string &amp;&#160;</td>
           <td class="paramname"><em>msg</em>, </td>
@@ -4596,18 +4650,18 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Verify a signature on a message.</p>
+<p>Verify a message signature.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">msg</td><td>is the signed message </td></tr>
-    <tr><td class="paramname">address</td><td>is the signing address </td></tr>
-    <tr><td class="paramname">signature</td><td>is the signature </td></tr>
+    <tr><td class="paramname">msg</td><td>- the signed message </td></tr>
+    <tr><td class="paramname">address</td><td>- signing address </td></tr>
+    <tr><td class="paramname">signature</td><td>- signature </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true if the signature is good, false otherwise </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the message signature result </dd></dl>
 
-<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__keys.html#a0fcb03997ce7ecc58775229ec8d77f51">monero::monero_wallet_keys</a>, and <a class="el" href="classmonero_1_1monero__wallet__core.html#a11497d53cbb0657f47b7378e10edd4bd">monero::monero_wallet_core</a>.</p>
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__keys.html#a423810896328a3c25a9ad36b52001a5b">monero::monero_wallet_keys</a>, and <a class="el" href="classmonero_1_1monero__wallet__core.html#a4ea3a5f5bfb2fba0cb26fedda7d9a4dd">monero::monero_wallet_core</a>.</p>
 
 </div>
 </div>

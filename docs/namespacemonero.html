@@ -96,6 +96,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__key__image__import__result.html">monero_key_image_import_result</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__message__signature__result.html">monero_message_signature_result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__multisig__info.html">monero_multisig_info</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__multisig__init__result.html">monero_multisig_init_result</a></td></tr>
@@ -158,6 +160,10 @@ Enumerations</h2></td></tr>
 <b>ELEVATED</b>
  }</td></tr>
 <tr class="separator:aaa3433e5c51f3ac269204e7cd1bd5c4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ada8f66cddd59159701650a6a8c078b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a5ada8f66cddd59159701650a6a8c078b">monero_message_signature_type</a> : uint8_t { <b>SIGN_WITH_SPEND_KEY</b> = 0, 
+<b>SIGN_WITH_VIEW_KEY</b>
+ }</td></tr>
+<tr class="separator:a5ada8f66cddd59159701650a6a8c078b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -175,21 +181,27 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_contextual</b> (co
 <tr class="memitem:adfd808348981ceb56d9e431192c8ea46"><td class="memItemLeft" align="right" valign="top"><a id="adfd808348981ceb56d9e431192c8ea46"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>bool_equals</b> (bool val, const boost::optional&lt; bool &gt; &amp;opt_val)</td></tr>
 <tr class="separator:adfd808348981ceb56d9e431192c8ea46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89772ae088ff0cc7d02077205910ff00"><td class="memItemLeft" align="right" valign="top"><a id="a89772ae088ff0cc7d02077205910ff00"></a>
-std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;payment_id, const tools::wallet2::payment_details &amp;pd)</td></tr>
-<tr class="separator:a89772ae088ff0cc7d02077205910ff00"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45370700026f69d010e10b3998b5493c"><td class="memItemLeft" align="right" valign="top"><a id="a45370700026f69d010e10b3998b5493c"></a>
-std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;txid, const tools::wallet2::confirmed_transfer_details &amp;pd)</td></tr>
-<tr class="separator:a45370700026f69d010e10b3998b5493c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9cc5bd57f59b43e1066809cd38252ee"><td class="memItemLeft" align="right" valign="top"><a id="ad9cc5bd57f59b43e1066809cd38252ee"></a>
-std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;payment_id, const tools::wallet2::pool_payment_details &amp;ppd)</td></tr>
-<tr class="separator:ad9cc5bd57f59b43e1066809cd38252ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48ce18300302111f8d96512b56d9a543"><td class="memItemLeft" align="right" valign="top"><a id="a48ce18300302111f8d96512b56d9a543"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_num_confirmations</b> (std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, uint64_t blockchain_height)</td></tr>
+<tr class="separator:a48ce18300302111f8d96512b56d9a543"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a004e8491d0c51978d843651af6c2e57a"><td class="memItemLeft" align="right" valign="top"><a id="a004e8491d0c51978d843651af6c2e57a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_num_suggested_confirmations</b> (std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;incoming_transfer, uint64_t blockchain_height, uint64_t block_reward, uint64_t unlock_time)</td></tr>
+<tr class="separator:a004e8491d0c51978d843651af6c2e57a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ace0df4f71d6a1a2ff3d4b83cb15c62"><td class="memItemLeft" align="right" valign="top"><a id="a4ace0df4f71d6a1a2ff3d4b83cb15c62"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer</b> (tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;payment_id, const tools::wallet2::payment_details &amp;pd)</td></tr>
+<tr class="separator:a4ace0df4f71d6a1a2ff3d4b83cb15c62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af81ac62e62303b8b17720987fb5ec1b8"><td class="memItemLeft" align="right" valign="top"><a id="af81ac62e62303b8b17720987fb5ec1b8"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer</b> (tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;txid, const tools::wallet2::confirmed_transfer_details &amp;pd)</td></tr>
+<tr class="separator:af81ac62e62303b8b17720987fb5ec1b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a371ca4c006412c54c8e927e0203f2309"><td class="memItemLeft" align="right" valign="top"><a id="a371ca4c006412c54c8e927e0203f2309"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_incoming_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, uint64_t height, const crypto::hash &amp;payment_id, const tools::wallet2::pool_payment_details &amp;ppd)</td></tr>
+<tr class="separator:a371ca4c006412c54c8e927e0203f2309"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d031f5fc182d6ec71739d018d8c64ed"><td class="memItemLeft" align="right" valign="top"><a id="a0d031f5fc182d6ec71739d018d8c64ed"></a>
 std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_outgoing_transfer_unconfirmed</b> (const tools::wallet2 &amp;m_w2, const crypto::hash &amp;txid, const tools::wallet2::unconfirmed_transfer_details &amp;pd)</td></tr>
 <tr class="separator:a0d031f5fc182d6ec71739d018d8c64ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9616f818c756f0a94db2a485b72141c1"><td class="memItemLeft" align="right" valign="top"><a id="a9616f818c756f0a94db2a485b72141c1"></a>
-std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_vout</b> (const tools::wallet2 &amp;m_w2, const tools::wallet2::transfer_details &amp;td)</td></tr>
-<tr class="separator:a9616f818c756f0a94db2a485b72141c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9472c29f8a2b9a64aa76befe2a0ec424"><td class="memItemLeft" align="right" valign="top"><a id="a9472c29f8a2b9a64aa76befe2a0ec424"></a>
+std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_vout</b> (tools::wallet2 &amp;m_w2, const tools::wallet2::transfer_details &amp;td)</td></tr>
+<tr class="separator:a9472c29f8a2b9a64aa76befe2a0ec424"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5964a843299654ccde0e70be4727665"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab5964a843299654ccde0e70be4727665">merge_tx</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;tx_map, std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;block_map, bool skip_if_absent)</td></tr>
 <tr class="separator:ab5964a843299654ccde0e70be4727665"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9ff4ca60dce77e4685c22d25541e2bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab9ff4ca60dce77e4685c22d25541e2bc">tx_height_less_than</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx2)</td></tr>
@@ -274,6 +286,21 @@ std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">mone
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 <p>Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers Implements a <a class="el" href="monero__wallet_8h_source.html">monero_wallet.h</a> by wrapping wallet2.h. </p>
 </div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a5ada8f66cddd59159701650a6a8c078b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ada8f66cddd59159701650a6a8c078b">&#9670;&nbsp;</a></span>monero_message_signature_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespacemonero.html#a5ada8f66cddd59159701650a6a8c078b">monero::monero_message_signature_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Enumerates message verification results. </p>
+
+</div>
+</div>
 <a id="ac9023a1d513e2526775d1e061bb5beed"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9023a1d513e2526775d1e061bb5beed">&#9670;&nbsp;</a></span>monero_network_type</h2>
 

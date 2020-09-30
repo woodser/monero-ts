@@ -72,7 +72,7 @@ namespace monero {
   // --------------------------- STATIC WALLET UTILS --------------------------
 
   /**
-   * Monero wallet implmentation which uses monero-project's wallet2.
+   * Monero wallet implementation which uses monero-project's wallet2.
    */
   class monero_wallet_core : public monero_wallet {
 
