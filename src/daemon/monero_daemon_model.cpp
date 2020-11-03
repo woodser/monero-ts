@@ -163,24 +163,24 @@ namespace monero {
   void monero_block_header::merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other) {
     if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
-    m_hash = gen_utils::reconcile(m_hash, other->m_hash);
-    m_height = gen_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block height"); // height can increase
-    m_timestamp = gen_utils::reconcile(m_timestamp, other->m_timestamp, boost::none, boost::none, true, "block header timestamp");  // timestamp can increase
-    m_size = gen_utils::reconcile(m_size, other->m_size, "block header size");
-    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "block header weight");
-    m_long_term_weight = gen_utils::reconcile(m_long_term_weight, other->m_long_term_weight, "block header long term weight");
-    m_depth = gen_utils::reconcile(m_depth, other->m_depth, "block header depth");
-    m_difficulty = gen_utils::reconcile(m_difficulty, other->m_difficulty, "difficulty");
-    m_cumulative_difficulty = gen_utils::reconcile(m_cumulative_difficulty, other->m_cumulative_difficulty, "m_cumulative_difficulty");
-    m_major_version = gen_utils::reconcile(m_major_version, other->m_major_version, "m_major_version");
-    m_minor_version = gen_utils::reconcile(m_minor_version, other->m_minor_version, "m_minor_version");
-    m_nonce = gen_utils::reconcile(m_nonce, other->m_nonce, "m_nonce");
-    m_miner_tx_hash = gen_utils::reconcile(m_miner_tx_hash, other->m_miner_tx_hash);
+    m_hash = gen_utils::reconcile(m_hash, other->m_hash, "block header m_hash");
+    m_height = gen_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block header m_height"); // height can increase
+    m_timestamp = gen_utils::reconcile(m_timestamp, other->m_timestamp, boost::none, boost::none, true, "block header m_timestamp");  // timestamp can increase
+    m_size = gen_utils::reconcile(m_size, other->m_size, "block header m_size");
+    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "block header m_weight ");
+    m_long_term_weight = gen_utils::reconcile(m_long_term_weight, other->m_long_term_weight, "block header m_long_term_weight");
+    m_depth = gen_utils::reconcile(m_depth, other->m_depth, "block header m_depth");
+    m_difficulty = gen_utils::reconcile(m_difficulty, other->m_difficulty, "block header m_difficulty");
+    m_cumulative_difficulty = gen_utils::reconcile(m_cumulative_difficulty, other->m_cumulative_difficulty, "block header m_cumulative_difficulty");
+    m_major_version = gen_utils::reconcile(m_major_version, other->m_major_version, "block header m_major_version");
+    m_minor_version = gen_utils::reconcile(m_minor_version, other->m_minor_version, "block header m_minor_version");
+    m_nonce = gen_utils::reconcile(m_nonce, other->m_nonce, "block header m_nonce");
+    m_miner_tx_hash = gen_utils::reconcile(m_miner_tx_hash, other->m_miner_tx_hash, "block header m_miner_tx_hash");
     m_num_txs = gen_utils::reconcile(m_num_txs, other->m_num_txs, "block header m_num_txs");
-    m_orphan_status = gen_utils::reconcile(m_orphan_status, other->m_orphan_status);
-    m_prev_hash = gen_utils::reconcile(m_prev_hash, other->m_prev_hash);
+    m_orphan_status = gen_utils::reconcile(m_orphan_status, other->m_orphan_status, "block header m_orphan_status");
+    m_prev_hash = gen_utils::reconcile(m_prev_hash, other->m_prev_hash, "block header m_prev_hash");
     m_reward = gen_utils::reconcile(m_reward, other->m_reward, "block header m_reward");
-    m_pow_hash = gen_utils::reconcile(m_pow_hash, other->m_pow_hash);
+    m_pow_hash = gen_utils::reconcile(m_pow_hash, other->m_pow_hash, "block header m_pow_hash");
   }
 
   // ----------------------------- MONERO BLOCK -------------------------------
@@ -217,8 +217,8 @@ namespace monero {
     monero_block_header::merge(self, other);
 
     // merge reconcilable block extensions
-    m_hex = gen_utils::reconcile(m_hex, other->m_hex);
-    m_tx_hashes = gen_utils::reconcile(m_tx_hashes, other->m_tx_hashes);
+    m_hex = gen_utils::reconcile(m_hex, other->m_hex, "monero block m_hex");
+    m_tx_hashes = gen_utils::reconcile(m_tx_hashes, other->m_tx_hashes, "monero block m_tx_hahes");
 
     // merge miner tx
     if (m_miner_tx == boost::none) m_miner_tx = other->m_miner_tx;
@@ -421,38 +421,38 @@ namespace monero {
     }
 
     // otherwise merge tx fields
-    m_hash = gen_utils::reconcile(m_hash, other->m_hash);
-    m_version = gen_utils::reconcile(m_version, other->m_version);
-    m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id);
-    m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx fee");
+    m_hash = gen_utils::reconcile(m_hash, other->m_hash, "tx m_hash");
+    m_version = gen_utils::reconcile(m_version, other->m_version, "tx m_version");
+    m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id, "tx m_payment_id");
+    m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx tx m_fee");
     m_ring_size = gen_utils::reconcile(m_ring_size, other->m_ring_size, "tx m_ring_size");
-    m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed);
-    m_is_miner_tx = gen_utils::reconcile(m_is_miner_tx, other->m_is_miner_tx);
-    m_relay = gen_utils::reconcile(m_relay, other->m_relay);
-    m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed);
-    m_is_double_spend_seen = gen_utils::reconcile(m_is_double_spend_seen, other->m_is_double_spend_seen);
-    m_key = gen_utils::reconcile(m_key, other->m_key);
-    m_full_hex = gen_utils::reconcile(m_full_hex, other->m_full_hex);
-    m_pruned_hex = gen_utils::reconcile(m_pruned_hex, other->m_pruned_hex);
-    m_prunable_hex = gen_utils::reconcile(m_prunable_hex, other->m_prunable_hex);
-    m_prunable_hash = gen_utils::reconcile(m_prunable_hash, other->m_prunable_hash);
-    m_size = gen_utils::reconcile(m_size, other->m_size, "tx size");
-    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "tx weight");
-    //m_output_indices = gen_utils::reconcile(m_output_indices, other->m_output_indices);  // TODO
-    m_metadata = gen_utils::reconcile(m_metadata, other->m_metadata);
-    m_common_tx_sets = gen_utils::reconcile(m_common_tx_sets, other->m_common_tx_sets);
-    //m_extra = gen_utils::reconcile(m_extra, other->m_extra);  // TODO
-    m_rct_signatures = gen_utils::reconcile(m_rct_signatures, other->m_rct_signatures);
-    m_rct_sig_prunable = gen_utils::reconcile(m_rct_sig_prunable, other->m_rct_sig_prunable);
-    m_is_kept_by_block = gen_utils::reconcile(m_is_kept_by_block, other->m_is_kept_by_block);
-    m_is_failed = gen_utils::reconcile(m_is_failed, other->m_is_failed);
-    m_last_failed_height = gen_utils::reconcile(m_last_failed_height, other->m_last_failed_height, "m_last_failed_height");
-    m_last_failed_hash = gen_utils::reconcile(m_last_failed_hash, other->m_last_failed_hash);
-    m_max_used_block_height = gen_utils::reconcile(m_max_used_block_height, other->m_max_used_block_height, "max_used_block_height");
-    m_max_used_block_hash = gen_utils::reconcile(m_max_used_block_hash, other->m_max_used_block_hash);
-    //m_signatures = gen_utils::reconcile(m_signatures, other->m_signatures); // TODO
-    m_unlock_height = gen_utils::reconcile(m_unlock_height, other->m_unlock_height, "m_unlock_height");
-    m_num_confirmations = gen_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "m_num_confirmations");
+    m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed, "tx m_is_confirmed");
+    m_is_miner_tx = gen_utils::reconcile(m_is_miner_tx, other->m_is_miner_tx, "tx m_is_miner_tx");
+    m_relay = gen_utils::reconcile(m_relay, other->m_relay, "tx m_relay");
+    m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed, "tx m_is_relayed");
+    m_is_double_spend_seen = gen_utils::reconcile(m_is_double_spend_seen, other->m_is_double_spend_seen, "tx m_is_double_spend_seen");
+    m_key = gen_utils::reconcile(m_key, other->m_key, "tx m_key");
+    m_full_hex = gen_utils::reconcile(m_full_hex, other->m_full_hex, "tx m_full_hex");
+    m_pruned_hex = gen_utils::reconcile(m_pruned_hex, other->m_pruned_hex, "tx m_pruned_hex");
+    m_prunable_hex = gen_utils::reconcile(m_prunable_hex, other->m_prunable_hex, "tx m_prunable_hex");
+    m_prunable_hash = gen_utils::reconcile(m_prunable_hash, other->m_prunable_hash, "tx m_prunable_hash");
+    m_size = gen_utils::reconcile(m_size, other->m_size, "tx m_size");
+    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "tx m_weight");
+    //m_output_indices = gen_utils::reconcile(m_output_indices, other->m_output_indices, "tx m_output_indices");  // TODO
+    m_metadata = gen_utils::reconcile(m_metadata, other->m_metadata, "tx m_metadata");
+    m_common_tx_sets = gen_utils::reconcile(m_common_tx_sets, other->m_common_tx_sets, "tx m_common_tx_sets");
+    //m_extra = gen_utils::reconcile(m_extra, other->m_extra, "tx m_extra");  // TODO
+    m_rct_signatures = gen_utils::reconcile(m_rct_signatures, other->m_rct_signatures, "tx m_rct_signatures");
+    m_rct_sig_prunable = gen_utils::reconcile(m_rct_sig_prunable, other->m_rct_sig_prunable, "tx m_rct_sig_prunable");
+    m_is_kept_by_block = gen_utils::reconcile(m_is_kept_by_block, other->m_is_kept_by_block, "tx m_is_kept_by_block");
+    m_is_failed = gen_utils::reconcile(m_is_failed, other->m_is_failed, "tx m_is_failed");
+    m_last_failed_height = gen_utils::reconcile(m_last_failed_height, other->m_last_failed_height, "tx m_last_failed_height");
+    m_last_failed_hash = gen_utils::reconcile(m_last_failed_hash, other->m_last_failed_hash, "tx m_last_failed_hash");
+    m_max_used_block_height = gen_utils::reconcile(m_max_used_block_height, other->m_max_used_block_height, "tx m_max_used_block_height");
+    m_max_used_block_hash = gen_utils::reconcile(m_max_used_block_hash, other->m_max_used_block_hash, "tx m_max_used_block_hash");
+    //m_signatures = gen_utils::reconcile(m_signatures, other->m_signatures, "tx m_signatures"); // TODO
+    m_unlock_height = gen_utils::reconcile(m_unlock_height, other->m_unlock_height, "tx m_unlock_height");
+    m_num_confirmations = gen_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "tx m_num_confirmations");
 
     // merge inputs
     if (!other->m_inputs.empty()) {
@@ -499,9 +499,9 @@ namespace monero {
       m_received_timestamp = boost::none;
       m_last_relayed_timestamp = boost::none;
     } else {
-      m_in_tx_pool = gen_utils::reconcile(m_in_tx_pool, other->m_in_tx_pool, boost::none, true, boost::none); // unrelayed -> tx pool
-      m_received_timestamp = gen_utils::reconcile(m_received_timestamp, other->m_received_timestamp, boost::none, boost::none, false, "m_received_timestamp"); // take earliest receive time
-      m_last_relayed_timestamp = gen_utils::reconcile(m_last_relayed_timestamp, other->m_last_relayed_timestamp, boost::none, boost::none, true, "m_last_relayed_timestamp"); // take latest relay time
+      m_in_tx_pool = gen_utils::reconcile(m_in_tx_pool, other->m_in_tx_pool, boost::none, true, boost::none, "tx m_in_tx_pool"); // unrelayed -> tx pool
+      m_received_timestamp = gen_utils::reconcile(m_received_timestamp, other->m_received_timestamp, boost::none, boost::none, false, "tx m_received_timestamp"); // take earliest receive time
+      m_last_relayed_timestamp = gen_utils::reconcile(m_last_relayed_timestamp, other->m_last_relayed_timestamp, boost::none, boost::none, true, "tx m_last_relayed_timestamp"); // take latest relay time
     }
   }
 
@@ -565,8 +565,8 @@ namespace monero {
     MTRACE("monero_key_image::merge(self, other)");
     if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
-    m_hex = gen_utils::reconcile(m_hex, other->m_hex);
-    m_signature = gen_utils::reconcile(m_signature, other->m_signature);
+    m_hex = gen_utils::reconcile(m_hex, other->m_hex, "key image m_hex");
+    m_signature = gen_utils::reconcile(m_signature, other->m_signature, "key image m_signature");
   }
 
   // ------------------------------ MONERO OUTPUT -----------------------------

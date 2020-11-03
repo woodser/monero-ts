@@ -1574,7 +1574,10 @@ namespace monero {
 
     // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls  // TODO monero core: offer wallet.get_txs(...)
     for (const std::shared_ptr<monero_tx_wallet>& tx : txs) {
-      if (*tx->m_is_confirmed && tx->m_block == boost::none) return get_txs(*_query, missing_tx_hashes);
+      if (*tx->m_is_confirmed && tx->m_block == boost::none) {
+        std::cout << "WARNING: Inconsistency detected building txs from multiple wallet2 calls, re-fetching" << std::endl;
+        return get_txs(*_query, missing_tx_hashes);
+      }
     }
 
     // if tx hashes requested, order txs and collect missing hashes

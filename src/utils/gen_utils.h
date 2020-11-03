@@ -58,11 +58,11 @@
 #include "common/util.h"
 
 /**
- * Collection of utilities for working with Monero's binary portable storage format.
+ * Collection of generic utilities.
  */
 namespace gen_utils
 {
-  // ------------------------- VALUE RECONCILATION- ---------------------------
+  // ------------------------- VALUE RECONCILATION ----------------------------
 
   // TODO: refactor common template code
   template <class T, typename std::enable_if<std::is_same<T, std::string>::value, T>::type* = nullptr>

@@ -275,16 +275,16 @@ namespace monero {
     }
 
     // merge simple extensions
-    m_is_incoming = gen_utils::reconcile(m_is_incoming, other->m_is_incoming);
-    m_is_outgoing = gen_utils::reconcile(m_is_outgoing, other->m_is_outgoing);
-    m_note = gen_utils::reconcile(m_note, other->m_note);
-    m_is_locked = gen_utils::reconcile(m_is_locked, other->m_is_locked);
-    m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum);
-    m_output_sum = gen_utils::reconcile(m_output_sum, other->m_output_sum);
-    m_change_address = gen_utils::reconcile(m_change_address, other->m_change_address);
-    m_change_amount = gen_utils::reconcile(m_change_amount, other->m_change_amount);
-    m_num_dummy_outputs = gen_utils::reconcile(m_num_dummy_outputs, other->m_num_dummy_outputs);
-    m_extra_hex = gen_utils::reconcile(m_extra_hex, other->m_extra_hex);
+    m_is_incoming = gen_utils::reconcile(m_is_incoming, other->m_is_incoming, "tx wallet m_is_incoming");
+    m_is_outgoing = gen_utils::reconcile(m_is_outgoing, other->m_is_outgoing, "tx wallet m_is_outgoing");
+    m_note = gen_utils::reconcile(m_note, other->m_note, "tx wallet m_note");
+    m_is_locked = gen_utils::reconcile(m_is_locked, other->m_is_locked, "tx wallet m_is_locked");
+    m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum, "tx wallet m_input_sum");
+    m_output_sum = gen_utils::reconcile(m_output_sum, other->m_output_sum, "tx wallet m_output_sum");
+    m_change_address = gen_utils::reconcile(m_change_address, other->m_change_address, "tx wallet m_change_address");
+    m_change_amount = gen_utils::reconcile(m_change_amount, other->m_change_amount, "tx wallet m_change_amount");
+    m_num_dummy_outputs = gen_utils::reconcile(m_num_dummy_outputs, other->m_num_dummy_outputs, "tx wallet m_num_dummy_outputs");
+    m_extra_hex = gen_utils::reconcile(m_extra_hex, other->m_extra_hex, "tx wallet m_extra_hex");
   }
 
   std::vector<std::shared_ptr<monero_transfer>> monero_tx_wallet::get_transfers() const {
@@ -654,7 +654,7 @@ namespace monero {
     }
 
     // otherwise merge transfer fields
-    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "acountIndex");
+    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "transfer acountIndex");
 
     // TODO monero core: failed m_tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
     if (m_amount != boost::none && other->m_amount != boost::none && *m_amount != *other->m_amount && (*m_amount == 0 || *other->m_amount == 0)) {
@@ -703,8 +703,8 @@ namespace monero {
     if (self == other) return;
     monero_transfer::merge(self, other);
     m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "incoming transfer m_subaddress_index");
-    m_address = gen_utils::reconcile(m_address, other->m_address);
-    m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "m_num_suggested_confirmations");
+    m_address = gen_utils::reconcile(m_address, other->m_address, "incoming transfer m_address");
+    m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "incoming transfer m_num_suggested_confirmations");
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
@@ -741,9 +741,9 @@ namespace monero {
   void monero_outgoing_transfer::merge(const std::shared_ptr<monero_outgoing_transfer>& self, const std::shared_ptr<monero_outgoing_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
-    m_subaddress_indices = gen_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices);
-    m_addresses = gen_utils::reconcile(m_addresses, other->m_addresses);
-    m_destinations = gen_utils::reconcile(m_destinations, other->m_destinations);
+    m_subaddress_indices = gen_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices, "outgoing transfer m_subaddress_indices");
+    m_addresses = gen_utils::reconcile(m_addresses, other->m_addresses, "outgoing transfer m_addresses");
+    m_destinations = gen_utils::reconcile(m_destinations, other->m_destinations, "outgoing transfer m_destinations");
   }
 
   // ----------------------- MONERO TRANSFER QUERY --------------------------
@@ -985,10 +985,10 @@ namespace monero {
     monero_output::merge(self, other);
 
     // merge output wallet extensions
-    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index);
-    m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index);
-    m_is_spent = gen_utils::reconcile(m_is_spent, other->m_is_spent);
-    m_is_frozen = gen_utils::reconcile(m_is_frozen, other->m_is_frozen);
+    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "output wallet m_account_index");
+    m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "output wallet m_subaddress_index");
+    m_is_spent = gen_utils::reconcile(m_is_spent, other->m_is_spent, "output wallet m_is_spent");
+    m_is_frozen = gen_utils::reconcile(m_is_frozen, other->m_is_frozen, "output wallet m_is_frozen");
   }
 
   // ------------------------ MONERO OUTPUT QUERY ---------------------------
