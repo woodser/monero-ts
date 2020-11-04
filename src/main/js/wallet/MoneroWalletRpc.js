@@ -711,7 +711,10 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
-      if (tx.isConfirmed() && tx.getBlock() === undefined) return this.getTxs(query);
+      if (tx.isConfirmed() && tx.getBlock() === undefined) {
+        console.error("Inconsistency detected building txs from multiple rpc calls, re-fetching txs");
+        return this.getTxs(query);
+      }
     }
     
     // order txs if tx hashes given then return

@@ -1,3 +1,4 @@
+support startSyncing(refreshRate)
 support listener js object
 support strings in queries, etc
 wallet.waitForTxsToClearPool()?

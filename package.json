@@ -1,7 +1,7 @@
 {
   "name": "monero-javascript",
   "description": "A JavaScript library for using Monero",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
@@ -21,6 +21,9 @@
         "repo": "monero-javascript"
       }
     ]
+  },
+  "engines": {
+    "node": ">=10.0.0"
   },
   "dependencies": {
     "ajv": "^6.12.2",
