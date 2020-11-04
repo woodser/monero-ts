@@ -217,8 +217,8 @@ namespace monero {
     monero_block_header::merge(self, other);
 
     // merge reconcilable block extensions
-    m_hex = gen_utils::reconcile(m_hex, other->m_hex, "monero block m_hex");
-    m_tx_hashes = gen_utils::reconcile(m_tx_hashes, other->m_tx_hashes, "monero block m_tx_hahes");
+    m_hex = gen_utils::reconcile(m_hex, other->m_hex, "block m_hex");
+    m_tx_hashes = gen_utils::reconcile(m_tx_hashes, other->m_tx_hashes, "block m_tx_hahes");
 
     // merge miner tx
     if (m_miner_tx == boost::none) m_miner_tx = other->m_miner_tx;
@@ -424,7 +424,7 @@ namespace monero {
     m_hash = gen_utils::reconcile(m_hash, other->m_hash, "tx m_hash");
     m_version = gen_utils::reconcile(m_version, other->m_version, "tx m_version");
     m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id, "tx m_payment_id");
-    m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx tx m_fee");
+    m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx m_fee");
     m_ring_size = gen_utils::reconcile(m_ring_size, other->m_ring_size, "tx m_ring_size");
     m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed, "tx m_is_confirmed");
     m_is_miner_tx = gen_utils::reconcile(m_is_miner_tx, other->m_is_miner_tx, "tx m_is_miner_tx");
