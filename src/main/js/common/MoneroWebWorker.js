@@ -30,17 +30,18 @@ onmessage = async function(e) {
   // validate params
   let objectId = e.data[0];
   let fnName = e.data[1];
-  assert(objectId, "Must provide object id to apply function to");
-  assert(fnName.length >= 2, "Must provide a function name with length >= 2");
+  let callbackId = e.data[2];
+  assert(objectId, "Must provide object id to web worker");
+  assert(fnName, "Must provide function name to web worker");
+  assert(callbackId, "Must provide callback id to web worker");
   if (!self[fnName]) throw new Error("Method '" + fnName + "' is not registered with worker");
-  e.data.splice(1, 1); // remove function name
+  e.data.splice(1, 2); // remove function name and callback id to apply function with arguments
   
   // execute worker function and post result to callback
-  let callbackFn = "on" + fnName.charAt(0).toUpperCase() + fnName.substring(1);
   try {
-    postMessage([objectId, callbackFn, {result: await self[fnName].apply(null, e.data)}]);
+    postMessage([objectId, callbackId, {result: await self[fnName].apply(null, e.data)}]);
   } catch (e) {
-    postMessage([objectId, callbackFn, {error: e.message}]);
+    postMessage([objectId, callbackId, {error: e.message}]);
   }
 }
 

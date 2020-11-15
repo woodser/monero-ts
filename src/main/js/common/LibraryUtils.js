@@ -177,10 +177,11 @@ class LibraryUtils {
     let worker = LibraryUtils.getWorker();
     if (!LibraryUtils.WORKER_OBJECTS[objectId]) LibraryUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
-      LibraryUtils.WORKER_OBJECTS[objectId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {  // TODO: this defines function once per callback
+      let callbackId = GenUtils.getUUID();
+      LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId] = function(resp) {  // TODO: this defines function once per callback
         resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
       };
-      worker.postMessage([objectId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
+      worker.postMessage([objectId, fnName, callbackId].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
   }
 }
