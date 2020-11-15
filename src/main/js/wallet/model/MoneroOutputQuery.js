@@ -48,6 +48,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInteger)) this.state.maxAmount = BigInteger.parse(this.state.maxAmount);
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
     if (this.state.txQuery) this.state.txQuery.setOutputQuery(this);
+    if (this.state.isLocked !== undefined) this.setIsLocked(this.state.isLocked);
   }
   
   copy() {
