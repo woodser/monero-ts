@@ -697,6 +697,7 @@ namespace monero {
       this->m_sync_end_height = boost::none;
       m_prev_balance = wallet.get_balance();
       m_prev_unlocked_balance = wallet.get_unlocked_balance();
+      check_for_changed_unlocked_txs(); // cache locked txs for later comparison
     }
 
     ~wallet2_listener() {
@@ -717,7 +718,6 @@ namespace monero {
     void on_sync_end() {
       m_sync_start_height = boost::none;
       m_sync_end_height = boost::none;
-      check_for_changed_funds();
     }
 
     void on_new_block(uint64_t height, const cryptonote::block& cn_block) override {
@@ -739,8 +739,11 @@ namespace monero {
         listener->on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
       }
 
-      // notify if balances or unlocked txs changed
-      check_for_changed_funds();
+      // notify if balances change
+      bool balances_changed = check_for_changed_balances();
+
+      // notify when txs unlock after wallet is synced
+      if (balances_changed && m_wallet.is_synced()) check_for_changed_unlocked_txs();
     }
 
     void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) override {
@@ -762,8 +765,8 @@ namespace monero {
         listener->on_output_received(*output);
       }
 
-      // notify if balances or unlocked txs changed
-      check_for_changed_funds();
+      // notify if balances changed
+      check_for_changed_balances();
 
       // free memory
       output.reset();
@@ -794,8 +797,8 @@ namespace monero {
         listener->on_output_received(*output);
       }
 
-      // notify if balances changed
-      check_for_changed_funds();
+      // watch for unlock
+      m_prev_locked_tx_hashes.insert(tx->m_hash.get());
 
       // free memory
       monero_utils::free(block);
@@ -826,8 +829,8 @@ namespace monero {
         listener->on_output_spent(*output);
       }
 
-      // notify if balances changed
-      check_for_changed_funds();
+      // watch for unlock
+      m_prev_locked_tx_hashes.insert(tx->m_hash.get());
 
       // free memory
       monero_utils::free(block);
@@ -842,28 +845,24 @@ namespace monero {
     boost::optional<uint64_t> m_sync_end_height;
     uint64_t m_prev_balance;
     uint64_t m_prev_unlocked_balance;
-    std::vector<std::shared_ptr<monero_tx_wallet>> m_locked_txs;
+    std::set<std::string> m_prev_locked_tx_hashes;
 
-    void check_for_changed_funds() {
-      if (m_wallet.get_listeners().empty()) return; // skip if no listeners
-      if (m_prev_balance != m_wallet.get_balance() || m_prev_unlocked_balance != m_wallet.get_unlocked_balance()) {
-        on_balances_changed(m_wallet.get_balance(), m_wallet.get_unlocked_balance());
-        m_prev_balance = m_wallet.get_balance();
-        m_prev_unlocked_balance = m_wallet.get_unlocked_balance();
+    bool check_for_changed_balances() {
+      uint64_t balance = m_wallet.get_balance();
+      uint64_t unlocked_balance = m_wallet.get_unlocked_balance();
+      if (m_prev_balance != balance || m_prev_unlocked_balance != unlocked_balance) {
+        m_prev_balance = balance;
+        m_prev_unlocked_balance = unlocked_balance;
+        for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+          listener->on_balances_changed(balance, unlocked_balance);
+        }
+        return true;
       }
-      if (m_wallet.is_synced()) check_for_changed_unlocked_txs(); // check for newly unlocked outputs if synced
-    }
-
-    void on_balances_changed(uint64_t new_balance, uint64_t new_unlocked_balance) {
-      if (m_wallet.get_listeners().empty()) return;
-      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
-        listener->on_balances_changed(new_balance, new_unlocked_balance);
-      }
+      return false;
     }
 
     // TODO: this can probably be optimized using e.g. wallet2.get_num_rct_outputs() or wallet2.get_num_transfer_details(), or by retaining confirmed block height and only checking on or after unlock height, etc
     void check_for_changed_unlocked_txs() {
-      if (m_wallet.get_listeners().empty()) return; // skip if no listeners
 
       // get locked txs
       monero_tx_query query = monero_tx_query();
@@ -873,15 +872,15 @@ namespace monero {
 
       // collect hashes of txs no longer locked
       std::vector<std::string> tx_hashes_no_longer_locked;
-      for (const std::shared_ptr<monero_tx_wallet>& prev_locked_tx : m_locked_txs) {
+      for (const std::string prev_locked_tx_hash : m_prev_locked_tx_hashes) {
         bool found = false;
         for (const std::shared_ptr<monero_tx_wallet>& cur_locked_tx : locked_txs) {
-          if (cur_locked_tx->m_hash.get() == prev_locked_tx->m_hash.get()) {
+          if (cur_locked_tx->m_hash.get() == prev_locked_tx_hash) {
             found = true;
             break;
           }
         }
-        if (!found) tx_hashes_no_longer_locked.push_back(prev_locked_tx->m_hash.get());
+        if (!found) tx_hashes_no_longer_locked.push_back(prev_locked_tx_hash);
       }
 
       // fetch txs that are no longer locked
@@ -904,8 +903,11 @@ namespace monero {
         }
       }
 
-      // re-assign currently locked txs
-      m_locked_txs = locked_txs;
+      // re-assign currently locked tx hashes // TODO: needs mutex for thread safety?
+      m_prev_locked_tx_hashes.clear();
+      for (const std::shared_ptr<monero_tx_wallet>& locked_tx : locked_txs) {
+        m_prev_locked_tx_hashes.insert(locked_tx->m_hash.get());
+      }
     }
   };
 

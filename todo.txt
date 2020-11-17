@@ -1,4 +1,5 @@
 TODO
+rename monero-core submodule to monero-project
 add device and device_trezor after testing
 in models, strings and pointers do not have to be boost::optional
 preserve rpc error codes, just throwing runtime_error now
