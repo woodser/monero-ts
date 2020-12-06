@@ -182,7 +182,7 @@ TestUtils.FIRST_RECEIVE_HEIGHT = 8360;   // NOTE: this value MUST be the height 
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
-  uri: "http://localhost:38083",
+  uri: "http://localhost:38084",
   username: "rpc_user",
   password: "abc123",
   rejectUnauthorized: true // reject self-signed certificates if true

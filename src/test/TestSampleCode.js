@@ -47,7 +47,7 @@ class TestSampleCode {
         let txsInPool = await daemon.getTxPool();         // get transactions in the pool
         
         // open wallet on monero-wallet-rpc
-        let walletRpc = monerojs.connectToWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+        let walletRpc = monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
         let balance = await walletRpc.getBalance();               // 533648366742

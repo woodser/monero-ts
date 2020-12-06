@@ -2,7 +2,7 @@
 import http.server
 #import ssl
  
-port=9100
+port=8080
 print("Running on port %d" % port)
  
 http.server.SimpleHTTPRequestHandler.extensions_map['.wasm'] = 'application/wasm' 
