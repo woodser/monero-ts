@@ -46,7 +46,7 @@ let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
 let txsInPool = await daemon.getTxPool();         // get transactions in the pool
 
 // open wallet on monero-wallet-rpc
-let walletRpc = monerojs.connectToWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+let walletRpc = monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
 await walletRpc.openWallet("sample_wallet_rpc", "supersecretpassword123");
 let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
 let balance = await walletRpc.getBalance();               // 533648366742
@@ -111,7 +111,7 @@ await walletWasm.close(true);
 #### If using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
-3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
+3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
 ## Building WebAssembly binaries from source
 
@@ -150,7 +150,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 	2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
-	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir ./`
+	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
 
 #### Running tests in Node.js
@@ -161,7 +161,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 #### Running tests in the browser
 
 1. `./bin/build_browser_tests.sh`
-2. Access http://localhost:9100/tests.html in a browser
+2. Access http://localhost:8080/tests.html in a browser
 
 ## See also
 

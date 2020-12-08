@@ -114,7 +114,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * <p>Example:<p>
    * 
    * <code>
-   * let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");<br>
+   * let wallet = new MoneroWalletRpc("http://localhost:38084", "rpc_user", "abc123");<br>
    * await wallet.openWallet("mywallet1", "supersecretpassword");<br>
    * await wallet.openWallet({<br>
    * &nbsp;&nbsp; path: "mywallet2",<br>
@@ -158,7 +158,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * <code>
    * &sol;&sol; construct client to monero-wallet-rpc<br>
-   * let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");<br><br>
+   * let walletRpc = new MoneroWalletRpc("http://localhost:38084", "rpc_user", "abc123");<br><br>
    * 
    * &sol;&sol; create and open wallet on monero-wallet-rpc<br>
    * await walletRpc.createWallet({<br>

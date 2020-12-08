@@ -1,5 +1,6 @@
 const assert = require("assert");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
+const BigInteger = require("../common/biginteger").BigInteger;
 const MoneroError = require("../common/MoneroError");
 const MoneroOutputQuery = require("./model/MoneroOutputQuery");
 const MoneroTransferQuery = require("./model/MoneroTransferQuery");
@@ -295,6 +296,46 @@ class MoneroWallet {
    */
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Get the number of blocks until the next and last funds unlock.
+   * 
+   * @return int[] - the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
+   */
+  async getNumBlocksToUnlock() {
+    
+    // get height and balances
+    let balance = await this.getBalance();
+    if (balance.compare(new BigInteger(0)) === 0) return [undefined, undefined]; // skip if no balance
+    let unlockedBalance = await this.getUnlockedBalance();
+    let height = await this.getHeight();
+    
+    // compute number of blocks until next funds available
+    let numBlocksToNextUnlock = undefined;
+    let txs;
+    if (unlockedBalance.compare(new BigInteger(0)) > 0) numBlocksToNextUnlock = 0;
+    else {
+      txs = await this.getTxs({isLocked: true}); // get locked txs
+      for (let tx of txs) {
+        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
+        numBlocksToNextUnlock = numBlocksToNextUnlock === undefined ? numBlocksToUnlock : Math.min(numBlocksToNextUnlock, numBlocksToUnlock);
+      }
+    }
+    
+    // compute number of blocks until all funds available
+    let numBlocksToLastUnlock = undefined;
+    if (balance.compare(unlockedBalance) === 0) {
+      if (unlockedBalance.compare(new BigInteger(0)) > 0) numBlocksToLastUnlock = 0;
+    } else {
+      txs = txs || await this.getTxs({isLocked: true});  // get locked txs
+      for (let tx of txs) {
+        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
+        numBlocksToLastUnlock = numBlocksToLastUnlock === undefined ? numBlocksToUnlock : Math.max(numBlocksToLastUnlock, numBlocksToUnlock);
+      }      
+    }
+    
+    return [numBlocksToNextUnlock, numBlocksToLastUnlock];
   }
   
   /**

@@ -137,7 +137,7 @@ class TestSampleCode {
         }
         
         // connect to a monero-wallet-rpc endpoint with authentication
-        let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+        let walletRpc = new MoneroWalletRpc("http://localhost:38084", "rpc_user", "abc123");
         
         // open a wallet on the server
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
