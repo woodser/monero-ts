@@ -426,7 +426,7 @@ namespace monero {
     m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id, "tx m_payment_id");
     m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx m_fee");
     m_ring_size = gen_utils::reconcile(m_ring_size, other->m_ring_size, "tx m_ring_size");
-    m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed, "tx m_is_confirmed");
+    m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed, boost::none, true, boost::none, "tx m_is_confirmed");  // tx can become confirmed
     m_is_miner_tx = gen_utils::reconcile(m_is_miner_tx, other->m_is_miner_tx, "tx m_is_miner_tx");
     m_relay = gen_utils::reconcile(m_relay, other->m_relay, "tx m_relay");
     m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed, "tx m_is_relayed");

@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-A C++ library for creating Monero applications using native bindings to [monero v0.17.1.1 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.1).
+A C++ library for creating Monero applications using native bindings to [monero v0.17.1.5 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.5).
 
 * Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
@@ -161,34 +161,18 @@ This project may be compiled as part of another application or built as a shared
 
 For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
 
-1. Set up dependencies
-	1. Set up Boost
-		1. Download and extract the boost 1.72.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
-		2. `cd ./external/boost-sdk/`
-		3. `./bootstrap.sh`
-		4. `./b2`
-	2. Set up OpenSSL
-		1. Download and extract the OpenSSL 1.1.1 source code zip from https://github.com/openssl/openssl/tree/OpenSSL_1_1_1 to ./external/openssl-sdk/.
-		2. Build for your system.<br>
-       Unix: `./config && make`
-	3. Set up hidapi
-		1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
-		2. Build hidapi for your system.<br>
-       Mac requires autoreconf: `brew install automake`
-		3. Copy libhidapi.a to ./external-libs/hidapi.
-	4. Set up libsodium
-		1. Build libsodium for your system.
-		2. Copy libsodium.a to ./external-libs/libsodium.<br>
-       Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
-	5. Set up monero-project/monero:
-		1. Update submodules: `./bin/update_submodules.sh`
-		2. `cd ./external/monero-core`
-		3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
-		4. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`
-2. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
+1. Install dependencies using your system's package manager:
+    * Boost
+    * OpenSSL
+    * HIDAPI
+    * Sodium
+2. Build monero-project:
+    1. Update submodules: `./bin/update_submodules.sh`
+    2. `cd ./external/monero-core`
+    3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
+    4. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
+3. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
        
-These build steps aspire to be automated further.  [Any help is greatly appreciated](https://github.com/monero-ecosystem/monero-cpp/issues/1).
-
 ## Developer guide
 
 Refer to [monero-javascript's developer guide](https://github.com/monero-ecosystem/monero-javascript#developer-guide) which mostly translates to this C++ library.

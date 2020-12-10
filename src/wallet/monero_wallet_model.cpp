@@ -278,7 +278,7 @@ namespace monero {
     m_is_incoming = gen_utils::reconcile(m_is_incoming, other->m_is_incoming, "tx wallet m_is_incoming");
     m_is_outgoing = gen_utils::reconcile(m_is_outgoing, other->m_is_outgoing, "tx wallet m_is_outgoing");
     m_note = gen_utils::reconcile(m_note, other->m_note, "tx wallet m_note");
-    m_is_locked = gen_utils::reconcile(m_is_locked, other->m_is_locked, "tx wallet m_is_locked");
+    m_is_locked = gen_utils::reconcile(m_is_locked, other->m_is_locked, boost::none, false, boost::none, "tx wallet m_is_locked");  // tx can become unlocked
     m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum, "tx wallet m_input_sum");
     m_output_sum = gen_utils::reconcile(m_output_sum, other->m_output_sum, "tx wallet m_output_sum");
     m_change_address = gen_utils::reconcile(m_change_address, other->m_change_address, "tx wallet m_change_address");
@@ -743,7 +743,19 @@ namespace monero {
     monero_transfer::merge(self, other);
     m_subaddress_indices = gen_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices, "outgoing transfer m_subaddress_indices");
     m_addresses = gen_utils::reconcile(m_addresses, other->m_addresses, "outgoing transfer m_addresses");
-    m_destinations = gen_utils::reconcile(m_destinations, other->m_destinations, "outgoing transfer m_destinations");
+
+    // use destinations if available on one, otherwise check deep equality
+    // TODO: java/javascript use reconcile() for deep comparison, but c++ would require specialized equality check for structs with shared pointers, so checking equality here
+    if (m_destinations.empty() && !other->m_destinations.empty()) m_destinations = other->m_destinations;
+    else if (!m_destinations.empty() && !other->m_destinations.empty()) {
+      if (m_destinations.size() != other->m_destinations.size()) throw std::runtime_error("Destination vectors are different sizes");
+      for (int i = 0; i < m_destinations.size(); i++) {
+        if (m_destinations[i]->m_address.get() != other->m_destinations[i]->m_address.get() ||
+            m_destinations[i]->m_amount.get() != other->m_destinations[i]->m_amount.get()) {
+          throw std::runtime_error("Destination vectors are different");
+        }
+      }
+    }
   }
 
   // ----------------------- MONERO TRANSFER QUERY --------------------------
