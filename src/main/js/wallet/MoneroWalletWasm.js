@@ -1490,6 +1490,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   async importMultisigHex(multisigHexes) {
+    if (!GenUtils.isArray(multisigHexes)) throw new MoneroError("Must provide string[] to importMultisigHex()")
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1498,7 +1499,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           if (typeof resp === "string") reject(new MoneroError(resp));
           else resolve(resp);
         }
-        that._module.import_multisig_hex(that._cppAddress, JSON.stringify({multisigHexes: GenUtils.listify(multisigHexes)}), callbackFn);
+        that._module.import_multisig_hex(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes}), callbackFn);
       });
     });
   }

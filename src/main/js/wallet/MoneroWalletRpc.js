@@ -1306,7 +1306,8 @@ class MoneroWalletRpc extends MoneroWallet {
   }
 
   async importMultisigHex(multisigHexes) {
-    let resp = await this.rpc.sendJsonRequest("import_multisig_info", {info: GenUtils.listify(multisigHexes)});
+    if (!GenUtils.isArray(multisigHexes)) throw new MoneroError("Must provide string[] to importMultisigHex()")
+    let resp = await this.rpc.sendJsonRequest("import_multisig_info", {info: multisigHexes});
     return resp.result.n_outputs;
   }
 

@@ -1118,7 +1118,7 @@ class MoneroWallet {
   /**
    * Import multisig info as hex from other participants.
    * 
-   * @param {string|string[]} multisigHexes - multisig hex from each participant
+   * @param {string[]} multisigHexes - multisig hex from each participant
    * @return {int} the number of outputs signed with the given multisig hex
    */
   async importMultisigHex(multisigHexes) {
