@@ -171,7 +171,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
     2. `cd ./external/monero-core`
     3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
     4. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
-3. Link to this library's source files in your application or build as a shared library in `./build/`: `./bin/build_libmonero_cpp.sh`
+3. Link to this library's source files in your application or build as a shared library in ./build/: `./bin/build_libmonero_cpp.sh`
        
 ## Developer guide
 
