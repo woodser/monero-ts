@@ -91,13 +91,16 @@ class MoneroRpcConnection {
   async sendJsonRequest(method, params) {
     
     try {
-      // tx config
+      
+      // build request body
       let body = JSON.stringify({  // body is stringified so text/plain is returned so BigIntegers are preserved
         id: "0",
         jsonrpc: "2.0",
         method: method,
         params: params
       });
+      
+      // send http request
       //console.log("Sending json request with method '" + method + "' and body: " + body);
       let resp = await HttpClient.request({
         method: "POST",
@@ -109,11 +112,16 @@ class MoneroRpcConnection {
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       });
       
-      // process response
+      // validate response
+      MoneroRpcConnection.validateHttpResponse(resp);
+      
+      // deserialize response
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       //let respStr = JSON.stringify(resp);
       //console.log("Received response: " + respStr.substring(0, Math.min(1000, respStr.length)));
-      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
+      
+      // check rpc response for errors
+      MoneroRpcConnection.validateRpcResponse(resp, method, params);
       return resp;
     } catch (e) {
       if (e instanceof MoneroRpcError) throw e;
@@ -130,7 +138,8 @@ class MoneroRpcConnection {
     //console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     try {
-      // tx config
+      
+      // send http request
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,
@@ -141,10 +150,15 @@ class MoneroRpcConnection {
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
       
-      // process response
+      // validate response
+      MoneroRpcConnection.validateHttpResponse(resp);
+      
+      // deserialize response
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
-      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
+      
+      // check rpc response for errors
+      MoneroRpcConnection.validateRpcResponse(resp, path, params);
       return resp;
     } catch (e) {
       if (e instanceof MoneroRpcError) throw e;
@@ -169,7 +183,8 @@ class MoneroRpcConnection {
     let paramsBin = MoneroUtils.jsonToBinary(params);
     
     try {
-      // tx config
+      
+      // send http request
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,
@@ -179,6 +194,9 @@ class MoneroRpcConnection {
         rejectUnauthorized: this.config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
+      
+      // validate response
+      MoneroRpcConnection.validateHttpResponse(resp);
       
       // process response
       resp = resp.body;
@@ -193,8 +211,22 @@ class MoneroRpcConnection {
       else throw new MoneroRpcError(e, undefined, path, params);
     }
   }
+  
+  // ------------------------------ STATIC UTILITIES --------------------------
+  
+  static validateHttpResponse(resp) {
+    let code = resp.statusCode;
+    if (code < 200 || code > 299) {
+      let content = resp.body;
+      throw new MoneroRpcError(code + " " + resp.statusText + (!content ? "" : (": " + content)), code, undefined, undefined);
+    }
+  }
+  
+  static validateRpcResponse(resp, method, params) {
+    if (!resp.error) return;
+    throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
+  }
 }
-
 
 /**
  * Default RPC configuration.

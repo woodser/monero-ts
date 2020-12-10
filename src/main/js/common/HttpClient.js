@@ -75,22 +75,32 @@ class HttpClient {
     }
     if (req.body instanceof Uint8Array) opts.encoding = null;
     
-    // queue and throttle request to execute in serial and rate limited
-    let resp = await HttpClient._queueTask(async function() {
-      return HttpClient.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
-    });
-    
-    // normalize response
-    let normalizedResponse = {};
-    if (req.resolveWithFullResponse) {
-      normalizedResponse.statusCode = resp.statusCode;
-      normalizedResponse.statusText = resp.statusMessage;
-      normalizedResponse.headers = resp.headers;
-      normalizedResponse.body = resp.body;
-    } else {
-      normalizedResponse.body = resp;
+    // send request and normalize StatusCodeError
+    try {
+      
+      // queue and throttle request to execute in serial and rate limited
+      let resp = await HttpClient._queueTask(async function() {
+        return HttpClient.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
+      });
+      
+      // normalize response
+      let normalizedResponse = {};
+      if (req.resolveWithFullResponse) {
+        normalizedResponse.statusCode = resp.statusCode;
+        normalizedResponse.statusText = resp.statusMessage;
+        normalizedResponse.headers = resp.headers;
+        normalizedResponse.body = resp.body;
+      } else {
+        normalizedResponse.body = resp;
+      }
+      return normalizedResponse;
+    } catch (err) {
+      return {
+        statusCode: err.statusCode,
+        statusText: err.error,
+        body: err.message
+      };
     }
-    return normalizedResponse;
   }
   
   static async _requestXhr(req) {
