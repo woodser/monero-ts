@@ -19,8 +19,8 @@ class TestDeveloperGuide {
       before(async function() {
         try {
           wallet = await TestUtils.getWalletWasm();
-        } catch (e) {
-          console.log(e);
+        } catch (err) {
+          console.log(err);
         }
       });
       
@@ -194,8 +194,8 @@ class TestDeveloperGuide {
           
           // relay the transaction
           let hash = await wallet.relayTx(tx);
-        } catch (e) {
-          assert.equal(e.message, "not enough money");
+        } catch (err) {
+          assert.equal(err.message, "not enough money");
         }
         
         try {
@@ -206,8 +206,8 @@ class TestDeveloperGuide {
             amount: "1000000000000", // send 1 XMR (denominated in atomic units)
             relay: true // relay the transaction to the network
           });
-        } catch (e) {
-          assert.equal(e.message, "not enough money");
+        } catch (err) {
+          assert.equal(err.message, "not enough money");
         }
         
         try {
@@ -226,8 +226,8 @@ class TestDeveloperGuide {
             priority: MoneroTxPriority.IMPORTANT,
             relay: true // relay the transaction to the network
           });
-        } catch (e) {
-          assert.equal(e.message, "not enough money");
+        } catch (err) {
+          assert.equal(err.message, "not enough money");
         }
         
         try {
@@ -237,8 +237,8 @@ class TestDeveloperGuide {
             keyImage: "b7afd6afbb1615c98b1c0350b81c98a77d6d4fc0ab92020d25fd76aca0914f1e",
             relay: true
           });
-        } catch (e) {
-          assert.equal(e.message, "No outputs found");
+        } catch (err) {
+          assert.equal(err.message, "No outputs found");
         }
         
         try {
@@ -247,8 +247,8 @@ class TestDeveloperGuide {
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
             relay: true
           });
-        } catch (e) {
-          assert.equal(e.message, "No unlocked balance in the specified account");
+        } catch (err) {
+          assert.equal(err.message, "No unlocked balance in the specified account");
         }
         
         try {
@@ -258,8 +258,8 @@ class TestDeveloperGuide {
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
             relay: true
           });
-        } catch (e) {
-          assert.equal(e.message, "No unlocked balance in the specified account");
+        } catch (err) {
+          assert.equal(err.message, "No unlocked balance in the specified account");
         }
         
         try {
@@ -270,8 +270,8 @@ class TestDeveloperGuide {
             address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
             relay: true
           });
-        } catch (e) {
-          assert.equal(e.message, "No unlocked balance in the specified account");
+        } catch (err) {
+          assert.equal(err.message, "No unlocked balance in the specified account");
         }
       });
     });

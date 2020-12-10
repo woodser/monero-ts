@@ -598,7 +598,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       try {
         return new MoneroIntegratedAddress(JSON.parse(that._module.get_integrated_address(that._cppAddress, "", paymentId ? paymentId : "")));
-      } catch (e) {
+      } catch (err) {
         throw new MoneroError("Invalid payment ID: " + paymentId);
       }
     });
@@ -610,7 +610,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       try {
         return new MoneroIntegratedAddress(JSON.parse(that._module.decode_integrated_address(that._cppAddress, integratedAddress)));
-      } catch (e) {
+      } catch (err) {
         throw new MoneroError("Invalid integrated address: " + integratedAddress);
       }
     });
@@ -883,8 +883,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           // resolve with deserialized txs
           try {
             resolve(MoneroWalletWasm._deserializeTxs(query, blocksJsonStr, missingTxHashes));
-          } catch (e) {
-            reject(e);
+          } catch (err) {
+            reject(err);
           }
         }
         
@@ -918,8 +918,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           // resolve with deserialized transfers 
           try {
             resolve(MoneroWalletWasm._deserializeTransfers(query, blocksJsonStr));
-          } catch (e) {
-            reject(e);
+          } catch (err) {
+            reject(err);
           }
         }
         
@@ -953,8 +953,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           // resolve with deserialized outputs
           try {
             resolve(MoneroWalletWasm._deserializeOutputs(query, blocksJsonStr));
-          } catch (e) {
-            reject(e);
+          } catch (err) {
+            reject(err);
           }
         }
         
@@ -1381,7 +1381,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       try {
         return that._module.create_payment_uri(that._cppAddress, JSON.stringify(config.toJson()));
-      } catch (e) {
+      } catch (err) {
         throw new MoneroError("Cannot make URI from supplied parameters");
       }
     });
@@ -1393,8 +1393,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       try {
         return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
-      } catch (e) {
-        throw new MoneroError(e.message);
+      } catch (err) {
+        throw new MoneroError(err.message);
       }
     });
   }
@@ -1655,8 +1655,8 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       try {
         console.log("Background synchronizing " + label);
         await this.sync();
-      } catch (e) {
-        if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + e.message);
+      } catch (err) {
+        if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + err.message);
       }
       
       // only wait if syncing still enabled
@@ -1814,7 +1814,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let walletDir = Path.dirname(path);
     if (!wallet._fs.existsSync(walletDir)) {
       try { wallet._fs.mkdirSync(walletDir); }
-      catch (e) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + e.message); }
+      catch (err) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
     }
     
     // write new wallet files

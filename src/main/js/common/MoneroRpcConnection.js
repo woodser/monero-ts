@@ -123,9 +123,9 @@ class MoneroRpcConnection {
       // check rpc response for errors
       MoneroRpcConnection.validateRpcResponse(resp, method, params);
       return resp;
-    } catch (e) {
-      if (e instanceof MoneroRpcError) throw e;
-      else throw new MoneroRpcError(e, undefined, method, params);
+    } catch (err) {
+      if (err instanceof MoneroRpcError) throw err;
+      else throw new MoneroRpcError(err, undefined, method, params);
     }
   }
   
@@ -160,9 +160,9 @@ class MoneroRpcConnection {
       // check rpc response for errors
       MoneroRpcConnection.validateRpcResponse(resp, path, params);
       return resp;
-    } catch (e) {
-      if (e instanceof MoneroRpcError) throw e;
-      else throw new MoneroRpcError(e, undefined, path, params);
+    } catch (err) {
+      if (err instanceof MoneroRpcError) throw err;
+      else throw new MoneroRpcError(err, undefined, path, params);
     }
   }
   
@@ -206,9 +206,9 @@ class MoneroRpcConnection {
       }
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
       return resp;
-    } catch (e) {
-      if (e instanceof MoneroRpcError) throw e;
-      else throw new MoneroRpcError(e, undefined, path, params);
+    } catch (err) {
+      if (err instanceof MoneroRpcError) throw err;
+      else throw new MoneroRpcError(err, undefined, path, params);
     }
   }
   

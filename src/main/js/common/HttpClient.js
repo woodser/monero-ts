@@ -34,7 +34,7 @@ class HttpClient {
     request = Object.assign(HttpClient.DEFAULT_REQUEST, request);
     
     // validate request
-    try { new URL(request.uri); } catch (e) { throw new Error("Invalid request URL: " + request.uri); }
+    try { new URL(request.uri); } catch (err) { throw new Error("Invalid request URL: " + request.uri); }
     if (request.body && !(typeof request.body === "string" || typeof request.body === "object")) {
       throw new Error("Request body type is not string or object");
     }
@@ -253,9 +253,9 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
     if (data) {
       try {
         self.data = data instanceof Uint8Array || typeof data === "string" ? data : JSON.stringify(data);
-      } catch (e) {
-        console.error(e);
-        throw e;
+      } catch (err) {
+        console.error(err);
+        throw err;
       }
     }
     self.successFn = successFn;
@@ -477,7 +477,7 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
   this.isJson = function(str) {
     try {
       JSON.parse(str);
-    } catch (e) {
+    } catch (err) {
       return false;
     }
     return true;
