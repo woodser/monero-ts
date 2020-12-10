@@ -1064,10 +1064,14 @@ void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, ems
   }
 }
 
-string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  monero_multisig_sign_result result = wallet->sign_multisig_tx_hex(multisig_tx_hex);
-  return result.serialize();
+string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex, emscripten::val callback) {
+  try {
+    monero_wallet* wallet = (monero_wallet*) handle;
+    monero_multisig_sign_result result = wallet->sign_multisig_tx_hex(multisig_tx_hex);
+    callback(result.serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex, emscripten::val callback) {

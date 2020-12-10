@@ -1498,7 +1498,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           if (typeof resp === "string") reject(new MoneroError(resp));
           else resolve(resp);
         }
-        that._module.import_multisig_hex(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes}), callbackFn);
+        that._module.import_multisig_hex(that._cppAddress, JSON.stringify({multisigHexes: GenUtils.listify(multisigHexes)}), callbackFn);
       });
     });
   }
@@ -1507,7 +1507,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroMultisigSignResult(JSON.parse(that._module.sign_multisig_tx_hex(that._cppAddress, multisigTxHex)));
+      return new Promise(function(resolve, reject) {
+        let callbackFn = async function(resp) {
+          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          else resolve(new MoneroMultisigSignResult(JSON.parse(resp)));
+        }
+        that._module.sign_multisig_tx_hex(that._cppAddress, multisigTxHex, callbackFn)
+      });
     });
   }
   

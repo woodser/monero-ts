@@ -127,7 +127,7 @@ namespace monero_wasm_bridge
   string exchange_multisig_keys(int handle, const string& args);
   string get_multisig_hex(int handle);
   void import_multisig_hex(int handle, const string& args, emscripten::val callback);
-  string sign_multisig_tx_hex(int handle, const string& multisig_tx_hex);
+  string sign_multisig_tx_hex(int handle, const string& multisig_tx_hex, emscripten::val callback);
   void submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex, emscripten::val callback);
   void close(int handle, bool save, emscripten::val callback);
   string get_keys_file_buffer(int handle, string password, bool view_only);
