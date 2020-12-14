@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-A C++ library for creating Monero applications using native bindings to [monero v0.17.1.5 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.5).
+A C++ library for creating Monero applications using native bindings to [monero v0.17.1.6 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.6).
 
 * Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
