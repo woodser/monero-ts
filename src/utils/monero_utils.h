@@ -81,9 +81,15 @@ namespace monero_utils
 
   std::string serialize(const rapidjson::Document& doc);
 
-  void addJsonMember(std::string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(std::string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(std::string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  /**
+   * Add number, string, and boolean json members using template specialization.
+   */
+  template <class T>
+  void addJsonMember(std::string key, T val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+    rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+    field.SetInt64((uint64_t) val);
+    root.AddMember(field_key, field, allocator);
+  }
   void addJsonMember(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
   void addJsonMember(std::string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
 

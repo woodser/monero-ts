@@ -242,15 +242,9 @@ set(
 )
 
 if (BUILD_LIBRARY)
-
     add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
     
     target_link_libraries(monero-cpp
-    
-        ${Boost_LIBRARIES}
-        ${OPENSSL_LIBRARIES}
-        ${SODIUM_LIBRARY}
-        ${HIDAPI_LIBRARIES}
         
         wallet_merged
         wallet_crypto
@@ -277,6 +271,10 @@ if (BUILD_LIBRARY)
         version
         randomx
         
+        ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${SODIUM_LIBRARY}
+        ${HIDAPI_LIBRARIES}
         ${EXTRA_LIBRARIES}
     )
 endif()
@@ -292,11 +290,6 @@ if (BUILD_SAMPLE)
     
     target_link_libraries(sample_code
     
-        ${Boost_LIBRARIES}
-        ${OPENSSL_LIBRARIES}
-        ${SODIUM_LIBRARY}
-        ${HIDAPI_LIBRARIES}
-        
         wallet_merged
         wallet_crypto
         #wallet_api
@@ -322,6 +315,10 @@ if (BUILD_SAMPLE)
         version
         randomx
         
+        ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${SODIUM_LIBRARY}
+        ${HIDAPI_LIBRARIES}
         ${EXTRA_LIBRARIES}
     )
 endif()
@@ -337,11 +334,6 @@ if (BUILD_SCRATCHPAD)
     
     target_link_libraries(scratchpad
     
-        ${Boost_LIBRARIES}
-        ${OPENSSL_LIBRARIES}
-        ${SODIUM_LIBRARY}
-        ${HIDAPI_LIBRARIES}
-        
         wallet_merged
         wallet_crypto
         #wallet_api
@@ -367,6 +359,10 @@ if (BUILD_SCRATCHPAD)
         version
         randomx
         
+        ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${SODIUM_LIBRARY}
+        ${HIDAPI_LIBRARIES}
         ${EXTRA_LIBRARIES}
     )
 endif()

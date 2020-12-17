@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-A C++ library for creating Monero applications using native bindings to [monero v0.17.1.6 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.6).
+A C++ library for creating Monero applications using native bindings to [monero v0.17.1.7 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.7).
 
 * Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
@@ -161,16 +161,13 @@ This project may be compiled as part of another application or built as a shared
 
 For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
 
-1. Install dependencies using your system's package manager:
-    * Boost
-    * OpenSSL
-    * HIDAPI
-    * Sodium
+1. Clone this project repository (unless included as a submodule in another project): `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
 2. Build monero-project:
-    1. Update submodules: `./bin/update_submodules.sh`
-    2. `cd ./external/monero-core`
-    3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
-    4. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
+    1. Install [dependencies](https://github.com/monero-project/monero#dependencies) using your system's package manager (boost, openssl, hidapi, sodium, etc)
+    2. Update submodules: `./bin/update_submodules.sh`
+    3. `cd ./external/monero-core`
+    4. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
+    5. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
 3. Link to this library's source files in your application or build as a shared library in ./build/: `./bin/build_libmonero_cpp.sh`
        
 ## Developer guide

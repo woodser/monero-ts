@@ -136,24 +136,6 @@ std::string monero_utils::serialize(const rapidjson::Document& doc) {
   return buffer.GetString();
 }
 
-void monero_utils::addJsonMember(std::string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
-  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
-  field.SetInt(val);
-  root.AddMember(field_key, field, allocator);
-}
-
-void monero_utils::addJsonMember(std::string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
-  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
-  field.SetUint64(val);
-  root.AddMember(field_key, field, allocator);
-}
-
-void monero_utils::addJsonMember(std::string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
-  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
-  field.SetUint64(val);
-  root.AddMember(field_key, field, allocator);
-}
-
 void monero_utils::addJsonMember(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
   rapidjson::Value field_key(key.c_str(), key.size(), allocator);
   field.SetString(val.c_str(), val.size(), allocator);
