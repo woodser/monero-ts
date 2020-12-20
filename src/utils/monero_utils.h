@@ -83,6 +83,8 @@ namespace monero_utils
 
   /**
    * Add number, string, and boolean json members using template specialization.
+   *
+   * TODO: addJsonMember("key", "val", ...) treated as integer instead of string literal
    */
   template <class T>
   void addJsonMember(std::string key, T val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {

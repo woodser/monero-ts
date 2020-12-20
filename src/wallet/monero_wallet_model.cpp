@@ -1285,7 +1285,7 @@ namespace monero {
 
     // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
-    monero_utils::addJsonMember("signatureType", m_signature_type == monero_message_signature_type::SIGN_WITH_SPEND_KEY ? "spend" : "view", allocator, root, value_str);
+    monero_utils::addJsonMember("signatureType", m_signature_type == monero_message_signature_type::SIGN_WITH_SPEND_KEY ? std::string("spend") : std::string("view"), allocator, root, value_str);
 
     // return root
     return root;
