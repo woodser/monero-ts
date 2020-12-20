@@ -460,9 +460,11 @@ namespace monero {
     }
 
     /**
-     * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
+     * Start background synchronizing with a maximum number of seconds between syncs.
+     *
+     * @param sync_rate_in_seconds - maximum number of seconds between wallet syncs for updates (default 10 seconds)
      */
-    virtual void start_syncing() {
+    virtual void start_syncing(uint32_t sync_rate_in_seconds = 10) {
       throw std::runtime_error("start_syncing() not supported");
     }
 

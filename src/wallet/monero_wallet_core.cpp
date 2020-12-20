@@ -76,7 +76,6 @@ namespace monero {
 
   // ------------------------- INITIALIZE CONSTANTS ---------------------------
 
-  static const int DEFAULT_SYNC_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
   static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
   static const bool STRICT = false; // relies exclusively on blockchain data if true, includes local wallet data if false TODO: good use case to expose externally?
 
@@ -1376,8 +1375,9 @@ namespace monero {
   /**
    * Start automatic syncing as its own thread.
    */
-  void monero_wallet_core::start_syncing() {
+  void monero_wallet_core::start_syncing(uint32_t sync_rate_in_seconds) {
     if (!m_is_connected) throw std::runtime_error("Wallet is not connected to daemon");
+    m_syncing_interval = sync_rate_in_seconds * 1000; // set sync rate // TODO: use ms instead of seconds?
     if (!m_syncing_enabled) {
       m_syncing_enabled = true;
       run_sync_loop();  // sync wallet on loop in background
@@ -3209,7 +3209,6 @@ namespace monero {
     m_rescan_on_sync = false;
     m_syncing_enabled = false;
     m_sync_loop_running = false;
-    m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
   }
 
   std::vector<std::shared_ptr<monero_transfer>> monero_wallet_core::get_transfers_aux(const monero_transfer_query& query) const {

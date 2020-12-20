@@ -204,7 +204,7 @@ namespace monero {
     monero_sync_result sync(monero_wallet_listener& listener) override;
     monero_sync_result sync(uint64_t start_height) override;
     monero_sync_result sync(uint64_t start_height, monero_wallet_listener& listener) override;
-    void start_syncing() override;
+    void start_syncing(uint32_t sync_rate) override;
     void stop_syncing() override;
     void rescan_spent() override;
     void rescan_blockchain() override;
