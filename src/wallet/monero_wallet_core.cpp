@@ -1372,21 +1372,15 @@ namespace monero {
     return result;
   }
 
-  /**
-   * Start automatic syncing as its own thread.
-   */
-  void monero_wallet_core::start_syncing(uint32_t sync_rate_in_seconds) {
+  void monero_wallet_core::start_syncing(uint64_t sync_period_in_ms) {
     if (!m_is_connected) throw std::runtime_error("Wallet is not connected to daemon");
-    m_syncing_interval = sync_rate_in_seconds * 1000; // set sync rate // TODO: use ms instead of seconds?
+    m_syncing_interval = sync_period_in_ms;
     if (!m_syncing_enabled) {
       m_syncing_enabled = true;
-      run_sync_loop();  // sync wallet on loop in background
+      run_sync_loop(); // sync wallet on loop in background
     }
   }
 
-  /**
-   * Stop automatic syncing as its own thread.
-   */
   void monero_wallet_core::stop_syncing() {
     m_syncing_enabled = false;
     m_w2->stop();

@@ -460,11 +460,11 @@ namespace monero {
     }
 
     /**
-     * Start background synchronizing with a maximum number of seconds between syncs.
+     * Start background synchronizing with a maximum period between syncs.
      *
-     * @param sync_rate_in_seconds - maximum number of seconds between wallet syncs for updates (default 10 seconds)
+     * @param syncPeriodInMs - maximum period between syncs in milliseconds
      */
-    virtual void start_syncing(uint32_t sync_rate_in_seconds = 10) {
+    virtual void start_syncing(uint64_t sync_period_in_ms = 10000) {
       throw std::runtime_error("start_syncing() not supported");
     }
 
