@@ -84,16 +84,16 @@ namespace monero_utils
   /**
    * Add number, string, and boolean json members using template specialization.
    *
-   * TODO: addJsonMember("key", "val", ...) treated as integer instead of string literal
+   * TODO: add_json_member("key", "val", ...) treated as integer instead of string literal
    */
   template <class T>
-  void addJsonMember(std::string key, T val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+  void add_json_member(std::string key, T val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
     rapidjson::Value field_key(key.c_str(), key.size(), allocator);
     field.SetInt64((uint64_t) val);
     root.AddMember(field_key, field, allocator);
   }
-  void addJsonMember(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
-  void addJsonMember(std::string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
+  void add_json_member(std::string key, std::string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void add_json_member(std::string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
 
   // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const std::vector<std::shared_ptr<T>>& vals) {
