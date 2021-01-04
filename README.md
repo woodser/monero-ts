@@ -90,8 +90,8 @@ monero_wallet* wallet_random = monero_wallet_core::create_wallet_random(
     "English");
 wallet_random->sync();
 
-// continuously synchronize the wallet in the background
-wallet_random->start_syncing();
+// synchronize in the background every 5 seconds
+wallet_random->start_syncing(5000);
 
 // get wallet info
 string random_mnemonic = wallet_random->get_mnemonic();
@@ -148,7 +148,7 @@ config.m_destinations = destinations;
 // create the transaction, confirm with the user, and relay to the network
 shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(config);
 uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
-wallet_restored->relay_tx(*created_tx); // recipient receives notification within 10 seconds
+wallet_restored->relay_tx(*created_tx); // recipient receives notification within 5 seconds
 
 // save and close the wallets
 wallet_restored->close(true);
