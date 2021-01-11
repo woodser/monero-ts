@@ -404,20 +404,15 @@ namespace monero {
     if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
 
-    // merge blocks if they're different which comes back to merging txs
+    // merge blocks if they're different
     if (m_block != other->m_block) {
       if (m_block == boost::none) {
-        m_block = std::make_shared<monero_block>();
-        m_block.get()->m_txs.push_back(self);
-        m_block.get()->m_height = other->get_height();
+        m_block = other->m_block;
+        std::replace(m_block.get()->m_txs.begin(), m_block.get()->m_txs.end(), other, self); // update block to point to this tx
+      } else if (other->m_block == boost::none) {
+        m_block.get()->merge(m_block.get(), other->m_block.get()); // comes back to merging txs
+        return;
       }
-      if (other->m_block == boost::none) {
-        other->m_block = std::make_shared<monero_block>();
-        other->m_block.get()->m_txs.push_back(other);
-        other->m_block.get()->m_height = self->get_height();
-      }
-      m_block.get()->merge(m_block.get(), other->m_block.get());
-      return;
     }
 
     // otherwise merge tx fields
