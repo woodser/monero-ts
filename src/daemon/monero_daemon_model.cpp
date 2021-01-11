@@ -409,7 +409,7 @@ namespace monero {
       if (m_block == boost::none) {
         m_block = other->m_block;
         std::replace(m_block.get()->m_txs.begin(), m_block.get()->m_txs.end(), other, self); // update block to point to this tx
-      } else if (other->m_block == boost::none) {
+      } else if (other->m_block != boost::none) {
         m_block.get()->merge(m_block.get(), other->m_block.get()); // comes back to merging txs
         return;
       }
