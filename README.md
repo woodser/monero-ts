@@ -12,15 +12,13 @@ A C++ library for creating Monero applications using native bindings to [monero 
 ## Table of contents
 
 * [Sample code](#sample-code)
+* [Documentation](#documentation)
 * [Using this library in your project](#using-this-library-in-your-project)
-* [Developer guide](#developer-guide)
-* [See also](#see-also)
+* [Related projects](#related-projects)
 * [License](#license)
 * [Donations](#donations)
 
 ## Sample code
-
-This code introduces the API.  See the [documentation](https://moneroecosystem.org/monero-cpp/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
 _Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome._
 
@@ -155,6 +153,12 @@ wallet_restored->close(true);
 wallet_random->close(true);
 ```
 
+## Documentation
+
+* [API documentation](https://moneroecosystem.org/monero-cpp/annotated.html)
+* [API and model overview with visual diagrams](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [monero-javascript documentation](https://github.com/monero-ecosystem/monero-javascript#documentation) provides additional documentation which translates to monero-cpp
+
 ## Using this library in your project
 
 This project may be compiled as part of another application or built as a shared or static library.
@@ -170,13 +174,8 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
     5. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
 3. Link to this library's source files in your application or build as a shared library in ./build/: `./bin/build_libmonero_cpp.sh`
        
-## Developer guide
+## Related projects
 
-Refer to [monero-javascript's developer guide](https://github.com/monero-ecosystem/monero-javascript#developer-guide) which mostly translates to this C++ library.
-
-## See also
-
-* [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-javascript](https://github.com/monero-ecosystem/monero-javascript)
 
