@@ -346,8 +346,8 @@ self.daemonStop = async function(daemonId) {
   return self.WORKER_OBJECTS[daemonId].stop();
 }
 
-self.daemonGetNextBlockHeader = async function(daemonId) {
-  return (await self.WORKER_OBJECTS[daemonId].getNextBlockHeader()).toJson();
+self.daemonWaitForNextBlockHeader = async function(daemonId) {
+  return (await self.WORKER_OBJECTS[daemonId].waitForNextBlockHeader()).toJson();
 }
 
 self.daemonAddBlockListener = async function(daemonId, listenerId) {
@@ -560,8 +560,8 @@ self.sync = async function(walletId, startHeight) {
   return await self.WORKER_OBJECTS[walletId].sync(startHeight);
 }
 
-self.startSyncing = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].startSyncing();
+self.startSyncing = async function(walletId, syncPeriodInMs) {
+  return self.WORKER_OBJECTS[walletId].startSyncing(syncPeriodInMs);
 }
 
 self.stopSyncing = async function(walletId) {
@@ -609,13 +609,13 @@ self.createSubaddress = async function(walletId, accountIdx, label) {
 }
 
 // TODO: easier or more efficient way than serializing from root blocks?
-self.getTxs = async function(walletId, blockJsonQuery) {
+self.getTxs = async function(walletId, blockJsonQuery, missingTxHashes) {
   
   // deserialize query which is json string rooted at block
   let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0];
   
   // get txs
-  let txs = await self.WORKER_OBJECTS[walletId].getTxs(query);
+  let txs = await self.WORKER_OBJECTS[walletId].getTxs(query, missingTxHashes);
   
   // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
   let seenBlocks = new Set();
@@ -635,7 +635,7 @@ self.getTxs = async function(walletId, blockJsonQuery) {
   
   // serialize blocks to json
   for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
-  return blocks;
+  return {blocks: blocks, missingTxHashes: missingTxHashes};
 }
 
 self.getTransfers = async function(walletId, blockJsonQuery) {

@@ -21,7 +21,7 @@ let configBase = {
       ]
     },
     devtool: 'source-map',
-    externals: ['worker_threads','ws','perf_hooks'], // exclude nodejs
+    externals: ['worker_threads','ws','perf_hooks', 'child_process'], // exclude nodejs
     resolve: {
       alias: {
         "fs": "html5-fs"

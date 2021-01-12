@@ -52,42 +52,31 @@ const MoneroVersion = require("./model/MoneroVersion");
  * Implements a MoneroDaemon as a client of monero-daemon-rpc.
  * 
  * @implements {MoneroDaemon}
+ * @hideconstructor
  */
 class MoneroDaemonRpc extends MoneroDaemon {
   
   /**
-   * <p>Construct a daemon RPC client.<p>
+   * <p>Construct a daemon RPC client (for internal use).<p>
    * 
-   * <p>Examples:<p>
-   * 
-   * <code>
-   * let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
-   * 
-   * let daemon = new MoneroDaemonRpc({<br>
-   * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
-   * &nbsp;&nbsp; username: "superuser",<br>
-   * &nbsp;&nbsp; password: "abctesting123"<br>
-   * });
-   * </code>
-   * 
-   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
-   * @param {string} uriOrConfigOrConnection.uri - uri of monero-daemon-rpc
-   * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-daemon-rpc (optional)
-   * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-daemon-rpc (optional)
-   * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
-   * @param {number} uriOrConfigOrConnection.pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} uriOrConfigOrConnection.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {string|object|MoneroRpcConnection} uriOrConfig - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfig.uri - uri of monero-daemon-rpc
+   * @param {string} uriOrConfig.username - username to authenticate with monero-daemon-rpc (optional)
+   * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
+   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
+   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
    * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
    * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
    * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
    */
-  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
+  constructor(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     super();
     
     // normalize configuration
-    this.config = MoneroDaemonRpc._normalizeConfig(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker);
+    this.config = MoneroDaemonRpc._normalizeConfig(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker);
     
     // initialize proxy if proxying to worker
     if (this.config.proxyToWorker) this._proxyPromise = MoneroDaemonRpcProxy.connect(this.config);
@@ -96,6 +85,27 @@ class MoneroDaemonRpc extends MoneroDaemon {
       this.listeners = [];      // block listeners
       this.cachedHeaders = {};  // cached headers for fetching blocks in bound chunks
     }
+  }
+  
+  /**
+   * <p>Create a client connected to monero-daemon-rpc (for internal use).</p>
+   * 
+   * @param {string|object|MoneroRpcConnection} uriOrConfig - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfig.uri - uri of monero-daemon-rpc
+   * @param {string} uriOrConfig.username - username to authenticate with monero-daemon-rpc (optional)
+   * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
+   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
+   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
+   * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
+   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
+   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @return {MoneroDaemonRpc} the daemon RPC client
+   */
+  static async _connectToDaemonRpc(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
+    return new MoneroDaemonRpc(...arguments);
   }
   
   /**
@@ -717,8 +727,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
-  async getNextBlockHeader() {
-    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).getNextBlockHeader();
+  async waitForNextBlockHeader() {
+    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).waitForNextBlockHeader();
     let that = this;
     return new Promise(async function(resolve, reject) {
       let listener = async function(header) {
@@ -870,7 +880,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let config;
     if (typeof uriOrConfigOrConnection === "string") config = {uri: uriOrConfigOrConnection, username: username, password: password, proxyToWorker: proxyToWorker, rejectUnauthorized: rejectUnauthorized, pollInterval: pollInterval};
     else {
-      if (typeof uriOrConfigOrConnection !== "object") throw new MoneroError("Invalid configuration to create daemon rpc client; must be string, object, or MoneroRpcConnection");
+      if (typeof uriOrConfigOrConnection !== "object") throw new MoneroError("Invalid configuration to create rpc client; must be string, object, or MoneroRpcConnection");
       if (username || password || rejectUnauthorized || pollInterval || proxyToWorker) throw new MoneroError("Can provide config object or params or new MoneroDaemonRpc(...) but not both");
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else config = Object.assign({}, uriOrConfigOrConnection);
@@ -978,7 +988,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       }
       else if (key === "double_spend_seen") GenUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") GenUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
-      else if (key === "extra") GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
+      else if (key === "extra") {
+        if (typeof val === "string") console.log("WARNING: extra fielda s string not being asigned to int[]: " + key + ": " + val); // TODO: how to set string to int[]? - or, extra is string which can encode int[]
+        else GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
+      }
       else if (key === "vin") {
         if (val.length !== 1 || !val[0].gen) {  // ignore miner input TODO: why?
           tx.setInputs(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
@@ -1140,6 +1153,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
       else if (key === "credits") info.setCredits(BigInteger.parse(val));
       else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
+      else if (key === "busy_syncing") info.setIsBusySyncing(val);
+      else if (key === "synchronized") info.setIsSynchronized(val);
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
@@ -1729,8 +1744,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     return this._invokeWorker("daemonStop");
   }
   
-  async getNextBlockHeader() {
-    return new MoneroBlockHeader(await this._invokeWorker("daemonGetNextBlockHeader"));
+  async waitForNextBlockHeader() {
+    return new MoneroBlockHeader(await this._invokeWorker("daemonWaitForNextBlockHeader"));
   }
   
   async addBlockListener(listener) {

@@ -1,4 +1,5 @@
 const MoneroUtils = require("./MoneroUtils");
+const ThreadPool = require("./ThreadPool");
 const PromiseThrottle = require("promise-throttle");
 const Request = require("request-promise");
 
@@ -39,10 +40,13 @@ class HttpClient {
       throw new Error("Request body type is not string or object");
     }
     
+    // initialize task queue one time
+    if (!HttpClient.TASK_QUEUE) HttpClient.TASK_QUEUE = new ThreadPool(1);
+    
     // initialize promise throttle one time
     if (!HttpClient.PROMISE_THROTTLE) {
       HttpClient.PROMISE_THROTTLE = new PromiseThrottle({
-        requestsPerSecond: MoneroUtils.MAX_REQUESTS_PER_SECOND,
+        requestsPerSecond: MoneroUtils.MAX_REQUESTS_PER_SECOND, // TODO: HttpClient should not depend on MoneroUtils for configuration
         promiseImplementation: Promise
       });
     }
@@ -75,32 +79,22 @@ class HttpClient {
     }
     if (req.body instanceof Uint8Array) opts.encoding = null;
     
-    // send request and normalize StatusCodeError
-    try {
-      
-      // queue and throttle request to execute in serial and rate limited
-      let resp = await HttpClient._queueTask(async function() {
-        return HttpClient.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
-      });
-      
-      // normalize response
-      let normalizedResponse = {};
-      if (req.resolveWithFullResponse) {
-        normalizedResponse.statusCode = resp.statusCode;
-        normalizedResponse.statusText = resp.statusMessage;
-        normalizedResponse.headers = resp.headers;
-        normalizedResponse.body = resp.body;
-      } else {
-        normalizedResponse.body = resp;
-      }
-      return normalizedResponse;
-    } catch (err) {
-      return {
-        statusCode: err.statusCode,
-        statusText: err.error,
-        body: err.message
-      };
+    // queue and throttle request to execute in serial and rate limited
+    let resp = await HttpClient.TASK_QUEUE.submit(async function() {
+      return HttpClient.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
+    });
+    
+    // normalize response
+    let normalizedResponse = {};
+    if (req.resolveWithFullResponse) {
+      normalizedResponse.statusCode = resp.statusCode;
+      normalizedResponse.statusText = resp.statusMessage;
+      normalizedResponse.headers = resp.headers;
+      normalizedResponse.body = resp.body;
+    } else {
+      normalizedResponse.body = resp;
     }
+    return normalizedResponse;
   }
   
   static async _requestXhr(req) {
@@ -115,7 +109,7 @@ class HttpClient {
     let isBinary = body instanceof Uint8Array;
     
     // queue and throttle request to execute in serial and rate limited
-    let resp = await HttpClient._queueTask(async function() {
+    let resp = await HttpClient.TASK_QUEUE.submit(async function() {
       return HttpClient.PROMISE_THROTTLE.add(function() {
         return new Promise(function(resolve, reject) {
           let digestAuthRequest = new HttpClient.digestAuthRequest(method, uri, username, password);
@@ -137,31 +131,6 @@ class HttpClient {
     normalizedResponse.body = isBinary ? new Uint8Array(resp.response) : resp.response;
     if (normalizedResponse.body instanceof ArrayBuffer) normalizedResponse.body = new Uint8Array(normalizedResponse.body);  // handle empty binary request
     return normalizedResponse;
-  }
-  
-  /**
-   * Executes given tasks serially (first in, first out).
-   * 
-   * @param {function} asyncFn is an asynchronous function to execute after previously given tasks
-   */
-  static async _queueTask(asyncFn) {
-    
-    // initialize task queue one time
-    if (!HttpClient.TASK_QUEUE) {
-      const async = require("async");
-      HttpClient.TASK_QUEUE = async.queue(function(asyncFn, callback) {
-        if (asyncFn.then) asyncFn.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-        else asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-      }, 1);
-    }
-    
-    // return promise which resolves when task is executed
-    return new Promise(function(resolve, reject) {
-      HttpClient.TASK_QUEUE.push(asyncFn, function(resp, err) {
-        if (err !== undefined) reject(err);
-        else resolve(resp);
-      });
-    });
   }
   
   /**

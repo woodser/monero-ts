@@ -1,6 +1,6 @@
 # Monero JavaScript Library
 
-A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.1.1 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.1).
+A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.1.9 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.9).
 
 * Supports wallet and daemon RPC clients.
 * Supports client-side wallets in Node.js or the browser using WebAssembly.
@@ -10,43 +10,41 @@ A Node.js library for creating Monero applications using RPC and WebAssembly bin
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-* Over 250 passing Mocha tests.
+* Over 270 passing Mocha tests.
 
 ## Table of contents
 
 * [Architecture](#architecture)
 * [Sample code](#sample-code)
+* [Documentation](#documentation)
 * [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
 * [Building WebAssembly binaries from source](#building-webassembly-binaries-from-source)
-* [Developer guide](#developer-guide)
 * [Running tests](#running-tests)
-* [See also](#see-also)
+* [Related projects](#related-projects)
 * [License](#license)
 * [Donations](#donations)
 
 ## Architecture
 
 <p align="center">
-	<img width="80%" height="auto" src="docs/img/architecture.png"/><br>
+	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
 	<i>Build Node.js or browser applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
 ## Sample code
 
-This code introduces the API used in monero-javascript.  See the [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html), [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test) for more detail.
-
 ```js
 // import library
 const monerojs = require("monero-javascript");
 
-// connect to a daemon
-let daemon = monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");
+// connect to daemon
+let daemon = await monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");
 let height = await daemon.getHeight();            // 1523651
 let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
 let txsInPool = await daemon.getTxPool();         // get transactions in the pool
 
 // open wallet on monero-wallet-rpc
-let walletRpc = monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
+let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
 await walletRpc.openWallet("sample_wallet_rpc", "supersecretpassword123");
 let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
 let balance = await walletRpc.getBalance();               // 533648366742
@@ -71,15 +69,17 @@ await walletWasm.sync(new class extends monerojs.MoneroWalletListener {
   }
 });
 
-// synchronize in the background
-await walletWasm.startSyncing();
+// synchronize in the background every 5 seconds
+await walletWasm.startSyncing(5000);
 
-// listen for incoming transfers
+// receive notifications when funds are received, confirmed, and unlocked
 let fundsReceived = false;
 await walletWasm.addListener(new class extends monerojs.MoneroWalletListener {
   onOutputReceived(output) {
     let amount = output.getAmount();
     let txHash = output.getTx().getHash();
+    let isConfirmed = output.getTx().isConfirmed();
+    let isLocked = output.getTx().isLocked();
     fundsReceived = true;
   }
 });
@@ -94,13 +94,29 @@ let createdTx = await walletRpc.createTx({
 let fee = createdTx.getFee(); // "Are you sure you want to send... ?"
 await walletRpc.relayTx(createdTx); // relay the transaction
 
-// recipient receives unconfirmed funds within 10 seconds
-await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+// recipient receives unconfirmed funds within 5 seconds
+await new Promise(function(resolve) { setTimeout(resolve, 5000); });
 assert(fundsReceived);
 
 // save and close WebAssembly wallet
 await walletWasm.close(true);
 ```
+
+## Documentation
+
+* [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html)
+* [Mocha tests](src/test)
+* [API and model overview with visual diagrams](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
+* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
+* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
+* [Creating wallets](docs/developer_guide/creating_wallets.md)
+* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
+* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Sending funds](docs/developer_guide/sending_funds.md)
+* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
+* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
 
 ## Using monero-javascript in your project
 
@@ -130,19 +146,6 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 5. Modify ./external/monero-cpp/external/monero-core/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`
 4. `./bin/build_all.sh`
 
-## Developer guide
-
-* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
-* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
-* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
-* [Creating wallets](docs/developer_guide/creating_wallets.md)
-* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
-* [Sending funds](docs/developer_guide/sending_funds.md)
-* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
-* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
-
 ## Running tests
 
 1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
@@ -160,16 +163,16 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 #### Running tests in the browser
 
-1. `./bin/build_browser_tests.sh`
-2. Access http://localhost:8080/tests.html in a browser
+1. Start monero-wallet-rpc servers used by tests: `./bin/run_wallet_rpc_test_servers.sh`
+2. In another terminal, build browser tests: `./bin/build_browser_tests.sh`
+3. Access http://localhost:8080/tests.html in a browser to run all tests
 
-## See also
+## Related projects
 
-* [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-cpp](https://github.com/monero-ecosystem/monero-cpp)
-* [xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
 * [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - repeatedly sends txs to self to stress test the network (under development)
+* [xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
 * [monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
 
 ## License

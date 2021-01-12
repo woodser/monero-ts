@@ -32,10 +32,10 @@ class WalletEqualityUtils {
    * @param w2 a wallet to compare
    */
   static async testWalletEqualityOnChain(w1, w2) {
-    TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+    TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
     
     // wait for relayed txs associated with wallets to clear pool
-    await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(w1, w2);
+    await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(w1, w2);
     
     // sync the wallets until same height
     while (await w1.getHeight() !== await w2.getHeight()) {

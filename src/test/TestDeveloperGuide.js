@@ -17,11 +17,7 @@ class TestDeveloperGuide {
       
       // initialize wallet
       before(async function() {
-        try {
-          wallet = await TestUtils.getWalletWasm();
-        } catch (err) {
-          console.log(err);
-        }
+        wallet = await TestUtils.getWalletWasm();
       });
       
       // save wallet

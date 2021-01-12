@@ -37,6 +37,33 @@ const MoneroTxQuery = require("./model/MoneroTxQuery");
 class MoneroWallet {
   
   /**
+   * Register a listener to receive wallet notifications.
+   * 
+   * @param {MoneroWalletListener} listener - listener to receive wallet notifications
+   */
+  async addListener(listener) {
+    throw new Error("Not supported");
+  }
+  
+  /**
+   * Unregister a listener to receive wallet notifications.
+   * 
+   * @param {MoneroWalletListener} listener - listener to unregister
+   */
+  async removeListener(listener) {
+    throw new Error("Not supported");
+  }
+  
+  /**
+   * Get the listeners registered with the wallet.
+   * 
+   * @return {MoneroWalletListener[]} the registered listeners
+   */
+  getListeners() {
+    throw new Error("Not supported");
+  }
+  
+  /**
    * Indicates if the wallet is view-only, meaning it does have the private
    * spend key and can therefore only observe incoming outputs.
    * 
@@ -199,9 +226,9 @@ class MoneroWallet {
   }
   
   /**
-   * Get the height of the last block processed by the wallet (its index + 1).
+   * Get the block height that the wallet is synced to.
    * 
-   * @return {int} the height of the last block processed by the wallet
+   * @return {int} the block height that the wallet is synced to
    */
   async getHeight() {
     throw new MoneroError("Not supported");
@@ -239,9 +266,11 @@ class MoneroWallet {
   }
   
   /**
-   * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
+   * Start background synchronizing with a maximum period between syncs.
+   * 
+   * @param {int} syncPeriodInMs - maximum period between syncs in milliseconds (default is wallet-specific)
    */
-  async startSyncing() {
+  async startSyncing(syncPeriodInMs) {
     throw new MoneroError("Not supported");
   }
   
@@ -279,8 +308,8 @@ class MoneroWallet {
   /**
    * Get the balance of the wallet, account, or subaddress.
    * 
-   * @param {int} accountIdx - index of the account to get the balance of (optional)
-   * @param {int} subaddressIdx - index of the subaddress to get the balance of (optional)
+   * @param {int} accountIdx - index of the account to get the balance of (default all accounts)
+   * @param {int} subaddressIdx - index of the subaddress to get the balance of (default all subaddresses)
    * @return {BigInteger} the balance of the wallet, account, or subaddress
    */
   async getBalance(accountIdx, subaddressIdx) {
@@ -305,18 +334,19 @@ class MoneroWallet {
    */
   async getNumBlocksToUnlock() {
     
-    // get height and balances
+    // get balances
     let balance = await this.getBalance();
     if (balance.compare(new BigInteger(0)) === 0) return [undefined, undefined]; // skip if no balance
     let unlockedBalance = await this.getUnlockedBalance();
-    let height = await this.getHeight();
     
     // compute number of blocks until next funds available
-    let numBlocksToNextUnlock = undefined;
     let txs;
+    let height;
+    let numBlocksToNextUnlock = undefined;
     if (unlockedBalance.compare(new BigInteger(0)) > 0) numBlocksToNextUnlock = 0;
     else {
       txs = await this.getTxs({isLocked: true}); // get locked txs
+      height = await this.getHeight(); // get most recent height
       for (let tx of txs) {
         let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
         numBlocksToNextUnlock = numBlocksToNextUnlock === undefined ? numBlocksToUnlock : Math.min(numBlocksToNextUnlock, numBlocksToUnlock);
@@ -328,11 +358,14 @@ class MoneroWallet {
     if (balance.compare(unlockedBalance) === 0) {
       if (unlockedBalance.compare(new BigInteger(0)) > 0) numBlocksToLastUnlock = 0;
     } else {
-      txs = txs || await this.getTxs({isLocked: true});  // get locked txs
+      if (!txs) {
+        txs = await this.getTxs({isLocked: true}); // get locked txs
+        height = await this.getHeight(); // get most recent height
+      }
       for (let tx of txs) {
         let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
         numBlocksToLastUnlock = numBlocksToLastUnlock === undefined ? numBlocksToUnlock : Math.max(numBlocksToLastUnlock, numBlocksToUnlock);
-      }      
+      }
     }
     
     return [numBlocksToNextUnlock, numBlocksToLastUnlock];

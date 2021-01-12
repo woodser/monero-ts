@@ -29,6 +29,41 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     super(testConfig);
   }
   
+  async beforeAll(currentTest) {
+    await super.beforeAll(currentTest);
+  }
+  
+  async beforeEach(currentTest) {
+    await super.beforeEach(currentTest);
+  }
+  
+  async afterAll() {
+    await super.afterAll();
+    TestMoneroWalletWasm.WASM_TESTS_RUN = true;
+  }
+  
+  async afterEach(currentTest) {
+    await super.afterEach(currentTest);
+    
+    // print memory usage
+    console.log("WASM memory usage: " + await LibraryUtils.getWasmMemoryUsed());
+    //console.log(process.memoryUsage());
+    
+    // remove non-whitelisted wallets
+    let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
+    let items = TestUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
+    for (let item of items) {
+      let found = false;
+      for (let whitelisted of whitelist) {
+        if (item === whitelisted || item === whitelisted + ".keys" || item === whitelisted + ".address.txt") {
+          found = true;
+          break;
+        }
+      }
+      if (!found) TestUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+    }
+  }
+  
   async getTestWallet() {
     return await TestUtils.getWalletWasm();
   }
@@ -49,7 +84,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     
     // open wallet
     let wallet = await monerojs.openWalletWasm(config);
-    if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing();
+    if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
     return wallet;
   }
   
@@ -69,7 +104,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     // create wallet
     let wallet = await monerojs.createWalletWasm(config);
     if (!random) assert.equal(await wallet.getSyncHeight(), config.getRestoreHeight() === undefined ? 0 : config.getRestoreHeight());
-    if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing();
+    if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
     return wallet;
   }
   
@@ -78,6 +113,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     let wallet = await MoneroWalletWasm.walletExists(path, TestUtils.getDefaultFs()) ? await this.openWallet({path: path}) : await this.createWallet({path: path, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
     await wallet.sync();
     return wallet;
+  }
+  
+  async closeWallet(wallet, save) {
+    await wallet.close(save);
   }
   
   async getMnemonicLanguages() {
@@ -90,53 +129,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     let that = this;
     let testConfig = this.testConfig;
     describe("TEST MONERO WALLET WASM", function() {
-      
-      // initialize wallet
-      before(async function() {
-        try {
-          that.wallet = await that.getTestWallet();
-          that.daemon = await that.getTestDaemon();
-        } catch (e) {
-          console.log("ERROR BEFORE!");
-          console.log(e);
-          throw e;
-        }
-        TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
-      });
-      
-      // delete non-main test wallets after each test
-      afterEach(async function() {
         
-        // print memory usage
-        console.log("WASM memory usage: " + await LibraryUtils.getWasmMemoryUsed());
-        //console.log(process.memoryUsage());
-        
-        // remove non-whitelisted wallets
-        let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
-        let items = TestUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
-        for (let item of items) {
-          let found = false;
-          for (let whitelisted of whitelist) {
-            if (item === whitelisted || item === whitelisted + ".keys" || item === whitelisted + ".address.txt") {
-              found = true;
-              break;
-            }
-          }
-          if (!found) TestUtils.getDefaultFs().unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
-        }
-      });
-      
-      // save wallet after tests
-      after(async function() {
-        console.log("Saving and closing wallet on shut down");
-        try {
-          await that.wallet.close(true);
-        } catch (e) {
-          console.log("ERROR AFTER");
-          console.log(e);
-          throw e;
-        }
-      });
+      // register handlers to run before and after tests
+      before(async function() { await that.beforeAll(); });
+      beforeEach(async function() { await that.beforeEach(this.currentTest); });
+      after(async function() { await that.afterAll(); });
+      afterEach(async function() { await that.afterEach(this.currentTest); });
       
       // run tests specific to wallet wasm
       that._testWalletWasm();
@@ -559,7 +557,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           if (testPostSyncNotifications) {
             
             // start automatic syncing
-            await wallet.startSyncing();
+            await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
             
             // attempt to start mining to push the network along  // TODO: TestUtils.tryStartMining() : reqId, TestUtils.tryStopMining(reqId)
             let startedMining = false;
@@ -567,7 +565,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
             if (!miningStatus.isActive()) {
               try {
                 await StartMining.startMining();
-                //await wallet.startMining(7, false, true); // TODO: support client-side mining?
                 startedMining = true;
               } catch (e) {
                 // no problem
@@ -578,10 +575,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
               
               // wait for block
               console.log("Waiting for next block to test post sync notifications");
-              await that.daemon.getNextBlockHeader();
+              await that.daemon.waitForNextBlockHeader();
               
               // ensure wallet has time to detect new block
-              await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // sleep for the wallet interval
+              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); }); // sleep for the wallet interval
               
               // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
               assert(walletSyncTester.getOnSyncProgressAfterDone());
@@ -719,10 +716,10 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           assert.equal(await wallet.getSyncHeight(), restoreHeight);
           assert(!(await wallet.isSynced()));
           assert.equal(await wallet.getBalance(), new BigInteger(0));
-          await wallet.startSyncing();
+          await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
           
-          // sleep for a moment
-          await new Promise(function(resolve) { setTimeout(resolve, 15000); }); // in ms
+          // pause for sync to start
+          await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS + 1000); }); // in ms
           
           // test that wallet has started syncing
           assert(await wallet.getHeight() > 1);
@@ -732,7 +729,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
           
        // TODO monero core: wallet.cpp m_synchronized only ever set to true, never false
 //          // wait for block to be added to chain
-//          await that.daemon.getNextBlockHeader();
+//          await that.daemon.waitForNextBlockHeader();
 //          
 //          // wallet is no longer synced
 //          assert(!(await wallet.isSynced()));  
@@ -1061,353 +1058,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert(await wallet.isClosed());
         if (err) throw err;
       });
-      
-      // ----------------------------- NOTIFICATION TESTS -------------------------
-      
-      if (testConfig.testRelays)
-      it("Receives funds within 10 seconds.", async function() {
-        await testReceivesFundsWithin10Seconds(false);
-      });
-      
-      if (testConfig.testRelays && !testConfig.liteMode)
-      it("Receives funds within 10 seconds to the same account", async function() {
-        await testReceivesFundsWithin10Seconds(true);
-      });
-      
-      async function testReceivesFundsWithin10Seconds(sameAccount) {
-        let sender = that.wallet;
-        let receiver;
-        let receiverListener;
-        let senderListener;
-        let err;
-        try {
-          
-          // assign wallet to receive funds
-          receiver = sameAccount ? that.wallet : await that.createWallet(new MoneroWalletConfig());
-          
-          // listen for sent funds
-          let sender = that.wallet;
-          senderListener = new OutputNotificationCollector();
-          await sender.addListener(senderListener);
-          
-          // listen for received funds
-          receiverListener = new OutputNotificationCollector();
-          await receiver.addListener(receiverListener);
-          
-          // send funds
-          await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(sender);
-          let tx = await sender.createTx({accountIndex: 0, address: await receiver.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true})
-          await sender.getTx(tx.getHash());
-          if (senderListener.getOutputsSpent().length === 0) console.log("WARNING: no notification on send");
-          
-          // unconfirmed funds received within 10 seconds
-          await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-          await receiver.getTx(tx.getHash());
-          assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds within 10 seconds in " + (sameAccount ? "same account" : "different wallets"));
-          for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
-        } catch (e) {
-          err = e;
-        }
-        
-        // finally
-        await sender.removeListener(senderListener);
-        await receiver.removeListener(receiverListener);
-        if (!sameAccount && receiver !== undefined) await receiver.close();
-        if (err) throw err;
-      }
-    
-      /**
-       * 4 output notification tests are considered when transferring within one wallet.  // TODO: multi-wallet tests
-       * 
-       * 1. with local wallet data, transfer from/to same account
-       * 2. with local wallet data, transfer from/to different accounts
-       * 3. without local wallet data, transfer from/to same account
-       * 4. without local wallet data, transfer from/to different accounts
-       * 
-       * For example, two wallets may be instantiated with the same mnemonic,
-       * so neither is privy to the local wallet data of the other.
-       */
-    
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
-        let issues = await testOutputNotifications(true);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsSameAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
-        let issues = await testOutputNotifications(false);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsDifferentAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #3: notifies listeners of swept outputs", async function() {
-        let issues = await testOutputNotifications(false, true);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsSweep() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
-      
-      async function testOutputNotifications(sameAccount, sweepOutput) {
-        
-        // collect errors and warnings
-        let errors = [];
-        let wallet = that.wallet;
-        
-        // wait for wallet txs in the pool in case they were sent from another wallet and therefore will not fully sync until confirmed // TODO monero core
-        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
-        
-        // get balances before for later comparison
-        let balanceBefore = await wallet.getBalance();
-        let unlockedBalanceBefore = await wallet.getUnlockedBalance();
-        
-        // register a listener to collect notifications
-        let listener = new OutputNotificationCollector();
-        await wallet.addListener(listener);
-        
-        // start syncing to test automatic notifications
-        await wallet.startSyncing();
-        
-        // send tx
-        let tx;
-        let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
-        if (sweepOutput) {
-          let outputs = await wallet.getOutputs({isSpent: false, isLocked: false, accountIdx: 0, minAmount: TestUtils.MAX_FEE.multiply(new BigInteger(5))});
-          if (outputs.length === 0) {
-            errors.push("ERROR: No outputs available to sweep");
-            return errors;
-          }
-          tx = await wallet.sweepOutput({address: await wallet.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: true});
-        } else {
-          let config = new MoneroTxConfig();
-          config.setAccountIndex(0);
-          for (let destinationAccount of destinationAccounts) config.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
-          config.setRelay(true);
-          tx = await wallet.createTx(config);
-        }
-        
-        // test wallet's balance
-        let balanceAfter = await wallet.getBalance();
-        let unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        let balanceAfterExpected = balanceBefore.subtract(tx.getFee());  // txs sent from/to same wallet so only decrease in balance is tx fee
-        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: wallet balance immediately after send expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
-            
-        // wait for wallet to send notifications
-        if (listener.getOutputsSpent().length === 0) errors.push("WARNING: wallet does not notify listeners of outputs when tx sent directly through wallet or when refreshed from the pool; must wait for confirmation to receive notifications and have correct balance");
-        try { await StartMining.startMining(); } catch (e) { }
-        while (listener.getOutputsSpent().length === 0) {
-          if ((await that.wallet.getTx(tx.getHash())).isFailed()) {
-            try { await that.daemon.stopMining(); } catch (e) { }
-            errors.push("ERROR: Tx failed in mempool: " + tx.getHash());
-            return errors;
-          }
-          await that.daemon.getNextBlockHeader();
-        }
-        try { await that.daemon.stopMining(); } catch (e) { }
-        
-        // test output notifications
-        if (listener.getOutputsReceived().length === 0) {
-          errors.push("ERROR: got " + listener.getOutputsReceived().length + " output received notifications when at least 1 was expected");
-          return errors;
-        }
-        if (listener.getOutputsSpent().length === 0) {
-          errors.push("ERROR: got " + listener.getOutputsSpent().length + " output spent notifications when at least 1 was expected");
-          return errors;
-        }
-        
-        // must receive outputs with known subaddresses and amounts
-        for (let destinationAccount of destinationAccounts) {
-          if (!hasOutput(listener.getOutputsReceived(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
-            errors.push("ERROR: missing expected received output to subaddress [" + destinationAccount + ", 0] of amount " + TestUtils.MAX_FEE);
-            return errors;
-          }
-        }
-        
-        // since sending from/to the same wallet, the net amount spent = tx fee = outputs spent - outputs received
-        let numConfirmedOutputs = 0;
-        let netAmount = BigInteger.parse("0");
-        for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
-        for (let outputReceived of listener.getOutputsReceived()) {
-          if (outputReceived.getTx().isConfirmed()) {
-            numConfirmedOutputs++;
-            netAmount = netAmount.subtract(outputReceived.getAmount());
-          }
-        }
-        if (tx.getFee().compare(netAmount) !== 0) {
-          errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
-          return errors;
-        }
-        
-        // receives balance notification per confirmed output
-        if (listener.getBalanceNotifications().length < numConfirmedOutputs) {
-          errors.push("ERROR: expected at least one updated balance notification per confirmed output received");
-        }
-        
-        // test wallet's balance
-        balanceAfter = await wallet.getBalance();
-        unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
-        
-        // remove listener
-        await wallet.removeListener(listener);
-
-        // return all errors and warnings as single string
-        return errors;
-      }
-      
-      function issuesToStr(issues) {
-        if (issues.length === 0) return undefined;
-        let str = "";
-        for (let i = 0; i < issues.length; i++) {
-          str += (i + 1) + ": " + issues[i];
-          if (i < issues.length - 1) str += "\n";
-        }
-        return str;
-      }
-      
-      function hasOutput(outputs, accountIdx, subaddressIdx, amount) { // TODO: use common filter?
-        let query = new MoneroOutputQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx).setAmount(amount);
-        for (let output of outputs) {
-          if (query.meetsCriteria(output)) return true;
-        }
-        return false;
-      }
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Can receive notifications when outputs are received, confirmed, and unlocked", async function() {
-        await testReceivedOutputNotificationsWithUnlockHeight(0);
-      });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock height", async function() {
-        await testReceivedOutputNotificationsWithUnlockHeight(13);
-      });
-      
-      async function testReceivedOutputNotificationsWithUnlockHeight(unlockDelay) {
-        let expectedUnlockHeight = await that.daemon.getHeight() + unlockDelay;
-        
-        // create wallet to test received output notifications
-        let receiver = await that.createWallet(new MoneroWalletConfig());
-        
-        // create tx to transfer funds to receiver
-        let tx = await that.wallet.createTx(new MoneroTxConfig()
-          .setAccountIndex(0)
-          .setAddress(await receiver.getPrimaryAddress())
-          .setAmount(TestUtils.MAX_FEE.multiply(BigInteger.parse("10")))
-          .setUnlockHeight(expectedUnlockHeight)
-          .setRelay(false)
-        );
-        
-        // register listener to test notifications
-        let listener = new ReceivedOutputNotificationTester(tx.getHash());
-        await receiver.addListener(listener);
-        
-        // flush tx to prevent double spends from previous tests
-        await that.daemon.flushTxPool();
-        
-        // relay transaction to pool
-        let submitHeight = await that.daemon.getHeight();
-        //await that.wallet.relayTx(tx);
-        let result = await that.daemon.submitTxHex(tx.getFullHex());
-        assert(result.isGood(), "Bad submit tx result: " + result.toJson());
-        
-        // test notification of tx in pool within 10 seconds
-        await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-        assert(listener.lastNotifiedOutput);
-        assert(!listener.lastNotifiedOutput.getTx().isConfirmed());
-        
-        // listen for new blocks to test output notifications
-        receiver.addListener(new class extends MoneroWalletListener {
-          async onNewBlock(height) {
-            if (listener.testComplete) return;
-            try {
-                
-              // first confirmation expected within 10 seconds of new block
-              if (listener.confirmedHeight === undefined) {
-                await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-                if (listener.confirmedHeight === undefined && listener.lastNotifiedOutput.getTx().isConfirmed()) { // only run by first thread after confirmation
-                  listener.confirmedHeight = listener.lastNotifiedOutput.getTx().getHeight();
-                  if (listener.confirmedHeight !== submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);
-                }
-              }
-              
-              // output should be locked until max of expected unlock height and 10 blocks after confirmation
-              if ((listener.confirmedHeight === undefined || height < Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) && false === listener.lastNotifiedOutput.isLocked()) throw new Error("Last notified output expected to be locked but isLocked=" + listener.lastNotifiedOutput.isLocked() + " at height " + height);
-              
-              // test unlock notification
-              if (listener.confirmedHeight !== undefined && height === Math.max(listener.confirmedHeight + 10, expectedUnlockHeight)) {
-                
-                // receives notification of unlocked tx within 1 second of block notification
-                await new Promise(function(resolve) { setTimeout(resolve, 1000); });
-                if (listener.lastNotifiedOutput.isLocked() !== false) throw new Error("Last notified output expected to be unlocked but isLocked=" + listener.lastNotifiedOutput.isLocked());
-                listener.unlockedSeen = true;
-                listener.testComplete = true;
-              }
-            } catch (err) {
-              console.log(err);
-              listener.testComplete = true;
-              listener.testError = err.message;
-            }
-          }
-        });
-        
-        // mine until complete
-        await StartMining.startMining();
-        
-        // run until test completes
-        while (!listener.testComplete) await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-        if ((await that.daemon.getMiningStatus()).isActive()) await that.daemon.stopMining();
-        await receiver.close();
-        assert.equal(undefined, listener.testError);
-        assert(listener.confirmedHeight !== undefined, "No notification of output confirmed", );
-        assert(listener.unlockedSeen, "No notification of output unlocked");
-      }
-      
-      if (testConfig.testNotifications)
-      it("Can be created and receive funds", async function() {
-        let err;
-        let myWallet;
-        try {
-          
-          // create a random stagenet wallet
-          myWallet = await that.createWallet({password: "mysupersecretpassword123"});
-          await myWallet.startSyncing();
-          
-          // listen for received outputs
-          let myListener = new OutputNotificationCollector();
-          await myWallet.addListener(myListener);
-          
-          // send funds to the created wallet
-          await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-          let sentTx = await that.wallet.createTx({accountIndex: 0, address: await myWallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true});
-          
-          // wait for funds to confirm
-          try { await StartMining.startMining(); } catch (e) { }
-          while (!(await that.wallet.getTx(sentTx.getHash())).isConfirmed()) {
-            if ((await that.wallet.getTx(sentTx.getHash())).isFailed()) throw new Error("Tx failed in mempool: " + sentTx.getHash());
-            await that.daemon.getNextBlockHeader();
-          }
-          
-          // created wallet should have notified listeners of received outputs
-          assert(myListener.getOutputsReceived().length > 0, "Listener did not receive outputs");
-        } catch (e) {
-          err = e;
-        }
-        
-        // final cleanup
-        try { await that.daemon.stopMining(); } catch (e) { }
-        await myWallet.close();
-        if (err) throw err;
-      });
     });
   }
   
@@ -1427,47 +1077,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     assert.equal((await wallet2.getDaemonConnection()).getPassword(), (await wallet1.getDaemonConnection()).getPassword());
     assert.equal(await wallet2.getMnemonicLanguage(), await wallet1.getMnemonicLanguage());
     // TODO: more wasm-specific extensions
-  }
-}
-
-/**
- * Wallet listener to collect output notifications.
- */
-class OutputNotificationCollector extends MoneroWalletListener {
-  
-  constructor() {
-    super();
-    this.balanceNotifications = [];
-    this.outputsReceived = [];
-    this.outputsSpent = [];
-  }
-  
-  onBalancesChanged(newBalance, newUnlockedBalance) {
-    if (this.balanceNotifications.length > 0) {
-      this.lastNotification = this.balanceNotifications[this.balanceNotifications.length - 1];
-      assert(newBalance.toString() !== this.lastNotification.balance.toString() || newUnlockedBalance.toString() !== this.lastNotification.unlockedBalance.toString());
-    }
-    this.balanceNotifications.push({balance: newBalance, unlockedBalance: newUnlockedBalance});
-  }
-  
-  onOutputReceived(output) {
-    this.outputsReceived.push(output);
-  }
-  
-  onOutputSpent(output) {
-    this.outputsSpent.push(output);
-  }
-  
-  getBalanceNotifications() {
-    return this.balanceNotifications;
-  }
-  
-  getOutputsReceived() {
-    return this.outputsReceived;
-  }
-  
-  getOutputsSpent() {
-    return this.outputsSpent;
   }
 }
 
@@ -1527,7 +1136,6 @@ class SyncProgressTester extends WalletSyncPrinter {
       assert.equal(this.prevHeight, chainHeight - 1);  // otherwise last height is chain height - 1
       assert.equal(this.prevCompleteHeight, chainHeight);
     }
-    this.onSyncProgressAfterDone = false;  // test subsequent onSyncProgress() calls
   }
   
   isNotified() {
@@ -1563,8 +1171,6 @@ class WalletSyncTester extends SyncProgressTester {
   }
   
   async onBalancesChanged(newBalance, newUnlockedBalance) {
-    //assert.equal(newBalance.toString(), (await this.wallet.getBalance()).toString()); // TODO: asynchronous balance queries block until done syncing
-    //assert.equal(newUnlockedBalance.toString(), (await this.wallet.getUnlockedBalance()).toString());
     if (this.prevBalance !== undefined) assert(newBalance.toString() !== this.prevBalance.toString() || newUnlockedBalance.toString() !== this.prevUnlockedBalance.toString());
     this.prevBalance = newBalance;
     this.prevUnlockedBalance = newUnlockedBalance;
@@ -1593,8 +1199,8 @@ class WalletSyncTester extends SyncProgressTester {
     // extra is not sent over the wasm bridge
     assert.equal(output.getTx().getExtra(), undefined);
     
-    // add incoming amount to running total if confirmed
-    if (output.getTx().isConfirmed()) this.incomingTotal = this.incomingTotal.add(output.getAmount());
+    // add incoming amount to running total
+    this.incomingTotal = this.incomingTotal.add(output.getAmount());
   }
 
   onOutputSpent(output) {
@@ -1630,8 +1236,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert.notEqual(this.prevOutputReceived, undefined);
     assert.notEqual(this.prevOutputSpent, undefined);
     let balance = this.incomingTotal.subtract(this.outgoingTotal);
-    assert.equal((await this.wallet.getBalance()).toString(), balance.toString());
-    this.onNewBlockAfterDone = false;  // test subsequent onNewBlock() calls
+    assert.equal(balance.toString(), (await this.wallet.getBalance()).toString());
     assert.equal(this.prevBalance.toString(), (await this.wallet.getBalance()).toString());
     assert.equal(this.prevUnlockedBalance.toString(), (await this.wallet.getUnlockedBalance()).toString());
   }
@@ -1641,24 +1246,4 @@ class WalletSyncTester extends SyncProgressTester {
   }
 }
 
-/**
- * Internal tester for output notifications.
- */
-class ReceivedOutputNotificationTester extends MoneroWalletListener {
-
-  constructor(txHash) {
-    super();
-    this.txHash = txHash;
-    this.lastNotifiedOutput = undefined;
-    this.testComplete = false;
-    this.testError = undefined;
-    this.unlockedSeen = false;
-    this.confirmedHeight = undefined;
-  }
-  
-  onOutputReceived(output) {
-    if (output.getTx().getHash() === this.txHash) this.lastNotifiedOutput = output;
-  }
-}
-  
 module.exports = TestMoneroWalletWasm;

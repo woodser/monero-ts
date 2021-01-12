@@ -102,22 +102,22 @@ module.exports.getVersion = function() {
  * <p>Examples:<p>
  * 
  * <code>
- * let daemon = monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+ * let daemon = await monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
  * 
- * let daemon = monerojs.connectToDaemonRpc({<br>
+ * let daemon = await monerojs.connectToDaemonRpc({<br>
  * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
  * &nbsp;&nbsp; username: "superuser",<br>
  * &nbsp;&nbsp; password: "abctesting123"<br>
  * });
  * </code>
  * 
- * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
- * @param {string} uriOrConfigOrConnection.uri - uri of monero-daemon-rpc
- * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-daemon-rpc (optional)
- * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-daemon-rpc (optional)
- * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
- * @param {number} uriOrConfigOrConnection.pollInterval - poll interval to query for updates in ms (default 5000)
- * @param {boolean} uriOrConfigOrConnection.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
+ * @param {string|object|MoneroRpcConnection} uriOrConfig - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
+ * @param {string} uriOrConfig.uri - uri of monero-daemon-rpc
+ * @param {string} uriOrConfig.username - username to authenticate with monero-daemon-rpc (optional)
+ * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
+ * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
+ * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
+ * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
  * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
  * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
@@ -125,7 +125,7 @@ module.exports.getVersion = function() {
  * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
  * @return {MoneroDaemonRpc} the daemon RPC client
  */
-module.exports.connectToDaemonRpc = function() { return new module.exports.MoneroDaemonRpc(...arguments); }
+module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDaemonRpc._connectToDaemonRpc(...arguments); }
 
 /**
  * <p>Create a client connected to monero-wallet-rpc.</p>
@@ -133,27 +133,40 @@ module.exports.connectToDaemonRpc = function() { return new module.exports.Moner
  * <p>Examples:</p>
  * 
  * <code>
- * let walletRpc = monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+ * let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
  * 
- * let walletRpc = monerojs.connectToWalletRpc({<br>
+ * let walletRpc = await monerojs.connectToWalletRpc({<br>
  * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
  * &nbsp;&nbsp; username: "superuser",<br>
  * &nbsp;&nbsp; password: "abctesting123",<br>
  * &nbsp;&nbsp; rejectUnauthorized: false // e.g. local development<br>
- * });
+ * });<br><br>
+ * 
+ * // connect to monero-wallet-rpc running as internal process<br>
+ * let walletRpc = await monerojs.connectToWalletRpc([<br>
+ * &nbsp;&nbsp; "/path/to/monero-wallet-rpc",<br>
+ * &nbsp;&nbsp; "--stagenet",<br>
+ * &nbsp;&nbsp; "--daemon-address", "http://localhost:38081",<br>
+ * &nbsp;&nbsp; "--daemon-login", "superuser:abctesting123",<br>
+ * &nbsp;&nbsp; "--rpc-bind-port", "38085",<br>
+ * &nbsp;&nbsp; "--rpc-login", "rpc_user:abc123",<br>
+ * &nbsp;&nbsp; "--wallet-dir", "/path/to/wallets", // defaults to monero-wallet-rpc directory<br>
+ * &nbsp;&nbsp; "--rpc-access-control-origins", "http://localhost:8080"<br>
+ * &nbsp;&nbsp; ]);
+ * 
  * </code>
  * 
- * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
- * @param {string} uriOrConfigOrConnection.uri - uri of monero-wallet-rpc
- * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-wallet-rpc (optional)
- * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-wallet-rpc (optional)
- * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+ * @param {string|string[]|object|MoneroRpcConnection} uriOrConfig - uri of monero-wallet-rpc or terminal parameters or JS config object or MoneroRpcConnection
+ * @param {string} uriOrConfig.uri - uri of monero-wallet-rpc
+ * @param {string} uriOrConfig.username - username to authenticate with monero-wallet-rpc (optional)
+ * @param {string} uriOrConfig.password - password to authenticate with monero-wallet-rpc (optional)
+ * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
  * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @return {MoneroWalletRpc} the wallet RPC client
  */
-module.exports.connectToWalletRpc = function() { return new module.exports.MoneroWalletRpc(...arguments); }
+module.exports.connectToWalletRpc = function() { return module.exports.MoneroWalletRpc._connectToWalletRpc(...arguments); }
 
 /**
  * <p>Create a wallet using WebAssembly bindings to monero-core.<p>

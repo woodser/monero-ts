@@ -12,14 +12,14 @@ class MoneroWalletListener {
    * @param {number} percentDone - sync progress as a percentage
    * @param {string} message - human-readable description of the current progress
    */
-  onSyncProgress(height, startHeight, endHeight, percentDone, message) { }
+  async onSyncProgress(height, startHeight, endHeight, percentDone, message) { }
 
   /**
    * Invoked when a new block is added to the chain.
    * 
-   * @param {int} height - the height of the block added to the chain
+   * @param {int} height - the height of the new block (i.e. the number of blocks before it).
    */
-  onNewBlock(height) { }
+  async onNewBlock(height) { }
   
   /**
    * Invoked when the wallet's balances change.
@@ -27,22 +27,22 @@ class MoneroWalletListener {
    * @param {BigInteger} newBalance - new wallet balance
    * @param {BigInteger} newUnlockedBalance - new unlocked wallet balance
    */
-  onBalancesChanged(newBalance, newUnlockedBalance) { }
+  async onBalancesChanged(newBalance, newUnlockedBalance) { }
 
   /**
-   * Invoked when the wallet receives an unconfirmed output, when the output is confirmed,
-   * and when the output is unlocked.
+   * Invoked 3 times per received output: once when unconfirmed, once when confirmed, and
+   * once when unlocked.
    * 
    * @param {MoneroOutputWallet} output - the received output
    */
-  onOutputReceived(output) { }
+  async onOutputReceived(output) { }
   
   /**
-   * Invoked when the wallet spends an output.
+   * Invoked twice per spent output: once when confirmed and once when unlocked.
    * 
    * @param {MoneroOutputWallet} output - the spent output
    */
-  onOutputSpent(output) { }
+  async onOutputSpent(output) { }
 }
 
 module.exports = MoneroWalletListener;

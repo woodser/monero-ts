@@ -11,7 +11,7 @@ const MoneroUtils = monerojs.MoneroUtils;
  * 
  * TODO monero core: sync txs relayed outside wallet so this class is unecessary
  */
-class TxPoolWalletTracker {
+class WalletTxTracker {
 
   constructor() {
     this.clearedWallets = new Set();
@@ -55,7 +55,7 @@ class TxPoolWalletTracker {
     // loop until all wallet txs clear from pool
     let isFirst = true;
     let miningStarted = false;
-    const TestUtils = require("./TestUtils");
+    const TestUtils = require("./TestUtils"); // to avoid circular reference
     let daemon = await TestUtils.getDaemonRpc();
     while (true) {
       
@@ -95,7 +95,7 @@ class TxPoolWalletTracker {
       }
       
       // sleep for a moment
-      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+      await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
     }
     
     // stop mining if started mining
@@ -107,6 +107,41 @@ class TxPoolWalletTracker {
       this.clearedWallets.add(wallet);
     }
   }
+  
+  async waitForUnlockedBalance(wallet, accountIndex, subaddressIndex, minAmount) {
+    if (!minAmount) minAmount = new BigInteger("0");
+    
+    // check if wallet has unlocked balance
+    let unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
+    if (unlockedBalance.compare(minAmount) > 0) return unlockedBalance;
+   
+    // start mining
+    const TestUtils = require("./TestUtils"); // to avoid circular reference
+    let daemon = await TestUtils.getDaemonRpc();
+    let miningStarted = false;
+    if (!(await daemon.getMiningStatus()).isActive()) {
+      try {
+        console.log("Starting mining!");
+        const StartMining = require("./StartMining"); // to avoid circular reference
+        await StartMining.startMining();
+        miningStarted = true;
+      } catch (err) {
+        console.error("Error starting mining:");
+        console.error(e);
+      }
+    }
+    
+    // wait for unlocked balance // TODO: promote to MoneroWallet interface?
+    console.log("Waiting for unlocked balance");
+    while (unlockedBalance.compare(minAmount) < 0) {
+      unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
+      await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+    }
+    
+    // stop mining if started
+    if (miningStarted) await daemon.stopMining();
+    return unlockedBalance;
+  }
 }
 
-module.exports = TxPoolWalletTracker;
+module.exports = WalletTxTracker;

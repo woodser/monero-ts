@@ -648,7 +648,7 @@ class MoneroDaemon {
    * 
    * @return {MoneroBlockHeader} header of the next block added to the chain
    */
-  async getNextBlockHeader() {
+  async waitForNextBlockHeader() {
     throw new MoneroError("Subclass must implement");
   }
   

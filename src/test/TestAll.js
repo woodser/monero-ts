@@ -26,8 +26,8 @@ new TestMoneroWalletKeys({
   liteMode: false,
   testNonRelays: true,
   testRelays: false,
-  testResets: false,
-  testNotifications: false
+  testNotifications: false,
+  testResets: false
 }).runTests();
 
 // test wasm wallet
@@ -35,8 +35,8 @@ new TestMoneroWalletWasm({
   liteMode: false,
   testNonRelays: true,
   testRelays: true,
-  testResets: false,
-  testNotifications: true
+  testNotifications: true,
+  testResets: false
 }).runTests();
 
 // test wallet rpc
@@ -44,7 +44,7 @@ new TestMoneroWalletRpc({
   liteMode: false,
   testNonRelays: true,
   testRelays: true,
-  testNotifications: false,
+  testNotifications: true,
   testResets: false
 }).runTests();
 

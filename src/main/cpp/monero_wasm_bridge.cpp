@@ -529,83 +529,91 @@ string monero_wasm_bridge::create_subaddress(int handle, const uint32_t account_
 
 void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize tx query string
-  shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
+    // deserialize tx query string
+    shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
 
-  // get txs
-  vector<string> missing_tx_hashes;
-  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_hashes);
+    // get txs
+    vector<string> missing_tx_hashes;
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_hashes);
 
-  // collect unique blocks to preserve model relationships as trees
-  shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
-  vector<shared_ptr<monero_block>> blocks;
-  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
-  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-    if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
-      tx->m_block = unconfirmed_block;
-      unconfirmed_block->m_txs.push_back(tx);
+    // collect unique blocks to preserve model relationships as trees
+    shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
+    vector<shared_ptr<monero_block>> blocks;
+    unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+    for (const shared_ptr<monero_tx_wallet>& tx : txs) {
+      if (tx->m_block == boost::none) {
+        if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
+        tx->m_block = unconfirmed_block;
+        unconfirmed_block->m_txs.push_back(tx);
+      }
+      unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
+      if (got == seen_block_ptrs.end()) {
+        seen_block_ptrs.insert(tx->m_block.get());
+        blocks.push_back(tx->m_block.get());
+      }
     }
-    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
-    if (got == seen_block_ptrs.end()) {
-      seen_block_ptrs.insert(tx->m_block.get());
-      blocks.push_back(tx->m_block.get());
-    }
+
+    // wrap and serialize blocks
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+    if (!missing_tx_hashes.empty()) doc.AddMember("missingTxHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), missing_tx_hashes), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+
+    // free memory
+    monero_utils::free(blocks);
+  } catch (exception& e) {
+    callback(string(e.what()));
   }
-
-  // wrap and serialize blocks
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-  if (!missing_tx_hashes.empty()) doc.AddMember("missingTxHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), missing_tx_hashes), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
-
-  // free memory
-  monero_utils::free(blocks);
 }
 
 void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize transfer query
-  shared_ptr<monero_transfer_query> transfer_query = monero_transfer_query::deserialize_from_block(transfer_query_json);
+    // deserialize transfer query
+    shared_ptr<monero_transfer_query> transfer_query = monero_transfer_query::deserialize_from_block(transfer_query_json);
 
-//  // log query
-//  if (transfer_query->m_tx_query != boost::none) {
-//    if ((*transfer_query->m_tx_query)->m_block == boost::none) cout << "Transfer query's tx query rooted at [tx]:" << (*transfer_query->m_tx_query)->serialize() << endl;
-//    else cout << "Transfer query's tx query rooted at [block]: " << (*(*transfer_query->m_tx_query)->m_block)->serialize() << endl;
-//  } else cout << "Transfer query: " << transfer_query->serialize() << endl;
+  //  // log query
+  //  if (transfer_query->m_tx_query != boost::none) {
+  //    if ((*transfer_query->m_tx_query)->m_block == boost::none) cout << "Transfer query's tx query rooted at [tx]:" << (*transfer_query->m_tx_query)->serialize() << endl;
+  //    else cout << "Transfer query's tx query rooted at [block]: " << (*(*transfer_query->m_tx_query)->m_block)->serialize() << endl;
+  //  } else cout << "Transfer query: " << transfer_query->serialize() << endl;
 
-  // get transfers
-  vector<shared_ptr<monero_transfer>> transfers = wallet->get_transfers(*transfer_query);
+    // get transfers
+    vector<shared_ptr<monero_transfer>> transfers = wallet->get_transfers(*transfer_query);
 
-  // collect unique blocks to preserve model relationships as tree
-  shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
-  vector<shared_ptr<monero_block>> blocks;
-  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
-  for (auto const& transfer : transfers) {
-    shared_ptr<monero_tx_wallet> tx = transfer->m_tx;
-    if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
-      tx->m_block = unconfirmed_block;
-      unconfirmed_block->m_txs.push_back(tx);
+    // collect unique blocks to preserve model relationships as tree
+    shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
+    vector<shared_ptr<monero_block>> blocks;
+    unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+    for (auto const& transfer : transfers) {
+      shared_ptr<monero_tx_wallet> tx = transfer->m_tx;
+      if (tx->m_block == boost::none) {
+        if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
+        tx->m_block = unconfirmed_block;
+        unconfirmed_block->m_txs.push_back(tx);
+      }
+      unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
+      if (got == seen_block_ptrs.end()) {
+        seen_block_ptrs.insert(tx->m_block.get());
+        blocks.push_back(tx->m_block.get());
+      }
     }
-    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
-    if (got == seen_block_ptrs.end()) {
-      seen_block_ptrs.insert(tx->m_block.get());
-      blocks.push_back(tx->m_block.get());
-    }
+
+    // wrap and serialize blocks
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+
+    // free memory
+    monero_utils::free(blocks);
+  } catch (exception& e) {
+    callback(string(e.what()));
   }
-
-  // wrap and serialize blocks
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
-
-  // free memory
-  monero_utils::free(blocks);
 }
 
 //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
@@ -613,61 +621,81 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
 
 void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize output query
-  shared_ptr<monero_output_query> output_query = monero_output_query::deserialize_from_block(output_query_json);
+    // deserialize output query
+    shared_ptr<monero_output_query> output_query = monero_output_query::deserialize_from_block(output_query_json);
 
-  // get outputs
-  vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs(*output_query);
+    // get outputs
+    vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs(*output_query);
 
-  // collect unique blocks to preserve model relationships as tree
-  vector<shared_ptr<monero_block>> blocks;
-  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
-  for (auto const& output : outputs) {
-    shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(output->m_tx);
-    if (tx->m_block == boost::none) throw runtime_error("Need to handle unconfirmed output");
-    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(*tx->m_block);
-    if (got == seen_block_ptrs.end()) {
-      seen_block_ptrs.insert(tx->m_block.get());
-      blocks.push_back(tx->m_block.get());
+    // collect unique blocks to preserve model relationships as tree
+    vector<shared_ptr<monero_block>> blocks;
+    unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+    for (auto const& output : outputs) {
+      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(output->m_tx);
+      if (tx->m_block == boost::none) throw runtime_error("Need to handle unconfirmed output");
+      unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(*tx->m_block);
+      if (got == seen_block_ptrs.end()) {
+        seen_block_ptrs.insert(tx->m_block.get());
+        blocks.push_back(tx->m_block.get());
+      }
     }
+
+    // wrap and serialize blocks
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+
+    // free memory
+    monero_utils::free(blocks);
+  } catch (exception& e) {
+    callback(string(e.what()));
   }
-
-  // wrap and serialize blocks
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
-
-  // free memory
-  monero_utils::free(blocks);
 }
 
 void monero_wasm_bridge::get_outputs_hex(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback(wallet->get_outputs_hex());
+  try {
+    callback(wallet->get_outputs_hex());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::import_outputs_hex(int handle, const string& outputs_hex, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback(wallet->import_outputs_hex(outputs_hex));
+  try {
+    callback(wallet->import_outputs_hex(outputs_hex));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::get_key_images(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  vector<shared_ptr<monero_key_image>> key_images = wallet->get_key_images();
+  try {
+    vector<shared_ptr<monero_key_image>> key_images = wallet->get_key_images();
 
-  // wrap and serialize key images
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("keyImages", monero_utils::to_rapidjson_val(doc.GetAllocator(), key_images), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
+    // wrap and serialize key images
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("keyImages", monero_utils::to_rapidjson_val(doc.GetAllocator(), key_images), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::import_key_images(int handle, const string& key_images_str, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  vector<shared_ptr<monero_key_image>> key_images = monero_key_image::deserialize_key_images(key_images_str);
-  callback(wallet->import_key_images(key_images)->serialize());
+  try {
+    vector<shared_ptr<monero_key_image>> key_images = monero_key_image::deserialize_key_images(key_images_str);
+    callback(wallet->import_key_images(key_images)->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
@@ -787,13 +815,17 @@ string monero_wasm_bridge::sign_txs(int handle, const string& unsigned_tx_hex) {
 
 void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  vector<string> tx_hashes = wallet->submit_txs(signed_tx_hex);
+  try {
+    vector<string> tx_hashes = wallet->submit_txs(signed_tx_hex);
 
-  // wrap and serialize tx hashes
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
+    // wrap and serialize tx hashes
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 string monero_wasm_bridge::sign_message(int handle, const string& msg, uint32_t signature_type_num, uint32_t account_idx, uint32_t subaddress_idx) {
@@ -1064,7 +1096,7 @@ void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, ems
   }
 }
 
-string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex, emscripten::val callback) {
+void monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex, emscripten::val callback) {
   try {
     monero_wallet* wallet = (monero_wallet*) handle;
     monero_multisig_sign_result result = wallet->sign_multisig_tx_hex(multisig_tx_hex);
@@ -1076,13 +1108,17 @@ string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multis
 
 void monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  vector<string> tx_hashes = wallet->submit_multisig_tx_hex(signed_multisig_tx_hex);
+  try {
+    vector<string> tx_hashes = wallet->submit_multisig_tx_hex(signed_multisig_tx_hex);
 
-  // wrap and serialize tx hashes
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-  callback(monero_utils::serialize(doc));
+    // wrap and serialize tx hashes
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {

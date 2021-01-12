@@ -116,6 +116,7 @@ class MoneroRpcConnection {
       MoneroRpcConnection.validateHttpResponse(resp);
       
       // deserialize response
+      if (resp.body[0] != '{') throw resp.body;
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       //let respStr = JSON.stringify(resp);
       //console.log("Received response: " + respStr.substring(0, Math.min(1000, respStr.length)));
@@ -154,6 +155,7 @@ class MoneroRpcConnection {
       MoneroRpcConnection.validateHttpResponse(resp);
       
       // deserialize response
+      if (resp.body[0] != '{') throw resp.body;
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
       

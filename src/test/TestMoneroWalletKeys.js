@@ -14,6 +14,25 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     super(config);
   }
   
+  // override default behavior from common tests
+  async beforeAll() {
+    console.log("Before all");
+    this.wallet = await this.getTestWallet();
+  }
+  
+  async beforeEach(currentTest) {
+    await super.beforeEach(currentTest);
+  }
+  
+  async afterAll() {
+    console.log("After all");
+    await this.wallet.close();
+  }
+  
+  async afterEach(currentTest) {
+    await super.afterEach(currentTest);
+  }
+  
   async getTestWallet() {
     return TestUtils.getWalletKeys();
   }
@@ -37,6 +56,10 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     // create wallet
     return await monerojs.createWalletKeys(config);
   }
+  
+  async closeWallet(wallet, save) {
+    await wallet.close(save);
+  }
 
   async getMnemonicLanguages() {
     return await monerojs.MoneroWalletKeys.getMnemonicLanguages();
@@ -46,10 +69,11 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     let that = this;
     describe("TEST MONERO WALLET KEYS", function() {
       
-      // initialize wallet
-      before(async function() {
-        that.wallet = await that.getTestWallet();
-      });
+      // register handlers to run before and after tests
+      before(async function() { await that.beforeAll(); });
+      beforeEach(async function() { await that.beforeEach(this.currentTest); });
+      after(async function() { await that.afterAll(); });
+      afterEach(async function() { await that.afterEach(this.currentTest); });
       
       // run tests specific to keys wallet
       that._testWalletKeys();

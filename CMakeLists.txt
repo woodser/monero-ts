@@ -42,8 +42,8 @@ include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/checkpoints")
 include_directories("${MONERO_CORE_SRC}/common")
 #include_directories("${MONERO_CORE_SRC}/crypto")
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")	# DISABLED?
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")	# DISABLED?
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")    # DISABLED?
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")    # DISABLED?
 include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
 #include_directories("${MONERO_CORE_SRC}/multisig")
 #include_directories("${MONERO_CORE_SRC}/cryptonote_core")
@@ -303,40 +303,40 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 ####################
 
 if (BUILD_MONERO_CORE_KEYS_WASM)
-	add_executable(monero_core_keys ${MONERO_CORE_KEYS_SRC_FILES})
-	set_target_properties(monero_core_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE_KEYS}")
-	target_link_libraries(
-	    monero_core_keys
-	    #
-	    boost_chrono
-	    boost_system
-	    boost_thread
-	    #
-	    ${log-lib}
-	)
+    add_executable(monero_core_keys ${MONERO_CORE_KEYS_SRC_FILES})
+    set_target_properties(monero_core_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE_KEYS}")
+    target_link_libraries(
+        monero_core_keys
+        #
+        boost_chrono
+        boost_system
+        boost_thread
+        #
+        ${log-lib}
+    )
 endif()
 
 if (BUILD_MONERO_CORE_WASM)
-	add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_CORE_KEYS_SRC_FILES})
-	set_target_properties(monero_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
-	target_compile_definitions(monero_core PRIVATE BUILD_CORE_WALLET=1)
-	target_link_libraries(
-	    monero_core
-	    #
-	    #openssl_ssl
-	    #openssl_crypto
-	    #
-	    boost_chrono
-	    boost_system
-	    boost_thread
-	    boost_serialization
-	    #boost_filesystem
-	    boost_regex
-	    #boost_atomic
-	    #
-	    ${log-lib}
-	)
+    add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_CORE_KEYS_SRC_FILES})
+    set_target_properties(monero_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+    target_compile_definitions(monero_core PRIVATE BUILD_CORE_WALLET=1)
+    target_link_libraries(
+        monero_core
+        #
+        #openssl_ssl
+        #openssl_crypto
+        #
+        boost_chrono
+        boost_system
+        boost_thread
+        boost_serialization
+        #boost_filesystem
+        boost_regex
+        #boost_atomic
+        #
+        ${log-lib}
+    )
 endif()
 
 # build to bitcode instead of wasm
-#SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	
+#SET(CMAKE_EXECUTABLE_SUFFIX ".bc")

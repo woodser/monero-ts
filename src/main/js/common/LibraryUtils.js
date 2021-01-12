@@ -1,6 +1,7 @@
 const assert = require("assert");
 const GenUtils = require("./GenUtils");
 const MoneroError = require("./MoneroError");
+const ThreadPool = require("./ThreadPool");
 
 /**
  * Collection of helper utilities for the library.
@@ -79,23 +80,8 @@ class LibraryUtils {
    * Private helper to initialize the wasm module with data structures to synchronize access.
    */
   static _initWasmModule(wasmModule) {
-    
-    // initialize data structure to synchronize access to wasm module
-    const async = require("async");
-    wasmModule.taskQueue = async.queue(function(asyncFn, callback) {
-      if (asyncFn.then) asyncFn.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-      else asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-    }, 1);
-    
-    // initialize method to synchronize access to wasm module
-    wasmModule.queueTask = async function(asyncFn) {
-      return new Promise(function(resolve, reject) {
-        wasmModule.taskQueue.push(asyncFn, function(resp, err) {
-          if (err !== undefined) reject(err);
-          else resolve(resp);
-        });
-      });
-    }
+    wasmModule.taskQueue = new ThreadPool(1);
+    wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
   }
   
   /**

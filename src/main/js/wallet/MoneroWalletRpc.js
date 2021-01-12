@@ -34,6 +34,7 @@ const MoneroUtils = require("../common/MoneroUtils");
 const MoneroVersion = require("../daemon/model/MoneroVersion");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroWalletConfig = require("./model/MoneroWalletConfig");
+const MoneroWalletListener = require("./model/MoneroWalletListener");
 const SslOptions = require("../common/SslOptions");
 const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
 const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
@@ -64,39 +65,148 @@ const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResu
  * Implements a MoneroWallet as a client of monero-wallet-rpc.
  * 
  * @implements {MoneroWallet}
+ * @hideconstructor
  */
 class MoneroWalletRpc extends MoneroWallet {
   
   /**
-   * <p>Construct a wallet RPC client.</p>
+   * <p>Construct a wallet RPC client (for internal use).</p>
    * 
-   * <p>Examples:</p>
-   * 
-   * <code>
-   * let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
-   * 
-   * let walletRpc = new MoneroWalletRpc({<br>
-   * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
-   * &nbsp;&nbsp; username: "superuser",<br>
-   * &nbsp;&nbsp; password: "abctesting123",<br>
-   * &nbsp;&nbsp; rejectUnauthorized: false // e.g. local development<br>
-   * });
-   * </code>
-   * 
-   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
-   * @param {string} uriOrConfigOrConnection.uri - uri of monero-wallet-rpc
-   * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string|object|MoneroRpcConnection|string[]} uriOrConfig - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection or command line parameters to run a monero-wallet-rpc process internally
+   * @param {string} uriOrConfig.uri - uri of monero-wallet-rpc
+   * @param {string} uriOrConfig.username - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} uriOrConfig.password - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
    * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
    * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    */
-  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
+  constructor(uriOrConfig, username, password, rejectUnauthorized) {
     super();
-    this.config = MoneroDaemonRpc._normalizeConfig(uriOrConfigOrConnection, username, password, rejectUnauthorized);
+    if (GenUtils.isArray(uriOrConfig)) throw new Error("Array with command parameters is invalid first parameter, use `await monerojs.connectToWalletRpc(...)`");
+    this.config = MoneroDaemonRpc._normalizeConfig(uriOrConfig, username, password, rejectUnauthorized);
     this.rpc = new MoneroRpcConnection(this.config);
     this.addressCache = {}; // avoid unecessary requests for addresses
+    this.syncPeriodInMs = MoneroWalletRpc.DEFAULT_SYNC_PERIOD_IN_MS;
+    this._listeners = [];
+  }
+  
+  /**
+   * <p>Create a client connected to monero-wallet-rpc (for internal use).</p>
+   * 
+   * @param {string|string[]|object|MoneroRpcConnection} uriOrConfig - uri of monero-wallet-rpc or terminal parameters or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfig.uri - uri of monero-wallet-rpc
+   * @param {string} uriOrConfig.username - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} uriOrConfig.password - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @return {MoneroWalletRpc} the wallet RPC client
+   */
+  static async _connectToWalletRpc(uriOrConfig, username, password, rejectUnauthorized) {
+    if (GenUtils.isArray(uriOrConfig)) return MoneroWalletRpc._startWalletRpcProcess(uriOrConfig); // handle array as terminal command
+    else return new MoneroWalletRpc(...arguments); // otherwise connect to server
+  }
+  
+  static async _startWalletRpcProcess(cmd) {
+    assert(GenUtils.isArray(cmd), "Must provide string array with command line parameters");
+    
+    // start process
+    this.process = require('child_process').spawn(cmd[0], cmd.slice(1), {});
+    this.process.stdout.setEncoding('utf8');
+    this.process.stderr.setEncoding('utf8');
+    
+    // print output to console for debug
+    let printOutput = false;
+    
+    // return promise which resolves after starting monero-wallet-rpc
+    let uri;
+    let that = this;
+    let output = "";
+    return new Promise(function(resolve, reject) {
+      
+      // handle stdout
+      that.process.stdout.on('data', function(data) {
+        let line = data.toString();
+        if (printOutput) console.log(line);
+        output += line + '\n'; // capture output in case of error
+        
+        // extract uri from e.g. "I Binding on 127.0.0.1 (IPv4):38085"
+        let uriLineContains = "Binding on ";
+        let uriLineContainsIdx = line.indexOf(uriLineContains);
+        if (uriLineContainsIdx >= 0) {
+          let host = line.substring(uriLineContainsIdx + uriLineContains.length, line.lastIndexOf(' '));
+          let unformattedLine = line.replace(/\u001b\[.*?m/g, '').trim(); // remove color formatting
+          let port = unformattedLine.substring(unformattedLine.lastIndexOf(':') + 1);
+          let sslIdx = cmd.indexOf("--rpc-ssl");
+          let sslEnabled = sslIdx >= 0 ? "enabled" == cmd[sslIdx + 1].toLowerCase() : false;
+          uri = (sslEnabled ? "https" : "http") + "://" + host + ":" + port;
+          console.log("URI: " + uri);
+        }
+        
+        // read success message
+        if (line.indexOf("Starting wallet RPC server") >= 0) {
+          
+          // get username and password from params
+          let userPassIdx = cmd.indexOf("--rpc-login");
+          let userPass = userPassIdx >= 0 ? cmd[userPassIdx + 1] : undefined;
+          let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
+          let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
+          
+          // create client connected to internal process
+          let wallet = new MoneroWalletRpc(uri, username, password);
+          wallet.process = that.process;
+          
+          // resolve promise with client connected to internal process 
+          this.isResolved = true;
+          resolve(wallet);
+        }
+      });
+      
+      // handle stderr
+      that.process.stderr.on('data', function(data) {
+        if (printOutput) console.error(data);
+      });
+      
+      // handle exit
+      that.process.on("exit", function(code) {
+        if (!this.isResolved) reject(new Error("monero-wallet-rpc process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
+      });
+      
+      // handle error
+      that.process.on("error", function(err) {
+        if (err.message.indexOf("ENOENT") >= 0) reject(new Error("monero-wallet-rpc does not exist at path '" + cmd[0] + "'"));
+        if (!this.isResolved) reject(err);
+      });
+      
+      // handle uncaught exception
+      that.process.on("uncaughtException", function(err, origin) {
+        console.error("Uncaught exception in monero-wallet-rpc process: " + err.message);
+        console.error(origin);
+        reject(err);
+      });
+    });
+  }
+  
+  // --------------------------- RPC WALLET METHODS ---------------------------
+  
+  /**
+   * Get the internal process running monero-wallet-rpc.
+   * 
+   * @return the process running monero-wallet-rpc, undefined if not created from new process
+   */
+  getProcess() {
+    return this.process;
+  }
+  
+  /**
+   * Stop the internal process running monero-wallet-rpc, if applicable.
+   */
+  async stopProcess() {
+    if (this.process === undefined) throw new MoneroError("MoneroWalletRpc instance not created from new process");
+    await this._clear();
+    this.process.kill();
   }
   
   /**
@@ -144,7 +254,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!config.getPath()) throw new MoneroError("Must provide name of wallet to open");
     if (!config.getPassword()) throw new MoneroError("Must provide password of wallet to open");
     await this.rpc.sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
-    this._clear();
+    await this._clear();
     this.path = config.getPath();
     
     // set daemon if provided
@@ -228,10 +338,10 @@ class MoneroWalletRpc extends MoneroWallet {
     try {
       await this.rpc.sendJsonRequest("create_wallet", params);
     } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
       throw e;
     }
-    this._clear();
+    await this._clear();
     this.path = name;
   }
   
@@ -259,10 +369,10 @@ class MoneroWalletRpc extends MoneroWallet {
         autosave_current: saveCurrent
       });
     } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
       throw e;
     }
-    this._clear();
+    await this._clear();
     this.path = name;
   }
   
@@ -292,10 +402,10 @@ class MoneroWalletRpc extends MoneroWallet {
         autosave_current: saveCurrent
       });
     } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
       throw e;
     }
-    this._clear();
+    await this._clear();
     this.path = name;
   }
   
@@ -337,12 +447,31 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
+  // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async addListener(listener) {
+    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
+    this._listeners.push(listener);
+    await this._setIsListening(true);
+  }
+  
+  async removeListener(listener) {
+    let idx = this._listeners.indexOf(listener);
+    if (idx > -1) this._listeners.splice(idx, 1);
+    else throw new MoneroError("Listener is not registered with wallet");
+    if (this._listeners.length === 0) await this._setIsListening(false);
+  }
+  
+  getListeners() {
+    return this._listeners;
+  }
+  
   async isConnected() {
     try {
-      await this.sync(); // wallet rpc auto syncs so worst case this call blocks and blocks upfront  TODO: better way to determine if wallet rpc is connected to daemon?
-      return true;
+      await this.checkReserveProof(await this.getPrimaryAddress(), "", ""); // TODO (monero-project): provide better way to know if wallet rpc is connected to daemon
+      throw new Error("check reserve expected to fail");
     } catch (e) {
-      return false;
+      return e.message.indexOf("Failed to connect to daemon") < 0;
     }
   }
   
@@ -459,11 +588,30 @@ class MoneroWalletRpc extends MoneroWallet {
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+    if (this.pollListener !== undefined && this.pollListener._isEnabled) await this.pollListener.poll(); // poll if listening
     return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
   }
   
-  async startSyncing() {
-    // nothing to do because wallet rpc syncs automatically
+  async startSyncing(syncPeriodInMs) {
+    
+    // convert ms to seconds for rpc parameter
+    let syncPeriodInSeconds = Math.round((syncPeriodInMs === undefined ? MoneroWalletRpc.DEFAULT_SYNC_PERIOD_IN_MS : syncPeriodInMs) / 1000);
+    
+    // send rpc request
+    await this.rpc.sendJsonRequest("auto_refresh", {
+      enable: true,
+      period: syncPeriodInSeconds
+    });
+    
+    // update sync period for poller
+    this.syncPeriodInMs = syncPeriodInSeconds * 1000;
+    
+    // poll if listening
+    if (this.pollListener !== undefined && this.pollListener._isEnabled) await this.pollListener.poll();
+  }
+  
+  async stopSyncing() {
+    return rpc.sendJsonRequest("auto_refresh", { enable: false });
   }
   
   async rescanSpent() {
@@ -658,8 +806,8 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // cache types into maps for merging and lookup
-    let txMap = new Map();
-    let blockMap = new Map();
+    let txMap = {};
+    let blockMap = {};
     for (let tx of txs) {
       MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
     }
@@ -1331,7 +1479,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async close(save) {
     if (save === undefined) save = false;
-    this._clear();
+    await this._clear();
     await this.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
   }
   
@@ -1348,7 +1496,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Save and close the current wallet and stop the RPC server.
    */
   async stop() {
-    this._clear();
+    await this._clear();
     await this.rpc.sendJsonRequest("stop_wallet");
   }
   
@@ -1365,6 +1513,8 @@ class MoneroWalletRpc extends MoneroWallet {
   // -------------------------------- PRIVATE ---------------------------------
   
   async _clear() {
+    await this._setIsListening(false);
+    this._listeners.splice(0, this._listeners.length);
     delete this.addressCache;
     this.addressCache = {};
     this.path = undefined;
@@ -1638,6 +1788,16 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     return txSet.getTxs();
+  }
+  
+  // -------------------------------- LISTENER --------------------------------
+  
+  /**
+   * Enables or disables listening to monero-wallet-rpc.
+   */
+  async _setIsListening(isEnabled) {
+    if (this.pollListener === undefined && isEnabled) this.pollListener = new WalletRpcPollListener(this);
+    if (this.pollListener !== undefined) this.pollListener.setIsEnabled(isEnabled);
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
@@ -2080,29 +2240,31 @@ class MoneroWalletRpc extends MoneroWallet {
    * TODO monero core: skipIfAbsent only necessary because incoming payments not returned
    * when sent from/to same account #4500
    *
-   * @param tx is the transaction to merge into the existing txs
-   * @param txMap maps tx hashes to txs
-   * @param blockMap maps block heights to blocks
-   * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
+   * @param {MoneroTxWallet} tx - the transaction to merge into the existing txs
+   * @param {Object} txMap - maps tx hashes to txs
+   * @param {Object} blockMap - maps block heights to blocks
+   * @param {bool} skipIfAbsent - specifies if the tx should not be added if it doesn't already exist
    */
   static _mergeTx(tx, txMap, blockMap, skipIfAbsent) {
     assert(tx.getHash() !== undefined);
-
-    // if tx doesn't exist, add it (unless skipped)
+    
+    // if tx doesn't exist, add it unless skipped
     let aTx = txMap[tx.getHash()];
     if (aTx === undefined) {
-      if (!skipIfAbsent) {
-        txMap[tx.getHash()] = tx;
+      if (skipIfAbsent) {
+        console.error("WARNING: tx does not already exist and is being skipped during merge:\n" + JSON.stringify(tx.toJson()));
+        try { throw new Error("tx does not already exist and is being skipped during merge"); }
+        catch (err) { console.error(err.message + "\n" + err.stack); }
       } else {
-        console.log("WARNING: tx does not already exist");
+        txMap[tx.getHash()] = tx;
       }
     }
-
+    
     // otherwise merge with existing tx
     else {
       aTx.merge(tx);
     }
-
+    
     // if confirmed, merge tx's block
     if (tx.getHeight() !== undefined) {
       let aBlock = blockMap[tx.getHeight()];
@@ -2154,5 +2316,161 @@ class MoneroWalletRpc extends MoneroWallet {
     return o1.getKeyImage().getHex().compare(o2.getKeyImage().getHex());
   }
 }
+
+/**
+ * Polls monero-wallet-rpc to provide listener notifications.
+ */
+class WalletRpcPollListener {
+  
+  constructor(wallet) {
+    this._wallet = wallet;
+    this._prevLockedTxs = [];
+    this._prevUnconfirmedNotifications = new Set(); // tx hashes of previous notifications
+    this._prevConfirmedNotifications = new Set(); // tx hashes of previously confirmed but not yet unlocked notifications
+    this._reset();
+  }
+  
+  _reset() {
+    this._isEnabled = false;
+    this._prevHeight = undefined;
+    this._prevBalance = undefined;
+    this._prevUnlockedBalance = undefined;
+    this._prevLockedTxs.splice(0, this._prevLockedTxs.length);
+    this._prevUnconfirmedNotifications.clear();
+    this._prevConfirmedNotifications.clear();
+  }
+  
+  async setIsEnabled(isEnabled) {
+    this._isEnabled = isEnabled;
+    if (isEnabled) this._runPollLoop();
+    else this._reset();
+  }
+  
+  async _runPollLoop() {
+    
+    // skip if already polling on loop
+    if (this._isPollLoopRunning) return;
+    this._isPollLoopRunning = true;
+    
+    // poll while enabled
+    while (this._isEnabled) {
+      try {
+        await this.poll();
+        let that = this;
+        if (this._isEnabled) await new Promise(function(resolve) { setTimeout(resolve, that._wallet.syncPeriodInMs); }); // sleep for sync period
+      } catch (err) {
+        if (this._isEnabled) throw err;
+      }
+    }
+    
+    this._isPollLoopRunning = false;
+  }
+  
+  async poll() {
+    
+    // skip if already polling
+    if (this._isPolling) return;
+    this._isPolling = true;
+    
+    // take initial snapshot
+    if (this._prevHeight === undefined) {
+      this._prevHeight = await this._wallet.getHeight();
+      this._prevLockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
+      this._isPolling = false;
+      return;
+    }
+    
+    // notify on height changes
+    let height = await this._wallet.getHeight();
+    if (this._prevHeight !== height) {
+      for (let i = this._prevHeight; i < height; i++) await this._onNewBlock(i);
+      this._prevHeight = height;
+    }
+    
+    // notify on balance changes
+    await this._checkForChangedBalances();
+    
+    // get locked txs for comparison to previous
+    let lockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setIncludeOutputs(true));
+    
+    // notify on new unconfirmed and confirmed txs
+    for (let lockedTx of lockedTxs) {
+      let searchSet = lockedTx.isConfirmed() ? this._prevConfirmedNotifications : this._prevUnconfirmedNotifications;
+      let unannounced = !searchSet.has(lockedTx.getHash()) 
+      searchSet.add(lockedTx.getHash());
+      if (unannounced) await this._notifyOutputs(lockedTx);
+    }
+    
+    // collect hashes of txs no longer locked
+    let noLongerLockedHashes = [];
+    for (let prevLockedTx of this._prevLockedTxs) {
+      if (this._getTx(lockedTxs, prevLockedTx.getHash()) === undefined) {
+        noLongerLockedHashes.push(prevLockedTx.getHash());
+      }
+    }
+    
+    // fetch txs that are no longer locked
+    let unlockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
+    
+    // notify listeners of newly unlocked tx outputs
+    for (let unlockedTx of unlockedTxs) {
+      this._prevUnconfirmedNotifications.delete(unlockedTx.getHash());
+      this._prevConfirmedNotifications.delete(unlockedTx.getHash());
+      await this._notifyOutputs(unlockedTx);
+    }
+    
+    // save locked txs for next comparison
+    this._prevLockedTxs = lockedTxs;
+    this._isPolling = false;
+  }
+  
+  async _onNewBlock(height) {
+    for (let listener of this._wallet.getListeners()) await listener.onNewBlock(height);
+  }
+  
+  async _notifyOutputs(tx) {
+  
+    // notify spent outputs
+    if (tx.getOutgoingTransfer() !== undefined) {
+      let output = new MoneroOutputWallet().setAmount(tx.getOutgoingTransfer().getAmount()).setTx(tx); // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx spent outputs so providing one output with outgoing transfer amount linked to tx
+      for (let listener of this._wallet.getListeners()) await listener.onOutputSpent(output);
+    }
+    
+    // notify received outputs
+    if (tx.getIncomingTransfers() !== undefined) {
+      if (tx.getOutputs() !== undefined && tx.getOutputs().length > 0) { // TODO (monero-project): outputs only returned for confirmed txs
+        for (let output of tx.getOutputs()) {
+          if (output.getAccountIndex() !== undefined) { // TODO: ensure sender does not get this notification unless sent to them
+            for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(output);
+          }
+        }
+      } else {
+        for (let transfer of tx.getIncomingTransfers()) {
+          let output = new MoneroOutputWallet().setAccountIndex(transfer.getAccountIndex()).setSubaddressIndex(transfer.getSubaddressIndex()).setAmount(transfer.getAmount()).setTx(tx); // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using transfer values as outputs
+          for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(output);
+        }
+      }
+    }
+  }
+  
+  _getTx(txs, txHash) {
+    for (let tx of txs) if (txHash === tx.getHash()) return tx;
+    return undefined;
+  }
+  
+  async _checkForChangedBalances() {
+    let balance = await this._wallet.getBalance();
+    let unlockedBalance = await this._wallet.getUnlockedBalance();
+    if (balance.compare(this._prevBalance) !== 0 || unlockedBalance.compare(this._prevUnlockedBalance) !== 0) {
+      this._prevBalance =  balance;
+      this._prevUnlockedBalance = unlockedBalance;
+      for (let listener of await this._wallet.getListeners()) await listener.onBalancesChanged(balance, unlockedBalance);
+      return true;
+    }
+    return false;
+  }
+}
+
+MoneroWalletRpc.DEFAULT_SYNC_PERIOD_IN_MS = 20000; // default period between syncs in ms (defined by DEFAULT_AUTO_REFRESH_PERIOD in wallet_rpc_server.cpp)
 
 module.exports = MoneroWalletRpc;

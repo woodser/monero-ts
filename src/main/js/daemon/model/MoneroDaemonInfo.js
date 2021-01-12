@@ -292,6 +292,24 @@ class MoneroDaemonInfo {
     this.state.credits = credits;
     return this;
   }
+  
+  isBusySyncing() {
+    return this.state.isBusySyncing;
+  }
+  
+  setIsBusySyncing(isBusySyncing) {
+    this.state.isBusySyncing = isBusySyncing;
+    return this;
+  }
+  
+  isSynchronized() {
+    return this.state.isSynchronized;
+  }
+  
+  setIsSynchronized(isSynchronized) {
+    this.state.isSynchronized = isSynchronized;
+    return this;
+  }
 }
 
 module.exports = MoneroDaemonInfo;

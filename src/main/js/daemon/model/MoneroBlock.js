@@ -106,7 +106,7 @@ class MoneroBlock extends MoneroBlockHeader {
     if (this.getMinerTx() === undefined) this.setMinerTx(block.getMinerTx());
     if (block.getMinerTx() !== undefined) {
       block.getMinerTx().setBlock(this);
-      minerTx.merge(block.getMinerTx());
+      this.getMinerTx().merge(block.getMinerTx());
     }
     
     // merge non-miner txs

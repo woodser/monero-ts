@@ -364,6 +364,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
     this._rejectUnauthorized = rejectUnauthorized;
     this._rejectUnauthorizedConfigId = rejectUnauthorizedFnId;
+    this._syncPeriodInMs = MoneroWalletWasm.DEFAULT_SYNC_PERIOD_IN_MS;
     let that = this;
     LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return that._rejectUnauthorized }); // register fn informing if unauthorized reqs should be rejected
   }
@@ -476,41 +477,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   /**
-   * Register a listener to receive wallet notifications.
-   * 
-   * @param {MoneroWalletListener} listener - listener to receive wallet notifications
-   */
-  async addListener(listener) {
-    this._assertNotClosed();
-    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
-    this._listeners.push(listener);
-    await this._setIsListening(true);
-  }
-  
-  /**
-   * Unregister a listener to receive wallet notifications.
-   * 
-   * @param {MoneroWalletListener} listener - listener to unregister
-   */
-  async removeListener(listener) {
-    this._assertNotClosed();
-    let idx = this._listeners.indexOf(listener);
-    if (idx > -1) this._listeners.splice(idx, 1);
-    else throw new MoneroError("Listener is not registered with wallet");
-    if (this._listeners.length === 0) await this._setIsListening(false);
-  }
-  
-  /**
-   * Get the listeners registered with the wallet.
-   * 
-   * @return {MoneroWalletListener[]} the registered listeners
-   */
-  getListeners() {
-    this._assertNotClosed();
-    return this._listeners;
-  }
-  
-  /**
    * Move the wallet from its current path to the given path.
    * 
    * @param {string} path - the wallet's destination path
@@ -520,6 +486,26 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async addListener(listener) {
+    this._assertNotClosed();
+    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
+    this._listeners.push(listener);
+    await this._setIsListening(true);
+  }
+  
+  async removeListener(listener) {
+    this._assertNotClosed();
+    let idx = this._listeners.indexOf(listener);
+    if (idx > -1) this._listeners.splice(idx, 1);
+    else throw new MoneroError("Listener is not registered with wallet");
+    if (this._listeners.length === 0) await this._setIsListening(false);
+  }
+  
+  getListeners() {
+    this._assertNotClosed();
+    return this._listeners;
+  }
   
   async setDaemonConnection(uriOrRpcConnection, username, password, rejectUnauthorized) {
     this._assertNotClosed();
@@ -722,12 +708,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return result;
   }
   
-  async startSyncing() {
+  async startSyncing(syncPeriodInMs) {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    this._syncPeriodInMs = syncPeriodInMs === undefined ? MoneroWalletWasm.DEFAULT_SYNC_PERIOD_IN_MS : syncPeriodInMs;
     if (!this._syncingEnabled) {
       this._syncingEnabled = true;
-      this._runSyncLoop();  // sync wallet on loop in background
+      this._runSyncLoop();  // sync wallet on loop in background // TODO: switch to c++ sync loop if possible when single-threaded
     }
   }
     
@@ -1653,10 +1640,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * Loop while syncing enabled.
    */
   async _runSyncLoop() {
-    if (this._syncLoopRunning) return;  // only run one loop at a time
+    if (this._syncLoopRunning) return; // only run one loop at a time
     this._syncLoopRunning = true;
     
     // sync while enabled
+    let that = this;
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
     while (this._syncingEnabled) {
       try {
@@ -1667,7 +1655,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       }
       
       // only wait if syncing still enabled
-      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, that._syncPeriodInMs); });
     }
     
     this._syncLoopRunning = false;
@@ -1683,11 +1671,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         that._wasmListenerHandle = that._module.set_listener(
             that._cppAddress,
             that._wasmListenerHandle,
-            function(height, startHeight, endHeight, percentDone, message) { that._wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
-            function(height) { that._wasmListener.onNewBlock(height); },
-            function(newBalanceStr, newUnlockedBalanceStr) { that._wasmListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
-            function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { that._wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); },
-            function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that._wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
+            async function(height, startHeight, endHeight, percentDone, message) { await that._wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
+            async function(height) { await that._wasmListener.onNewBlock(height); },
+            async function(newBalanceStr, newUnlockedBalanceStr) { await that._wasmListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
+            async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); },
+            async function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { await that._wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
       } else {
         that._wasmListenerHandle = that._module.set_listener(that._cppAddress, that._wasmListenerHandle, undefined, undefined, undefined, undefined, undefined);
       }
@@ -1869,21 +1857,19 @@ class WalletWasmListener {
     this._wallet = wallet;
   }
   
-  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    for (let listener of this._wallet.getListeners()) {
-      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
-    }
+  async onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+    for (let listener of this._wallet.getListeners()) await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
   }
   
-  onNewBlock(height) {
-    for (let listener of this._wallet.getListeners()) listener.onNewBlock(height);
+  async onNewBlock(height) {
+    for (let listener of this._wallet.getListeners()) await listener.onNewBlock(height);
   }
   
-  onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
-    for (let listener of this._wallet.getListeners()) listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
+  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
   
-  onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
+  async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
     
     // build received output
     let output = new MoneroOutputWallet();
@@ -1911,10 +1897,10 @@ class WalletWasmListener {
     }
     
     // announce output
-    for (let listener of this._wallet.getListeners()) listener.onOutputReceived(tx.getOutputs()[0]);
+    for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(tx.getOutputs()[0]);
   }
   
-  onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
+  async onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
     
     // build spent output
     let output = new MoneroOutputWallet();
@@ -1939,24 +1925,7 @@ class WalletWasmListener {
     }
     
     // notify wallet listeners
-    for (let listener of this._wallet.getListeners()) listener.onOutputSpent(tx.getInputs()[0]);
-  }
-}
-
-/**
- * Wraps a sync listener as a general wallet listener.
- * 
- * @private
- */
-class SyncListenerWrapper extends MoneroWalletListener {
-  
-  constructor(listener) {
-    super();
-    this._listener = listener;
-  }
-  
-  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    this._listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+    for (let listener of this._wallet.getListeners()) await listener.onOutputSpent(tx.getInputs()[0]);
   }
 }
 
@@ -2206,8 +2175,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return result;
   }
   
-  async startSyncing() {
-    return this._invokeWorker("startSyncing");
+  async startSyncing(syncPeriodInMs) {
+    return this._invokeWorker("startSyncing", Array.from(arguments));
   }
     
   async stopSyncing() {
@@ -2264,8 +2233,8 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   
   async getTxs(query, missingTxHashes) {
     query = MoneroWallet._normalizeTxQuery(query);
-    let blockJsons = await this._invokeWorker("getTxs", [query.getBlock().toJson()]);
-    return MoneroWalletWasm._deserializeTxs(query, JSON.stringify({blocks: blockJsons}), missingTxHashes); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
+    let respJson = await this._invokeWorker("getTxs", [query.getBlock().toJson(), missingTxHashes]);
+    return MoneroWalletWasm._deserializeTxs(query, JSON.stringify({blocks: respJson.blocks, missingTxHashes: respJson.missingTxHashes}), missingTxHashes); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getTransfers(query) {
@@ -2555,23 +2524,25 @@ class WalletWorkerListener {
     this._listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
   }
 
-  onNewBlock(height) {
-    this._listener.onNewBlock(height);
+  async onNewBlock(height) {
+    await this._listener.onNewBlock(height);
   }
   
-  onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
-    this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
+  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    await this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
 
-  onOutputReceived(blockJson) {
+  async onOutputReceived(blockJson) {
     let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
-    this._listener.onOutputReceived(block.getTxs()[0].getOutputs()[0]);
+    await this._listener.onOutputReceived(block.getTxs()[0].getOutputs()[0]);
   }
   
-  onOutputSpent(blockJson) {
+  async onOutputSpent(blockJson) {
     let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
-    this._listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
+    await this._listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
   }
 }
+
+MoneroWalletWasm.DEFAULT_SYNC_PERIOD_IN_MS = 10000; // 10 second sync period by default
 
 module.exports = MoneroWalletWasm;

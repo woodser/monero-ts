@@ -10,6 +10,6 @@ git pull --ff-only origin tags/v0.3.7
 
 # update monero-core
 cd ./external/monero-core
-git checkout tags/v0.17.1.1
-git pull --ff-only origin tags/v0.17.1.1
+git checkout tags/v0.17.1.9
+git pull --ff-only origin tags/v0.17.1.9
 cd ../../../../

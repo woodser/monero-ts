@@ -41,6 +41,18 @@ class MoneroNetworkType {
       default: throw new MoneroError("Invalid network type to parse: '" + networkTypeStr + "'");
     }
   }
+  
+  /**
+   * Get the network type in human-readable form.
+   *
+   * @return {string} the network type in human-readable form
+   */
+  static toString(networkType) {
+    if (networkType === 0) return "mainnet";
+    if (networkType === 1) return "testnet";
+    if (networkType === 2) return "stagenet";
+    throw new Error("Invalid network type: " + networkType);
+  }
 }
 
 /**

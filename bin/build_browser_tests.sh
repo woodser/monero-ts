@@ -15,4 +15,4 @@ cp node_modules/mocha/mocha.js browser_build/mocha.js || exit 1
 cp node_modules/mocha/mocha.css browser_build/mocha.css || exit 1
 
 # start server
-./bin/start_dev_server.sh
+./bin/run_browser_test_server.sh

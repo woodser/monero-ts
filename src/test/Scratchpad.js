@@ -11,9 +11,8 @@ describe("Scratchpad", function() {
 //    let walletRpc = await TestUtils.getWalletRpc();
 //    let walletWasm = await TestUtils.getWalletWasm();
     
-    
     // initialize daemon rpc client
-    let daemon = monerojs.connectToDaemonRpc({
+    let daemon = await monerojs.connectToDaemonRpc({
       uri: "http://localhost:38081",
       username: "superuser",
       password: "abctesting123",
@@ -23,13 +22,13 @@ describe("Scratchpad", function() {
     console.log("Daemon height: " + await daemon.getHeight());
     
     // initialize wallet rpc client
-    let walletRpc = monerojs.connectToWalletRpc({
-      uri: "http://localhost:38083",
+    let walletRpc = await monerojs.connectToWalletRpc({
+      uri: "http://localhost:38084",
       username: "rpc_user",
       password: "abc123",
       rejectUnauthorized: false
     });
-    //await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
+    await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
     console.log("RPC wallet mnemonic: " + await walletRpc.getMnemonic());
     
     // create in-memory wallet with mnemonic

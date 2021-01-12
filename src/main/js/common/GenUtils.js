@@ -95,14 +95,11 @@ class GenUtils {
   /**
    * Indicates if the given argument is an array.
    * 
-   * TODO: remove this entirely since just a direct wrapper?
-   * TODO: this method returns true for object
-   * 
    * @param arg is the argument to test as being an array
    * @returns true if the argument is an array, false otherwise
    */
   static isArray(arg) {
-    return Array.isArray(arg);
+    return arg instanceof Array && Array.isArray(arg);
   }
 
   /**
