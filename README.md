@@ -97,6 +97,21 @@ string random_primary = wallet_random->get_primary_address();
 uint64_t random_height = wallet_random->get_height();
 bool random_is_synced = wallet_random->is_synced();
 
+// receive notifications when funds are received, confirmed, and unlocked
+struct : monero_wallet_listener {
+  void on_output_received(const monero_output_wallet& output) {
+    cout << "Wallet received funds!" << endl;
+    uint64_t amount = output.m_amount.get();
+    string tx_hash = output.m_tx->m_hash.get();
+    bool is_confirmed = output.m_tx->m_is_confirmed.get();
+    bool is_locked = dynamic_pointer_cast<monero_tx_wallet>(output.m_tx)->m_is_locked.get();
+    int account_index = output.m_account_index.get();
+    int subaddress_index = output.m_subaddress_index.get();
+    OUTPUT_RECEIVED = true;
+  }
+} my_listener;
+wallet_random->add_listener(my_listener);
+
 // receive notifications when the wallet receives funds
 struct : monero_wallet_listener {
   void on_output_received(const monero_output_wallet& output) {

@@ -774,6 +774,7 @@ namespace monero {
         // create library tx
         std::shared_ptr<monero_tx_wallet> tx = std::static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx, true));
         tx->m_hash = epee::string_tools::pod_to_hex(txid);
+        tx->m_is_confirmed = false;
         tx->m_is_locked = true;
         std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
         tx->m_outputs.push_back(output);
@@ -810,8 +811,9 @@ namespace monero {
         block->m_txs.push_back(tx);
         tx->m_block = block;
         tx->m_hash = epee::string_tools::pod_to_hex(txid);
-        tx->m_unlock_height = unlock_height;
+        tx->m_is_confirmed = true;\
         tx->m_is_locked = true;
+        tx->m_unlock_height = unlock_height;
         std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
         tx->m_outputs.push_back(output);
         output->m_tx = tx;
@@ -849,6 +851,8 @@ namespace monero {
         block->m_txs.push_back(tx);
         tx->m_block = block;
         tx->m_hash = epee::string_tools::pod_to_hex(txid);
+        tx->m_is_confirmed = true;
+        tx->m_is_locked = true;
         std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
         tx->m_inputs.push_back(output);
         output->m_tx = tx;
