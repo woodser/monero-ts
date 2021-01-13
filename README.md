@@ -123,6 +123,7 @@ await walletWasm.close(true);
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
 2. `npm install monero-javascript`
 3. Add `require("monero-javascript")` to your application code.
+4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
 #### If using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).

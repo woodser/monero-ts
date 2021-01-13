@@ -131,7 +131,12 @@ class LibraryUtils {
       LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
       LibraryUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
-      // catch worker messages
+      // receive worker errors
+      LibraryUtils.WORKER.onerror = function(err) {
+        console.error("Error posting message to MoneroWebWorker.js; is it copied to the web app's build directory (e.g. in the root)?");
+      };
+      
+      // receive worker messages
       LibraryUtils.WORKER.onmessage = function(e) {
         
         // lookup object id, callback function, and this arg
