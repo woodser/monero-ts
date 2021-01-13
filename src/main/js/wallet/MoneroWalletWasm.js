@@ -1585,6 +1585,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
   
+  async getNumBlocksToUnlock() { return super.getNumBlocksToUnlock(...arguments); }
   async getTx() { return super.getTx(...arguments); }
   async getIncomingTransfers() { return super.getIncomingTransfers(...arguments); }
   async getOutgoingTransfers() { return super.getOutgoingTransfers(...arguments); }

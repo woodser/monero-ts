@@ -330,7 +330,7 @@ class MoneroWallet {
   /**
    * Get the number of blocks until the next and last funds unlock.
    * 
-   * @return int[] - the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
+   * @return {int[]} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
    */
   async getNumBlocksToUnlock() {
     

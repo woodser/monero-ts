@@ -1502,6 +1502,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
   
+  async getNumBlocksToUnlock() { return super.getNumBlocksToUnlock(...arguments); }
   async getTx() { return super.getTx(...arguments); }
   async getIncomingTransfers() { return super.getIncomingTransfers(...arguments); }
   async getOutgoingTransfers() { return super.getOutgoingTransfers(...arguments); }
@@ -2319,6 +2320,9 @@ class MoneroWalletRpc extends MoneroWallet {
 
 /**
  * Polls monero-wallet-rpc to provide listener notifications.
+ * 
+ * @class
+ * @ignore
  */
 class WalletRpcPollListener {
   

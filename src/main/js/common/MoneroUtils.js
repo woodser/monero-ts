@@ -19,38 +19,74 @@ class MoneroUtils {
     return "0.4.6";
   }
   
-  // TODO: improve validation
+  /**
+   * Validate the given mnemonic, throw an error if invalid.
+   *
+   * TODO: improve validation, use network type
+   * 
+   * @param {string} mnemonic - mnemonic to validate
+   */
   static validateMnemonic(mnemonic) {
     assert(mnemonic, "Mnemonic phrase is not initialized");
     let words = mnemonic.split(" ");
     if (words.length !== MoneroUtils.NUM_MNEMONIC_WORDS) throw new Error("Mnemonic phrase is " + words.length + " words but must be " + MoneroUtils.NUM_MNEMONIC_WORDS);
   }
   
-  // TODO: improve validation
+  /**
+   * Validate the given private view key, throw an error if invalid.
+   *
+   * TODO: improve validation
+   * 
+   * @param {string} privateViewKey - private view key to validate
+   */
   static validatePrivateViewKey(privateViewKey) {
     assert(typeof privateViewKey === "string");
     assert(privateViewKey.length === 64);
   }
   
-  // TODO: improve validation
+  /**
+   * Validate the given private spend key, throw an error if invalid.
+   *
+   * TODO: improve validation
+   * 
+   * @param {string} privateSpendKey - private spend key to validate
+   */
   static validatePrivateSpendKey(privateSpendKey) {
     assert(typeof privateSpendKey === "string");
     assert(privateSpendKey.length === 64);
   }
   
-  // TODO: improve validation
+  /**
+   * Validate the given public view key, throw an error if invalid.
+   *
+   * TODO: improve validation
+   * 
+   * @param {string} publicViewKey - public view key to validate
+   */
   static validatePublicViewKey(publicViewKey) {
     assert(typeof publicViewKey === "string");
     assert(publicViewKey.length === 64);
   }
   
-  // TODO: improve validation
+  /**
+   * Validate the given public spend key, throw an error if invalid.
+   *
+   * TODO: improve validation
+   * 
+   * @param {string} publicSpendKey - public spend key to validate
+   */
   static validatePublicSpendKey(publicSpendKey) {
     assert(typeof publicSpendKey === "string");
     assert(publicSpendKey.length === 64);
   }
   
-  // TODO: improve validation, will require knowing network type
+  /**
+   * Determine if the given address is valid.
+   *
+   * TODO: improve validation, use network type
+   * 
+   * @param {string} address - address
+   */
   static isValidAddress(address) {
     try {
       MoneroUtils.validateAddress(address);
@@ -60,12 +96,25 @@ class MoneroUtils {
     }
   }
   
+  /**
+   * Validate the given address, throw an error if invalid.
+   *
+   * TODO: improve validation, use network type
+   * 
+   * @param {string} address - address to validate
+   */
   static validateAddress(address) {
     assert(typeof address === "string", "Address is not string");
     assert(address.length > 0, "Address is empty");
     assert(GenUtils.isBase58(address), "Address is not base 58");
   }
   
+  /**
+   * Determine if the given payment id is valid.
+   * 
+   * @param {string} paymentId - payment id to determine if valid
+   * @return {bool} true if the payment id is valid, false otherwise
+   */
   static isValidPaymentId(paymentId) {
     try {
       MoneroUtils.validatePaymentId(paymentId);
@@ -75,20 +124,26 @@ class MoneroUtils {
     }
   }
   
-  // TODO: beef this up
+  /**
+   * Validate the given payment id, throw an error if invalid.
+   * 
+   * TODO: improve validation
+   * 
+   * @param {string} paymentId - payment id to validate 
+   */
   static validatePaymentId(paymentId) {
     assert.equal(typeof paymentId, "string");
     assert(paymentId.length === 16 || paymentId.length === 64);
   }
     
   /**
-   * Decodes tx extra according to https://cryptonote.org/cns/cns005.txt and
+   * Decode tx extra according to https://cryptonote.org/cns/cns005.txt and
    * returns the last tx pub key.
    * 
    * TODO: use c++ bridge for this
    * 
-   * @param txExtra is an array of tx extra bytes
-   * @return the last pub key as a hexidecimal string
+   * @param [byte[]] txExtra - array of tx extra bytes
+   * @return {string} the last pub key as a hexidecimal string
    */
   static getLastTxPubKey(txExtra) {
     let lastPubKeyIdx;
@@ -109,9 +164,9 @@ class MoneroUtils {
    * 
    * For example, 03284e41c342f032 and 03284e41c342f032000000000000000000000000000000000000000000000000 are considered equal.
    * 
-   * @param paymentId1 is a payment id to compare
-   * @param paymentId2 is a payment id to compare
-   * @return true if the payment ids are equal, false otherwise
+   * @param {string} paymentId1 is a payment id to compare
+   * @param {string} paymentId2 is a payment id to compare
+   * @return {bool} true if the payment ids are equal, false otherwise
    */
   static paymentIdsEqual(paymentId1, paymentId2) {
     let maxLength = Math.max(paymentId1.length, paymentId2.length);
@@ -126,8 +181,8 @@ class MoneroUtils {
   /**
    * Merges a transaction into a list of existing transactions.
    * 
-   * @param txs are existing transactions to merge into
-   * @param tx is the transaction to merge into the list
+   * @param {MoneroTx[]} txs - existing transactions to merge into
+   * @param {MoneroTx} tx - transaction to merge into the list
    */
   static mergeTx(txs, tx) {
     for (let aTx of txs) {
@@ -140,10 +195,10 @@ class MoneroUtils {
   }
   
   /**
-   * Converts the given JSON to a binary Uint8Array using Monero's portable storage format.
+   * Convert the given JSON to a binary Uint8Array using Monero's portable storage format.
    * 
-   * @param json is the json to convert to binary
-   * @returns Uint8Array is the json converted to portable storage binary
+   * @param {object} json - json to convert to binary
+   * @return {Uint8Array} the json converted to portable storage binary
    */
   static jsonToBinary(json) {
     
@@ -172,10 +227,10 @@ class MoneroUtils {
   }
   
   /**
-   * Converts the given portable storage binary to JSON.
+   * Convert the given portable storage binary to JSON.
    * 
-   * @param uint8arr is a Uint8Array with binary data in Monero's portable storage format
-   * @returns a JSON object converted from the binary data
+   * @param {Uint8Array} uint8arr - binary data in Monero's portable storage format
+   * @return {object} JSON object converted from the binary data
    */
   static binaryToJson(uint8arr) {
     
@@ -204,10 +259,10 @@ class MoneroUtils {
   }
   
   /**
-   * Converts the binary response from daemon RPC block retrieval to JSON.
+   * Convert the binary response from daemon RPC block retrieval to JSON.
    * 
-   * @param uint8arr is the binary response from daemon RPC when getting blocks
-   * @returns a JSON object with the blocks data
+   * @param {Uint8Array} uint8arr - binary response from daemon RPC when getting blocks
+   * @return {object} JSON object with the blocks data
    */
   static binaryBlocksToJson(uint8arr) {
     

@@ -152,7 +152,7 @@ module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDae
  * &nbsp;&nbsp; "--rpc-login", "rpc_user:abc123",<br>
  * &nbsp;&nbsp; "--wallet-dir", "/path/to/wallets", // defaults to monero-wallet-rpc directory<br>
  * &nbsp;&nbsp; "--rpc-access-control-origins", "http://localhost:8080"<br>
- * &nbsp;&nbsp; ]);
+ * &nbsp; ]);
  * 
  * </code>
  * 
