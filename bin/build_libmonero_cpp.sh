@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# build monero-core dependencies
+# build monero-project dependencies
 HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
-cd ./external/monero-core/ && 
+cd ./external/monero-project/ && 
 make release-static -j$HOST_NCORES &&
 cd ../../
 

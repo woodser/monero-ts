@@ -116,14 +116,14 @@ namespace monero {
     return opt_val == boost::none ? false : val == *opt_val;
   }
 
-  // compute m_num_confirmations TODO monero core: this logic is based on wallet_rpc_server.cpp `set_confirmations` but it should be encapsulated in wallet2
+  // compute m_num_confirmations TODO monero-project: this logic is based on wallet_rpc_server.cpp `set_confirmations` but it should be encapsulated in wallet2
   void set_num_confirmations(std::shared_ptr<monero_tx_wallet>& tx, uint64_t blockchain_height) {
     std::shared_ptr<monero_block>& block = tx->m_block.get();
     if (block->m_height.get() >= blockchain_height || (block->m_height.get() == 0 && !tx->m_in_tx_pool.get())) tx->m_num_confirmations = 0;
     else tx->m_num_confirmations = blockchain_height - block->m_height.get();
   }
 
-  // compute m_num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp `set_confirmations` but it should be encapsulated in wallet2
+  // compute m_num_suggested_confirmations  TODO monero-project: this logic is based on wallet_rpc_server.cpp `set_confirmations` but it should be encapsulated in wallet2
   void set_num_suggested_confirmations(std::shared_ptr<monero_incoming_transfer>& incoming_transfer, uint64_t blockchain_height, uint64_t block_reward, uint64_t unlock_time) {
     if (block_reward == 0) incoming_transfer->m_num_suggested_confirmations = 0;
     else incoming_transfer->m_num_suggested_confirmations = (incoming_transfer->m_amount.get() + block_reward - 1) / block_reward;
@@ -149,7 +149,7 @@ namespace monero {
     tx->m_hash = epee::string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
     tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
-    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero-project: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
@@ -193,7 +193,7 @@ namespace monero {
     tx->m_hash = epee::string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
     tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
-    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero-project: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
@@ -234,7 +234,7 @@ namespace monero {
     }
 
     // replace transfer amount with destination sum
-    // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
+    // TODO monero-project: confirmed tx from/to same account has amount 0 but cached transfer destinations
     if (*outgoing_transfer->m_amount == 0 && !outgoing_transfer->m_destinations.empty()) {
       uint64_t amount = 0;
       for (const std::shared_ptr<monero_destination>& destination : outgoing_transfer->m_destinations) amount += *destination->m_amount;
@@ -253,7 +253,7 @@ namespace monero {
     tx->m_hash = epee::string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
     tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
-    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero-project: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_height = pd.m_unlock_time;
     tx->m_is_locked = true;
@@ -291,7 +291,7 @@ namespace monero {
     tx->m_hash = epee::string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
     tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
-    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero-project: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_height = pd.m_tx.unlock_time;
     tx->m_is_locked = true;
@@ -330,7 +330,7 @@ namespace monero {
     }
 
     // replace transfer amount with destination sum
-    // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
+    // TODO monero-project: confirmed tx from/to same account has amount 0 but cached transfer destinations
     if (*outgoing_transfer->m_amount == 0 && !outgoing_transfer->m_destinations.empty()) {
       uint64_t amount = 0;
       for (const std::shared_ptr<monero_destination>& destination : outgoing_transfer->m_destinations) amount += *destination->m_amount;
@@ -382,7 +382,7 @@ namespace monero {
   /**
    * Merges a transaction into a unique std::set of transactions.
    *
-   * TODO monero-core: skip_if_absent only necessary because incoming payments not returned
+   * TODO monero-project: skip_if_absent only necessary because incoming payments not returned
    * when sent from/to same account #4500
    *
    * @param tx is the transaction to merge into the existing txs
@@ -495,10 +495,10 @@ namespace monero {
    * (3) Modify monero-wallet-rpc to make this class a friend.
    * (4) Move all logic in monero-wallet-rpc to wallet2 so all users can access.
    *
-   * Options 2-4 require modification of Monero Core C++.  Of those, (4) is probably ideal.
-   * TODO: open patch on Monero core which moves common wallet rpc logic (e.g. on_transfer, on_transfer_split) to m_w2.
+   * Options 2-4 require modification of monero-project C++.  Of those, (4) is probably ideal.
+   * TODO: open patch on monero-project which moves common wallet rpc logic (e.g. on_transfer, on_transfer_split) to m_w2.
    *
-   * Until then, option (1) is used because it allows Monero Core binaries to be used without modification, it's easy, and
+   * Until then, option (1) is used because it allows monero-project binaries to be used without modification, it's easy, and
    * anything other than (4) is temporary.
    */
   //------------------------------------------------------------------------------------------------------------------------------
@@ -697,7 +697,7 @@ namespace monero {
       this->m_sync_end_height = boost::none;
       m_prev_balance = wallet.get_balance();
       m_prev_unlocked_balance = wallet.get_unlocked_balance();
-      m_notification_pool = std::unique_ptr<tools::threadpool>(tools::threadpool::getNewForUnitTests(1));  // TODO (monero-core): utility can be for general use
+      m_notification_pool = std::unique_ptr<tools::threadpool>(tools::threadpool::getNewForUnitTests(1));  // TODO (monero-project): utility can be for general use
     }
 
     ~wallet2_listener() {
@@ -1237,7 +1237,7 @@ namespace monero {
   monero_integrated_address monero_wallet_core::get_integrated_address(const std::string& standard_address, const std::string& payment_id) const {
     MTRACE("get_integrated_address(" << standard_address << ", " << payment_id << ")");
 
-    // TODO monero-core: this logic is based on wallet_rpc_server::on_make_integrated_address() and should be moved to wallet so this is unecessary for api users
+    // TODO monero-project: this logic is based on wallet_rpc_server::on_make_integrated_address() and should be moved to wallet so this is unecessary for api users
 
     // randomly generate payment id if not given, else validate
     crypto::hash8 paymen_id_h8;
@@ -1305,7 +1305,7 @@ namespace monero {
     std::string err;
     uint64_t result = m_w2->get_daemon_blockchain_target_height(err);
     if (!err.empty()) throw std::runtime_error(err);
-    if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
+    if (result == 0) result = get_daemon_height();  // TODO monero-project: target height can be 0 when daemon is synced.  Use blockchain height instead
     return result;
   }
   
@@ -1607,7 +1607,7 @@ namespace monero {
     }
     txs = queried_txs;
 
-    // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls  // TODO monero core: offer wallet.get_txs(...)
+    // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls  // TODO monero-project: offer wallet.get_txs(...)
     for (const std::shared_ptr<monero_tx_wallet>& tx : txs) {
       if (*tx->m_is_confirmed && tx->m_block == boost::none) {
         std::cout << "WARNING: Inconsistency detected building txs from multiple wallet2 calls, re-fetching" << std::endl;
@@ -1831,7 +1831,7 @@ namespace monero {
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       out_transfer->m_destinations = config.get_normalized_destinations();
@@ -1897,7 +1897,7 @@ namespace monero {
       copy.m_account_index = subaddress_indices_pair.first;
       copy.m_sweep_each_subaddress = false;
 
-      // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
+      // sweep all subaddresses together  // TODO monero-project: can this reveal outputs belong to the same wallet?
       if (copy.m_sweep_each_subaddress == boost::none || copy.m_sweep_each_subaddress.get() != true) {
         copy.m_subaddress_indices = subaddress_indices_pair.second;
         std::vector<std::shared_ptr<monero_tx_wallet>> account_txs = sweep_account(copy);
@@ -1943,7 +1943,7 @@ namespace monero {
       throw std::runtime_error("Failed to validate sweep_account transfer request");
     }
 
-    // TODO monero-core: this is default `outputs` in COMMAND_RPC_SWEEP_ALL which is not documented
+    // TODO monero-project: this is default `outputs` in COMMAND_RPC_SWEEP_ALL which is not documented
     uint64_t num_outputs = 1;
 
     // prepare parameters for wallet2's create_transactions_all()
@@ -2018,7 +2018,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
 
@@ -2139,7 +2139,7 @@ namespace monero {
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       out_transfer->m_destinations = destinations;
@@ -2228,7 +2228,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = 0;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_destinations[0]->m_amount = *tx_amounts_iter;
 
       // iterate to next element
@@ -3234,7 +3234,7 @@ namespace monero {
     // build parameters for m_w2->get_payments()
     uint64_t min_height = tx_query->m_min_height == boost::none ? 0 : *tx_query->m_min_height;
     uint64_t max_height = tx_query->m_max_height == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : std::min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *tx_query->m_max_height);
-    if (min_height > 0) min_height--; // TODO monero core: wallet2::get_payments() m_min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
+    if (min_height > 0) min_height--; // TODO monero-project: wallet2::get_payments() m_min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
     boost::optional<uint32_t> account_index = boost::none;
     if (_query->m_account_index != boost::none) account_index = *_query->m_account_index;
     std::set<uint32_t> subaddress_indices;
@@ -3277,7 +3277,7 @@ namespace monero {
     // get unconfirmed incoming transfers
     if (is_pool) {
 
-      // update pool state TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
+      // update pool state TODO monero-project: this should be encapsulated in wallet when unconfirmed transfers queried
       std::vector<std::tuple<cryptonote::transaction, crypto::hash, bool>> process_txs;
       m_w2->update_pool_state(process_txs);
       if (!process_txs.empty()) m_w2->process_pool_state(process_txs);
@@ -3499,7 +3499,7 @@ namespace monero {
 
     // determine sync start height
     uint64_t sync_start_height = start_height == boost::none ? std::max(get_height(), get_sync_height()) : *start_height;
-    if (sync_start_height < get_sync_height()) set_sync_height(sync_start_height); // TODO monero core: start height processed > requested start height unless sync height manually std::set
+    if (sync_start_height < get_sync_height()) set_sync_height(sync_start_height); // TODO monero-project: start height processed > requested start height unless sync height manually std::set
 
     // notify listeners of sync start
     m_w2_listener->on_sync_start(sync_start_height);

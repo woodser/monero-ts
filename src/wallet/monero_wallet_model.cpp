@@ -656,7 +656,7 @@ namespace monero {
     // otherwise merge transfer fields
     m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "transfer m_account_index");
 
-    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
+    // TODO monero-project: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
     if (m_amount != boost::none && other->m_amount != boost::none && *m_amount != *other->m_amount && (*m_amount == 0 || *other->m_amount == 0)) {
       std::cout << "WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/m_num_suggested_confirmations of 0, using non-zero amount" << std::endl;
       if (*m_amount == 0) m_amount = other->m_amount;

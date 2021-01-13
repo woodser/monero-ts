@@ -1247,7 +1247,7 @@ namespace monero {
      * This process must be repeated with participants exactly N-M times.
      *
      * @param multisig_hexes are multisig hex from each participant
-     * @param password is the wallet's password // TODO monero core: redundant? wallet is created with password
+     * @param password is the wallet's password // TODO monero-project: redundant? wallet is created with password
      * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
      */
     virtual  monero_multisig_init_result exchange_multisig_keys(const std::vector<std::string>& mutisig_hexes, const std::string& password) {

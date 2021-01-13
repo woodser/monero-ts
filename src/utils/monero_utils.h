@@ -136,18 +136,18 @@ namespace monero_utils
   bool is_valid_language(const std::string& language);
 
   /**
-   * Convert a Monero Core cryptonote::block to a block in this library's native model.
+   * Convert a cryptonote::block to a block in this library's native model.
    *
-   * @param cn_block is the Core block to convert
+   * @param cn_block is the block to convert
    * @return a block in this library's native model
    */
   std::shared_ptr<monero_block> cn_block_to_block(const cryptonote::block& cn_block);
 
   /**
-   * Convert a Monero Core crpytonote::transaction to a transaction in this library's
+   * Convert a cryptonote::transaction to a transaction in this library's
    * native model.
    *
-   * @param cn_tx is the Core transaction to convert
+   * @param cn_tx is the transaction to convert
    * @param init_as_tx_wallet specifies if a monero_tx xor monero_tx_wallet should be initialized
    */
   std::shared_ptr<monero_tx> cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet = false);
