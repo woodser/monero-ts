@@ -1132,7 +1132,7 @@ class MoneroWallet {
    * This process must be repeated with participants exactly N-M times.
    * 
    * @param {string[]} multisigHexes are multisig hex from each participant
-   * @param {string} password - wallet's password // TODO monero core: redundant? wallet is created with password
+   * @param {string} password - wallet's password // TODO monero-project: redundant? wallet is created with password
    * @return {MoneroMultisigInitResult} the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
    */
   async exchangeMultisigKeys(multisigHexes, password) {

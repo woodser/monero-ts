@@ -295,7 +295,7 @@ class TestMoneroWalletCommon {
             assert.equal(await wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await wallet.getPrivateSpendKey(), privateSpendKey);
-            if (!(wallet instanceof MoneroWalletKeys) && !await wallet.isConnected()) console.log("WARNING: wallet created from keys is not connected to authenticated daemon");  // TODO monero-core: keys wallets not connected
+            if (!(wallet instanceof MoneroWalletKeys) && !await wallet.isConnected()) console.log("WARNING: wallet created from keys is not connected to authenticated daemon");  // TODO monero-project: keys wallets not connected
             if (!(wallet instanceof MoneroWalletRpc)) {
               assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
               assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
@@ -512,7 +512,7 @@ class TestMoneroWalletCommon {
         
         // collect dates to test starting 100 days ago
         const DAY_MS = 24 * 60 * 60 * 1000;
-        let yesterday = new Date(new Date().getTime() - DAY_MS); // TODO monero-core: today's date can throw exception as "in future" so we test up to yesterday
+        let yesterday = new Date(new Date().getTime() - DAY_MS); // TODO monero-project: today's date can throw exception as "in future" so we test up to yesterday
         let dates = [];
         for (let i = 99; i >= 0; i--) {
           dates.push(new Date(yesterday.getTime() - DAY_MS * i)); // subtract i days
@@ -2032,7 +2032,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (testConfig.testNonRelays && false)  // TODO monero core: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
+      if (testConfig.testNonRelays && false)  // TODO monero-project: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
       it("Can import key images", async function() {
         let images = await that.wallet.getKeyImages();
         assert(Array.isArray(images));
@@ -2382,7 +2382,7 @@ class TestMoneroWalletCommon {
         let errors = [];
         let wallet = that.wallet;
         
-        // wait for wallet txs in the pool in case they were sent from another wallet and therefore will not fully sync until confirmed // TODO monero core
+        // wait for wallet txs in the pool in case they were sent from another wallet and therefore will not fully sync until confirmed // TODO monero-project
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // get balances before for later comparison
@@ -2586,7 +2586,7 @@ class TestMoneroWalletCommon {
                   // first confirmation expected
                   if (listener.confirmedHeight === undefined && listener.lastNotifiedOutput.getTx().isConfirmed()) { // only run by first thread after confirmation
                     listener.confirmedHeight = listener.lastNotifiedOutput.getTx().getHeight();
-                    if (listener.confirmedHeight != submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);  // TODO monero-core: sometimes pool tx does not confirm for several blocks
+                    if (listener.confirmedHeight != submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);  // TODO monero-project: sometimes pool tx does not confirm for several blocks
                   }
                   
                   // skip tests if more recent block received
@@ -3351,7 +3351,7 @@ class TestMoneroWalletCommon {
           offlineWallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, serverUri: "", restoreHeight: 0});
           assert(!await offlineWallet.isConnected());
           assert(!await offlineWallet.isViewOnly());
-          if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-core: cannot get mnemonic from offline wallet rpc
+          if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-project: cannot get mnemonic from offline wallet rpc
           if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal((await offlineWallet.getTxs()).length, 0); // TODO: monero-wallet-rpc has these transactions cached on startup
           let offlineWalletPath = await offlineWallet.getPath();
           
@@ -4794,7 +4794,7 @@ function testGetTxsStructure(txs, query = undefined) {
     }
   }
   
-  // TODO monero core wallet2 does not provide ordered blocks or txs
+  // TODO monero-project wallet2 does not provide ordered blocks or txs
 //  // collect given tx hashes
 //  List<String> txHashes = new ArrayList<String>();
 //  for (MoneroTx tx : txs) txHashes.add(tx.getHash());

@@ -8,8 +8,8 @@ string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
-set(BUILD_MONERO_CORE_WASM ON)
-set(BUILD_MONERO_CORE_KEYS_WASM ON)
+set(BUILD_MONERO_WALLET_CORE_WASM ON)
+set(BUILD_MONERO_WALLET_KEYS_WASM ON)
 
 ##############
 # C++ bridge
@@ -33,37 +33,37 @@ include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 # monero-project
 ##################
 
-set(MONERO_CORE "${MONERO_CPP}/external/monero-core")
-set(MONERO_CORE_SRC "${MONERO_CORE}/src")
+set(MONERO_PROJECT "${MONERO_CPP}/external/monero-project")
+set(MONERO_PROJECT_SRC "${MONERO_PROJECT}/src")
 
 # headers
 include_directories("src/main/cpp")
-include_directories("${MONERO_CORE_SRC}/")
-include_directories("${MONERO_CORE_SRC}/checkpoints")
-include_directories("${MONERO_CORE_SRC}/common")
-#include_directories("${MONERO_CORE_SRC}/crypto")
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")    # DISABLED?
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")    # DISABLED?
-include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
-#include_directories("${MONERO_CORE_SRC}/multisig")
-#include_directories("${MONERO_CORE_SRC}/cryptonote_core")
-#include_directories("${MONERO_CORE_SRC}/cryptonote_protocol")
-#include_directories("${MONERO_CORE_SRC}/wallet")
-#include_directories("${MONERO_CORE_SRC}/rpc")
-#include_directories("${MONERO_CORE_SRC}/mnemonics")
-include_directories("${MONERO_CORE}/external/")
-include_directories("${MONERO_CORE}/external/easylogging++")
-include_directories("${MONERO_CORE}/external/rapidjson/include")
-include_directories("${MONERO_CORE}/external/unbound/libunbound")
-include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
-include_directories("${MONERO_CORE}/contrib/epee/include")
-include_directories("${MONERO_CORE}/contrib/epee/include/net")
+include_directories("${MONERO_PROJECT_SRC}/")
+include_directories("${MONERO_PROJECT_SRC}/checkpoints")
+include_directories("${MONERO_PROJECT_SRC}/common")
+#include_directories("${MONERO_PROJECT_SRC}/crypto")
+#include_directories("${MONERO_PROJECT_SRC}/crypto/crypto_ops_builder/include/")    # DISABLED?
+#include_directories("${MONERO_PROJECT_SRC}/crypto/crypto_ops_builder/include/sodium")    # DISABLED?
+include_directories("${MONERO_PROJECT_SRC}/cryptonote_basic")
+#include_directories("${MONERO_PROJECT_SRC}/multisig")
+#include_directories("${MONERO_PROJECT_SRC}/cryptonote_core")
+#include_directories("${MONERO_PROJECT_SRC}/cryptonote_protocol")
+#include_directories("${MONERO_PROJECT_SRC}/wallet")
+#include_directories("${MONERO_PROJECT_SRC}/rpc")
+#include_directories("${MONERO_PROJECT_SRC}/mnemonics")
+include_directories("${MONERO_PROJECT}/external/")
+include_directories("${MONERO_PROJECT}/external/easylogging++")
+include_directories("${MONERO_PROJECT}/external/rapidjson/include")
+include_directories("${MONERO_PROJECT}/external/unbound/libunbound")
+include_directories("${MONERO_PROJECT}/external/db_drivers/liblmdb")
+include_directories("${MONERO_PROJECT}/contrib/epee/include")
+include_directories("${MONERO_PROJECT}/contrib/epee/include/net")
 
 #include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-#include_directories("${MONERO_CORE_SRC}/wallet/api")
+#include_directories("${MONERO_PROJECT_SRC}/wallet/api")
 
-include_directories("${MONERO_CORE}/build/release/translations")
-include_directories("${MONERO_CORE}/build/release/generated_include")
+include_directories("${MONERO_PROJECT}/build/release/translations")
+include_directories("${MONERO_PROJECT}/build/release/generated_include")
 
 #############
 # OpenSSL
@@ -143,7 +143,7 @@ set_target_properties(
 ################################
 
 set(
-    MONERO_CORE_KEYS_SRC_FILES
+    MONERO_WALLET_KEYS_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
@@ -157,46 +157,46 @@ set(
     ${MONERO_CPP}/external/libsodium/src/crypto_verify/verify.c
     
     # monero-project (modified for WASM)
-    ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
-    ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
-    ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
-    ${MONERO_CORE_SRC}/crypto/crypto.cpp
-    ${MONERO_CORE_SRC}/crypto/hash.c
-    ${MONERO_CORE_SRC}/crypto/slow-hash.c
-    ${MONERO_CORE_SRC}/crypto/oaes_lib.c
-    ${MONERO_CORE_SRC}/crypto/crypto-ops.c
-    ${MONERO_CORE_SRC}/crypto/crypto-ops-data.c
-    ${MONERO_CORE_SRC}/crypto/keccak.c
-    ${MONERO_CORE_SRC}/crypto/chacha.c
-    ${MONERO_CORE_SRC}/crypto/random.c
-    ${MONERO_CORE_SRC}/crypto/aesb.c
-    ${MONERO_CORE_SRC}/crypto/tree-hash.c
-    ${MONERO_CORE_SRC}/crypto/hash-extra-blake.c
-    ${MONERO_CORE_SRC}/crypto/blake256.c
-    ${MONERO_CORE_SRC}/crypto/hash-extra-groestl.c
-    ${MONERO_CORE_SRC}/crypto/hash-extra-jh.c
-    ${MONERO_CORE_SRC}/crypto/hash-extra-skein.c
-    ${MONERO_CORE_SRC}/crypto/groestl.c
-    ${MONERO_CORE_SRC}/crypto/jh.c
-    ${MONERO_CORE_SRC}/crypto/skein.c
-    ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
-    ${MONERO_CORE}/contrib/epee/src/hex.cpp
-    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
-    ${MONERO_CORE}/contrib/epee/src/memwipe.c
-    ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
-    ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
-    ${MONERO_CORE_SRC}/common/base58.cpp
-    ${MONERO_CORE_SRC}/device/device.cpp
-    ${MONERO_CORE_SRC}/device/device_default.cpp
-    ${MONERO_CORE_SRC}/multisig/multisig.cpp
-    ${MONERO_CORE_SRC}/ringct/rctOps.cpp
-    ${MONERO_CORE_SRC}/ringct/rctTypes.cpp
-    ${MONERO_CORE_SRC}/ringct/rctCryptoOps.c
-    ${MONERO_CORE_SRC}/ringct/rctSigs.cpp
-    ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
-    ${MONERO_CORE_SRC}/ringct/multiexp.cc
-    ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
-    ${MONERO_CORE}/external/easylogging++/easylogging++.cc
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/account.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_PROJECT_SRC}/crypto/crypto.cpp
+    ${MONERO_PROJECT_SRC}/crypto/hash.c
+    ${MONERO_PROJECT_SRC}/crypto/slow-hash.c
+    ${MONERO_PROJECT_SRC}/crypto/oaes_lib.c
+    ${MONERO_PROJECT_SRC}/crypto/crypto-ops.c
+    ${MONERO_PROJECT_SRC}/crypto/crypto-ops-data.c
+    ${MONERO_PROJECT_SRC}/crypto/keccak.c
+    ${MONERO_PROJECT_SRC}/crypto/chacha.c
+    ${MONERO_PROJECT_SRC}/crypto/random.c
+    ${MONERO_PROJECT_SRC}/crypto/aesb.c
+    ${MONERO_PROJECT_SRC}/crypto/tree-hash.c
+    ${MONERO_PROJECT_SRC}/crypto/hash-extra-blake.c
+    ${MONERO_PROJECT_SRC}/crypto/blake256.c
+    ${MONERO_PROJECT_SRC}/crypto/hash-extra-groestl.c
+    ${MONERO_PROJECT_SRC}/crypto/hash-extra-jh.c
+    ${MONERO_PROJECT_SRC}/crypto/hash-extra-skein.c
+    ${MONERO_PROJECT_SRC}/crypto/groestl.c
+    ${MONERO_PROJECT_SRC}/crypto/jh.c
+    ${MONERO_PROJECT_SRC}/crypto/skein.c
+    ${MONERO_PROJECT_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/hex.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/string_tools.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/memwipe.c
+    ${MONERO_PROJECT}/contrib/epee/src/mlocker.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/wipeable_string.cpp
+    ${MONERO_PROJECT_SRC}/common/base58.cpp
+    ${MONERO_PROJECT_SRC}/device/device.cpp
+    ${MONERO_PROJECT_SRC}/device/device_default.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig.cpp
+    ${MONERO_PROJECT_SRC}/ringct/rctOps.cpp
+    ${MONERO_PROJECT_SRC}/ringct/rctTypes.cpp
+    ${MONERO_PROJECT_SRC}/ringct/rctCryptoOps.c
+    ${MONERO_PROJECT_SRC}/ringct/rctSigs.cpp
+    ${MONERO_PROJECT_SRC}/ringct/bulletproofs.cc
+    ${MONERO_PROJECT_SRC}/ringct/multiexp.cc
+    ${MONERO_PROJECT_SRC}/mnemonics/electrum-words.cpp
+    ${MONERO_PROJECT}/external/easylogging++/easylogging++.cc
 )
 
 ################################
@@ -204,7 +204,7 @@ set(
 ################################
 
 set(
-    MONERO_CORE_SRC_FILES
+    MONERO_WALLET_CORE_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/http_client_wasm.cpp
@@ -213,29 +213,29 @@ set(
     ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
     
     # monero-project (modified for WASM)
-    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
-    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
-    ${MONERO_CORE}/contrib/epee/src/abstract_http_client.cpp
-    #${MONERO_CORE}/contrib/epee/src/http_auth.cpp
-    ${MONERO_CORE_SRC}/wallet/wallet2.cpp
-    ${MONERO_CORE_SRC}/wallet/message_store.cpp
-    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
-    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
-    ${MONERO_CORE_SRC}/wallet/wallet_rpc_payments.cpp
-    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
-    ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
-    ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
-    ${MONERO_CORE_SRC}/common/perf_timer.cpp
-    ${MONERO_CORE_SRC}/common/threadpool.cpp
-    ${MONERO_CORE_SRC}/common/aligned.c
-    ${MONERO_CORE_SRC}/common/util.cpp
-    ${MONERO_CORE_SRC}/common/i18n.cpp
-    ${MONERO_CORE_SRC}/common/combinator.cpp
-    ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
-    ${MONERO_CORE_SRC}/wallet/ringdb.cpp
-    ${MONERO_CORE_SRC}/cryptonote_basic/miner.cpp
-    ${MONERO_CORE_SRC}/cryptonote_basic/difficulty.cpp
-    ${MONERO_CORE_SRC}/cryptonote_core/tx_sanity_check.cpp
+    ${MONERO_PROJECT}/external/db_drivers/liblmdb/mdb.c
+    ${MONERO_PROJECT}/external/db_drivers/liblmdb/midl.c
+    ${MONERO_PROJECT}/contrib/epee/src/abstract_http_client.cpp
+    #${MONERO_PROJECT}/contrib/epee/src/http_auth.cpp
+    ${MONERO_PROJECT_SRC}/wallet/wallet2.cpp
+    ${MONERO_PROJECT_SRC}/wallet/message_store.cpp
+    ${MONERO_PROJECT_SRC}/wallet/message_transporter.cpp
+    ${MONERO_PROJECT_SRC}/wallet/node_rpc_proxy.cpp
+    ${MONERO_PROJECT_SRC}/wallet/wallet_rpc_payments.cpp
+    #${MONERO_PROJECT_SRC}/blockchain_db/lmdb/db_lmdb.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MONERO_PROJECT_SRC}/checkpoints/checkpoints.cpp
+    ${MONERO_PROJECT_SRC}/common/perf_timer.cpp
+    ${MONERO_PROJECT_SRC}/common/threadpool.cpp
+    ${MONERO_PROJECT_SRC}/common/aligned.c
+    ${MONERO_PROJECT_SRC}/common/util.cpp
+    ${MONERO_PROJECT_SRC}/common/i18n.cpp
+    ${MONERO_PROJECT_SRC}/common/combinator.cpp
+    ${MONERO_PROJECT_SRC}/rpc/rpc_payment_signature.cpp
+    ${MONERO_PROJECT_SRC}/wallet/ringdb.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/miner.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/difficulty.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_core/tx_sanity_check.cpp
 )
 
 ####################
@@ -302,11 +302,11 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 # Build targets
 ####################
 
-if (BUILD_MONERO_CORE_KEYS_WASM)
-    add_executable(monero_core_keys ${MONERO_CORE_KEYS_SRC_FILES})
-    set_target_properties(monero_core_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE_KEYS}")
+if (BUILD_MONERO_WALLET_KEYS_WASM)
+    add_executable(monero_wallet_keys ${MONERO_WALLET_KEYS_SRC_FILES})
+    set_target_properties(monero_wallet_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE_KEYS}")
     target_link_libraries(
-        monero_core_keys
+        monero_wallet_keys
         #
         boost_chrono
         boost_system
@@ -316,12 +316,12 @@ if (BUILD_MONERO_CORE_KEYS_WASM)
     )
 endif()
 
-if (BUILD_MONERO_CORE_WASM)
-    add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_CORE_KEYS_SRC_FILES})
-    set_target_properties(monero_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
-    target_compile_definitions(monero_core PRIVATE BUILD_CORE_WALLET=1)
+if (BUILD_MONERO_WALLET_CORE_WASM)
+    add_executable(monero_wallet_core ${MONERO_WALLET_CORE_SRC_FILES} ${MONERO_WALLET_KEYS_SRC_FILES})
+    set_target_properties(monero_wallet_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+    target_compile_definitions(monero_wallet_core PRIVATE BUILD_WALLET_CORE=1)
     target_link_libraries(
-        monero_core
+        monero_wallet_core
         #
         #openssl_ssl
         #openssl_crypto

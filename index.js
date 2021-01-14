@@ -169,7 +169,7 @@ module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDae
 module.exports.connectToWalletRpc = function() { return module.exports.MoneroWalletRpc._connectToWalletRpc(...arguments); }
 
 /**
- * <p>Create a wallet using WebAssembly bindings to monero-core.<p>
+ * <p>Create a wallet using WebAssembly bindings to monero-project.<p>
  * 
  * <p>Example:</p>
  * 
@@ -207,7 +207,7 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
 module.exports.createWalletWasm = function() { return module.exports.MoneroWalletWasm.createWallet(...arguments); }
 
 /**
- * <p>Open an existing wallet using WebAssembly bindings to monero-core.</p>
+ * <p>Open an existing wallet using WebAssembly bindings to monero-project.</p>
  * 
  * <p>Examples:<p>
  * 
@@ -252,7 +252,7 @@ module.exports.createWalletWasm = function() { return module.exports.MoneroWalle
 module.exports.openWalletWasm = function() { return module.exports.MoneroWalletWasm.openWallet(...arguments); }
 
 /**
- * <p>Create a wallet using WebAssembly bindings to monero-core.</p>
+ * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
  * 
  * <p>Example:</p>
  * 

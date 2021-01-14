@@ -102,9 +102,9 @@ class MoneroTransfer {
     // otherwise merge transfer fields
     this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
     
-    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
+    // TODO monero-project: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
     if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(BigInteger.parse("0")) === 0 || transfer.getAmount().compare(BigInteger.parse("0")) === 0)) {
-      //throw new Error("WARNING: monero core returning transfers with 0 amount/numSuggestedConfirmations");
+      //throw new Error("WARNING: monero-project returning transfers with 0 amount/numSuggestedConfirmations");
     } else {
       this.setAmount(GenUtils.reconcile(this.getAmount(), transfer.getAmount()));
     }

@@ -1081,7 +1081,7 @@ class MoneroWalletRpc extends MoneroWallet {
       copy.setAccountIndex(accountIdx);
       copy.setSweepEachSubaddress(false);
       
-      // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
+      // sweep all subaddresses together  // TODO monero-project: can this reveal outputs belong to the same wallet?
       if (copy.getSweepEachSubaddress() !== true) {
         copy.setSubaddressIndices(indices.get(accountIdx));
         for (let tx of await this._rpcSweepAccount(copy)) txs.push(tx);
@@ -1574,7 +1574,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.pending = canBeOutgoing && canBeInTxPool;
     params.failed = txQuery.isFailed() !== false && txQuery.isConfirmed() !== true && txQuery.inTxPool() != true;
     if (txQuery.getMinHeight() !== undefined) {
-      if (txQuery.getMinHeight() > 0) params.min_height = txQuery.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
+      if (txQuery.getMinHeight() > 0) params.min_height = txQuery.getMinHeight() - 1; // TODO monero-project: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
       else params.min_height = txQuery.getMinHeight();
     }
     if (txQuery.getMaxHeight() !== undefined) params.max_height = txQuery.getMaxHeight();
@@ -2238,7 +2238,7 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Merges a transaction into a unique set of transactions.
    *
-   * TODO monero core: skipIfAbsent only necessary because incoming payments not returned
+   * TODO monero-project: skipIfAbsent only necessary because incoming payments not returned
    * when sent from/to same account #4500
    *
    * @param {MoneroTxWallet} tx - the transaction to merge into the existing txs

@@ -118,13 +118,6 @@ time profiling
 mock response test framework
 refactor copying to not be downward of a tree rooted at tx but instead correct per each part of a graph
 add typescript?
-
-BIG PICTURE
-support core wallet with webassembly
-report rpc issues
-fix transfers bug #4500 in wallet rpc
-integrate with bisq
-port javascript to go & implement binding to integrate with openbazaar
 mymonero javascript wallet
 
 RPC

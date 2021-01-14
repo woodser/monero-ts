@@ -19,7 +19,7 @@ class MoneroWalletKeys extends MoneroWallet {
   // --------------------------- STATIC UTILITIES -----------------------------
   
   /**
-   * <p>Create a wallet using WebAssembly bindings to monero-core.</p>
+   * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
    * 
    * <p>Example:</p>
    * 

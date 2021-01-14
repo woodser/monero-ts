@@ -39,7 +39,7 @@ class LibraryUtils {
     
     // load module
     delete LibraryUtils.WASM_MODULE;
-    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_core_keys")();
+    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_keys")();
     return new Promise(function(resolve, reject) {
       LibraryUtils.WASM_MODULE.then(module => {
         LibraryUtils.WASM_MODULE = module
@@ -64,7 +64,7 @@ class LibraryUtils {
     
     // load module
     delete LibraryUtils.WASM_MODULE;
-    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_core")();
+    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_core")();
     return new Promise(function(resolve, reject) {
       LibraryUtils.WASM_MODULE.then(module => {
         LibraryUtils.WASM_MODULE = module
@@ -108,10 +108,10 @@ class LibraryUtils {
   }
   
   /**
-   * Set the path to load MoneroWebWorker.dist.js when running this library in
-   * a web worker (defaults to "/MoneroWebWorker.dist.js").
+   * Set the path to load monero_web_worker.js when running this library in
+   * a web worker (defaults to "/monero_web_worker.js").
    * 
-   * @param {string} workerDistPath - path to load MoneroWebWorker.dist.js
+   * @param {string} workerDistPath - path to load monero_web_worker.js
    */
   static setWorkerDistPath(workerDistPath) {
     let path = workerDistPath ? workerDistPath : LibraryUtils.WORKER_DIST_PATH_DEFAULT;
@@ -177,7 +177,7 @@ class LibraryUtils {
   }
 }
 
-LibraryUtils.WORKER_DIST_PATH_DEFAULT = "/MoneroWebWorker.dist.js";
+LibraryUtils.WORKER_DIST_PATH_DEFAULT = "/monero_web_worker.js";
 LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
 
 module.exports = LibraryUtils;

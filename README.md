@@ -144,7 +144,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 3. `cd monero-javascript`
 4. `./bin/update_submodules.sh`
-5. Modify ./external/monero-cpp/external/monero-core/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`
+5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`
 4. `./bin/build_all.sh`
 
 ## Running tests

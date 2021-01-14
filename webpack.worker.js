@@ -8,7 +8,7 @@ let configMoneroWebWorker = Object.assign({}, configBase, {
   entry: "./src/main/js/common/MoneroWebWorker.js",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "MoneroWebWorker.dist.js"
+    filename: "monero_web_worker.js"
   },
 });
 

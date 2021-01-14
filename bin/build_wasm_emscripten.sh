@@ -21,22 +21,22 @@ emmake cmake --build . -j$HOST_NCORES || exit 1
 # move available wasm files to ./dist
 cd ..
 mkdir -p ./dist || exit 1
-[ -f ./build/monero_core_keys.js ] \
+[ -f ./build/monero_wallet_keys.js ] \
   && {
-    mv ./build/monero_core_keys.js ./dist/
+    mv ./build/monero_wallet_keys.js ./dist/
   }
 
-[ -f ./build/monero_core_keys.wasm ] \
+[ -f ./build/monero_wallet_keys.wasm ] \
   && {
-    mv ./build/monero_core_keys.wasm ./dist/
+    mv ./build/monero_wallet_keys.wasm ./dist/
   }
 
-[ -f ./build/monero_core.js ] \
+[ -f ./build/monero_wallet_core.js ] \
   && {
-    mv ./build/monero_core.js ./dist/
+    mv ./build/monero_wallet_core.js ./dist/
   }
 
-[ -f ./build/monero_core.wasm ] \
+[ -f ./build/monero_wallet_core.wasm ] \
   && {
-    mv ./build/monero_core.wasm ./dist/
+    mv ./build/monero_wallet_core.wasm ./dist/
   }
