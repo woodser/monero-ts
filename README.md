@@ -160,7 +160,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 #### Running tests in Node.js
 
 * Run all tests: `npm test`
-* Run tests by their description: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions" --timeout 2000000`
+* Run tests by their description: `npm run test -- --grep "Can get transactions"`
 
 #### Running tests in the browser
 
