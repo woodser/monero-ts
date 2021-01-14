@@ -32,7 +32,7 @@ await walletRpc.createWallet({
 
 This example creates a wallet using WebAssembly bindings to [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
-See [MoneroWalletWasm.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletWasm.html#createWallet) for all options.
+See [MoneroWalletFull.createWallet()](https://moneroecosystem.org/monero-javascript/MoneroWalletFull.html#createWallet) for all options.
 
 ```javascript
 // import library

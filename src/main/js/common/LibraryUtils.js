@@ -34,7 +34,7 @@ class LibraryUtils {
    */
   static async loadKeysModule() {
     
-    // use cache if suitable, core module supersedes keys module because it is superset
+    // use cache if suitable, full module supersedes keys module because it is superset
     if (LibraryUtils.WASM_MODULE) return LibraryUtils.WASM_MODULE;
     
     // load module
@@ -51,25 +51,25 @@ class LibraryUtils {
   }
   
   /**
-   * Load the WebAssembly core module with caching.
+   * Load the WebAssembly full module with caching.
    * 
-   * The core module is a superset of the keys module and overrides it.
+   * The full module is a superset of the keys module and overrides it.
    * 
-   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle WebWorker using runtime param for conditional import
+   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle web worker using runtime param for conditional import
    */
-  static async loadCoreModule() {
+  static async loadFullModule() {
     
-    // use cache if suitable, core module supersedes keys module because it is superset
-    if (LibraryUtils.WASM_MODULE && LibraryUtils.CORE_LOADED) return LibraryUtils.WASM_MODULE;
+    // use cache if suitable, full module supersedes keys module because it is superset
+    if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
     delete LibraryUtils.WASM_MODULE;
-    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_core")();
+    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_full")();
     return new Promise(function(resolve, reject) {
       LibraryUtils.WASM_MODULE.then(module => {
         LibraryUtils.WASM_MODULE = module
         delete LibraryUtils.WASM_MODULE.then;
-        LibraryUtils.CORE_LOADED = true;
+        LibraryUtils.FULL_LOADED = true;
         LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
         resolve(LibraryUtils.WASM_MODULE);
       });

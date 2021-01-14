@@ -11,7 +11,7 @@ const MoneroTxConfig = require("../wallet/model/MoneroTxConfig");
 const MoneroTxSet = require("../wallet/model/MoneroTxSet");
 const MoneroUtils = require("./MoneroUtils");
 const MoneroWalletListener = require("../wallet/model/MoneroWalletListener");
-const MoneroWalletWasm = require("../wallet/MoneroWalletWasm");
+const MoneroWalletFull = require("../wallet/MoneroWalletFull");
 
 /**
  * Web worker to manage a daemon and wasm wallet off the main thread with messages.
@@ -369,25 +369,25 @@ self.daemonRemoveBlockListener = async function(daemonId, listenerId) {
 
 self.openWalletData = async function(walletId, path, password, networkType, keysData, cacheData, daemonUriOrConfig) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.openWallet({path: "", password: password, networkType: networkType, keysData: keysData, cacheData: cacheData, server: daemonConnection, proxyToWorker: false});
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull.openWallet({path: "", password: password, networkType: networkType, keysData: keysData, cacheData: cacheData, server: daemonConnection, proxyToWorker: false});
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
 self._createWalletRandom = async function(walletId, path, password, networkType, daemonUriOrConfig, language) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletRandom("", password, networkType, daemonConnection, language, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull._createWalletRandom("", password, networkType, daemonConnection, language, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
 self._createWalletFromMnemonic = async function(walletId, path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull._createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
 self._createWalletFromKeys = async function(walletId, path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm._createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language, false);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull._createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language, false);
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 

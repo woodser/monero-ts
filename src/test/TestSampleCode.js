@@ -54,8 +54,8 @@ class TestSampleCode {
         let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
         
         // create wallet from mnemonic phrase using WebAssembly bindings to monero-project
-        let walletWasm = await monerojs.createWalletWasm({
-          path: "./test_wallets/" + monerojs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_wasm"
+        let walletFull = await monerojs.createWalletFull({
+          path: "./test_wallets/" + monerojs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_full"
           password: "supersecretpassword123",
           networkType: "stagenet",
           serverUri: "http://localhost:38081",
@@ -67,18 +67,18 @@ class TestSampleCode {
         });
         
         // synchronize with progress notifications
-        await walletWasm.sync(new class extends monerojs.MoneroWalletListener {
+        await walletFull.sync(new class extends monerojs.MoneroWalletListener {
           onSyncProgress(height, startHeight, endHeight, percentDone, message) {
             // feed a progress bar?
           }
         });
         
         // synchronize in the background every 5 seconds
-        await walletWasm.startSyncing(5000);
+        await walletFull.startSyncing(5000);
         
         // receive notifications when funds are received, confirmed, and unlocked
         let fundsReceived = false;
-        await walletWasm.addListener(new class extends monerojs.MoneroWalletListener {
+        await walletFull.addListener(new class extends monerojs.MoneroWalletListener {
           onOutputReceived(output) {
             let amount = output.getAmount();
             let txHash = output.getTx().getHash();
@@ -92,7 +92,7 @@ class TestSampleCode {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
         let createdTx = await walletRpc.createTx({
           accountIndex: 0,
-          address: await walletWasm.getAddress(1, 0),
+          address: await walletFull.getAddress(1, 0),
           amount: "250000000000", // send 0.25 XMR (denominated in atomic units)
           relay: false // create transaction and relay to the network if true
         });
@@ -104,7 +104,7 @@ class TestSampleCode {
         assert(fundsReceived);
         
         // save and close WebAssembly wallet
-        await walletWasm.close(true);
+        await walletFull.close(true);
       });
     });
   }

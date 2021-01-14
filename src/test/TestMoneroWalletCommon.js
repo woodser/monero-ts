@@ -166,6 +166,13 @@ class TestMoneroWalletCommon {
         testGetTxsStructure(txCache);
         return txCache;
       }
+      
+      if (testConfig.testRelays)
+      it("Can send to multiple addresses in a single transaction", async function() {
+        for (let i = 0; i < 3; i++) {
+          await testSendToMultiple(5, 3, false);
+        }
+      });
 
       if (testConfig.testNonRelays)
       it("Can create a random wallet", async function() {
@@ -3165,13 +3172,6 @@ class TestMoneroWalletCommon {
           await TestUtils.WALLET_TX_TRACKER.reset(); // TODO: resetExcept(that.wallet), or does this test wallet also need to be waited on?
         }
       }
-      
-      if (testConfig.testRelays)
-      it("Can send to multiple addresses in a single transaction", async function() {
-        for (let i = 0; i < 3; i++) {
-          await testSendToMultiple(5, 3, false);
-        }
-      });
       
       if (testConfig.testRelays)
       it("Can send to multiple addresses in split transactions.", async function() {

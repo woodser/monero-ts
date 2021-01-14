@@ -83,7 +83,7 @@ module.exports.MoneroWallet = require("./src/main/js/wallet/MoneroWallet");
 module.exports.MoneroDaemonRpc = require("./src/main/js/daemon/MoneroDaemonRpc");
 module.exports.MoneroWalletRpc = require("./src/main/js/wallet/MoneroWalletRpc");
 module.exports.MoneroWalletKeys = require("./src/main/js/wallet/MoneroWalletKeys");
-module.exports.MoneroWalletWasm = require("./src/main/js/wallet/MoneroWalletWasm");
+module.exports.MoneroWalletFull = require("./src/main/js/wallet/MoneroWalletFull");
 
 // ---------------------------- GLOBAL FUNCTIONS ------------------------------
 
@@ -169,12 +169,12 @@ module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDae
 module.exports.connectToWalletRpc = function() { return module.exports.MoneroWalletRpc._connectToWalletRpc(...arguments); }
 
 /**
- * <p>Create a wallet using WebAssembly bindings to monero-project.<p>
+ * <p>Create a Monero wallet using fully client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
  * 
  * <p>Example:</p>
  * 
  * <code>
- * let wallet = await monerojs.createWalletWasm({<br>
+ * let wallet = await monerojs.createWalletFull({<br>
  * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
@@ -202,24 +202,24 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
  * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
  * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
- * @return {MoneroWalletWasm} the created wallet
+ * @return {MoneroWalletFull} the created wallet
  */
-module.exports.createWalletWasm = function() { return module.exports.MoneroWalletWasm.createWallet(...arguments); }
+module.exports.createWalletFull = function() { return module.exports.MoneroWalletFull.createWallet(...arguments); }
 
 /**
- * <p>Open an existing wallet using WebAssembly bindings to monero-project.</p>
+ * <p>Open an existing Monero wallet using fully client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
  * 
  * <p>Examples:<p>
  * 
  * <code>
- * let wallet1 = await monerojs.openWalletWasm(<br>
+ * let wallet1 = await monerojs.openWalletFull(<br>
  * &nbsp;&nbsp; "./wallets/wallet1",<br>
  * &nbsp;&nbsp; "supersecretpassword",<br>
  * &nbsp;&nbsp; MoneroNetworkType.STAGENET,<br>
  * &nbsp;&nbsp; "http://localhost:38081" // daemon uri<br>
  * );<br><br>
  * 
- * let wallet2 = await monerojs.openWalletWasm({<br>
+ * let wallet2 = await monerojs.openWalletFull({<br>
  * &nbsp;&nbsp; path: "./wallets/wallet2",<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
@@ -247,9 +247,9 @@ module.exports.createWalletWasm = function() { return module.exports.MoneroWalle
  * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
  * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
  * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
- * @return {MoneroWalletWasm} the opened wallet
+ * @return {MoneroWalletFull} the opened wallet
  */
-module.exports.openWalletWasm = function() { return module.exports.MoneroWalletWasm.openWallet(...arguments); }
+module.exports.openWalletFull = function() { return module.exports.MoneroWalletFull.openWallet(...arguments); }
 
 /**
  * <p>Create a wallet using WebAssembly bindings to monero-project.</p>

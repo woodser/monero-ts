@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const TestMoneroWalletWasm = require("./TestMoneroWalletWasm");
+const TestMoneroWalletFull = require("./TestMoneroWalletFull");
 const monerojs = require("../../index");
 const MoneroError = monerojs.MoneroError;
 const GenUtils = monerojs.GenUtils;
@@ -21,9 +21,9 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   async beforeAll() {
     await super.beforeAll();
     
-    // if wasm tests ran, wait for wasm wallet's pool txs to confirm
-    if (TestMoneroWalletWasm.WASM_TESTS_RUN) {
-      TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(await TestUtils.getWalletWasm());
+    // if full tests ran, wait for full wallet's pool txs to confirm
+    if (TestMoneroWalletFull.FULL_TESTS_RUN) {
+      TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(await TestUtils.getWalletFull());
     }
   }
   

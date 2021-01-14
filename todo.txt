@@ -24,7 +24,7 @@ wallet2 1128 ::move() causes warning
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm, STANDALONE_WASM
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 rpc mutisig test failing when run with other tests
-startSynchronizing() uses pre-started loop for random start time like core wallet?
+startSynchronizing() uses pre-started loop for random start time like full wallet?
 real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 rpc supports view-only request failed: 0, or error after previously called
@@ -32,11 +32,11 @@ fix consistent failures in tests (notification failures, Can sync a wallet creat
 getSyncHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
-update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
+update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_full::get_txs()
 sync end height != daemon height for long syncs
 implement Can submit a mined block to the network
 compare sync performance with multithreading vs singlethreading - build both?
-await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
+await MoneroWallet.create({type: "full", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
 MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method? copy constructor?
 support MoneroWalletRpc(string uri, string username, string password) like java
 build boost and openssl in ./bin/build_dist.sh only if necessary
@@ -47,7 +47,7 @@ test queuing sync requests in test which opens and closes multiple wallets
 low severity vulnerabilities
 find boost version in cmake lists
 externalize test config
-filesystem can be used in emscripten for wasm wallet, possibly supports memfs: https://emscripten.org/docs/api_reference/Filesystem-API.html
+filesystem can be used in emscripten for full wasm wallet, possibly supports memfs: https://emscripten.org/docs/api_reference/Filesystem-API.html
 open bug on check key no funds received despite transfer - caused by importing key images?
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports
 namespace exported types to object instead of this.?
@@ -55,14 +55,14 @@ namespace exported types to object instead of this.?
 daemon rpc getTxs() does not return tx blocks
 overload toJson() model protos and use JSON.stringify() instead of class toJsons()
 master sort MoneroWallet.js with top level methods
-monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
+monero_wallet_full get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 overload create_wallet_* instead of http_client=null?
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
 port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
-monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
+monero_wallet_full::set_daemon_connection is_local_address() uses common/util which requires libunbound
 libsodium dependency in monero-cpp, why doesn't monero-project's work?
 test "Can get transactions by id" passes tx query where txs is array of characters
 mymonero monero_wallet_utils.cpp 182 mnemonic sanitation

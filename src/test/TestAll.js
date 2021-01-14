@@ -3,7 +3,7 @@ const TestSampleCode = require("./TestSampleCode");
 const TestMoneroUtils = require("./TestMoneroUtils");
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
-const TestMoneroWalletWasm = require("./TestMoneroWalletWasm");
+const TestMoneroWalletFull = require("./TestMoneroWalletFull");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestDeveloperGuide = require("./TestDeveloperGuide");
 
@@ -30,8 +30,8 @@ new TestMoneroWalletKeys({
   testResets: false
 }).runTests();
 
-// test wasm wallet
-new TestMoneroWalletWasm({
+// test full wallet
+new TestMoneroWalletFull({
   liteMode: false,
   testNonRelays: true,
   testRelays: true,

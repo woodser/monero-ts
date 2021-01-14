@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
-const MoneroWalletWasm = monerojs.MoneroWalletWasm;
+const MoneroWalletFull = monerojs.MoneroWalletFull;
 const MoneroNetworkType = monerojs.MoneroNetworkType;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
 
@@ -17,7 +17,7 @@ class TestDeveloperGuide {
       
       // initialize wallet
       before(async function() {
-        wallet = await TestUtils.getWalletWasm();
+        wallet = await TestUtils.getWalletFull();
       });
       
       // save wallet
@@ -169,7 +169,7 @@ class TestDeveloperGuide {
       it("Test developer guide send funds", async function() {
         
         // create in-memory test wallet with randomly generated mnemonic
-        let wallet = await monerojs.createWalletWasm({
+        let wallet = await monerojs.createWalletFull({
           password: "abctesting123",
           networkType: "stagenet",
           serverUri: "http://localhost:38081",

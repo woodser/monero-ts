@@ -6,10 +6,9 @@ describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
     
-    // get test wasm wallet
 //    let daemon = await TestUtils.getDaemonRpc();
 //    let walletRpc = await TestUtils.getWalletRpc();
-//    let walletWasm = await TestUtils.getWalletWasm();
+//    let walletFull = await TestUtils.getWalletFull();
     
     // initialize daemon rpc client
     let daemon = await monerojs.connectToDaemonRpc({
@@ -32,7 +31,7 @@ describe("Scratchpad", function() {
     console.log("RPC wallet mnemonic: " + await walletRpc.getMnemonic());
     
     // create in-memory wallet with mnemonic
-    let walletWasm = await monerojs.createWalletWasm({
+    let walletFull = await monerojs.createWalletFull({
       //path: "./test_wallets/" + GenUtils.getUUID(), // in-memory wallet if not given
       password: "abctesting123",
       networkType: "stagenet",
@@ -44,10 +43,10 @@ describe("Scratchpad", function() {
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
       rejectUnauthorized: false
     });
-    await walletWasm.sync(new WalletSyncPrinter());
-    console.log("WASM wallet daemon height: " + await walletWasm.getDaemonHeight());
-    console.log("WASM wallet mnemonic: " + await walletWasm.getMnemonic());
+    await walletFull.sync(new WalletSyncPrinter());
+    console.log("Full wallet daemon height: " + await walletFull.getDaemonHeight());
+    console.log("Full wallet mnemonic: " + await walletFull.getMnemonic());
     
-    await walletWasm.close();
+    await walletFull.close();
   });
 });

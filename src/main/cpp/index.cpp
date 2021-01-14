@@ -15,11 +15,11 @@ EMSCRIPTEN_BINDINGS(module)
 
   // --------------------------- WALLET CREATION ------------------------------
 
-  emscripten::function("open_core_wallet", &monero_wasm_bridge::open_core_wallet);
-  emscripten::function("create_core_wallet_random", &monero_wasm_bridge::create_core_wallet_random);
-  emscripten::function("create_core_wallet_from_mnemonic", &monero_wasm_bridge::create_core_wallet_from_mnemonic);
-  emscripten::function("create_core_wallet_from_keys", &monero_wasm_bridge::create_core_wallet_from_keys);
-  emscripten::function("get_core_wallet_mnemonic_languages", &monero_wasm_bridge::get_core_wallet_mnemonic_languages);
+  emscripten::function("open_full_wallet", &monero_wasm_bridge::open_full_wallet);
+  emscripten::function("create_full_wallet_random", &monero_wasm_bridge::create_full_wallet_random);
+  emscripten::function("create_full_wallet_from_mnemonic", &monero_wasm_bridge::create_full_wallet_from_mnemonic);
+  emscripten::function("create_full_wallet_from_keys", &monero_wasm_bridge::create_full_wallet_from_keys);
+  emscripten::function("get_full_wallet_mnemonic_languages", &monero_wasm_bridge::get_full_wallet_mnemonic_languages);
 
   emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);
   emscripten::function("create_keys_wallet_from_mnemonic", &monero_wasm_bridge::create_keys_wallet_from_mnemonic);

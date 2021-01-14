@@ -154,14 +154,14 @@ class TestUtils {
   /**
    * Get a singleton instance of a wallet supported by WebAssembly bindings to monero-project's wallet2.
    * 
-   * @return {MoneroWalletWasm} a wasm wallet instance
+   * @return {MoneroWalletFull} a full wallet instance
    */
-  static async getWalletWasm() {
-    if (!TestUtils.walletWasm || await TestUtils.walletWasm.isClosed()) {
+  static async getWalletFull() {
+    if (!TestUtils.walletFull || await TestUtils.walletFull.isClosed()) {
       
       // create wallet from mnemonic phrase if it doesn't exist
       let fs = TestUtils.getDefaultFs();
-      if (!await monerojs.MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH, fs)) {
+      if (!await monerojs.MoneroWalletFull.walletExists(TestUtils.WALLET_FULL_PATH, fs)) {
         
         // create directory for test wallets if it doesn't exist
         if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
@@ -170,25 +170,25 @@ class TestUtils {
         }
         
         // create wallet with connection
-        TestUtils.walletWasm = await monerojs.createWalletWasm({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
-        assert.equal(await TestUtils.walletWasm.getSyncHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        await TestUtils.walletWasm.sync(new WalletSyncPrinter());
-        await TestUtils.walletWasm.save();
-        await TestUtils.walletWasm.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+        TestUtils.walletFull = await monerojs.createWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
+        assert.equal(await TestUtils.walletFull.getSyncHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        await TestUtils.walletFull.sync(new WalletSyncPrinter());
+        await TestUtils.walletFull.save();
+        await TestUtils.walletFull.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       }
       
       // otherwise open existing wallet
       else {
-        TestUtils.walletWasm = await monerojs.openWalletWasm({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: TestUtils.getDefaultFs()});
-        await TestUtils.walletWasm.sync(new WalletSyncPrinter());
-        await TestUtils.walletWasm.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+        TestUtils.walletFull = await monerojs.openWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: TestUtils.getDefaultFs()});
+        await TestUtils.walletFull.sync(new WalletSyncPrinter());
+        await TestUtils.walletFull.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       }
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await TestUtils.walletWasm.getMnemonic(), TestUtils.MNEMONIC);
-    assert.equal(await TestUtils.walletWasm.getPrimaryAddress(), TestUtils.ADDRESS);
-    return TestUtils.walletWasm;
+    assert.equal(await TestUtils.walletFull.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await TestUtils.walletFull.getPrimaryAddress(), TestUtils.ADDRESS);
+    return TestUtils.walletFull;
   }
   
   /**
@@ -242,7 +242,7 @@ class TestUtils {
 TestUtils.WALLET_NAME = "test_wallet_1";
 TestUtils.WALLET_PASSWORD = "supersecretpassword123";
 TestUtils.TEST_WALLETS_DIR = "./test_wallets";
-TestUtils.WALLET_WASM_PATH = TestUtils.TEST_WALLETS_DIR + "/" + TestUtils.WALLET_NAME;
+TestUtils.WALLET_FULL_PATH = TestUtils.TEST_WALLETS_DIR + "/" + TestUtils.WALLET_NAME;
 
 TestUtils.MAX_FEE = new BigInteger("7500000").multiply(new BigInteger("10000"));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;

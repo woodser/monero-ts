@@ -73,8 +73,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    // load wasm module then convert from json to binary
-    LibraryUtils.loadCoreModule().then(module => {
+    // load full wasm module then convert from json to binary
+    LibraryUtils.loadFullModule().then(module => {
 
       // read binary data from heap to Uint8Array
       let ptr = body;
@@ -138,7 +138,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         wakeUp(ptr);
       });
     }).catch(err => {
-      throw new Error("Could not load core wasm module");
+      throw new Error("Could not load full wasm module");
     });
   });
 });
