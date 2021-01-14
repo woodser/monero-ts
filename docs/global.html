@@ -104,7 +104,7 @@
     
 
     
-    <h4 class="name" id="connectToDaemonRpc"><span class="type-signature"></span>connectToDaemonRpc<span class="signature">(uriOrConfigOrConnection, username, password, rejectUnauthorized, pollInterval, proxyToWorker)</span><span class="type-signature"> &rarr; {<a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a>}</span></h4>
+    <h4 class="name" id="connectToDaemonRpc"><span class="type-signature"></span>connectToDaemonRpc<span class="signature">(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker)</span><span class="type-signature"> &rarr; {<a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a>}</span></h4>
     
 
     
@@ -117,9 +117,9 @@
 <p>Examples:<p>
 
 <code>
-let daemon = monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+let daemon = await monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
 
-let daemon = monerojs.connectToDaemonRpc({<br>
+let daemon = await monerojs.connectToDaemonRpc({<br>
 &nbsp;&nbsp; uri: "http://localhost:38081",<br>
 &nbsp;&nbsp; username: "superuser",<br>
 &nbsp;&nbsp; password: "abctesting123"<br>
@@ -160,7 +160,7 @@ let daemon = monerojs.connectToDaemonRpc({<br>
 
         <tr>
             
-                <td class="name"><code>uriOrConfigOrConnection</code></td>
+                <td class="name"><code>uriOrConfig</code></td>
             
 
             <td class="type">
@@ -560,7 +560,7 @@ let daemon = monerojs.connectToDaemonRpc({<br>
     
 
     
-    <h4 class="name" id="connectToWalletRpc"><span class="type-signature"></span>connectToWalletRpc<span class="signature">(uriOrConfigOrConnection, username, password, rejectUnauthorized)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletRpc.html">MoneroWalletRpc</a>}</span></h4>
+    <h4 class="name" id="connectToWalletRpc"><span class="type-signature"></span>connectToWalletRpc<span class="signature">(uriOrConfig, username, password, rejectUnauthorized)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletRpc.html">MoneroWalletRpc</a>}</span></h4>
     
 
     
@@ -573,14 +573,27 @@ let daemon = monerojs.connectToDaemonRpc({<br>
 <p>Examples:</p>
 
 <code>
-let walletRpc = monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
+let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38081", "superuser", "abctesting123");<br><br>
 
-let walletRpc = monerojs.connectToWalletRpc({<br>
+let walletRpc = await monerojs.connectToWalletRpc({<br>
 &nbsp;&nbsp; uri: "http://localhost:38081",<br>
 &nbsp;&nbsp; username: "superuser",<br>
 &nbsp;&nbsp; password: "abctesting123",<br>
 &nbsp;&nbsp; rejectUnauthorized: false // e.g. local development<br>
-});
+});<br><br>
+
+// connect to monero-wallet-rpc running as internal process<br>
+let walletRpc = await monerojs.connectToWalletRpc([<br>
+&nbsp;&nbsp; "/path/to/monero-wallet-rpc",<br>
+&nbsp;&nbsp; "--stagenet",<br>
+&nbsp;&nbsp; "--daemon-address", "http://localhost:38081",<br>
+&nbsp;&nbsp; "--daemon-login", "superuser:abctesting123",<br>
+&nbsp;&nbsp; "--rpc-bind-port", "38085",<br>
+&nbsp;&nbsp; "--rpc-login", "rpc_user:abc123",<br>
+&nbsp;&nbsp; "--wallet-dir", "/path/to/wallets", // defaults to monero-wallet-rpc directory<br>
+&nbsp;&nbsp; "--rpc-access-control-origins", "http://localhost:8080"<br>
+&nbsp; ]);
+
 </code>
 </div>
 
@@ -617,13 +630,16 @@ let walletRpc = monerojs.connectToWalletRpc({<br>
 
         <tr>
             
-                <td class="name"><code>uriOrConfigOrConnection</code></td>
+                <td class="name"><code>uriOrConfig</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="Array.html">Array</a>.&lt;string></span>
 |
 
 <span class="param-type">object</span>
@@ -639,7 +655,7 @@ let walletRpc = monerojs.connectToWalletRpc({<br>
 
             
 
-            <td class="description last">uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
+            <td class="description last">uri of monero-wallet-rpc or terminal parameters or JS config object or MoneroRpcConnection
                 <h6>Properties</h6>
                 
 
@@ -867,7 +883,7 @@ let walletRpc = monerojs.connectToWalletRpc({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line156">line 156</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line169">line 169</a>
     </li></ul></dd>
     
 
@@ -933,7 +949,7 @@ let walletRpc = monerojs.connectToWalletRpc({<br>
 
 
 <div class="description">
-    <p>Create a wallet using WebAssembly bindings to monero-core.</p>
+    <p>Create a wallet using WebAssembly bindings to monero-project.</p>
 
 <p>Example:</p>
 
@@ -1229,7 +1245,7 @@ let wallet = await monerojs.createWalletKeys({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line264">line 264</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line277">line 277</a>
     </li></ul></dd>
     
 
@@ -1295,7 +1311,7 @@ let wallet = await monerojs.createWalletKeys({<br>
 
 
 <div class="description">
-    <p>Create a wallet using WebAssembly bindings to monero-core.<p>
+    <p>Create a wallet using WebAssembly bindings to monero-project.<p>
 
 <p>Example:</p>
 
@@ -1827,7 +1843,7 @@ let wallet = await monerojs.createWalletWasm({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line194">line 194</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line207">line 207</a>
     </li></ul></dd>
     
 
@@ -2003,7 +2019,7 @@ let wallet = await monerojs.createWalletWasm({<br>
 
 
 <div class="description">
-    <p>Open an existing wallet using WebAssembly bindings to monero-core.</p>
+    <p>Open an existing wallet using WebAssembly bindings to monero-project.</p>
 
 <p>Examples:<p>
 
@@ -2551,7 +2567,7 @@ let wallet2 = await monerojs.openWalletWasm({<br>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line239">line 239</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line252">line 252</a>
     </li></ul></dd>
     
 
@@ -2619,13 +2635,13 @@ let wallet2 = await monerojs.openWalletWasm({<br>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ConnectionType.html">ConnectionType</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="LibraryUtils.html">LibraryUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></li><li><a href="MoneroMessageSignatureResult.html">MoneroMessageSignatureResult</a></li><li><a href="MoneroMessageSignatureType.html">MoneroMessageSignatureType</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroNetworkType.html">MoneroNetworkType</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxConfig.html">MoneroTxConfig</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxPriority.html">MoneroTxPriority</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="SslOptions.html">SslOptions</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#connectToDaemonRpc">connectToDaemonRpc</a></li><li><a href="global.html#connectToWalletRpc">connectToWalletRpc</a></li><li><a href="global.html#createWalletKeys">createWalletKeys</a></li><li><a href="global.html#createWalletWasm">createWalletWasm</a></li><li><a href="global.html#getVersion">getVersion</a></li><li><a href="global.html#openWalletWasm">openWalletWasm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ConnectionType.html">ConnectionType</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="LibraryUtils.html">LibraryUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></li><li><a href="MoneroMessageSignatureResult.html">MoneroMessageSignatureResult</a></li><li><a href="MoneroMessageSignatureType.html">MoneroMessageSignatureType</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroNetworkType.html">MoneroNetworkType</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxConfig.html">MoneroTxConfig</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxPriority.html">MoneroTxPriority</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="SslOptions.html">SslOptions</a></li><li><a href="ThreadPool.html">ThreadPool</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#connectToDaemonRpc">connectToDaemonRpc</a></li><li><a href="global.html#connectToWalletRpc">connectToWalletRpc</a></li><li><a href="global.html#createWalletKeys">createWalletKeys</a></li><li><a href="global.html#createWalletWasm">createWalletWasm</a></li><li><a href="global.html#getVersion">getVersion</a></li><li><a href="global.html#openWalletWasm">openWalletWasm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Sep 30 2020 13:59:49 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Jan 13 2021 20:17:34 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

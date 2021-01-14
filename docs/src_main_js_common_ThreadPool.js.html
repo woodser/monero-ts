@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: src/main/js/daemon/model/MoneroDaemonConnectionSpan.js</title>
+    <title>JSDoc: Source: src/main/js/common/ThreadPool.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroDaemonConnectionSpan.js</h1>
+    <h1 class="page-title">Source: src/main/js/common/ThreadPool.js</h1>
 
     
 
@@ -27,83 +27,42 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Monero daemon connection span.
+ * Simple thread pool using the async library.
  */
-class MoneroDaemonConnectionSpan {
+class ThreadPool {
   
-  constructor(state) {
-    this.state = Object.assign({}, state);
-  }
-  
-  toJson() {
-    return Object.assign({}, this.state);
-  }
-  
-  getConnectionId() {
-    return this.state.connectionId;
-  }
-
-  setConnectionId(connectionId) {
-    this.state.connectionId = connectionId;
-    return this;
+  /**
+   * Construct the thread pool.
+   * 
+   * @param {int} maxConcurrency - maximum number of threads in the pool (default 1)
+   */
+  constructor(maxConcurrency) {
+    if (maxConcurrency === undefined) maxConcurrency = 1;
+    if (maxConcurrency &lt; 1) throw new Error("Max concurrency must be greater than or equal to 1");
+    const async = require("async");
+    this.taskQueue = async.queue(function(asyncFn, callback) {
+      if (asyncFn.then) asyncFn.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+      else asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+    }, maxConcurrency);
   }
   
-  getNumBlocks() {
-    return this.state.numBlocks;
-  }
-
-  setNumBlocks(numBlocks) {
-    this.state.numBlocks = numBlocks;
-    return this;
-  }
-  
-  getRemoteAddress() {
-    return this.state.remoteAddress;
-  }
-
-  setRemoteAddress(remoteAddress) {
-    this.state.remoteAddress = remoteAddress;
-    return this;
-  }
-  
-  getRate() {
-    return this.state.rate;
-  }
-
-  setRate(rate) {
-    this.state.rate = rate;
-    return this;
-  }
-  
-  getSpeed() {
-    return this.state.speed;
-  }
-
-  setSpeed(speed) {
-    this.state.speed = speed;
-    return this;
-  }
-  
-  getSize() {
-    return this.state.size;
-  }
-  
-  setSize(size) {
-    this.state.size = size;
-    return this;
-  }
-  
-  getStartHeight() {
-    return this.state.startHeight;
-  }
-  
-  setStartHeight(startHeight) {
-    this.state.startHeight = startHeight;
-    return this;
+  /**
+   * Submit an asynchronous function to run using the thread pool.
+   * 
+   * @param {function} asyncFn - asynchronous function to run with the thread pool
+   */
+  async submit(asyncFn) {
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      that.taskQueue.push(asyncFn, function(resp, err) {
+        if (err !== undefined) reject(err);
+        else resolve(resp);
+      });
+    });
   }
 }
 
-module.exports = MoneroDaemonConnectionSpan;</code></pre>
+module.exports = ThreadPool;</code></pre>
         </article>
     </section>
 

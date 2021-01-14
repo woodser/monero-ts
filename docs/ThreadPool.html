@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: src/main/js/daemon/model/MoneroDaemonConnectionSpan.js</title>
+    <title>JSDoc: Class: ThreadPool</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,95 +17,331 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroDaemonConnectionSpan.js</h1>
+    <h1 class="page-title">Class: ThreadPool</h1>
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Monero daemon connection span.
- */
-class MoneroDaemonConnectionSpan {
-  
-  constructor(state) {
-    this.state = Object.assign({}, state);
-  }
-  
-  toJson() {
-    return Object.assign({}, this.state);
-  }
-  
-  getConnectionId() {
-    return this.state.connectionId;
-  }
+        <h2><span class="attribs"><span class="type-signature"></span></span>ThreadPool<span class="signature">(maxConcurrency)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">Simple thread pool using the async library.</div>
+        
+    
+</header>
 
-  setConnectionId(connectionId) {
-    this.state.connectionId = connectionId;
-    return this;
-  }
-  
-  getNumBlocks() {
-    return this.state.numBlocks;
-  }
+<article>
+    <div class="container-overview">
+    
+        
 
-  setNumBlocks(numBlocks) {
-    this.state.numBlocks = numBlocks;
-    return this;
-  }
-  
-  getRemoteAddress() {
-    return this.state.remoteAddress;
-  }
+    
+    <h2>Constructor</h2>
+    
 
-  setRemoteAddress(remoteAddress) {
-    this.state.remoteAddress = remoteAddress;
-    return this;
-  }
-  
-  getRate() {
-    return this.state.rate;
-  }
+    
+    <h4 class="name" id="ThreadPool"><span class="type-signature"></span>new ThreadPool<span class="signature">(maxConcurrency)</span><span class="type-signature"></span></h4>
+    
 
-  setRate(rate) {
-    this.state.rate = rate;
-    return this;
-  }
-  
-  getSpeed() {
-    return this.state.speed;
-  }
+    
 
-  setSpeed(speed) {
-    this.state.speed = speed;
-    return this;
-  }
-  
-  getSize() {
-    return this.state.size;
-  }
-  
-  setSize(size) {
-    this.state.size = size;
-    return this;
-  }
-  
-  getStartHeight() {
-    return this.state.startHeight;
-  }
-  
-  setStartHeight(startHeight) {
-    this.state.startHeight = startHeight;
-    return this;
-  }
-}
 
-module.exports = MoneroDaemonConnectionSpan;</code></pre>
-        </article>
-    </section>
+
+<div class="description">
+    Construct the thread pool.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxConcurrency</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">maximum number of threads in the pool (default 1)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_ThreadPool.js.html">src/main/js/common/ThreadPool.js</a>, <a href="src_main_js_common_ThreadPool.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="submit"><span class="type-signature">(async) </span>submit<span class="signature">(asyncFn)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Submit an asynchronous function to run using the thread pool.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>asyncFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">asynchronous function to run with the thread pool</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_ThreadPool.js.html">src/main/js/common/ThreadPool.js</a>, <a href="src_main_js_common_ThreadPool.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -119,7 +355,7 @@ module.exports = MoneroDaemonConnectionSpan;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Jan 13 2021 20:17:34 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Jan 13 2021 20:17:35 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
