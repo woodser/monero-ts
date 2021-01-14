@@ -337,9 +337,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let params = { filename: name, password: password, language: language };
     try {
       await this.rpc.sendJsonRequest("create_wallet", params);
-    } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
-      throw e;
+    } catch (err) {
+      this._handleCreateWalletError(name, err);
     }
     await this._clear();
     this.path = name;
@@ -368,9 +367,8 @@ class MoneroWalletRpc extends MoneroWallet {
         language: language,
         autosave_current: saveCurrent
       });
-    } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
-      throw e;
+    } catch (err) {
+      this._handleCreateWalletError(name, err);
     }
     await this._clear();
     this.path = name;
@@ -401,12 +399,17 @@ class MoneroWalletRpc extends MoneroWallet {
         restore_height: restoreHeight,
         autosave_current: saveCurrent
       });
-    } catch (e) {
-      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, e.getCode(), e.getRpcMethod(), e.getRpcParams());
-      throw e;
+    } catch (err) {
+      this._handleCreateWalletError(name, err);
     }
     await this._clear();
     this.path = name;
+  }
+  
+  _handleCreateWalletError(name, err) {
+    if (err.message === "Cannot create wallet. Already exists.") throw new MoneroRpcError("Wallet already exists: " + name, err.getCode(), err.getRpcMethod(), err.getRpcParams());
+    if (err.message === "Electrum-style word list failed verification") throw new MoneroRpcError("Invalid mnemonic", err.getCode(), err.getRpcMethod(), err.getRpcParams());
+    throw err;
   }
   
   async isViewOnly() {

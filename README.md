@@ -105,8 +105,8 @@ await walletFull.close(true);
 ## Documentation
 
 * [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html)
-* [Mocha tests](src/test)
 * [API and model overview with visual diagrams](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [Mocha tests](src/test)
 * [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
 * [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
 * [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)

@@ -242,6 +242,14 @@ class TestMoneroWalletCommon {
           await that.closeWallet(wallet);
           if (e2 !== undefined) throw e2;
           
+          // attempt to create wallet with two missing words
+          try {
+            let invalidMnemonic = "memoir desk algebra inbound innocent unplugs fully okay five inflamed giant factual ritual toyed topic snake unhappy guarded tweezers haunted inundate giant";
+            await that.createWallet(new MoneroWalletConfig().setMnemonic(invalidMnemonic).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT));
+          } catch(err) {
+            assert.equal("Invalid mnemonic", err.message);
+          }
+          
           // attempt to create wallet at same path
           if (path) {
             try {
