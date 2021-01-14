@@ -238,7 +238,7 @@ set(
     src/daemon/monero_daemon.cpp
     src/wallet/monero_wallet_model.cpp
     src/wallet/monero_wallet_keys.cpp
-    src/wallet/monero_wallet_core.cpp
+    src/wallet/monero_wallet_full.cpp
 )
 
 if (BUILD_LIBRARY)

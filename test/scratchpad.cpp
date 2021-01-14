@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "wallet2.h"
-#include "wallet/monero_wallet_core.h"
+#include "wallet/monero_wallet_full.h"
 
 using namespace std;
 
@@ -29,7 +29,7 @@ int main(int argc, const char* argv[]) {
   int network_type = 2;
 
   // load wallet
-  monero_wallet* wallet = monero_wallet_core::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", monero_network_type::STAGENET);
+  monero_wallet* wallet = monero_wallet_full::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", monero_network_type::STAGENET);
   wallet->set_daemon_connection("http://localhost:38081", "", "");
 
   // fetch txs

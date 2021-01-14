@@ -60,7 +60,7 @@
 #include <boost/thread/condition_variable.hpp>
 
 /**
- * Implements a monero_wallet.h by wrapping wallet2.h.
+ * Implements a monero_wallet.h by wrapping monero-project's wallet2.
  */
 namespace monero {
 
@@ -74,7 +74,7 @@ namespace monero {
   /**
    * Monero wallet implementation which uses monero-project's wallet2.
    */
-  class monero_wallet_core : public monero_wallet {
+  class monero_wallet_full : public monero_wallet {
 
   public:
 
@@ -94,7 +94,7 @@ namespace monero {
      * @param network_type is the wallet's network type
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* open_wallet(const std::string& path, const std::string& password, const monero_network_type network_type);
+    static monero_wallet_full* open_wallet(const std::string& path, const std::string& password, const monero_network_type network_type);
 
     /**
      * Open an in-memory wallet from existing data buffers.
@@ -107,7 +107,7 @@ namespace monero {
      * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* open_wallet_data(const std::string& password, const monero_network_type, const std::string& keys_data, const std::string& cache_data, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_full* open_wallet_data(const std::string& password, const monero_network_type, const std::string& keys_data, const std::string& cache_data, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
 
     /**
      * Create a new wallet with a randomly generated seed.
@@ -120,7 +120,7 @@ namespace monero {
      * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_random(const std::string& path, const std::string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), const std::string& language = "English", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_full* create_wallet_random(const std::string& path, const std::string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), const std::string& language = "English", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
@@ -134,7 +134,7 @@ namespace monero {
      * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const std::string& path, const std::string& password, const monero_network_type network_type, const std::string& mnemonic, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const std::string& seed_offset = "", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_full* create_wallet_from_mnemonic(const std::string& path, const std::string& password, const monero_network_type network_type, const std::string& mnemonic, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const std::string& seed_offset = "", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
 
     /**
      * Create a wallet from an address, view key, and spend key.
@@ -151,7 +151,7 @@ namespace monero {
      * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_keys(const std::string& path, const std::string& password, const monero_network_type network_type, const std::string& address, const std::string& view_key, const std::string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const std::string& language = "English", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_full* create_wallet_from_keys(const std::string& path, const std::string& password, const monero_network_type network_type, const std::string& address, const std::string& view_key, const std::string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const std::string& language = "English", std::unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
 
     /**
      * Get a list of available languages for the wallet's mnemonic phrase.
@@ -165,7 +165,7 @@ namespace monero {
     /**
      * Destruct the wallet.
      */
-    ~monero_wallet_core();
+    ~monero_wallet_full();
 
     /**
      * Supported wallet methods.
