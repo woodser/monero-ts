@@ -107,7 +107,7 @@ struct : monero_wallet_listener {
     bool is_locked = dynamic_pointer_cast<monero_tx_wallet>(output.m_tx)->m_is_locked.get();
     int account_index = output.m_account_index.get();
     int subaddress_index = output.m_subaddress_index.get();
-    OUTPUT_RECEIVED = true;
+    FUNDS_RECEIVED = true;
   }
 } my_listener;
 wallet_random->add_listener(my_listener);
@@ -119,7 +119,7 @@ struct : monero_wallet_listener {
     string tx_hash = output.m_tx->m_hash.get();
     int account_index = output.m_account_index.get();
     int subaddress_index = output.m_subaddress_index.get();
-    OUTPUT_RECEIVED = true;
+    FUNDS_RECEIVED = true;
   }
 } my_listener;
 wallet_random->add_listener(my_listener);

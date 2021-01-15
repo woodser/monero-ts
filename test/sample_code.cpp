@@ -5,7 +5,7 @@
 
 using namespace std;
 
-bool OUTPUT_RECEIVED = false;
+bool FUNDS_RECEIVED = false;
 
 /**
  * This code introduces the API.
@@ -103,7 +103,7 @@ int main(int argc, const char* argv[]) {
       bool is_locked = static_pointer_cast<monero_tx_wallet>(output.m_tx)->m_is_locked.get();
       int account_index = output.m_account_index.get();
       int subaddress_index = output.m_subaddress_index.get();
-      OUTPUT_RECEIVED = true;
+      FUNDS_RECEIVED = true;
     }
   } my_listener;
   wallet_random->add_listener(my_listener);
@@ -148,7 +148,7 @@ int main(int argc, const char* argv[]) {
   wallet_restored->relay_tx(*created_tx); // recipient receives notification within 5 seconds
 
   // the recipient wallet will be notified
-  if (OUTPUT_RECEIVED) cout << "Sample code completed successfully" << endl;
+  if (FUNDS_RECEIVED) cout << "Sample code completed successfully" << endl;
   else throw runtime_error("Output should have been received");
 
   // save and close the wallets
