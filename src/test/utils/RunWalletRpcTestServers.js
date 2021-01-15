@@ -1,7 +1,7 @@
 const TestUtils = require("./TestUtils");
 
 /**
- * Utility class to run monero-wallet-rpc test processes until terminated.
+ * Utility class to run monero-wallet-rpc test servers until terminated.
  */
 class RunWalletRpcTestServers {
   

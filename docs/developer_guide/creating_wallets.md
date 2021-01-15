@@ -39,7 +39,7 @@ See [MoneroWalletFull.createWallet()](https://moneroecosystem.org/monero-javascr
 let monerojs = require("monero-javascript");
 
 // create wallet using WebAssembly
-let wallet = await monerojs.createWalletWasm({
+let wallet = await monerojs.createWalletFull({
    path: "./test_wallets/wallet1", // leave blank for in-memory wallet
    password: "supersecretpassword",
    networkType: "stagenet",

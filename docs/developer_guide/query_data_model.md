@@ -103,6 +103,8 @@ let outputs = await wallet.getOutputs({
   subaddressIndex: 1
 });
 
+```javascript
+// get outputs by their key image hex
 let keyImage = outputs[0].getKeyImage().getHex();
 outputs = await wallet.getOutputs({
   keyImage: keyImage

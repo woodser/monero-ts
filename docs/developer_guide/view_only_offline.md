@@ -21,7 +21,7 @@ The following code demonstrates creating, signing, and submitting transactions u
 const monerojs = require("monero-javascript");
 
 // create and sync view-only wallet without spend key
-let viewOnlyWallet = await monerojs.createWalletWasm({
+let viewOnlyWallet = await monerojs.createWalletFull({
   path: "my_view_only_wallet",
   networkType: "stagenet",
   primaryAddress: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
@@ -32,7 +32,7 @@ let viewOnlyWallet = await monerojs.createWalletWasm({
 await viewOnlyWallet.sync();
 
 // create offline wallet
-let offlineWallet = await monerojs.createWalletWasm({
+let offlineWallet = await monerojs.createWalletFull({
   path: "my_offline_wallet",
   networkType: "stagenet",
   mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual..."

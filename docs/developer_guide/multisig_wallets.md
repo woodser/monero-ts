@@ -13,7 +13,7 @@ let N = 5;
 const monerojs = require("monero-javascript");
 let wallets = []
 for (let i = 0; i < N; i++) {
-  wallets.push(await monerojs.createWalletWasm({
+  wallets.push(await monerojs.createWalletFull({
     path: "./test_wallets/multisig_participant_" + (i + 1),
     password: "supersecretpassword123",
     networkType: "stagenet"
