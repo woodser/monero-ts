@@ -1696,6 +1696,12 @@ class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can check a transfer using the transaction's secret key and the destination", async function() {
         
+        // wait for pool txs to confirm if no confirmed txs with destinations
+        if ((await that.wallet.getTxs({isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}})).length === 0) {
+          TestUtils.WALLET_TX_TRACKER.reset();
+          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        }
+        
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {

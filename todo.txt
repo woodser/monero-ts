@@ -1,5 +1,7 @@
-support startSyncing(refreshRate)
-support listener js object
+mjs wallets incompatible with monero-java/monero-project
+deprecated dependencies
+esling config?
+support daemon listener js object
 support strings in queries, etc
 wallet.waitForTxsToClearPool()?
 http request timeout
