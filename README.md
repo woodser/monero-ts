@@ -164,7 +164,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 #### Running tests in the browser
 
-1. Start monero-wallet-rpc servers used by tests: `./bin/run_wallet_rpc_test_servers.sh`
+1. Start monero-wallet-rpc servers used by tests: `./bin/start_wallet_rpc_test_servers.sh`
 2. In another terminal, build browser tests: `./bin/build_browser_tests.sh`
 3. Access http://localhost:8080/tests.html in a browser to run all tests
 

@@ -5,8 +5,8 @@ git submodule update --init --recursive
 
 # update monero-cpp
 cd ./external/monero-cpp
-git checkout tags/v0.3.7
-git pull --ff-only origin tags/v0.3.7
+git checkout master
+git pull --ff-only origin master
 
 # update monero-project
 cd ./external/monero-project
