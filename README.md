@@ -180,15 +180,16 @@ This project may be compiled as part of another application or built as a shared
 
 For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
 
-1. Clone this project repository (unless included as a submodule in another project): `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
-2. Build monero-project:
-    1. Install [dependencies](https://github.com/monero-project/monero#dependencies) using your system's package manager (boost, openssl, hidapi, sodium, etc)
-    2. Update submodules: `./bin/update_submodules.sh`
-    3. Modify ./external/monero-project/CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
-    4. `cd ./external/monero-project`
-    5. Run twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j16`
-3. Link to this library's source files in your application or build as a shared library in ./build/: `./bin/build_libmonero_cpp.sh`
-       
+1. Install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) for your system<br>
+ Ubuntu: `sudo apt install git libboost-all-dev cmake g++ make libssl-dev libzmq3-dev libhidapi-dev libudev-dev libusb-1.0-0-dev libfox-1.6-dev`
+2. If building this library standalone instead of as a submodule in another project, clone the project repository and update its submodules:
+    1. `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
+    2. `cd ./monero-cpp && ./bin/update_submodules.sh`
+3. `export MONERO_CPP=path/to/monero-cpp`
+4. Modify $MONERO_CPP/external/monero-project/CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
+4. Build monero-project twice to create libwallet_merged.a and other .a libraries, e.g.: `cd $MONERO_CPP/external/monero-project && make release-static -j8 && make release-static -j8`
+5. Link to this library's source files in your application or build as a shared library in ./build/: `cd $MONERO_CPP && ./bin/build_libmonero_cpp.sh`
+
 ## Related projects
 
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
