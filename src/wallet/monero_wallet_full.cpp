@@ -1769,7 +1769,7 @@ namespace monero {
 
     // check if request cannot be fulfilled due to splitting
     if (config.m_can_split != boost::none && config.m_can_split.get() == false && ptx_vector.size() != 1) {
-      throw std::runtime_error("Transaction would be too large.  Try send_txs()");
+      throw std::runtime_error("Transaction would be too large.  Try create_txs()");
     }
 
     // config for fill_response()
@@ -2101,7 +2101,7 @@ namespace monero {
       throw std::runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
-    // build sent txs from results  // TODO: use common utility with send_txs() to avoid code duplication
+    // build sent txs from results  // TODO: use common utility with create_txs() to avoid code duplication
     std::vector<std::shared_ptr<monero_tx_wallet>> txs;
     auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
@@ -2192,7 +2192,7 @@ namespace monero {
       throw std::runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
-    // build sent txs from results  // TODO: use common utility with send_txs() to avoid code duplication
+    // build sent txs from results  // TODO: use common utility with create_txs() to avoid code duplication
     std::vector<std::shared_ptr<monero_tx_wallet>> txs;
     auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
