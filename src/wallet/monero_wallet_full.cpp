@@ -945,7 +945,7 @@ namespace monero {
     bool key_file_exists;
     bool wallet_file_exists;
     tools::wallet2::wallet_exists(path, key_file_exists, wallet_file_exists);
-    return wallet_file_exists;
+    return key_file_exists;
   }
 
   monero_wallet_full* monero_wallet_full::open_wallet(const std::string& path, const std::string& password, const monero_network_type network_type) {
