@@ -1,7 +1,7 @@
 var searchData=
 [
   ['make_5fmultisig_80',['make_multisig',['../classmonero_1_1monero__wallet.html#a98d17406e8da363e0bab6c155aa87267',1,'monero::monero_wallet::make_multisig()'],['../classmonero_1_1monero__wallet__full.html#ab3bd9f79ad125bd5060dabf61faa2d98',1,'monero::monero_wallet_full::make_multisig()']]],
-  ['merge_5ftx_81',['merge_tx',['../namespacemonero.html#ab5964a843299654ccde0e70be4727665',1,'monero']]],
+  ['merge_5ftx_81',['merge_tx',['../namespacemonero.html#a33c4fb9da9e3f83543bb4bc0da940fd9',1,'monero']]],
   ['monero_82',['monero',['../namespacemonero.html',1,'']]],
   ['monero_5faccount_83',['monero_account',['../structmonero_1_1monero__account.html',1,'monero']]],
   ['monero_5faddress_5fbook_5fentry_84',['monero_address_book_entry',['../structmonero_1_1monero__address__book__entry.html',1,'monero']]],

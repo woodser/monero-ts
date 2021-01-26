@@ -202,8 +202,8 @@ std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html"
 <tr class="memitem:a9472c29f8a2b9a64aa76befe2a0ec424"><td class="memItemLeft" align="right" valign="top"><a id="a9472c29f8a2b9a64aa76befe2a0ec424"></a>
 std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>build_tx_with_vout</b> (tools::wallet2 &amp;m_w2, const tools::wallet2::transfer_details &amp;td)</td></tr>
 <tr class="separator:a9472c29f8a2b9a64aa76befe2a0ec424"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5964a843299654ccde0e70be4727665"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab5964a843299654ccde0e70be4727665">merge_tx</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;tx_map, std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;block_map, bool skip_if_absent)</td></tr>
-<tr class="separator:ab5964a843299654ccde0e70be4727665"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33c4fb9da9e3f83543bb4bc0da940fd9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a33c4fb9da9e3f83543bb4bc0da940fd9">merge_tx</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx, std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;tx_map, std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;block_map)</td></tr>
+<tr class="separator:a33c4fb9da9e3f83543bb4bc0da940fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9ff4ca60dce77e4685c22d25541e2bc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ab9ff4ca60dce77e4685c22d25541e2bc">tx_height_less_than</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tx2)</td></tr>
 <tr class="separator:ab9ff4ca60dce77e4685c22d25541e2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d80896e08b3cf2698745f2e6bd510f2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a3d80896e08b3cf2698745f2e6bd510f2">incoming_transfer_before</a> (const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer1, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer2)</td></tr>
@@ -387,8 +387,8 @@ std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">mone
 
 </div>
 </div>
-<a id="ab5964a843299654ccde0e70be4727665"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab5964a843299654ccde0e70be4727665">&#9670;&nbsp;</a></span>merge_tx()</h2>
+<a id="a33c4fb9da9e3f83543bb4bc0da940fd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33c4fb9da9e3f83543bb4bc0da940fd9">&#9670;&nbsp;</a></span>merge_tx()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -409,13 +409,7 @@ std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">mone
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::map&lt; uint64_t, std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&gt; &amp;&#160;</td>
-          <td class="paramname"><em>block_map</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>skip_if_absent</em>&#160;</td>
+          <td class="paramname"><em>block_map</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -425,13 +419,11 @@ std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">mone
       </table>
 </div><div class="memdoc">
 <p>Merges a transaction into a unique std::set of transactions.</p>
-<p>TODO monero-project: skip_if_absent only necessary because incoming payments not returned when sent from/to same account #4500</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">tx</td><td>is the transaction to merge into the existing txs </td></tr>
     <tr><td class="paramname">tx_map</td><td>maps tx hashes to txs </td></tr>
     <tr><td class="paramname">block_map</td><td>maps block heights to blocks </td></tr>
-    <tr><td class="paramname">skip_if_absent</td><td>specifies if the tx should not be added if it doesn't already exist </td></tr>
   </table>
   </dd>
 </dl>
