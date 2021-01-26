@@ -2350,6 +2350,7 @@ class TestMoneroWalletCommon {
               }
             }
             if (notifiedLate) console.error("WARNING: late notification of received output");
+            else console.error("Notification of received funds not received after waiting");
           }
           assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds in " + (sameAccount ? "same account" : "different wallets"));
           for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
