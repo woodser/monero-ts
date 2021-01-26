@@ -1645,18 +1645,14 @@ class MoneroWalletFull extends MoneroWalletKeys {
     this._syncLoopRunning = true;
     
     // sync while enabled
-    let that = this;
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
     while (this._syncingEnabled) {
-      try {
-        console.log("Background synchronizing " + label);
-        await this.sync();
-      } catch (err) {
-        if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + err.message);
-      }
-      
-      // only wait if syncing still enabled
-      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, that._syncPeriodInMs); });
+      let start = Date.now();
+      console.log("Background synchronizing " + label);
+      try { await this.sync(); }
+      catch (err) { if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + err.message); }
+      let sleepTime = this._syncPeriodInMs - (Date.now() - start); // target regular sync period by accounting for poll time
+      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, sleepTime); });
     }
     
     this._syncLoopRunning = false;

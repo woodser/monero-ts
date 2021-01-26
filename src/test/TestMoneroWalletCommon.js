@@ -158,15 +158,6 @@ class TestMoneroWalletCommon {
       
       //  --------------------------- TEST NON RELAYS -------------------------
       
-      // local tx cache for tests
-      let txCache;
-      async function getCachedTxs() {
-        if (txCache !== undefined) return txCache;
-        txCache = await that.wallet.getTxs();
-        testGetTxsStructure(txCache);
-        return txCache;
-      }
-      
       if (testConfig.testRelays)
       it("Can send to multiple addresses in a single transaction", async function() {
         for (let i = 0; i < 3; i++) {
@@ -186,7 +177,7 @@ class TestMoneroWalletCommon {
             MoneroUtils.validatePrivateViewKey(await wallet.getPrivateViewKey());
             MoneroUtils.validatePrivateSpendKey(await wallet.getPrivateSpendKey());
             MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);   // TODO monero-wallet-rpc: get mnemonic language
+            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE); // TODO monero-wallet-rpc: get mnemonic language
           } catch (e) {
             e2 = e;
           }
@@ -2346,7 +2337,21 @@ class TestMoneroWalletCommon {
           // unconfirmed funds received within sync period
           await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
           await receiver.getTx(tx.getHash());
-          assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds within sync period in " + (sameAccount ? "same account" : "different wallets"));
+          
+          // log warning if late notification
+          if (receiverListener.getOutputsReceived().length === 0) {
+            let notifiedLate = false;
+            for (let i = 0; i < 5; i++) {
+              console.log("Waiting for late output notification...");
+              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+              if (receiverListener.getOutputsReceived().length > 0) {
+                notifiedLate = true;
+                break;
+              }
+            }
+            if (notifiedLate) console.error("WARNING: late notification of received output");
+          }
+          assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds in " + (sameAccount ? "same account" : "different wallets"));
           for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
         } catch (e) {
           err = e;
@@ -2454,11 +2459,26 @@ class TestMoneroWalletCommon {
             errors.push("ERROR: Tx failed in mempool: " + tx.getHash());
             return errors;
           }
-          await that.daemon.waitForNextBlockHeader();
+          
+          // stop if tx confirms without notification
+          if ((await wallet.getTx(tx.getHash())).isConfirmed()) {
+            try { await that.daemon.stopMining(); } catch (e) { }
+            
+            // wait a moment for notification to be received
+            let isWalletRpcWithoutZmq = wallet instanceof MoneroWalletRpc;
+            await new Promise(function(resolve) { setTimeout(resolve, isWalletRpcWithoutZmq ? TestUtils.SYNC_PERIOD_IN_MS : 1); });
+            if (!hasOutput(listener.getOutputsSpent(), tx.getHash(), undefined, undefined, undefined)) {
+              errors.push("ERROR: did not receive notification of received output");
+              return errors;
+            }
+          }
+          await new Promise(function(resolve) { setTimeout(resolve, 3000); });
         }
         try { await that.daemon.stopMining(); } catch (e) { }
         
         // test output notifications
+        for (let input of listener.getOutputsSpent()) testNotifiedOutput(wallet, input, true);
+        for (let output of listener.getOutputsReceived()) testNotifiedOutput(wallet, output, false);
         if (listener.getOutputsReceived().length === 0) {
           errors.push("ERROR: got " + listener.getOutputsReceived().length + " output received notifications when at least 1 was expected");
           return errors;
@@ -2470,9 +2490,26 @@ class TestMoneroWalletCommon {
         
         // must receive outputs with known subaddresses and amounts
         for (let destinationAccount of destinationAccounts) {
-          if (!hasOutput(listener.getOutputsReceived(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
-            errors.push("ERROR: missing expected received output to subaddress [" + destinationAccount + ", 0] of amount " + TestUtils.MAX_FEE);
-            return errors;
+          if (!hasOutput(listener.getOutputsReceived(), tx.getHash(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
+            
+            // log warning if late notification
+            let notifiedLate = false;
+            for (let i = 0; i < 5; i++) {
+              console.log("Waiting for late output notification...");
+              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+              if (hasOutput(listener.getOutputsReceived(), tx.getHash(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
+                notifiedLate = true;
+                break;
+              }
+            }
+            if (notifiedLate) {
+              let msg = "WARNING: late notification of received output";
+              console.error(msg);
+              errors.push(msg);
+            } else {
+              errors.push("ERROR: missing expected received output to subaddress [" + destinationAccount + ", 0] of amount " + TestUtils.MAX_FEE);
+              return errors;
+            }
           }
         }
         
@@ -2490,6 +2527,9 @@ class TestMoneroWalletCommon {
           errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
           return errors;
         }
+        
+        // receives notifications when outputs confirm
+        if (numConfirmedOutputs === 0) errors.push("ERROR: expected notifications when outputs confirm");
         
         // receives notifications when the balances change
         if (listener.getBalanceNotifications().length === 0) errors.push("ERROR: expected at least one updated balance notification per confirmed output received");
@@ -2517,12 +2557,26 @@ class TestMoneroWalletCommon {
         return str;
       }
       
-      function hasOutput(outputs, accountIdx, subaddressIdx, amount) { // TODO: use common filter?
-        let query = new MoneroOutputQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx).setAmount(amount);
+      function hasOutput(outputs, txHash, accountIdx, subaddressIdx, amount) { // TODO: use common filter?
+        let query = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(txHash)).setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx).setAmount(amount);
         for (let output of outputs) {
           if (query.meetsCriteria(output)) return true;
         }
         return false;
+      }
+      
+      function testNotifiedOutput(wallet, output, isTxInput) {
+        
+        // test tx link
+        assert.notEqual(undefined, output.getTx());
+        if (isTxInput) assert(output.getTx().getInputs().includes(output));
+        else assert(output.getTx().getOutputs().includes(output));
+        
+        // test output values
+        TestUtils.testUnsignedBigInteger(output.getAmount());
+        assert(output.getAccountIndex() >= 0);
+        if (output.getSubaddressIndex() === undefined) assert(isTxInput && wallet instanceof MoneroWalletRpc, "Output must have subaddress index unless it is an input from monero-wallet-rpc since monero-wallet-rpc does not support scrape of tx inputs"); // TODO (monero-project): allow scrape of tx inputs
+        else assert(output.getSubaddressIndex() >= 0);
       }
       
       it("Can stop listening", async function() {
@@ -2621,6 +2675,20 @@ class TestMoneroWalletCommon {
                   
                   // receives notification of unlocked tx when blockchain height reaches unlock height
                   if (listener.confirmedHeight !== undefined && blockchainHeight >= unlockHeight) {
+                    
+                    // log warning if late notification
+                    if (listener.lastNotifiedOutput.isLocked() !== false) {
+                      let notifiedLate = false;
+                      for (let i = 0; i < 5; i++) { // wait a few sync periods to receive unlock notification
+                        console.log("Waiting for late unlock notification...");
+                        await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+                        if (listener.lastNotifiedOutput.isLocked() === false) {
+                          notifiedLate = true;
+                          break;
+                        }
+                      }
+                      if (notifiedLate) console.error("WARNING: late notification of unlocked output");
+                    }
                     if (listener.lastNotifiedOutput.isLocked() !== false) throw new Error("Last notified output expected to be unlocked but isLocked=" + listener.lastNotifiedOutput.isLocked());
                     if (sendAmount.compare(listener.lastOnBalancesChangedBalance) !== 0 || sendAmount.compare(listener.lastOnBalancesChangedUnlockedBalance) !== 0) throw new Error("Expected last notified onBalancesChanged() to be with unlocked send amount");
                     listener.unlockedSeen = true;
@@ -3907,8 +3975,8 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isDoubleSpendSeen(), false);
       assert(tx.getNumConfirmations() > 0);
     } else {
-      assert.equal(tx.getBlock(), undefined);
-      assert.equal(tx.getNumConfirmations(), 0);
+      assert.equal(undefined, tx.getBlock());
+      assert.equal(0, tx.getNumConfirmations());
     }
     
     // test in tx pool
@@ -4711,6 +4779,7 @@ function testParsedTxSet(parsedTxSet) {
   // TODO: use common tx wallet test?
   assert.equal(parsedTxSet.getMultisigTxHex(), undefined);
   for (let parsedTx of parsedTxSet.getTxs()) {
+    assert(parsedTx.getTxSet() === parsedTxSet);
     TestUtils.testUnsignedBigInteger(parsedTx.getInputSum(), true);
     TestUtils.testUnsignedBigInteger(parsedTx.getOutputSum(), true);
     TestUtils.testUnsignedBigInteger(parsedTx.getFee());

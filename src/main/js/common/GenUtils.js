@@ -1471,6 +1471,16 @@ class GenUtils {
   static stringifyBIs(str) {
     return str.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"');
   }
+  
+  /**
+   * Print the current stack trace. 
+   * 
+   * @param {string} msg - optional message to print with the trace
+   */
+  static printStackTrace(msg) {
+    try { throw new Error(msg); }
+    catch (err) { console.error(err.stack); }
+  }
 }
 
 module.exports = GenUtils;

@@ -167,6 +167,25 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
+  getInputs(outputQuery) {
+    if (!outputQuery || !super.getInputs()) return super.getInputs();
+    let inputs = [];
+    for (let output of super.getInputs()) if (!outputQuery || outputQuery.meetsCriteria(output)) inputs.push(output);
+    return inputs;
+  }
+  
+  setInputs(inputs) {
+    
+    // validate that all inputs are wallet inputs
+    if (inputs) {
+      for (let output of inputs) {
+        if (!(output instanceof MoneroOutputWallet)) throw new MoneroError("Wallet transaction inputs must be of type MoneroOutputWallet");
+      }
+    }
+    super.setInputs(inputs);
+    return this;
+  }
+  
   getOutputs(outputQuery) {
     if (!outputQuery || !super.getOutputs()) return super.getOutputs();
     let outputs = [];
