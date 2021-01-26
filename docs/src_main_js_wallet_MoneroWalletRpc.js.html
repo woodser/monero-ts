@@ -170,7 +170,6 @@ class MoneroWalletRpc extends MoneroWallet {
           let sslIdx = cmd.indexOf("--rpc-ssl");
           let sslEnabled = sslIdx >= 0 ? "enabled" == cmd[sslIdx + 1].toLowerCase() : false;
           uri = (sslEnabled ? "https" : "http") + "://" + host + ":" + port;
-          console.log("URI: " + uri);
         }
         
         // read success message
@@ -840,7 +839,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let txMap = {};
     let blockMap = {};
     for (let tx of txs) {
-      MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+      MoneroWalletRpc._mergeTx(tx, txMap, blockMap);
     }
     
     // fetch and merge outputs if requested
@@ -851,7 +850,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let outputTxs = [];
       for (let output of outputs) {
         if (!outputTxs.includes(output.getTx())) {
-          MoneroWalletRpc._mergeTx(output.getTx(), txMap, blockMap, true);
+          MoneroWalletRpc._mergeTx(output.getTx(), txMap, blockMap);
           outputTxs.push(output.getTx());
         }
       }
@@ -1646,7 +1645,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         
         // merge tx
-        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap);
       }
     }
     
@@ -1713,7 +1712,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (resp.result.transfers === undefined) continue;
       for (let rpcOutput of resp.result.transfers) {
         let tx = MoneroWalletRpc._convertRpcTxWalletWithOutput(rpcOutput);
-        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap);
       }
     }
     
@@ -2192,6 +2191,7 @@ class MoneroWalletRpc extends MoneroWallet {
         txSet.setTxs([]);
         for (let txMap of val) {
           let tx = MoneroWalletRpc._convertRpcTxWithTransfer(txMap, undefined, true);
+          tx.setTxSet(txSet);
           txSet.getTxs().push(tx);
         }
       }
@@ -2269,42 +2269,23 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Merges a transaction into a unique set of transactions.
    *
-   * TODO monero-project: skipIfAbsent only necessary because incoming payments not returned
-   * when sent from/to same account #4500
-   *
    * @param {MoneroTxWallet} tx - the transaction to merge into the existing txs
    * @param {Object} txMap - maps tx hashes to txs
    * @param {Object} blockMap - maps block heights to blocks
-   * @param {bool} skipIfAbsent - specifies if the tx should not be added if it doesn't already exist
    */
-  static _mergeTx(tx, txMap, blockMap, skipIfAbsent) {
+  static _mergeTx(tx, txMap, blockMap) {
     assert(tx.getHash() !== undefined);
     
-    // if tx doesn't exist, add it unless skipped
+    // merge tx
     let aTx = txMap[tx.getHash()];
-    if (aTx === undefined) {
-      if (skipIfAbsent) {
-        console.error("WARNING: tx does not already exist and is being skipped during merge:\n" + JSON.stringify(tx.toJson()));
-        try { throw new Error("tx does not already exist and is being skipped during merge"); }
-        catch (err) { console.error(err.message + "\n" + err.stack); }
-      } else {
-        txMap[tx.getHash()] = tx;
-      }
-    }
+    if (aTx === undefined) txMap[tx.getHash()] = tx; // cache new tx
+    else aTx.merge(tx); // merge with existing tx
     
-    // otherwise merge with existing tx
-    else {
-      aTx.merge(tx);
-    }
-    
-    // if confirmed, merge tx's block
+    // merge tx's block if confirmed
     if (tx.getHeight() !== undefined) {
       let aBlock = blockMap[tx.getHeight()];
-      if (aBlock === undefined) {
-        blockMap[tx.getHeight()] = tx.getBlock();
-      } else {
-        aBlock.merge(tx.getBlock());
-      }
+      if (aBlock === undefined) blockMap[tx.getHeight()] = tx.getBlock(); // cache new block
+      else aBlock.merge(tx.getBlock()); // merge with existing block
     }
   }
   
@@ -2388,14 +2369,18 @@ class WalletRpcPollListener {
     this._isPollLoopRunning = true;
     
     // poll while enabled
+    let path = await this._wallet.getPath();
     while (this._isEnabled) {
-      try {
-        await this.poll();
-        let that = this;
-        if (this._isEnabled) await new Promise(function(resolve) { setTimeout(resolve, that._wallet.syncPeriodInMs); }); // sleep for sync period
-      } catch (err) {
-        if (this._isEnabled) throw err;
+      let start = Date.now();
+      try { await this.poll(); }
+      catch (err) {
+        if (this._isEnabled) {
+          console.error("Failed to background poll " + path);
+          console.error(err);
+        }
       }
+      let sleepTime = this._wallet.syncPeriodInMs - (Date.now() - start); // target regular sync period by accounting for poll time
+      if (this._isEnabled) await new Promise(function(resolve) { setTimeout(resolve, sleepTime); });
     }
     
     this._isPollLoopRunning = false;
@@ -2415,26 +2400,8 @@ class WalletRpcPollListener {
       return;
     }
     
-    // notify on height changes
-    let height = await this._wallet.getHeight();
-    if (this._prevHeight !== height) {
-      for (let i = this._prevHeight; i &lt; height; i++) await this._onNewBlock(i);
-      this._prevHeight = height;
-    }
-    
-    // notify on balance changes
-    await this._checkForChangedBalances();
-    
     // get locked txs for comparison to previous
     let lockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setIncludeOutputs(true));
-    
-    // notify on new unconfirmed and confirmed txs
-    for (let lockedTx of lockedTxs) {
-      let searchSet = lockedTx.isConfirmed() ? this._prevConfirmedNotifications : this._prevUnconfirmedNotifications;
-      let unannounced = !searchSet.has(lockedTx.getHash()) 
-      searchSet.add(lockedTx.getHash());
-      if (unannounced) await this._notifyOutputs(lockedTx);
-    }
     
     // collect hashes of txs no longer locked
     let noLongerLockedHashes = [];
@@ -2446,16 +2413,36 @@ class WalletRpcPollListener {
     
     // fetch txs that are no longer locked
     let unlockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
+    console.log()
     
-    // notify listeners of newly unlocked tx outputs
+    // save locked txs for next comparison
+    this._prevLockedTxs = lockedTxs;
+    
+    // announce height changes
+    let height = await this._wallet.getHeight();
+    if (this._prevHeight !== height) {
+      for (let i = this._prevHeight; i &lt; height; i++) await this._onNewBlock(i);
+      this._prevHeight = height;
+    }
+    
+    // announce balance changes
+    await this._checkForChangedBalances();
+    
+    // announce new unconfirmed and confirmed outputs
+    for (let lockedTx of lockedTxs) {
+      let searchSet = lockedTx.isConfirmed() ? this._prevConfirmedNotifications : this._prevUnconfirmedNotifications;
+      let unannounced = !searchSet.has(lockedTx.getHash()) 
+      searchSet.add(lockedTx.getHash());
+      if (unannounced) await this._notifyOutputs(lockedTx);
+    }
+    
+    // announce new unlocked outputs
     for (let unlockedTx of unlockedTxs) {
       this._prevUnconfirmedNotifications.delete(unlockedTx.getHash());
       this._prevConfirmedNotifications.delete(unlockedTx.getHash());
       await this._notifyOutputs(unlockedTx);
     }
     
-    // save locked txs for next comparison
-    this._prevLockedTxs = lockedTxs;
     this._isPolling = false;
   }
   
@@ -2466,8 +2453,15 @@ class WalletRpcPollListener {
   async _notifyOutputs(tx) {
   
     // notify spent outputs
+    // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx inputs so providing one input with outgoing transfer values
     if (tx.getOutgoingTransfer() !== undefined) {
-      let output = new MoneroOutputWallet().setAmount(tx.getOutgoingTransfer().getAmount()).setTx(tx); // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx spent outputs so providing one output with outgoing transfer amount linked to tx
+      assert(tx.getInputs() === undefined);
+      let output = new MoneroOutputWallet()
+          .setAmount(tx.getOutgoingTransfer().getAmount())
+          .setAccountIndex(tx.getOutgoingTransfer().getAccountIndex())
+          .setSubaddressIndex(tx.getOutgoingTransfer().getSubaddressIndices().length === 1 ? tx.getOutgoingTransfer().getSubaddressIndices()[0] : undefined) // initialize if transfer sourced from single subaddress
+          .setTx(tx);
+      tx.setInputs([output]);
       for (let listener of this._wallet.getListeners()) await listener.onOutputSpent(output);
     }
     
@@ -2475,14 +2469,20 @@ class WalletRpcPollListener {
     if (tx.getIncomingTransfers() !== undefined) {
       if (tx.getOutputs() !== undefined &amp;&amp; tx.getOutputs().length > 0) { // TODO (monero-project): outputs only returned for confirmed txs
         for (let output of tx.getOutputs()) {
-          if (output.getAccountIndex() !== undefined) { // TODO: ensure sender does not get this notification unless sent to them
-            for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(output);
-          }
-        }
-      } else {
-        for (let transfer of tx.getIncomingTransfers()) {
-          let output = new MoneroOutputWallet().setAccountIndex(transfer.getAccountIndex()).setSubaddressIndex(transfer.getSubaddressIndex()).setAmount(transfer.getAmount()).setTx(tx); // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using transfer values as outputs
           for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(output);
+        }
+      } else { // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using incoming transfer values
+        let outputs = [];
+        for (let transfer of tx.getIncomingTransfers()) {
+          outputs.push(new MoneroOutputWallet()
+              .setAccountIndex(transfer.getAccountIndex())
+              .setSubaddressIndex(transfer.getSubaddressIndex())
+              .setAmount(transfer.getAmount())
+              .setTx(tx));
+        }
+        tx.setOutputs(outputs);
+        for (let listener of this._wallet.getListeners()) {
+          for (let output of tx.getOutputs()) await listener.onOutputReceived(output);
         }
       }
     }
@@ -2524,7 +2524,7 @@ module.exports = MoneroWalletRpc;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Jan 14 2021 21:04:41 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jan 26 2021 11:44:18 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
