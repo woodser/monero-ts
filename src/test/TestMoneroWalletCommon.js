@@ -3430,7 +3430,6 @@ class TestMoneroWalletCommon {
           let outputsHex = await viewOnlyWallet.getOutputsHex();
           
           // create offline wallet
-          await that.closeWallet(viewOnlyWallet, true); // only one wallet open at a time to accommodate testing wallet rpc
           offlineWallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, serverUri: "", restoreHeight: 0});
           assert(!await offlineWallet.isConnected());
           assert(!await offlineWallet.isViewOnly());
@@ -3445,8 +3444,6 @@ class TestMoneroWalletCommon {
           let keyImages = await offlineWallet.getKeyImages();
           
           // import key images to view-only wallet
-          await that.closeWallet(offlineWallet, true);
-          viewOnlyWallet = await that.openWallet({path: viewOnlyPath});
           await viewOnlyWallet.importKeyImages(keyImages);
           
           // create unsigned tx using view-only wallet
@@ -3455,8 +3452,6 @@ class TestMoneroWalletCommon {
           assert(unsignedTx.getTxSet().getUnsignedTxHex());
           
           // sign tx using offline wallet
-          await that.closeWallet(viewOnlyWallet, true);
-          offlineWallet = await that.openWallet({path: offlineWalletPath, serverUri: ""});
           let signedTxHex = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
           assert(signedTxHex.length > 0);
           
@@ -3466,8 +3461,6 @@ class TestMoneroWalletCommon {
           
           // submit signed tx using view-only wallet
           if (testConfig.testRelays) {
-            await that.closeWallet(offlineWallet);
-            viewOnlyWallet = await that.openWallet({path: viewOnlyPath});
             let txHashes = await viewOnlyWallet.submitTxs(signedTxHex);
             assert.equal(txHashes.length, 1);
             assert.equal(txHashes[0].length, 64);
