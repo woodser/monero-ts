@@ -61,6 +61,22 @@
 using namespace cryptonote;
 using namespace monero_utils;
 
+// ------------------------- ADDRESS VALIDATION -----------------------------
+
+bool monero_utils::is_valid_address(const std::string& address, monero_network_type network_type) {
+  try {
+    validate_address(address, network_type);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+void monero_utils::validate_address(const std::string& address, monero_network_type network_type) {
+  cryptonote::address_parse_info info;
+  if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("Invalid address");
+}
+
 // -------------------------- BINARY SERIALIZATION ----------------------------
 
 void monero_utils::json_to_binary(const std::string &json, std::string &bin) {

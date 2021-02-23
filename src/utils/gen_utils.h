@@ -54,6 +54,7 @@
 #ifndef gen_utils_h
 #define gen_utils_h
 
+#include <boost/lexical_cast.hpp>
 #include "include_base_utils.h"
 #include "common/util.h"
 
@@ -77,7 +78,7 @@ namespace gen_utils
       else return val1 == boost::none ? val2 : val1;
     }
 
-    throw std::runtime_error(std::string("Cannot reconcile strings: ") + to_string(val1) + std::string(" vs ") + to_string(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
+    throw std::runtime_error(std::string("Cannot reconcile strings: ") + boost::lexical_cast<std::string>(val1) + std::string(" vs ") + boost::lexical_cast<std::string>(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
   }
   template <class T, typename std::enable_if<std::is_same<T, std::string>::value, T>::type* = nullptr>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const std::string& err_msg = "") {
@@ -103,7 +104,7 @@ namespace gen_utils
     if (resolve_max != boost::none) return *resolve_max ? std::max(*val1, *val2) : std::min(*val1, *val2);
 
     // cannot reconcile
-    throw std::runtime_error(std::string("Cannot reconcile integrals: ") + to_string(val1) + std::string(" vs ") + to_string(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
+    throw std::runtime_error(std::string("Cannot reconcile integrals: ") + boost::lexical_cast<std::string>(val1) + std::string(" vs ") + boost::lexical_cast<std::string>(val2) + (!err_msg.empty() ? std::string(". ") + err_msg : std::string("")));
   }
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const std::string& err_msg = "") {

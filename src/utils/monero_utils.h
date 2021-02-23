@@ -71,6 +71,11 @@ namespace monero_utils
 
   static const int RING_SIZE = 12;  // network-enforced ring size
 
+  // ------------------------- ADDRESS VALIDATION -----------------------------
+
+  bool is_valid_address(const std::string& address, monero_network_type network_type);
+  void validate_address(const std::string& address, monero_network_type network_type);
+
   // ------------------------ BINARY SERIALIZATION ----------------------------
 
   void json_to_binary(const std::string &json, std::string &bin);
