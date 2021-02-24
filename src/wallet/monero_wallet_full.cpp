@@ -517,7 +517,7 @@ namespace monero {
       {
         er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
         if (er.message.empty())
-          er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + it->address;
+          er.message = std::string("Invalid destination address");
         return false;
       }
 
@@ -2792,7 +2792,7 @@ namespace monero {
         return addresses[0];
       }))
     {
-      throw std::runtime_error(std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + address);
+      throw std::runtime_error(std::string("Invalid address: ") + address);
     }
     if (!m_w2->add_address_book_row(info.address, info.has_payment_id ? &info.payment_id : NULL, description, info.is_subaddress)) throw std::runtime_error("Failed to add address book entry");
     return m_w2->get_address_book().size() - 1;
@@ -2817,7 +2817,7 @@ namespace monero {
           return addresses[0];
         }))
       {
-        throw std::runtime_error("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: " + address);
+        throw std::runtime_error("Invalid address: " + address);
       }
       entry.m_address = info.address;
       entry.m_is_subaddress = info.is_subaddress;
