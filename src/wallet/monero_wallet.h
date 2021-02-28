@@ -888,8 +888,8 @@ namespace monero {
      * @param tx_set is a tx set containing unsigned or multisig tx hex
      * @return the parsed tx set containing structured transactions
      */
-    virtual monero_tx_set parse_tx_set(const monero_tx_set& tx_set) {
-      throw std::runtime_error("parse_tx_set() not supported");
+    virtual monero_tx_set describe_tx_set(const monero_tx_set& tx_set) {
+      throw std::runtime_error("describe_tx_set() not supported");
     }
 
     /**

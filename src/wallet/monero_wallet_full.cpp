@@ -2287,7 +2287,7 @@ namespace monero {
     return tx_hashes;
   }
 
-  monero_tx_set monero_wallet_full::parse_tx_set(const monero_tx_set& tx_set) {
+  monero_tx_set monero_wallet_full::describe_tx_set(const monero_tx_set& tx_set) {
 
     // get unsigned and multisig tx sets
     std::string unsigned_tx_hex = tx_set.m_unsigned_tx_hex == boost::none ? "" : tx_set.m_unsigned_tx_hex.get();
