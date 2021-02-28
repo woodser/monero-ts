@@ -883,10 +883,10 @@ namespace monero {
     }
 
     /**
-     * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+     * Describes a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
      *
      * @param tx_set is a tx set containing unsigned or multisig tx hex
-     * @return the parsed tx set containing structured transactions
+     * @return the tx set containing structured transactions
      */
     virtual monero_tx_set describe_tx_set(const monero_tx_set& tx_set) {
       throw std::runtime_error("describe_tx_set() not supported");
