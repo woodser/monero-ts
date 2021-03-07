@@ -1675,12 +1675,12 @@ namespace monero {
     return m_w2->import_outputs_from_str(blob);
   }
 
-  std::vector<std::shared_ptr<monero_key_image>> monero_wallet_full::get_key_images() const {
-    MTRACE("monero_wallet_full::get_key_images()");
+  std::vector<std::shared_ptr<monero_key_image>> monero_wallet_full::export_key_images(bool all) const {
+    MTRACE("monero_wallet_full::export_key_images()");
 
     // build key images from wallet2 types
     std::vector<std::shared_ptr<monero_key_image>> key_images;
-    std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = m_w2->export_key_images(true);
+    std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = m_w2->export_key_images(all);
     for (uint64_t n = 0; n < ski.second.size(); ++n) {
       std::shared_ptr<monero_key_image> key_image = std::make_shared<monero_key_image>();
       key_images.push_back(key_image);

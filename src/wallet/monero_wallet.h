@@ -750,7 +750,7 @@ namespace monero {
     /**
      * Export outputs in hex format.
      *
-     * @param all exports all outputs if true, else only the outputs since the last export
+     * @param all - export all outputs if true, else export outputs since the last export
      * @return outputs in hex format, empty std::string if no outputs
      */
     virtual std::string export_outputs(bool all = false) const {
@@ -768,12 +768,13 @@ namespace monero {
     }
 
     /**
-     * Get all signed key images.
+     * Export signed key images.
      *
+     * @param all - export all key images if true, else export key images since the last export
      * @return the wallet's signed key images
      */
-    virtual std::vector<std::shared_ptr<monero_key_image>> get_key_images() const {
-      throw std::runtime_error("get_key_images() not supported");
+    virtual std::vector<std::shared_ptr<monero_key_image>> export_key_images(bool all = false) const {
+      throw std::runtime_error("export_key_images() not supported");
     }
 
     /**
