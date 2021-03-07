@@ -748,12 +748,13 @@ namespace monero {
     }
 
     /**
-     * Export all outputs in hex format.
+     * Export outputs in hex format.
      *
-     * @return all outputs in hex format, empty std::string if no outputs
+     * @param all exports all outputs if true, else only the outputs since the last export
+     * @return outputs in hex format, empty std::string if no outputs
      */
-    virtual std::string get_outputs_hex() const {
-      throw std::runtime_error("get_outputs_hex() not supported");
+    virtual std::string export_outputs(bool all = false) const {
+      throw std::runtime_error("export_outputs() not supported");
     }
 
     /**
@@ -762,8 +763,8 @@ namespace monero {
      * @param outputs_hex are outputs in hex format
      * @return the number of outputs imported
      */
-    virtual int import_outputs_hex(const std::string& outputs_hex) {
-      throw std::runtime_error("import_outputs_hex() not supported");
+    virtual int import_outputs(const std::string& outputs_hex) {
+      throw std::runtime_error("import_outputs() not supported");
     }
 
     /**

@@ -1652,18 +1652,18 @@ namespace monero {
     // otherwise get txs with full models to fulfill query
     std::vector<std::shared_ptr<monero_output_wallet>> outputs;
     for (const std::shared_ptr<monero_tx_wallet>& tx : get_txs(*(query.m_tx_query.get()))) {
-      for (const std::shared_ptr<monero_output_wallet>& output : tx->filter_outputs_wallet(query)) {  // collect queried outputs, erase if excluded
+      for (const std::shared_ptr<monero_output_wallet>& output : tx->filter_outputs_wallet(query)) { // collect queried outputs, erase if excluded
         outputs.push_back(output);
       }
     }
     return outputs;
   }
 
-  std::string monero_wallet_full::get_outputs_hex() const {
-    return epee::string_tools::buff_to_hex_nodelimer(m_w2->export_outputs_to_str(true));
+  std::string monero_wallet_full::export_outputs(bool all) const {
+    return epee::string_tools::buff_to_hex_nodelimer(m_w2->export_outputs_to_str(all));
   }
 
-  int monero_wallet_full::import_outputs_hex(const std::string& outputs_hex) {
+  int monero_wallet_full::import_outputs(const std::string& outputs_hex) {
 
     // validate and parse hex data
     cryptonote::blobdata blob;
