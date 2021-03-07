@@ -1680,8 +1680,8 @@ namespace monero {
 
     // build key images from wallet2 types
     std::vector<std::shared_ptr<monero_key_image>> key_images;
-    std::pair<size_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = m_w2->export_key_images(true);
-    for (size_t n = 0; n < ski.second.size(); ++n) {
+    std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = m_w2->export_key_images(true);
+    for (uint64_t n = 0; n < ski.second.size(); ++n) {
       std::shared_ptr<monero_key_image> key_image = std::make_shared<monero_key_image>();
       key_images.push_back(key_image);
       key_image->m_hex = epee::string_tools::pod_to_hex(ski.second[n].first);
@@ -1696,7 +1696,7 @@ namespace monero {
     // validate and prepare key images for wallet2
     std::vector<std::pair<crypto::key_image, crypto::signature>> ski;
     ski.resize(key_images.size());
-    for (size_t n = 0; n < ski.size(); ++n) {
+    for (uint64_t n = 0; n < ski.size(); ++n) {
       if (!epee::string_tools::hex_to_pod(key_images[n]->m_hex.get(), ski[n].first)) {
         throw std::runtime_error("failed to parse key image");
       }
@@ -2316,7 +2316,7 @@ namespace monero {
         cryptonote::blobdata blob;
         if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_tx_hex, blob)) throw std::runtime_error("Failed to parse hex.");
         if (!m_w2->parse_multisig_tx_from_str(blob, exported_txs)) throw std::runtime_error("cannot load multisig_txset");
-        for (size_t n = 0; n < exported_txs.m_ptx.size(); ++n) {
+        for (uint64_t n = 0; n < exported_txs.m_ptx.size(); ++n) {
           tx_constructions.push_back(exported_txs.m_ptx[n].construction_data);
         }
       }
@@ -2332,7 +2332,7 @@ namespace monero {
       std::vector<std::shared_ptr<monero_tx_wallet>> txs;
       std::unordered_map<cryptonote::account_public_address, std::pair<std::string, uint64_t>> dests;
       int first_known_non_zero_change_index = -1;
-      for (size_t n = 0; n < tx_constructions.size(); ++n)
+      for (int64_t n = 0; n < tx_constructions.size(); ++n)
       {
         // pre-initialize tx
         std::shared_ptr<monero_tx_wallet> tx = std::make_shared<monero_tx_wallet>();
@@ -2368,14 +2368,14 @@ namespace monero {
           }
         }
 
-        for (size_t s = 0; s < cd.sources.size(); ++s)
+        for (uint64_t s = 0; s < cd.sources.size(); ++s)
         {
           tx->m_input_sum = tx->m_input_sum.get() + cd.sources[s].amount;
-          size_t ring_size = cd.sources[s].outputs.size();
+          uint64_t ring_size = cd.sources[s].outputs.size();
           if (ring_size < tx->m_ring_size.get())
             tx->m_ring_size = ring_size;
         }
-        for (size_t d = 0; d < cd.splitted_dsts.size(); ++d)
+        for (uint64_t d = 0; d < cd.splitted_dsts.size(); ++d)
         {
           const cryptonote::tx_destination_entry &entry = cd.splitted_dsts[d];
           std::string address = cryptonote::get_account_address_as_str(m_w2->nettype(), entry.is_subaddress, entry.addr);
@@ -2407,7 +2407,7 @@ namespace monero {
         }
 
         tx->m_outgoing_transfer = std::make_shared<monero_outgoing_transfer>();
-        size_t n_dummy_outputs = 0;
+        uint64_t n_dummy_outputs = 0;
         for (auto i = dests.begin(); i != dests.end(); )
         {
           if (i->second.second > 0)
@@ -2551,7 +2551,7 @@ namespace monero {
     // build and return tx key with additional keys
     epee::wipeable_string s;
     s += epee::to_hex::wipeable_string(_tx_key);
-    for (size_t i = 0; i < additional_tx_keys.size(); ++i) {
+    for (uint64_t i = 0; i < additional_tx_keys.size(); ++i) {
       s += epee::to_hex::wipeable_string(additional_tx_keys[i]);
     }
     return std::string(s.data(), s.size());
@@ -2578,7 +2578,7 @@ namespace monero {
     }
 
     // get additional keys
-    size_t offset = 64;
+    uint64_t offset = 64;
     std::vector<crypto::secret_key> additional_tx_keys;
     while (offset < tx_key_str.size()) {
       additional_tx_keys.resize(additional_tx_keys.size() + 1);
@@ -2908,7 +2908,7 @@ namespace monero {
     if (ignore_battery == boost::none) ignore_battery = false;
 
     // validate num threads
-    size_t max_mining_threads_count = (std::max)(tools::get_max_concurrency(), static_cast<unsigned>(2));
+    uint64_t max_mining_threads_count = (std::max)(tools::get_max_concurrency(), static_cast<unsigned>(2));
     if (num_threads.get() < 1 || max_mining_threads_count < num_threads.get()) {
       throw std::runtime_error("The specified number of threads is inappropriate.");
     }
@@ -3035,7 +3035,7 @@ namespace monero {
     // validate and parse each peer multisig hex
     std::vector<cryptonote::blobdata> multisig_blobs;
     multisig_blobs.resize(multisig_hexes.size());
-    for (size_t n = 0; n < multisig_hexes.size(); ++n) {
+    for (uint64_t n = 0; n < multisig_hexes.size(); ++n) {
       if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_hexes[n], multisig_blobs[n])) {
         throw std::runtime_error("Failed to parse hex");
       }
