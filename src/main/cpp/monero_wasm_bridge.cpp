@@ -17,6 +17,10 @@ string strip_last_char(const string& str) {
   return str.substr(0, str.size() - 1);
 }
 
+std::string tools::dns_utils::get_account_address_as_str_from_url(const std::string& url, bool& dnssec_valid, std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm) {
+  throw std::runtime_error("Invalid destination address");
+}
+
 /**
  * Listens for wallet notifications and notifies the listener in JavaScript.
  */
@@ -64,6 +68,21 @@ struct wallet_wasm_listener : public monero_wallet_listener {
 };
 
 // ------------------------------- UTILITIES ----------------------------------
+
+string monero_wasm_bridge::validate_address(const string& address, int network_type)
+{
+  try {
+    monero_utils::validate_address(address, static_cast<monero_network_type>(network_type));
+    return "";
+  } catch (exception& e) {
+    return string(e.what());
+  }
+}
+
+string monero_wasm_bridge::get_exception_message(int exception_ptr)
+{
+  return std::string(reinterpret_cast<std::exception *>(exception_ptr)->what());
+}
 
 string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
 {
@@ -299,8 +318,12 @@ string monero_wasm_bridge::get_address(int handle, const uint32_t account_idx, c
 
 string monero_wasm_bridge::get_address_index(int handle, const string& address) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_subaddress subaddress = wallet->get_address_index(address);
-  return subaddress.serialize();
+  try {
+    monero_subaddress subaddress = wallet->get_address_index(address);
+    return subaddress.serialize();
+  } catch (exception& e) {
+    return e.what();
+  }
 }
 
 string monero_wasm_bridge::get_integrated_address(int handle, const string& standardAddress, const string& payment_id) {
@@ -655,28 +678,28 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
   }
 }
 
-void monero_wasm_bridge::get_outputs_hex(int handle, emscripten::val callback) {
+void monero_wasm_bridge::export_outputs(int handle, bool all, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    callback(wallet->get_outputs_hex());
+    callback(wallet->export_outputs(all));
   } catch (exception& e) {
     callback(string(e.what()));
   }
 }
 
-void monero_wasm_bridge::import_outputs_hex(int handle, const string& outputs_hex, emscripten::val callback) {
+void monero_wasm_bridge::import_outputs(int handle, const string& outputs_hex, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    callback(wallet->import_outputs_hex(outputs_hex));
+    callback(wallet->import_outputs(outputs_hex));
   } catch (exception& e) {
     callback(string(e.what()));
   }
 }
 
-void monero_wasm_bridge::get_key_images(int handle, emscripten::val callback) {
+void monero_wasm_bridge::export_key_images(int handle, bool all, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    vector<shared_ptr<monero_key_image>> key_images = wallet->get_key_images();
+    vector<shared_ptr<monero_key_image>> key_images = wallet->export_key_images(all);
 
     // wrap and serialize key images
     rapidjson::Document doc;
@@ -801,11 +824,11 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
   }
 }
 
-string monero_wasm_bridge::parse_tx_set(int handle, const string& tx_set_str) {
+string monero_wasm_bridge::describe_tx_set(int handle, const string& tx_set_str) {
   monero_wallet* wallet = (monero_wallet*) handle;
   monero_tx_set tx_set = monero_tx_set::deserialize(tx_set_str);
-  monero_tx_set parsed_tx_set = wallet->parse_tx_set(tx_set);
-  return parsed_tx_set.serialize();
+  monero_tx_set described_tx_set = wallet->describe_tx_set(tx_set);
+  return described_tx_set.serialize();
 }
 
 string monero_wasm_bridge::sign_txs(int handle, const string& unsigned_tx_hex) {

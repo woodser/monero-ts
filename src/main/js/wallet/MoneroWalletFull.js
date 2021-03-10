@@ -951,27 +951,27 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async getOutputsHex() {
+  async exportOutputs(all) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
-        that._module.get_outputs_hex(that._cppAddress, function(outputsHex) { resolve(outputsHex); });
+        that._module.export_outputs(that._cppAddress, all, function(outputsHex) { resolve(outputsHex); });
       });
     });
   }
   
-  async importOutputsHex(outputsHex) {
+  async importOutputs(outputsHex) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
-        that._module.import_outputs_hex(that._cppAddress, outputsHex, function(numImported) { resolve(numImported); });
+        that._module.import_outputs(that._cppAddress, outputsHex, function(numImported) { resolve(numImported); });
       });
     });
   }
   
-  async getKeyImages() {
+  async exportKeyImages(all) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -981,7 +981,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
           for (let keyImageJson of JSON.parse(GenUtils.stringifyBIs(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
           resolve(keyImages);
         }
-        that._module.get_key_images(that._cppAddress, callback);
+        that._module.export_key_images(that._cppAddress, all, callback);
       });
     });
   }
@@ -1010,9 +1010,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     // validate, copy, and normalize config
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     if (config.getCanSplit() === undefined) config.setCanSplit(true);
-    
-    // check for payment id to avoid error in wasm 
-    if (config.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead"); // TODO: this should no longer be necessary, remove and re-test
     
     // return promise which resolves on callback
     let that = this;
@@ -1122,11 +1119,12 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async parseTxSet(txSet) {
+  async describeTxSet(txSet) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(that._module.parse_tx_set(that._cppAddress, JSON.stringify(txSet.toJson())))));
+      try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(that._module.describe_tx_set(that._cppAddress, JSON.stringify(txSet.toJson()))))); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1134,7 +1132,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.sign_txs(that._cppAddress, unsignedTxHex);
+      try { return that._module.sign_txs(that._cppAddress, unsignedTxHex); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1144,7 +1143,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
         let callbackFn = function(resp) {
-          resolve(JSON.parse(resp).txHashes);
+          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          else resolve(JSON.parse(resp).txHashes);
         }
         that._module.submit_txs(that._cppAddress, signedTxHex, callbackFn);
       });
@@ -1162,7 +1162,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.sign_message(that._cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx);
+      try { return that._module.sign_message(that._cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1172,7 +1173,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
       that._assertNotClosed();
       let resultJson;
       try {
-        MoneroUtils.validateAddress(address);   // avoid tools::dns_utils::get_account_address_as_str_from_url() on bad address
         resultJson = JSON.parse(that._module.verify_message(that._cppAddress, message, address, signature));
       } catch (err) {
         resultJson = {isGood: false};
@@ -1190,7 +1190,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_tx_key(that._cppAddress, txHash);
+      try { return that._module.get_tx_key(that._cppAddress, txHash); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1199,7 +1200,9 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_key(that._cppAddress, txHash, txKey, address))));
+      let result = that._module.check_tx_key(that._cppAddress, txHash, txKey, address);
+      try { return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(result))); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1208,7 +1211,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_tx_proof(that._cppAddress, txHash, address, message);
+      try { return that._module.get_tx_proof(that._cppAddress, txHash, address, message); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1216,7 +1220,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature))));
+      try { return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature)))); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1225,7 +1230,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_spend_proof(that._cppAddress, txHash, message);
+      try { return that._module.get_spend_proof(that._cppAddress, txHash, message); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1233,7 +1239,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.check_spend_proof(that._cppAddress, txHash, message, signature);
+      try { return that._module.check_spend_proof(that._cppAddress, txHash, message, signature); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1242,7 +1249,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_reserve_proof_wallet(that._cppAddress, message);
+      try { return that._module.get_reserve_proof_wallet(that._cppAddress, message); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1251,7 +1259,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_reserve_proof_account(that._cppAddress, accountIdx, amount.toString(), message);
+      try { return that._module.get_reserve_proof_account(that._cppAddress, accountIdx, amount.toString(), message); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
 
@@ -1259,7 +1268,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature))));
+      try { return new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature)))); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1267,7 +1277,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return JSON.parse(that._module.get_tx_notes(that._cppAddress, JSON.stringify({txHashes: txHashes}))).txNotes;
+      try { return JSON.parse(that._module.get_tx_notes(that._cppAddress, JSON.stringify({txHashes: txHashes}))).txNotes; }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1275,7 +1286,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      that._module.set_tx_notes(that._cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes}));
+      try { that._module.set_tx_notes(that._cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes})); }
+      catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
   }
   
@@ -1379,7 +1391,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
+        return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))), true); // relax validation for unquoted big integers
       } catch (err) {
         throw new MoneroError(err.message);
       }
@@ -1529,7 +1541,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-
+      
       // store views in array
       let views = [];
       
@@ -2246,17 +2258,17 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return MoneroWalletFull._deserializeOutputs(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
-  async getOutputsHex() {
-    return this._invokeWorker("getOutputsHex");
+  async exportOutputs(all) {
+    return this._invokeWorker("exportOutputs", [all]);
   }
   
-  async importOutputsHex(outputsHex) {
-    return this._invokeWorker("importOutputsHex", [outputsHex]);
+  async importOutputs(outputsHex) {
+    return this._invokeWorker("importOutputs", [outputsHex]);
   }
   
-  async getKeyImages() {
+  async exportKeyImages(all) {
     let keyImages = [];
-    for (let keyImageJson of await this._invokeWorker("getKeyImages")) keyImages.push(new MoneroKeyImage(keyImageJson));
+    for (let keyImageJson of await this._invokeWorker("getKeyImages", [all])) keyImages.push(new MoneroKeyImage(keyImageJson));
     return keyImages;
   }
   
@@ -2301,8 +2313,8 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return this._invokeWorker("relayTxs", [txMetadatas]);
   }
   
-  async parseTxSet(txSet) {
-    return new MoneroTxSet(await this._invokeWorker("parseTxSet", [txSet.toJson()]));
+  async describeTxSet(txSet) {
+    return new MoneroTxSet(await this._invokeWorker("describeTxSet", [txSet.toJson()]));
   }
   
   async signTxs(unsignedTxHex) {

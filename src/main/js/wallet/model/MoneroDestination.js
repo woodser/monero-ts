@@ -1,5 +1,6 @@
 const BigInteger = require("../../common/biginteger").BigInteger;
 const GenUtils = require("../../common/GenUtils");
+const MoneroError = require("../../common/MoneroError");
 
 /**
  * Models an outgoing transfer destination.
@@ -13,22 +14,18 @@ class MoneroDestination {
    * @param {BigInteger|string} amount - the destination amount
    */
   constructor(stateOrAddress, amount) {
-    
-    // initialize internal state
     if (!stateOrAddress) this.state = {};
     else if (stateOrAddress instanceof MoneroDestination) this.state = stateOrAddress.toJson();
-    else if (typeof stateOrAddress === "object") this.state = Object.assign({}, stateOrAddress);
-    else if (typeof stateOrAddress === "string")  {
+    else if (typeof stateOrAddress === "object") {
+      this.state = Object.assign({}, stateOrAddress);
+      if (typeof this.state.amount === "number") this.state.amount = BigInteger.parse(this.state.amount);
+    } else if (typeof stateOrAddress === "string")  {
       this.state = {};
       this.setAddress(stateOrAddress);
-      this.setAmount(amount);
-    } else {
-      throw new MoneroError("stateOrAddress must be a MoneroDestination, JavaScript object, or hex string");
     }
-      
-    // deserialize amount  
+    else throw new MoneroError("stateOrAddress must be a MoneroDestination, JavaScript object, or hex string");
     if (amount) this.state.amount = amount;
-    if (this.state.amount !== undefined && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
+    this.setAmount(this.state.amount);
   }
   
   getAddress() {
@@ -45,6 +42,11 @@ class MoneroDestination {
   }
 
   setAmount(amount) {
+    if (amount !== undefined && !(this.state.amount instanceof BigInteger)) {
+      if (typeof amount === "number") throw new MoneroError("Destination amount must be BigInteger or string");
+      try { amount = BigInteger.parse(amount); }
+      catch (err) { throw new MoneroError("Invalid destination amount: " + amount); }
+    }
     this.state.amount = amount;
     return this;
   }

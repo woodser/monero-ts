@@ -276,8 +276,8 @@ TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in millisecon
 // monero-wallet-rpc process management
 TestUtils.WALLET_RPC_PORT_START = 38084;
 TestUtils.WALLET_PORT_OFFSETS = {};
-TestUtils.WALLET_RPC_LOCAL_PATH = "/Applications/monero-x86_64-apple-darwin11-v0.17.1.9-rct/monero-wallet-rpc";
-TestUtils.WALLET_RPC_LOCAL_WALLET_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.1.9-rct";
+TestUtils.WALLET_RPC_LOCAL_PATH = "/Applications/monero-x86_64-apple-darwin11-v0.17.1.9/monero-wallet-rpc"; // change as needed
+TestUtils.WALLET_RPC_LOCAL_WALLET_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.1.9";
 TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS = "http://localhost:8080"; // cors access from web browser
 
 module.exports = TestUtils;

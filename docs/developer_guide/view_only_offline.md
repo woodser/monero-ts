@@ -39,13 +39,13 @@ let offlineWallet = await monerojs.createWalletFull({
 });
   
 // export outputs from view-only wallet
-let outputsHex = await viewOnlyWallet.getOutputsHex();
+let outputsHex = await viewOnlyWallet.exportOutputs();
   
 // import outputs to offline wallet
-await offlineWallet.importOutputsHex(outputsHex);
+await offlineWallet.importOutputs(outputsHex);
   
 // export key images from offline wallet
-let keyImages = await offlineWallet.getKeyImages();
+let keyImages = await offlineWallet.exportKeyImages();
   
 // import key images to view-only wallet
 await viewOnlyWallet.importKeyImages(keyImages);

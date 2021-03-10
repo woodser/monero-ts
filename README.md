@@ -121,7 +121,7 @@ await walletFull.close(true);
 ## Using monero-javascript in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.5.1`
+2. `npm install monero-javascript@0.5.2`
 3. Add `require("monero-javascript")` to your application code.
 4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
@@ -160,9 +160,9 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 #### Running tests in Node.js
 
 * Run all tests: `npm test`
-* Run tests by their description: `npm run test -- --grep "Can get transactions"`
+* Run tests by their description, e.g.: `npm run test -- --grep "Can get transactions"`
 
-#### Running tests in the browser
+#### Running tests in a browser
 
 1. Start monero-wallet-rpc servers used by tests: `./bin/start_wallet_rpc_test_servers.sh`
 2. In another terminal, build browser tests: `./bin/build_browser_tests.sh`

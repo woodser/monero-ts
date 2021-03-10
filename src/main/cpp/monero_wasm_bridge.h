@@ -10,14 +10,23 @@
 using namespace std;
 using namespace emscripten;
 
+// override tools::dns_utils::get_account_address_as_str_from_url() so error caught when sending to invalid address
+namespace tools {
+  namespace dns_utils {
+    std::string get_account_address_as_str_from_url(const std::string& url, bool& dnssec_valid, std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm);
+  }
+}
+
 namespace monero_wasm_bridge
 {
 
   // ------------------------------ UTILITIES ---------------------------------
 
-  string malloc_binary_from_json(const string &args_string);
-  string binary_to_json(const string &args_string);
-  string binary_blocks_to_json(const string &args_string);
+  string validate_address(const string& address, int network_type);
+  string get_exception_message(int exception_ptr);
+  string malloc_binary_from_json(const string& args_string);
+  string binary_to_json(const string& args_string);
+  string binary_blocks_to_json(const string& args_string);
 
   // ------------------------- STATIC WALLET UTILS ----------------------------
 
@@ -82,9 +91,9 @@ namespace monero_wasm_bridge
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
   void get_transfers(int handle, const string& transfer_query_json, emscripten::val callback);
   void get_outputs(int handle, const string& output_query_json, emscripten::val callback);
-  void get_outputs_hex(int handle, emscripten::val callback);
-  void import_outputs_hex(int handle, const string& outputs_hex, emscripten::val callback);
-  void get_key_images(int handle, emscripten::val callback);
+  void export_outputs(int handle, bool all, emscripten::val callback);
+  void import_outputs(int handle, const string& outputs_hex, emscripten::val callback);
+  void export_key_images(int handle, bool all, emscripten::val callback);
   void import_key_images(int handle, const string& key_images_str, emscripten::val callback);
   //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
   void create_txs(int handle, const string& config_json, emscripten::val callback);
@@ -92,7 +101,7 @@ namespace monero_wasm_bridge
   void sweep_unlocked(int handle, const string& config_json, emscripten::val callback);
   void sweep_dust(int handle, bool relay, emscripten::val callback);
   void relay_txs(int handle, const string& args, emscripten::val callback);
-  string parse_tx_set(int handle, const string& tx_set_str);
+  string describe_tx_set(int handle, const string& tx_set_str);
   string sign_txs(int handle, const string& unsigned_tx_hex);
   void submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback);
   string sign_message(int handle, const string& msg, uint32_t signature_type_num, uint32_t account_idx, uint32_t subaddress_idx);

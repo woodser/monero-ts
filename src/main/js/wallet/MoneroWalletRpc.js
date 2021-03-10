@@ -613,7 +613,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async stopSyncing() {
-    return rpc.sendJsonRequest("auto_refresh", { enable: false });
+    return this.rpc.sendJsonRequest("auto_refresh", { enable: false });
   }
   
   async rescanSpent() {
@@ -916,17 +916,17 @@ class MoneroWalletRpc extends MoneroWallet {
     return outputs;
   }
   
-  async getOutputsHex() {
-    return (await this.rpc.sendJsonRequest("export_outputs")).result.outputs_data_hex;
+  async exportOutputs(all) {
+    return (await this.rpc.sendJsonRequest("export_outputs", {all: all})).result.outputs_data_hex;
   }
   
-  async importOutputsHex(outputsHex) {
+  async importOutputs(outputsHex) {
     let resp = await this.rpc.sendJsonRequest("import_outputs", {outputs_data_hex: outputsHex});
     return resp.result.num_imported;
   }
   
-  async getKeyImages() {
-    return await this._rpcExportKeyImages(true);
+  async exportKeyImages(all) {
+    return await this._rpcExportKeyImages(all);
   }
   
   async importKeyImages(keyImages) {
@@ -993,8 +993,14 @@ class MoneroWalletRpc extends MoneroWallet {
     else params.get_tx_key = true;
     
     // send request
-    let resp = await this.rpc.sendJsonRequest(config.getCanSplit() ? "transfer_split" : "transfer", params);
-    let result = resp.result;
+    let result;
+    try {
+      let resp = await this.rpc.sendJsonRequest(config.getCanSplit() ? "transfer_split" : "transfer", params);
+      result = resp.result;
+    } catch (err) {
+      if (err.message.indexOf("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS") > -1) throw new MoneroError("Invalid destination address");
+      throw err;
+    }
     
     // pre-initialize txs iff present.  multisig and view-only wallets will have tx set without transactions
     let txs;
@@ -1117,7 +1123,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return txSet.getTxs();
   }
   
-  async parseTxSet(txSet) {
+  async describeTxSet(txSet) {
     let resp = await this.rpc.sendJsonRequest("describe_transfer", {
       unsigned_txset: txSet.getUnsignedTxHex(),
       multisig_txset: txSet.getMultisigTxHex()
@@ -2385,7 +2391,6 @@ class WalletRpcPollListener {
     
     // fetch txs that are no longer locked
     let unlockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
-    console.log()
     
     // save locked txs for next comparison
     this._prevLockedTxs = lockedTxs;
