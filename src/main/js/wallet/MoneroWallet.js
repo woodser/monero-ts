@@ -585,11 +585,12 @@ class MoneroWallet {
   }
   
   /**
-   * Export all outputs in hex format.
-   * 
-   * @return {string} all outputs in hex format, undefined if no outputs
+   * Export outputs in hex format.
+   *
+   * @param {boolean} all - export all outputs if true, else export the outputs since the last export
+   * @return {string} outputs in hex format
    */
-  async getOutputsHex() {
+  async exportOutputs(all) {
     throw new MoneroError("Not supported");
   }
   
@@ -599,16 +600,17 @@ class MoneroWallet {
    * @param {string} outputsHex - outputs in hex format
    * @return {int} the number of outputs imported
    */
-  async importOutputsHex(outputsHex) {
+  async importOutputs(outputsHex) {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Get all signed key images.
+   * Export signed key images.
    * 
+   * @param {boolean} all - export all key images if true, else export the key images since the last export
    * @return {MoneroKeyImage[]} the wallet's signed key images
    */
-  async getKeyImages() {
+  async exportKeyImages(all) {
     throw new MoneroError("Not supported");
   }
   
@@ -740,12 +742,12 @@ class MoneroWallet {
   }
   
   /**
-   * Parse a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+   * Describe a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
    * 
    * @param {MoneroTxSet} txSet - a tx set containing unsigned or multisig tx hex
-   * @return {MoneroTxSet} the parsed tx set containing structured transactions
+   * @return {MoneroTxSet} - the tx set containing structured transactions
    */
-  async parseTxSet(txSet) {
+  async describeTxSet(txSet) {
     throw new MoneroError("Not supported");
   }
   

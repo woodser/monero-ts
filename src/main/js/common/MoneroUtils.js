@@ -1,7 +1,9 @@
 const assert = require("assert");
+const BigInteger = require("./biginteger").BigInteger;
 const GenUtils = require("./GenUtils");
 const LibraryUtils = require("./LibraryUtils");
 const MoneroError = require("./MoneroError");
+const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
 
 /**
  * Collection of Monero utilities.
@@ -16,7 +18,7 @@ class MoneroUtils {
    * @return {string} the version of this monero-javascript library
    */
   static getVersion() {
-    return "0.5.1";
+    return "0.5.2";
   }
   
   /**
@@ -82,14 +84,14 @@ class MoneroUtils {
   
   /**
    * Determine if the given address is valid.
-   *
-   * TODO: improve validation, use network type
    * 
    * @param {string} address - address
+   * @param {MoneroNetworkType} networkType - network type of the address to validate
+   * @return {boolean} true if the address is valid, false otherwise
    */
-  static isValidAddress(address) {
+  static isValidAddress(address, networkType) {
     try {
-      MoneroUtils.validateAddress(address);
+      MoneroUtils.validateAddress(address, networkType);
       return true;
     } catch (e) {
       return false;
@@ -99,14 +101,21 @@ class MoneroUtils {
   /**
    * Validate the given address, throw an error if invalid.
    *
-   * TODO: improve validation, use network type
-   * 
    * @param {string} address - address to validate
+   * @param {MoneroNetworkType} networkType - network type of the address to validate
    */
-  static validateAddress(address) {
+  static validateAddress(address, networkType) {
     assert(typeof address === "string", "Address is not string");
     assert(address.length > 0, "Address is empty");
     assert(GenUtils.isBase58(address), "Address is not base 58");
+    MoneroNetworkType.validate(networkType);
+    
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    
+    // validate address with wasm module
+    let errMsg = LibraryUtils.getWasmModule().validate_address(address, networkType);
+    if (errMsg) throw new Error(errMsg);
   }
   
   /**
@@ -202,8 +211,8 @@ class MoneroUtils {
    */
   static jsonToBinary(json) {
     
-    // wasm module must be pre-loaded
-    if (LibraryUtils.getWasmModule() === undefined) throw MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
     
     // serialize json to binary which is stored in c++ heap
     let binMemInfoStr = LibraryUtils.getWasmModule().malloc_binary_from_json(JSON.stringify(json));
@@ -234,8 +243,8 @@ class MoneroUtils {
    */
   static binaryToJson(uint8arr) {
     
-    // wasm module must be pre-loaded
-    if (LibraryUtils.getWasmModule() === undefined) throw MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
     
     // allocate space in c++ heap for binary
     let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
@@ -266,8 +275,8 @@ class MoneroUtils {
    */
   static binaryBlocksToJson(uint8arr) {
     
-    // wasm module must be pre-loaded
-    if (LibraryUtils.getWasmModule() === undefined) throw MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
     
     // allocate space in c++ heap for binary
     let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
@@ -292,10 +301,42 @@ class MoneroUtils {
     json.txs = json.txs.map(txs => txs ? txs.map(tx => JSON.parse(tx.replace(",", "{") + "}")) : []); // modify tx string to proper json and parse // TODO: more efficient way than this json manipulation?
     return json;
   }
+  
+  /**
+   * Convert XMR to atomic units.
+   * 
+   * @param {number|string} amountXmr - amount in XMR to convert to atomic units
+   * @return {BigInteger} amount in atomic units
+   */
+  static xmrToAtomicUnits(amountXmr) {
+    if (typeof amountXmr === "number") amountXmr = "" + amountXmr;
+    else if (typeof amountXmr !== "string") throw new MoneroError("Must provide XMR amount as a string or js number to convert to atomic units");
+    let decimalDivisor = 1;
+    let decimalIdx = amountXmr.indexOf('.');
+    if (decimalIdx > -1) {
+      decimalDivisor = Math.pow(10, amountXmr.length - decimalIdx - 1);
+      amountXmr = amountXmr.slice(0, decimalIdx) + amountXmr.slice(decimalIdx + 1);
+    }
+    return new BigInteger(amountXmr).multiply(new BigInteger(MoneroUtils.AU_PER_XMR)).divide(new BigInteger(decimalDivisor));
+  }
+  
+  /**
+   * Convert atomic units to XMR.
+   * 
+   * @param {BigInteger|string} amountAtomicUnits - amount in atomic units to convert to XMR
+   * @return {number} amount in XMR 
+   */
+  static atomicUnitsToXmr(amountAtomicUnits) {
+    if (typeof amountAtomicUnits === "string") amountAtomicUnits = new BigInteger(amountAtomicUnits);
+    else if (!(amountAtomicUnits instanceof BigInteger)) throw new MoneroError("Must provide atomic units as BigInteger or string to convert to XMR");
+    let quotientAndRemainder = amountAtomicUnits.divRem(new BigInteger(MoneroUtils.AU_PER_XMR));
+    return Number(quotientAndRemainder[0].toJSValue() + quotientAndRemainder[1].toJSValue() / MoneroUtils.AU_PER_XMR);
+  }
 }
 
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;
 MoneroUtils.RING_SIZE = 12;
 MoneroUtils.MAX_REQUESTS_PER_SECOND = 50;
+MoneroUtils.AU_PER_XMR = 1000000000000;
 
 module.exports = MoneroUtils;

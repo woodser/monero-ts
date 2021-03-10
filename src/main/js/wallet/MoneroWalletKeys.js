@@ -167,15 +167,15 @@ class MoneroWalletKeys extends MoneroWallet {
     super();
     this._cppAddress = cppAddress;
     this._module = LibraryUtils.getWasmModule();
-    if (!this._module.create_full_wallet_from_mnemonic) throw new Error("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
+    if (!this._module.create_full_wallet_from_mnemonic) throw new MoneroError("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
   }
   
   async addListener(listener) {
-    throw new Error("MoneroWalletKeys does not support adding listeners");
+    throw new MoneroError("MoneroWalletKeys does not support adding listeners");
   }
   
   async removeListener(listener) {
-    throw new Error("MoneroWalletKeys does not support removing listeners");
+    throw new MoneroError("MoneroWalletKeys does not support removing listeners");
   }
   
   async isViewOnly() {
@@ -205,7 +205,7 @@ class MoneroWalletKeys extends MoneroWallet {
    */
   getPath() {
     this._assertNotClosed();
-    throw new Error("MoneroWalletKeys does not support a persisted path");
+    throw new MoneroError("MoneroWalletKeys does not support a persisted path");
   }
   
   async getMnemonic() {
@@ -271,22 +271,18 @@ class MoneroWalletKeys extends MoneroWallet {
   
   async getAddressIndex(address) {
     this._assertNotClosed();
-    if (!MoneroUtils.isValidAddress(address)) throw new MoneroError("Invalid address");
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      try {
-        let subaddressJson = JSON.parse(that._module.get_address_index(that._cppAddress, address));
-        return new MoneroSubaddress(subaddressJson);
-      } catch (e) {
-        throw new Error("Address doesn't belong to the wallet");
-      }
+      let resp = that._module.get_address_index(that._cppAddress, address);
+      if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+      return new MoneroSubaddress(JSON.parse(resp));
     });
   }
   
   getAccounts() {
     this._assertNotClosed();
-    throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
+    throw new MoneroError("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
   }
   
   // getIntegratedAddress(paymentId)  // TODO

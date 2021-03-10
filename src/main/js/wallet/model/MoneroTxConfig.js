@@ -1,4 +1,5 @@
 const assert = require("assert");
+const BigInteger = require("../../common/biginteger").BigInteger;
 const MoneroDestination = require("./MoneroDestination");
 const MoneroError = require("../../common/MoneroError");
 
@@ -40,13 +41,16 @@ class MoneroTxConfig {
    * @param {boolean} config.sweepEachSubaddress - for sweep requests, sweep each subaddress individually instead of together if true
    * @param {string} config.keyImage - key image to sweep (ignored except in sweepOutput() requests)
    */
-  constructor(config) {
-    if (arguments.length > 1) throw new MoneroError("MoneroTxConfig can be constructed with only one parameter but was given " + arguments.length)
+  constructor(config, relaxValidation) {  // relax validation for internal use to process json from rpc or cpp
+    if (arguments.length > 2) throw new MoneroError("MoneroTxConfig can be constructed with only two parameters but was given " + arguments.length)
     
     // initialize internal state
     if (!config) this.state = {};
     else if (config instanceof MoneroTxConfig) this.state = config.toJson();
-    else if (typeof config === "object") this.state = Object.assign({}, config);
+    else if (typeof config === "object") {
+      this.state = Object.assign({}, config);
+      if (relaxValidation && typeof this.state.amount === "number") this.state.amount = BigInteger.parse(this.state.amount);
+    }
     else throw new MoneroError("Invalid argument given to MoneroTxConfig: " + typeof config);
     
     // deserialize if necessary
@@ -58,7 +62,8 @@ class MoneroTxConfig {
     // alias 'address' and 'amount' to single destination to support e.g. createTx({address: "..."})
     if (this.state.address || this.state.amount) {
       assert(!this.state.destinations, "Tx configuration may specify destinations or an address/amount but not both");
-      this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
+      this.setAddress(this.state.address);
+      this.setAmount(this.state.amount);
       delete this.state.address;
       delete this.state.amount;
     }
@@ -111,10 +116,15 @@ class MoneroTxConfig {
   /**
    * Set the amount of a single-destination configuration.
    * 
-   * @param {BigInteger} amount - the amount to set for the single destination
+   * @param {BigInteger|string} amount - the amount to set for the single destination
    * @return {MoneroTxConfig} this configuration for chaining
    */
   setAmount(amount) {
+    if (amount !== undefined && !(this.state.amount instanceof BigInteger)) {
+      if (typeof amount === "number") throw new MoneroError("Destination amount must be BigInteger or string");
+      try { amount = BigInteger.parse(amount); }
+      catch (err) { throw new MoneroError("Invalid destination amount: " + amount); }
+    }
     if (this.state.destinations !== undefined && this.state.destinations.length > 1) throw new MoneroError("Cannot set amount because MoneroTxConfig already has multiple destinations");
     if (this.state.destinations === undefined || this.state.destinations.length === 0) this.addDestination(new MoneroDestination(undefined, amount));
     else this.state.destinations[0].setAmount(amount);
@@ -131,10 +141,11 @@ class MoneroTxConfig {
     return this.state.destinations[0].getAmount();
   }
   
-  addDestination(destination) {
-    assert(destination instanceof MoneroDestination);
+  addDestination(destinationOrAddress, amount) {
+    if (typeof destinationOrAddress === "string") return this.addDestination(new MoneroDestination(destinationOrAddress, amount));
+    assert(destinationOrAddress instanceof MoneroDestination);
     if (this.state.destinations === undefined) this.state.destinations = [];
-    this.state.destinations.push(destination);
+    this.state.destinations.push(destinationOrAddress);
     return this;
   }
   

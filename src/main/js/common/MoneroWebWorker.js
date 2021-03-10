@@ -698,17 +698,17 @@ self.getOutputs = async function(walletId, blockJsonQuery) {
   return blocks;
 }
 
-self.getOutputsHex = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getOutputsHex();
+self.exportOutputs = async function(walletId, all) {
+  return self.WORKER_OBJECTS[walletId].exportOutputs(all);
 }
 
-self.importOutputsHex = async function(walletId, outputsHex) {
-  return self.WORKER_OBJECTS[walletId].importOutputsHex(outputsHex);
+self.importOutputs = async function(walletId, outputsHex) {
+  return self.WORKER_OBJECTS[walletId].importOutputs(outputsHex);
 }
 
-self.getKeyImages = async function(walletId) {
+self.getKeyImages = async function(walletId, all) {
   let keyImagesJson = [];
-  for (let keyImage of await self.WORKER_OBJECTS[walletId].getKeyImages()) keyImagesJson.push(keyImage.toJson());
+  for (let keyImage of await self.WORKER_OBJECTS[walletId].exportKeyImages(all)) keyImagesJson.push(keyImage.toJson());
   return keyImagesJson;
 }
 
@@ -753,8 +753,8 @@ self.relayTxs = async function(walletId, txMetadatas) {
   return self.WORKER_OBJECTS[walletId].relayTxs(txMetadatas);
 }
 
-self.parseTxSet = async function(walletId, txSetJson) {
-  return (await self.WORKER_OBJECTS[walletId].parseTxSet(new MoneroTxSet(txSetJson))).toJson();
+self.describeTxSet = async function(walletId, txSetJson) {
+  return (await self.WORKER_OBJECTS[walletId].describeTxSet(new MoneroTxSet(txSetJson))).toJson();
 }
 
 self.signTxs = async function(walletId, unsignedTxHex) {

@@ -1,9 +1,11 @@
+const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
 const WalletEqualityUtils = require("./utils/WalletEqualityUtils");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 const monerojs = require("../../index");
 const MoneroWalletConfig = monerojs.MoneroWalletConfig;
 const GenUtils = monerojs.GenUtils;
+const MoneroUtils = monerojs.MoneroUtils;
 
 /**
  * Tests the implementation of MoneroWallet which only manages keys using WebAssembly.
@@ -114,6 +116,14 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         
         // deep compare
         await WalletEqualityUtils.testWalletEqualityKeys(walletRpc, walletKeys);
+      });
+      
+      it("Can get the address of a specified account and subaddress index", async function() {
+        for (let accountIdx= 0; accountIdx < 5; accountIdx++) {
+          for (let subaddressIdx = 0; subaddressIdx < 5; subaddressIdx++) {
+            MoneroUtils.validateAddress(await that.wallet.getAddress(accountIdx, subaddressIdx), TestUtils.NETWORK_TYPE);
+          }
+        }
       });
     });
   }

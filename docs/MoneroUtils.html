@@ -83,7 +83,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line11">line 11</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line13">line 13</a>
     </li></ul></dd>
     
 
@@ -132,6 +132,168 @@
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".atomicUnitsToXmr"><span class="type-signature">(static) </span>atomicUnitsToXmr<span class="signature">(amountAtomicUnits)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Convert atomic units to XMR.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>amountAtomicUnits</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">amount in atomic units to convert to XMR</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line329">line 329</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    amount in XMR
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
 
         
             
@@ -240,7 +402,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line267">line 267</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line276">line 276</a>
     </li></ul></dd>
     
 
@@ -399,7 +561,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line235">line 235</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line244">line 244</a>
     </li></ul></dd>
     
 
@@ -568,7 +730,7 @@ TODO: use c++ bridge for this
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line148">line 148</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line157">line 157</a>
     </li></ul></dd>
     
 
@@ -678,7 +840,7 @@ TODO: use c++ bridge for this
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line18">line 18</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line20">line 20</a>
     </li></ul></dd>
     
 
@@ -736,7 +898,7 @@ TODO: use c++ bridge for this
     
 
     
-    <h4 class="name" id=".isValidAddress"><span class="type-signature">(static) </span>isValidAddress<span class="signature">(address)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".isValidAddress"><span class="type-signature">(static) </span>isValidAddress<span class="signature">(address, networkType)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
 
     
@@ -745,8 +907,6 @@ TODO: use c++ bridge for this
 
 <div class="description">
     Determine if the given address is valid.
-
-TODO: improve validation, use network type
 </div>
 
 
@@ -802,6 +962,29 @@ TODO: improve validation, use network type
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroNetworkType.html">MoneroNetworkType</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the address to validate</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -839,7 +1022,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line90">line 90</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -864,6 +1047,28 @@ TODO: improve validation, use network type
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    true if the address is valid, false otherwise
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -976,7 +1181,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line118">line 118</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line127">line 127</a>
     </li></ul></dd>
     
 
@@ -1135,7 +1340,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line203">line 203</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line212">line 212</a>
     </li></ul></dd>
     
 
@@ -1317,7 +1522,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line187">line 187</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line196">line 196</a>
     </li></ul></dd>
     
 
@@ -1479,7 +1684,7 @@ For example, 03284e41c342f032 and 03284e41c342f032000000000000000000000000000000
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line171">line 171</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line180">line 180</a>
     </li></ul></dd>
     
 
@@ -1537,7 +1742,7 @@ For example, 03284e41c342f032 and 03284e41c342f032000000000000000000000000000000
     
 
     
-    <h4 class="name" id=".validateAddress"><span class="type-signature">(static) </span>validateAddress<span class="signature">(address)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".validateAddress"><span class="type-signature">(static) </span>validateAddress<span class="signature">(address, networkType)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1546,8 +1751,6 @@ For example, 03284e41c342f032 and 03284e41c342f032000000000000000000000000000000
 
 <div class="description">
     Validate the given address, throw an error if invalid.
-
-TODO: improve validation, use network type
 </div>
 
 
@@ -1603,6 +1806,29 @@ TODO: improve validation, use network type
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroNetworkType.html">MoneroNetworkType</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the address to validate</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1640,7 +1866,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line106">line 106</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line107">line 107</a>
     </li></ul></dd>
     
 
@@ -1779,7 +2005,7 @@ TODO: improve validation, use network type
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line29">line 29</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -1918,7 +2144,7 @@ TODO: improve validation
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line134">line 134</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line143">line 143</a>
     </li></ul></dd>
     
 
@@ -2057,7 +2283,7 @@ TODO: improve validation
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line54">line 54</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -2196,7 +2422,7 @@ TODO: improve validation
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line42">line 42</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line44">line 44</a>
     </li></ul></dd>
     
 
@@ -2335,7 +2561,7 @@ TODO: improve validation
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line78">line 78</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -2474,7 +2700,7 @@ TODO: improve validation
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line66">line 66</a>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -2505,6 +2731,168 @@ TODO: improve validation
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id=".xmrToAtomicUnits"><span class="type-signature">(static) </span>xmrToAtomicUnits<span class="signature">(amountXmr)</span><span class="type-signature"> &rarr; {BigInteger}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Convert XMR to atomic units.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>amountXmr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">amount in XMR to convert to atomic units</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroUtils.js.html">src/main/js/common/MoneroUtils.js</a>, <a href="src_main_js_common_MoneroUtils.js.html#line311">line 311</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    amount in atomic units
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">BigInteger</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -2526,7 +2914,7 @@ TODO: improve validation
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jan 26 2021 11:44:19 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Mar 10 2021 14:30:58 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

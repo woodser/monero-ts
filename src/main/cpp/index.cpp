@@ -9,6 +9,8 @@ EMSCRIPTEN_BINDINGS(module)
 {
   // ------------------------------ UTILITIES ---------------------------------
 
+  emscripten::function("validate_address", &monero_wasm_bridge::validate_address);
+  emscripten::function("get_exception_message", &monero_wasm_bridge::get_exception_message);
   emscripten::function("malloc_binary_from_json", &monero_wasm_bridge::malloc_binary_from_json);
   emscripten::function("binary_to_json", &monero_wasm_bridge::binary_to_json);
   emscripten::function("binary_blocks_to_json", &monero_wasm_bridge::binary_blocks_to_json);
@@ -71,9 +73,9 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
   emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
   emscripten::function("get_outputs", &monero_wasm_bridge::get_outputs);
-  emscripten::function("get_outputs_hex", &monero_wasm_bridge::get_outputs_hex);
-  emscripten::function("import_outputs_hex", &monero_wasm_bridge::import_outputs_hex);
-  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
+  emscripten::function("export_outputs", &monero_wasm_bridge::export_outputs);
+  emscripten::function("import_outputs", &monero_wasm_bridge::import_outputs);
+  emscripten::function("export_key_images", &monero_wasm_bridge::export_key_images);
   emscripten::function("import_key_images", &monero_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
   emscripten::function("create_txs", &monero_wasm_bridge::create_txs);
@@ -81,7 +83,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
   emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
   emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
-  emscripten::function("parse_tx_set", &monero_wasm_bridge::parse_tx_set);
+  emscripten::function("describe_tx_set", &monero_wasm_bridge::describe_tx_set);
   emscripten::function("sign_txs", &monero_wasm_bridge::sign_txs);
   emscripten::function("submit_txs", &monero_wasm_bridge::submit_txs);
   emscripten::function("sign_message", &monero_wasm_bridge::sign_message);
