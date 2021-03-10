@@ -155,7 +155,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 	2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
-4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/utils/TestUtils.js).
+4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.js](src/test/utils/TestUtils.js), e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`.
 
 #### Running tests in Node.js
 
