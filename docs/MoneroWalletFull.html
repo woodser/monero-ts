@@ -7793,7 +7793,7 @@ This process must be repeated with participants exactly N-M times.
 
 
 <div class="description">
-    Get all of the wallet's incoming transfers.
+    Get incoming transfers.
 </div>
 
 
@@ -7834,13 +7834,185 @@ This process must be repeated with participants exactly N-M times.
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last">passed to getTransfers() with isIncoming=true</td>
+            <td class="description last">configures the query (optional)
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get incoming transfers to a specific address in the wallet (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get incoming transfers to a specific account index (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get incoming transfers to a specific subaddress index (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndices</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;int></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers destined for specific subaddress indices (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">amount being transferred (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>txQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxQuery.html">MoneroTxQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers whose transaction meets this query (optional)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -7917,7 +8089,7 @@ This process must be repeated with participants exactly N-M times.
 
         
 <div class="param-desc">
-    the wallet's incoming transfers
+    incoming transfers per the query
 </div>
 
 
@@ -9060,7 +9232,7 @@ given payment ID.  Generates a random payment ID if none is given.
 
 
 <div class="description">
-    Get all of the wallet's outgoing transfers.
+    Get outgoing transfers.
 </div>
 
 
@@ -9101,13 +9273,231 @@ given payment ID.  Generates a random payment ID if none is given.
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last">passed to getTransfers() with isOutgoing=true</td>
+            <td class="description last">configures the query (optional)
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outgoing transfers from a specific address in the wallet (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outgoing transfers from a specific account index (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outgoing transfers from a specific subaddress index (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressIndices</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;int></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get outgoing transfers from specific subaddress indices (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BigInteger</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">amount being transferred (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destinations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroDestination.html">MoneroDestination</a>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hasDestinations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers that have destinations or not (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>txQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxQuery.html">MoneroTxQuery</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">get transfers whose transaction meets this query (optional)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -9184,7 +9574,7 @@ given payment ID.  Generates a random payment ID if none is given.
 
         
 <div class="param-desc">
-    the wallet's outgoing transfers
+    outgoing transfers per the query
 </div>
 
 
@@ -9595,7 +9985,7 @@ filtering is optional and no filtering is applied when not defined.</p>
 
         
 <div class="param-desc">
-    are queried outputs
+    the queried outputs
 </div>
 
 
@@ -11804,7 +12194,7 @@ criteria are optional and no filtering is applied when not defined.</p>
 
         
 <div class="param-desc">
-    are wallet transfers per the configuration
+    wallet transfers per the query
 </div>
 
 
@@ -14818,7 +15208,7 @@ criteria are optional and no filtering is applied when not defined.</p>
 
 
 <div class="description">
-    Indicates if the wallet is view-only, meaning it does have the private
+    Indicates if the wallet is view-only, meaning it does not have the private
 spend key and can therefore only observe incoming outputs.
 </div>
 
@@ -19372,7 +19762,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 
             
 
-            <td class="description last">source account index to sweep from from (required)</td>
+            <td class="description last">source account index to sweep from (optional, defaults to all accounts)</td>
         </tr>
 
     
@@ -19395,7 +19785,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 
             
 
-            <td class="description last">source subaddress index to sweep from (optional)</td>
+            <td class="description last">source subaddress index to sweep from (optional, defaults to all subaddresses)</td>
         </tr>
 
     
@@ -19488,6 +19878,29 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
             
 
             <td class="description last">minimum height for the transactions to unlock (default 0)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sweepEachSubaddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">sweep each subaddress individually if true (default false)</td>
         </tr>
 
     
@@ -20309,7 +20722,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Mar 10 2021 14:30:58 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Mar 21 2021 11:10:17 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
