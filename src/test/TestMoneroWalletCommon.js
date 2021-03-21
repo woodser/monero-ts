@@ -14,6 +14,7 @@ const MoneroSyncResult = monerojs.MoneroSyncResult;
 const BigInteger = monerojs.BigInteger;
 const MoneroTxQuery = monerojs.MoneroTxQuery;
 const MoneroTransfer = monerojs.MoneroTransfer;
+const MoneroIncomingTransfer = monerojs.MoneroIncomingTransfer;
 const MoneroTransferQuery = monerojs.MoneroTransferQuery;
 const MoneroOutputQuery = monerojs.MoneroOutputQuery;
 const MoneroOutputWallet = monerojs.MoneroOutputWallet;
@@ -35,8 +36,6 @@ const NUM_BLOCKS_LOCKED = 10;
 
 /**
  * Test a wallet for common functionality.
- * 
- * TODO: test filtering with not relayed
  */
 class TestMoneroWalletCommon {
   
@@ -1324,6 +1323,17 @@ class TestMoneroWalletCommon {
           assert(transfer.getTx().isOutgoing());
           assert.equal(transfer.getTx().getOutgoingTransfer(), undefined);
         }
+        
+        // get incoming transfers to a specific address
+        let subaddress = await that.wallet.getAddress(0, 1);
+        transfers = await that.wallet.getTransfers({isIncoming: true, address: subaddress});
+        assert(transfers.length > 0);
+        for (let transfer of transfers) {
+          assert(transfer instanceof MoneroIncomingTransfer);
+          assert.equal(0, transfer.getAccountIndex());
+          assert.equal(1, transfer.getSubaddressIndex());
+          assert.equal(subaddress, transfer.getAddress());
+        }
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
@@ -1367,7 +1377,7 @@ class TestMoneroWalletCommon {
         }
         
         // get incoming transfers with query
-        inTransfers = await that.wallet.getIncomingTransfers(new MoneroTransferQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
+        inTransfers = await that.wallet.getIncomingTransfers({accountIndex: accountIdx, subaddressIndex: subaddressIdx});
         assert(inTransfers.length > 0);
         for (let transfer of inTransfers) {
           assert(transfer.isIncoming());
@@ -1392,7 +1402,7 @@ class TestMoneroWalletCommon {
         }
         
         // get outgoing transfers with query
-        outTransfers = await that.wallet.getOutgoingTransfers(new MoneroTransferQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
+        outTransfers = await that.wallet.getOutgoingTransfers({accountIndex: accountIdx, subaddressIndex: subaddressIdx});
         assert(outTransfers.length > 0);
         for (let transfer of outTransfers) {
           assert(transfer.isOutgoing());
@@ -4542,7 +4552,8 @@ class TestMoneroWalletCommon {
     if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal((await offlineWallet.getTxs()).length, 0); // TODO: monero-wallet-rpc has these transactions cached on startup
     
     // import outputs to offline wallet
-    await offlineWallet.importOutputs(outputsHex);
+    let numOutputsImported = await offlineWallet.importOutputs(outputsHex);
+    assert(numOutputsImported > 0, "No outputs imported");
     
     // export key images from offline wallet
     let keyImages = await offlineWallet.exportKeyImages();
@@ -4550,6 +4561,7 @@ class TestMoneroWalletCommon {
     
     // import key images to view-only wallet
     await viewOnlyWallet.importKeyImages(keyImages);
+    assert.equal((await viewOnlyWallet.getBalance()).toString(), (await this.wallet.getBalance()).toString());
     
     // create unsigned tx using view-only wallet
     let unsignedTx = await viewOnlyWallet.createTx({accountIndex: 0, address: primaryAddress, amount: TestUtils.MAX_FEE.multiply(BigInteger.parse("3"))});

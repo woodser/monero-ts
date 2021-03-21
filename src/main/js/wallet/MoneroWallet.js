@@ -64,7 +64,7 @@ class MoneroWallet {
   }
   
   /**
-   * Indicates if the wallet is view-only, meaning it does have the private
+   * Indicates if the wallet is view-only, meaning it does not have the private
    * spend key and can therefore only observe incoming outputs.
    * 
    * @return {bool} true if the wallet is view-only, false otherwise
@@ -503,60 +503,50 @@ class MoneroWallet {
    * @param {MoneroDestination[]} query.destinations - individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} query.hasDestinations - get transfers that have destinations or not (optional)
    * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
-   * @return {MoneroTransfer[]} are wallet transfers per the configuration
+   * @return {MoneroTransfer[]} wallet transfers per the query
    */
   async getTransfers(query) {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Get all of the wallet's incoming transfers.
+   * Get incoming transfers.
    * 
-   * @param query - passed to getTransfers() with isIncoming=true
-   * @return {MoneroIncomingTransfer[]} the wallet's incoming transfers
+   * @param {(MoneroTransferQuery|object)} query - configures the query (optional)
+   * @param {string} query.address - get incoming transfers to a specific address in the wallet (optional)
+   * @param {int} query.accountIndex - get incoming transfers to a specific account index (optional)
+   * @param {int} query.subaddressIndex - get incoming transfers to a specific subaddress index (optional)
+   * @param {int[]} query.subaddressIndices - get transfers destined for specific subaddress indices (optional)
+   * @param {BigInteger} query.amount - amount being transferred (optional)
+   * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
+   * @return {MoneroIncomingTransfer[]} incoming transfers per the query
    */
   async getIncomingTransfers(query) {
-    
-    // copy query and set direction
-    let _query;
-    if (query === undefined) _query = new MoneroTransferQuery();
-    else {
-      if (query.isIncoming() === false) throw new MoneroError("Transfer query contradicts getting incoming transfers");
-      _query = query.copy();
-    }
-    _query.setIsIncoming(true);
-    
-    // fetch and cast transfers
-    let inTransfers = [];
-    for (let transfer of await this.getTransfers(_query)) {
-      inTransfers.push(transfer);
-    }
-    return inTransfers;
+    query = new MoneroTransferQuery(query);
+    if (query.isIncoming() === false) throw new MoneroError("Transfer query contradicts getting incoming transfers");
+    query.setIsIncoming(true);
+    return this.getTransfers(query);
   }
   
   /**
-   * Get all of the wallet's outgoing transfers.
+   * Get outgoing transfers.
    * 
-   * @param query - passed to getTransfers() with isOutgoing=true
-   * @return {MoneroOutgoingTransfer[]} the wallet's outgoing transfers
+   * @param {(MoneroTransferQuery|object)} query - configures the query (optional)
+   * @param {string} query.address - get outgoing transfers from a specific address in the wallet (optional)
+   * @param {int} query.accountIndex - get outgoing transfers from a specific account index (optional)
+   * @param {int} query.subaddressIndex - get outgoing transfers from a specific subaddress index (optional)
+   * @param {int[]} query.subaddressIndices - get outgoing transfers from specific subaddress indices (optional)
+   * @param {BigInteger} query.amount - amount being transferred (optional)
+   * @param {MoneroDestination[]} query.destinations - individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
+   * @param {boolean} query.hasDestinations - get transfers that have destinations or not (optional)
+   * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
+   * @return {MoneroOutgoingTransfer[]} outgoing transfers per the query
    */
   async getOutgoingTransfers(query) {
-    
-    // copy query and set direction
-    let _query;
-    if (query === undefined) _query = new MoneroTransferQuery();
-    else {
-      if (query.isOutgoing() === false) throw new MoneroError("Transfer query contradicts getting outgoing transfers");
-      _query = query.copy();
-    }
-    _query.setIsOutgoing(true);
-    
-    // fetch and cast transfers
-    let outTransfers = [];
-    for (let transfer of await this.getTransfers(_query)) {
-      outTransfers.push(transfer);
-    }
-    return outTransfers;
+    query = new MoneroTransferQuery(query);
+    if (query.isOutgoing() === false) throw new MoneroError("Transfer query contradicts getting outgoing transfers");
+    query.setIsOutgoing(true);
+    return this.getTransfers(query);
   }
   
   /**
@@ -578,7 +568,7 @@ class MoneroWallet {
    * @param {boolean} query.isSpent - get outputs that are spent or not (optional)
    * @param {string|MoneroKeyImage} query.keyImage - get output with a key image or which matches fields defined in a MoneroKeyImage (optional)
    * @param {MoneroTxQuery} query.txQuery - get outputs whose transaction meets this filter (optional)
-   * @return {MoneroOutputWallet[]} are queried outputs
+   * @return {MoneroOutputWallet[]} the queried outputs
    */
   async getOutputs(query) {
     throw new MoneroError("Not supported");
@@ -697,12 +687,13 @@ class MoneroWallet {
    * 
    * @param {MoneroTxConfig|object} config - configures the transactions to create (required)
    * @param {string} config.address - single destination address (required)
-   * @param {int} config.accountIndex - source account index to sweep from from (required)
-   * @param {int} config.subaddressIndex - source subaddress index to sweep from (optional)
+   * @param {int} config.accountIndex - source account index to sweep from (optional, defaults to all accounts)
+   * @param {int} config.subaddressIndex - source subaddress index to sweep from (optional, defaults to all subaddresses)
    * @param {int[]} config.subaddressIndices - source subaddress indices to sweep from (optional)
    * @param {boolean} config.relay - relay the transactions to peers to commit to the blockchain (default false)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {int} config.unlockHeight - minimum height for the transactions to unlock (default 0)
+   * @param {boolean} config.sweepEachSubaddress - sweep each subaddress individually if true (default false)
    * @return {MoneroTxWallet[]} the created transactions
    */
   async sweepUnlocked(config) {

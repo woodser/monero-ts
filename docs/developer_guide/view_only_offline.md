@@ -57,9 +57,9 @@ let unsignedTx = await viewOnlyWallet.createTx({
   amount: "250000000000" // 0.25 XMR
 });
 
-// parse unsigned tx set to confirm details
-let parsedTxSet = await offlineWallet.parseTxSet(unsignedTx.getTxSet());
-let fee = parsedTxSet.getTxs()[0].getFee();	// "Are you sure you want to send... ?"
+// describe unsigned tx set to confirm details
+let describedTxSet = await offlineWallet.describeTxSet(unsignedTx.getTxSet());
+let fee = describedTxSet.getTxs()[0].getFee();	// "Are you sure you want to send... ?"
   
 // sign tx using offline wallet
 let signedTxHex = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
