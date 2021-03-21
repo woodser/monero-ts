@@ -56,6 +56,7 @@ class TestMoneroWalletCommon {
     this.wallet = await this.getTestWallet();
     this.daemon = await this.getTestDaemon();
     TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+    await monerojs.LibraryUtils.loadKeysModule() // for wasm dependents like address validation
   }
   
   /**
