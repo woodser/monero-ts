@@ -66,7 +66,7 @@ namespace monero {
   // --------------------------------- LISTENERS ------------------------------
 
   /**
-   * Interface to receive wallet notifications..
+   * Interface to receive wallet notifications.
    */
   class monero_wallet_listener {
   public:
