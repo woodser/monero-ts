@@ -11,6 +11,37 @@ const ThreadPool = require("./ThreadPool");
 class LibraryUtils {
   
   /**
+   * Log a message.
+   *
+   * @param {int} level - log level of the message
+   * @param {string} msg - message to log
+   */
+  static log(level, msg) {
+    assert(level === parseInt(level, 10) && level >= 0, "Log level must be an integer >= 0");
+    if (LibraryUtils.LOG_LEVEL >= level) console.log(msg);
+  }
+  
+  /**
+   * Set the library's log level with 0 being least verbose.
+   *
+   * @param {int} level - the library's log level
+   */
+  static async setLogLevel(level) {
+    assert(level === parseInt(level, 10) && level >= 0, "Log level must be an integer >= 0");
+    LibraryUtils.LOG_LEVEL = level;
+    if (LibraryUtils.WORKER) await LibraryUtils.invokeWorker(GenUtils.getUUID(), "setLogLevel", [level]);
+  }
+  
+  /**
+   * Get the library's log level.
+   *
+   * @return {int} the library's log level
+   */
+  static getLogLevel() {
+    return LibraryUtils.LOG_LEVEL;
+  }
+  
+  /**
    * Get the total memory used by WebAssembly.
    * 
    * @return {int} the total memory used by WebAssembly
@@ -124,7 +155,7 @@ class LibraryUtils {
    * 
    * @return {Worker} a worker to share among wallet instances
    */
-  static getWorker() {
+  static async getWorker() {
     
     // one time initialization
     if (!LibraryUtils.WORKER) {
@@ -151,6 +182,9 @@ class LibraryUtils {
         // invoke callback function with this arg and arguments
         callbackFn.apply(thisArg, e.data.slice(2));
       }
+      
+      // set worker log level
+      await LibraryUtils.setLogLevel(LibraryUtils.getLogLevel());
     }
     return LibraryUtils.WORKER;
   }
@@ -165,7 +199,7 @@ class LibraryUtils {
    */
   static async invokeWorker(objectId, fnName, args) {
     assert(fnName.length >= 2);
-    let worker = LibraryUtils.getWorker();
+    let worker = await LibraryUtils.getWorker();
     if (!LibraryUtils.WORKER_OBJECTS[objectId]) LibraryUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
       let callbackId = GenUtils.getUUID();
@@ -177,6 +211,7 @@ class LibraryUtils {
   }
 }
 
+LibraryUtils.LOG_LEVEL = 0;
 LibraryUtils.WORKER_DIST_PATH_DEFAULT = "/monero_web_worker.js";
 LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
 

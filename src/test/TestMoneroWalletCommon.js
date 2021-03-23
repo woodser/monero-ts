@@ -2,6 +2,8 @@ const assert = require("assert");
 const StartMining = require("./utils/StartMining");
 const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
+const Filter = monerojs.Filter; // TODO: don't export filter
+const LibraryUtils = monerojs.LibraryUtils;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
 const MoneroWalletRpc = monerojs.MoneroWalletRpc;
 const MoneroWalletKeys = monerojs.MoneroWalletKeys;
@@ -23,7 +25,6 @@ const MoneroTxWallet = monerojs.MoneroTxWallet;
 const MoneroDestination = monerojs.MoneroDestination;
 const MoneroSubaddress = monerojs.MoneroSubaddress;
 const MoneroKeyImage = monerojs.MoneroKeyImage;
-const Filter = monerojs.Filter; // TODO: don't export filter
 const MoneroTx = monerojs.MoneroTx;
 const MoneroMessageSignatureType = monerojs.MoneroMessageSignatureType;
 const MoneroMessageSignatureResult = monerojs.MoneroMessageSignatureResult;
@@ -56,7 +57,7 @@ class TestMoneroWalletCommon {
     this.wallet = await this.getTestWallet();
     this.daemon = await this.getTestDaemon();
     TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
-    await monerojs.LibraryUtils.loadKeysModule() // for wasm dependents like address validation
+    await LibraryUtils.loadKeysModule(); // for wasm dependents like address validation
   }
   
   /**
@@ -112,7 +113,7 @@ class TestMoneroWalletCommon {
   /**
    * Open a test wallet with default configuration for each wallet type.
    * 
-   * @param config configures the wallet to open
+   * @param config - configures the wallet to open
    * @return MoneroWallet is the opened wallet
    */
   async openWallet(config) {
@@ -122,7 +123,7 @@ class TestMoneroWalletCommon {
   /**
    * Create a test wallet with default configuration for each wallet type.
    * 
-   * @param config configures the wallet to create
+   * @param config - configures the wallet to create
    * @return MoneroWallet is the created wallet
    */
   async createWallet(config) {
@@ -156,15 +157,16 @@ class TestMoneroWalletCommon {
     let testConfig = this.testConfig;
     describe("Common Wallet Tests" + (testConfig.liteMode ? " (lite mode)" : ""), function() {
       
-      //  --------------------------- TEST NON RELAYS -------------------------
-      
+      // start tests by sending to multiple addresses
       if (testConfig.testRelays)
       it("Can send to multiple addresses in a single transaction", async function() {
         for (let i = 0; i < 3; i++) {
           await testSendToMultiple(5, 3, false);
         }
       });
-
+      
+      //  --------------------------- TEST NON RELAYS -------------------------
+      
       if (testConfig.testNonRelays)
       it("Can create a random wallet", async function() {
         let e1 = undefined;
@@ -3032,7 +3034,7 @@ class TestMoneroWalletCommon {
         }
         
         // finally 
-        if (!await recipient.isClosed()) await that.closeWallet(recipient);
+        if (recipient && !await recipient.isClosed()) await that.closeWallet(recipient);
         if (err) throw err;
       });
       

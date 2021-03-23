@@ -227,7 +227,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // convert binary blocks to json
     let rpcBlocks = MoneroUtils.binaryBlocksToJson(respBin);
     MoneroDaemonRpc._checkResponseStatus(rpcBlocks);
-    //console.log(JSON.stringify(rpcBlocks));
     
     // build blocks with transactions
     assert.equal(rpcBlocks.txs.length, rpcBlocks.blocks.length);    
@@ -989,7 +988,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "double_spend_seen") GenUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") GenUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") {
-        if (typeof val === "string") console.log("WARNING: extra fielda s string not being asigned to int[]: " + key + ": " + val); // TODO: how to set string to int[]? - or, extra is string which can encode int[]
+        if (typeof val === "string") console.log("WARNING: extra field as string not being asigned to int[]: " + key + ": " + val); // TODO: how to set string to int[]? - or, extra is string which can encode int[]
         else GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       }
       else if (key === "vin") {
@@ -1454,7 +1453,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     let daemonId = GenUtils.getUUID();
     config = Object.assign({}, config, {proxyToWorker: false});
     await LibraryUtils.invokeWorker(daemonId, "connectDaemonRpc", [config]);
-    return new MoneroDaemonRpcProxy(daemonId, LibraryUtils.getWorker());
+    return new MoneroDaemonRpcProxy(daemonId, await LibraryUtils.getWorker());
   }
   
   // ---------------------------- INSTANCE METHODS ----------------------------

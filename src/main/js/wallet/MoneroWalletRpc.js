@@ -1,6 +1,7 @@
 const assert = require("assert");
 const BigInteger = require("../common/biginteger").BigInteger;
 const GenUtils = require("../common/GenUtils");
+const LibraryUtils = require("../common/LibraryUtils");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroAccountTag = require("./model/MoneroAccountTag");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
@@ -117,9 +118,6 @@ class MoneroWalletRpc extends MoneroWallet {
     this.process.stdout.setEncoding('utf8');
     this.process.stderr.setEncoding('utf8');
     
-    // print output to console for debug
-    let printOutput = false;
-    
     // return promise which resolves after starting monero-wallet-rpc
     let uri;
     let that = this;
@@ -129,7 +127,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // handle stdout
       that.process.stdout.on('data', function(data) {
         let line = data.toString();
-        if (printOutput) console.log(line);
+        LibraryUtils.log(2, line);
         output += line + '\n'; // capture output in case of error
         
         // extract uri from e.g. "I Binding on 127.0.0.1 (IPv4):38085"
@@ -165,7 +163,7 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // handle stderr
       that.process.stderr.on('data', function(data) {
-        if (printOutput) console.error(data);
+        if (LibaryUtils.getLogLevel() >= 2) console.error(data);
       });
       
       // handle exit

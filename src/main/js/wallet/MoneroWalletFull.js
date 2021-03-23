@@ -53,7 +53,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (!fs) fs = MoneroWalletFull._getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
     let exists = fs.existsSync(path); // TODO: look for keys file
-    console.log("Wallet exists at " + path + ": " + exists);
+    LibraryUtils.log(1, "Wallet exists at " + path + ": " + exists);
     return exists;
   }
   
@@ -1660,9 +1660,9 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
     while (this._syncingEnabled) {
       let start = Date.now();
-      console.log("Background synchronizing " + label);
+      LibraryUtils.log(1, "Background synchronizing " + label);
       try { await this.sync(); }
-      catch (err) { if (!this._isClosed) console.log("Failed to background synchronize " + label + ": " + err.message); }
+      catch (err) { if (!this._isClosed) console.error("Failed to background synchronize " + label + ": " + err.message); }
       let sleepTime = this._syncPeriodInMs - (Date.now() - start); // target regular sync period by accounting for poll time
       if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, sleepTime); });
     }
@@ -1956,7 +1956,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "openWalletData", [path, password, networkType, keysData, cacheData, daemonUriOrConfig]);
-    let wallet = new MoneroWalletFullProxy(walletId, LibraryUtils.getWorker(), path, fs);
+    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1966,7 +1966,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
-    let wallet = new MoneroWalletFullProxy(walletId, LibraryUtils.getWorker(), path, fs);
+    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1976,7 +1976,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
-    let wallet = new MoneroWalletFullProxy(walletId, LibraryUtils.getWorker(), path, fs);
+    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }
@@ -1986,7 +1986,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
-    let wallet = new MoneroWalletFullProxy(walletId, LibraryUtils.getWorker(), path, fs);
+    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
     if (path) await wallet.save();
     return wallet;
   }

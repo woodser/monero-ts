@@ -503,7 +503,7 @@ class MoneroWallet {
    * @param {MoneroDestination[]} query.destinations - individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} query.hasDestinations - get transfers that have destinations or not (optional)
    * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
-   * @return {MoneroTransfer[]} wallet transfers per the query
+   * @return {MoneroTransfer[]} wallet transfers that meet the query
    */
   async getTransfers(query) {
     throw new MoneroError("Not supported");
@@ -519,7 +519,7 @@ class MoneroWallet {
    * @param {int[]} query.subaddressIndices - get transfers destined for specific subaddress indices (optional)
    * @param {BigInteger} query.amount - amount being transferred (optional)
    * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
-   * @return {MoneroIncomingTransfer[]} incoming transfers per the query
+   * @return {MoneroIncomingTransfer[]} incoming transfers that meet the query
    */
   async getIncomingTransfers(query) {
     query = new MoneroTransferQuery(query);
@@ -540,7 +540,7 @@ class MoneroWallet {
    * @param {MoneroDestination[]} query.destinations - individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} query.hasDestinations - get transfers that have destinations or not (optional)
    * @param {MoneroTxQuery} query.txQuery - get transfers whose transaction meets this query (optional)
-   * @return {MoneroOutgoingTransfer[]} outgoing transfers per the query
+   * @return {MoneroOutgoingTransfer[]} outgoing transfers that meet the query
    */
   async getOutgoingTransfers(query) {
     query = new MoneroTransferQuery(query);

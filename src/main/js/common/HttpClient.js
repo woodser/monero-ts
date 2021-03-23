@@ -308,7 +308,6 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
         if (self.firstRequest.status === 200) {
           self.log('Authentication not required for '+url);
           if (data instanceof Uint8Array) {
-            console.log("BINARY RESPONSE 1");
             self.successFn(self.firstRequest);
           } else {
             if (self.firstRequest.responseText !== 'undefined') {

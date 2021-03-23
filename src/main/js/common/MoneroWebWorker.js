@@ -54,7 +54,13 @@ self.initOneTime = async function() {
 
 // --------------------------- STATIC UTILITIES -------------------------------
 
-self.getWasmMemoryUsed = async function(objectId) {	// TODO: object id not needed for static utilites, using throwaway uuid
+// TODO: object id not needed for static utilites, using throwaway uuid
+
+self.setLogLevel = async function(objectId, level) {
+  return LibraryUtils.setLogLevel(level);
+}
+
+self.getWasmMemoryUsed = async function(objectId) {
   return LibraryUtils.getWasmModule() && LibraryUtils.getWasmModule().HEAP8 ? LibraryUtils.getWasmModule().HEAP8.length : undefined;
 }
 

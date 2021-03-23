@@ -1,4 +1,6 @@
 // import test types
+const monerojs = require("../../index");
+const LibraryUtils = monerojs.LibraryUtils;
 const TestSampleCode = require("./TestSampleCode");
 const TestMoneroUtils = require("./TestMoneroUtils");
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
@@ -6,6 +8,9 @@ const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletFull = require("./TestMoneroWalletFull");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestDeveloperGuide = require("./TestDeveloperGuide");
+
+// set log level
+LibraryUtils.setLogLevel(1); // no need for await before worker used
 
 // test sample code for readme
 new TestSampleCode().runTests();
