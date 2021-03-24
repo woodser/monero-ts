@@ -2640,6 +2640,9 @@ namespace monero {
       throw std::runtime_error("Invalid address");
     }
 
+    // validate signature
+    if (signature.empty()) throw std::runtime_error("Must provide signature to check tx proof");
+
     // initialize and return tx check using wallet2
     std::shared_ptr<monero_check_tx> check_tx = std::make_shared<monero_check_tx>();
     uint64_t received_amount;
