@@ -2679,6 +2679,9 @@ namespace monero {
       throw std::runtime_error("TX hash has invalid format");
     }
 
+    // validate signature
+    if (signature.empty()) throw std::runtime_error("Must provide signature to check spend proof");
+
     // check spend proof
     return m_w2->check_spend_proof(_tx_hash, message, signature);
   }
@@ -2704,6 +2707,7 @@ namespace monero {
     cryptonote::address_parse_info info;
     if (!get_account_address_from_str(info, m_w2->nettype(), address)) throw std::runtime_error("Invalid address");
     if (info.is_subaddress) throw std::runtime_error("Address must not be a subaddress");
+    if (signature.empty()) throw std::runtime_error("Must provide signature to check reserve proof");
 
     // initialize check reserve using wallet2
     std::shared_ptr<monero_check_reserve> checkReserve = std::make_shared<monero_check_reserve>();
