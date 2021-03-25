@@ -14,7 +14,7 @@ class MoneroCheckTx extends MoneroCheck {
   }
   
   toJson() {
-    let json = Object.assign({}, state);
+    let json = Object.assign({}, this.state);
     if (this.getReceivedAmount()) json.receivedAmount = this.getReceivedAmount().toString();
     return json;
   }

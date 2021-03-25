@@ -1715,7 +1715,7 @@ class TestMoneroWalletCommon {
         try {
           txs = await getRandomTransactions(that.wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
-          if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
+          if (e.message.indexOf("found with") >= 0) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
         }
         
@@ -1723,6 +1723,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0, "No transactions found with outgoing destinations");
         for (let tx of txs) {
           let key = await that.wallet.getTxKey(tx.getHash());
+          assert(key, "No tx key returned for tx hash");
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
           for (let destination of tx.getOutgoingTransfer().getDestinations()) {
             let check = await that.wallet.checkTxKey(tx.getHash(), key, destination.getAddress());
@@ -1744,7 +1745,7 @@ class TestMoneroWalletCommon {
           await that.wallet.getTxKey("invalid_tx_id");
           throw new Error("Should throw exception for invalid key");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid tx hash
@@ -1755,7 +1756,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkTxKey("invalid_tx_id", key, destination.getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid key
@@ -1763,7 +1764,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkTxKey(tx.getHash(), "invalid_tx_key", destination.getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -25);
+          that._testInvalidTxKeyError(e);
         }
         
         // test check with invalid address
@@ -1771,7 +1772,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkTxKey(tx.getHash(), key, "invalid_tx_address");
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -2);
+          that._testInvalidAddressError(e);
         }
         
         // test check with different address
@@ -1800,7 +1801,7 @@ class TestMoneroWalletCommon {
         try {
           txs = await getRandomTransactions(that.wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
         } catch (e) {
-          if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
+          if (e.message.indexOf("found with") >= 0) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
         }
         
@@ -1808,6 +1809,7 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           for (let destination of tx.getOutgoingTransfer().getDestinations()) {
             let signature = await that.wallet.getTxProof(tx.getHash(), destination.getAddress(), "This transaction definitely happened.");
+            assert(signature, "No signature returned from getTxProof()");
             let check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This transaction definitely happened.", signature);
             testCheckTx(tx, check);
           }
@@ -1825,7 +1827,7 @@ class TestMoneroWalletCommon {
           await that.wallet.getTxProof("invalid_tx_id", destination.getAddress());
           throw new Error("Should throw exception for invalid key");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid tx hash
@@ -1833,7 +1835,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkTxProof("invalid_tx_id", destination.getAddress(), undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid address
@@ -1841,7 +1843,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkTxProof(tx.getHash(), "invalid_tx_address", undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -2);
+          that._testInvalidAddressError(e);
         }
         
         // test check with wrong message
@@ -1856,7 +1858,15 @@ class TestMoneroWalletCommon {
           check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This is the right message", wrongSignature);  
           assert.equal(check.isGood(), false);
         } catch (e) {
-          assert.equal(e.getCode(), -1); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
+          that._testInvalidSignatureError(e);
+        }
+        
+        // test check with empty signature
+        try {
+          check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This is the right message", "");  
+          assert.equal(check.isGood(), false);
+        } catch (e) {
+          assert.equal("Must provide signature to check tx proof", e.message);
         }
       });
       
@@ -1874,6 +1884,7 @@ class TestMoneroWalletCommon {
         // test good checks with messages
         for (let tx of txs) {
           let signature = await that.wallet.getSpendProof(tx.getHash(), "I am a message.");
+          assert(signature, "No signature returned for spend proof");
           assert(await that.wallet.checkSpendProof(tx.getHash(), "I am a message.", signature));
         }
         
@@ -1887,7 +1898,7 @@ class TestMoneroWalletCommon {
           await that.wallet.getSpendProof("invalid_tx_id");
           throw new Error("Should throw exception for invalid key");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid tx hash
@@ -1895,7 +1906,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkSpendProof("invalid_tx_id", undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -8);
+          that._testInvalidTxHashError(e);
         }
         
         // test check with invalid message
@@ -1912,6 +1923,7 @@ class TestMoneroWalletCommon {
         
         // get proof of entire wallet
         let signature = await that.wallet.getReserveProofWallet("Test message");
+        assert(signature, "No signature returned for wallet reserve proof");
         
         // check proof of entire wallet
         let check = await that.wallet.checkReserveProof(await that.wallet.getPrimaryAddress(), "Test message", signature);
@@ -1929,7 +1941,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkReserveProof(differentAddress, "Test message", signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -1);
+          that._testNoSubaddressError(e);
         }
         
         // test subaddress
@@ -1937,7 +1949,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkReserveProof((await that.wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -1);
+          that._testNoSubaddressError(e);
         }
         
         // test wrong message
@@ -1950,7 +1962,7 @@ class TestMoneroWalletCommon {
           await that.wallet.checkReserveProof(await that.wallet.getPrimaryAddress(), "Test message", "wrong signature");
           throw new Error("Should have thrown exception");
         } catch (e) {
-          assert.equal(e.getCode(), -1);
+          that._testSignatureHeaderCheckError(e);
         }
       });
       
@@ -1993,7 +2005,7 @@ class TestMoneroWalletCommon {
           let reserveProof = await that.wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
           throw new Error("should have thrown error");
         } catch (e) {
-          if (e.message === "should have thrown error") throw new Error("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595"); 
+          if (e.message === "should have thrown error") throw new Error("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595");
           assert.equal(e.getCode(), -1);
         }
         
@@ -2492,7 +2504,7 @@ class TestMoneroWalletCommon {
             let isWalletRpcWithoutZmq = wallet instanceof MoneroWalletRpc;
             await new Promise(function(resolve) { setTimeout(resolve, isWalletRpcWithoutZmq ? TestUtils.SYNC_PERIOD_IN_MS : 1); });
             if (!hasOutput(listener.getOutputsSpent(), tx.getHash(), undefined, undefined, undefined)) {
-              errors.push("ERROR: did not receive notification of received output");
+              errors.push("ERROR: tx is confirmed but no notifications were received");
               return errors;
             }
           }
@@ -4586,6 +4598,30 @@ class TestMoneroWalletCommon {
       assert.equal(txHashes[0].length, 64);
       await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(viewOnlyWallet); // wait for confirmation for other tests
     }
+  }
+  
+  _testInvalidAddressError(err) {
+    assert.equal("Invalid address", err.message);
+  }
+  
+  _testInvalidTxHashError(err) {
+    assert.equal("TX hash has invalid format", err.message);
+  }
+  
+  _testInvalidTxKeyError(err) {
+    assert.equal("Tx key has invalid format", err.message);
+  }
+  
+  _testInvalidSignatureError(err) {
+    assert.equal("Signature size mismatch with additional tx pubkeys", err.message);
+  }
+  
+  _testNoSubaddressError(err) {
+    assert.equal("Address must not be a subaddress", err.message);
+  }
+  
+  _testSignatureHeaderCheckError(err) {
+    assert.equal("Signature header check error", err.message);
   }
 }
 

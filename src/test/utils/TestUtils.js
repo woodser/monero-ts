@@ -216,7 +216,7 @@ class TestUtils {
   
   static async getExternalWalletAddress() {
     let wallet = await monerojs.createWalletKeys({networkType: TestUtils.NETWORK_TYPE});
-    return await wallet.getPrimaryAddress();
+    return await wallet.getAddress(0, 1); // subaddress
   }
   
   static txsMergeable(tx1, tx2) {

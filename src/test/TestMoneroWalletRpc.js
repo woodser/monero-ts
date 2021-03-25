@@ -145,6 +145,36 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     assert.equal(address, undefined);
   }
   
+  _testInvalidAddressError(err) {
+    super._testInvalidAddressError(err);
+    assert.equal(-2, err.getCode());
+  }
+  
+  _testInvalidTxHashError(err) {
+    super._testInvalidTxHashError(err);
+    assert.equal(-8, err.getCode());
+  }
+  
+  _testInvalidTxKeyError(err) {
+    super._testInvalidTxKeyError(err);
+    assert.equal(-25, err.getCode());
+  }
+  
+  _testInvalidSignatureError(err) {
+    super._testInvalidSignatureError(err);
+    assert.equal(-1, err.getCode());
+  }
+  
+  _testNoSubaddressError(err) {
+    super._testNoSubaddressError(err);
+    assert.equal(-1, err.getCode());
+  }
+  
+  _testSignatureHeaderCheckError(err) {
+    super._testSignatureHeaderCheckError(err);
+    assert.equal(-1, err.getCode());
+  }
+  
   _testWalletRpc(testConfig) {
     let that = this;
     describe("Tests specific to RPC wallet", function() {

@@ -1185,7 +1185,7 @@ function testBlockHeader(header, isFull) {
   else assert(header.getTimestamp() > 0);
   assert(header.getPrevHash());
   assert(header.getNonce() !== undefined);
-  if (header.getNonce() === 0) console.error("WARNING: header nonce is 0 at height " + header.getHeight()); // TODO (monero-project): why is header nonce 0?
+  if (header.getNonce() === 0) console.log("WARNING: header nonce is 0 at height " + header.getHeight()); // TODO (monero-project): why is header nonce 0?
   else assert(header.getNonce() > 0);
   assert.equal(typeof header.getNonce(), "number");
   assert(header.getPowHash() === undefined);  // never seen defined

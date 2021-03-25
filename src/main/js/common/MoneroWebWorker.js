@@ -9,7 +9,6 @@ const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 const MoneroRpcConnection = require("./MoneroRpcConnection");
 const MoneroTxConfig = require("../wallet/model/MoneroTxConfig");
 const MoneroTxSet = require("../wallet/model/MoneroTxSet");
-const MoneroUtils = require("./MoneroUtils");
 const MoneroWalletListener = require("../wallet/model/MoneroWalletListener");
 const MoneroWalletFull = require("../wallet/MoneroWalletFull");
 
@@ -792,7 +791,7 @@ self.getTxProof = async function(walletId, txHash, address, message) {
 }
 
 self.checkTxProof = async function(walletId, txHash, address, message, signature) {
-  return (self.WORKER_OBJECTS[walletId].checkTxProof(txHash, address, message, signature)).toJson();
+  return (await self.WORKER_OBJECTS[walletId].checkTxProof(txHash, address, message, signature)).toJson();
 }
 
 self.getSpendProof = async function(walletId, txHash, message) {
@@ -807,8 +806,8 @@ self.getReserveProofWallet = async function(walletId, message) {
   return self.WORKER_OBJECTS[walletId].getReserveProofWallet(message);
 }
 
-self.getReserveProofAccount = async function(walletId, accountIdx, amount, message) {
-  return self.WORKER_OBJECTS[walletId].getReserveProofAccount(accountIdx, amount, message);
+self.getReserveProofAccount = async function(walletId, accountIdx, amountStr, message) {
+  return self.WORKER_OBJECTS[walletId].getReserveProofAccount(accountIdx, amountStr, message);
 }
 
 self.checkReserveProof = async function(walletId, address, message, signature) {

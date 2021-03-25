@@ -867,47 +867,79 @@ string monero_wasm_bridge::get_tx_key(int handle, const string& tx_hash) {
   return wallet->get_tx_key(tx_hash);
 }
 
-string monero_wasm_bridge::check_tx_key(int handle, const string& tx_hash, const string& tx_key, const string& address) {
+void monero_wasm_bridge::check_tx_key(int handle, const string& tx_hash, const string& tx_key, const string& address, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->check_tx_key(tx_hash, tx_key, address)->serialize();
+  try {
+    callback(wallet->check_tx_key(tx_hash, tx_key, address)->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
-string monero_wasm_bridge::get_tx_proof(int handle, const string& tx_hash, const string& address, const string& message) {
+void monero_wasm_bridge::get_tx_proof(int handle, const string& tx_hash, const string& address, const string& message, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_tx_proof(tx_hash, address, message);
+  try {
+    callback(wallet->get_tx_proof(tx_hash, address, message));
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what())); // indicate error with prefix
+  }
 }
 
-string monero_wasm_bridge::check_tx_proof(int handle, const string& tx_hash, const string& address, const string& message, const string& signature) {
+void monero_wasm_bridge::check_tx_proof(int handle, const string& tx_hash, const string& address, const string& message, const string& signature, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->check_tx_proof(tx_hash, address, message, signature)->serialize();
+  try {
+    callback(wallet->check_tx_proof(tx_hash, address, message, signature)->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
-string monero_wasm_bridge::get_spend_proof(int handle, const string& tx_hash, const string& message) {
+void monero_wasm_bridge::get_spend_proof(int handle, const string& tx_hash, const string& message, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_spend_proof(tx_hash, message);
+  try {
+    callback(wallet->get_spend_proof(tx_hash, message));
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what()));
+  }
 }
 
-bool monero_wasm_bridge::check_spend_proof(int handle, const string& tx_hash, const string& message, const string& signature) {
+void monero_wasm_bridge::check_spend_proof(int handle, const string& tx_hash, const string& message, const string& signature, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->check_spend_proof(tx_hash, message, signature);
+  try {
+    callback(wallet->check_spend_proof(tx_hash, message, signature));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
-string monero_wasm_bridge::get_reserve_proof_wallet(int handle, const string& message) {
+void monero_wasm_bridge::get_reserve_proof_wallet(int handle, const string& message, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_reserve_proof_wallet(message);
+  try {
+    callback(wallet->get_reserve_proof_wallet(message));
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what()));
+  }
 }
 
-string monero_wasm_bridge::get_reserve_proof_account(int handle, uint32_t account_idx, const string& amount_str, const string& message) {
+void monero_wasm_bridge::get_reserve_proof_account(int handle, uint32_t account_idx, const string& amount_str, const string& message, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  std::stringstream sstr(amount_str);
-  uint64_t amount;
-  sstr >> amount;
-  return wallet->get_reserve_proof_account(account_idx, amount, message);
+  try {
+    std::stringstream sstr(amount_str);
+    uint64_t amount;
+    sstr >> amount;
+    callback(wallet->get_reserve_proof_account(account_idx, amount, message));
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what()));
+  }
 }
 
-string monero_wasm_bridge::check_reserve_proof(int handle, const string& address, const string& message, const string& signature) {
+void monero_wasm_bridge::check_reserve_proof(int handle, const string& address, const string& message, const string& signature, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->check_reserve_proof(address, message, signature)->serialize();
+  try {
+    callback(wallet->check_reserve_proof(address, message, signature)->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 string monero_wasm_bridge::get_tx_notes(int handle, const string& args) {

@@ -6,6 +6,7 @@ const MoneroAccount = require("./model/MoneroAccount");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
+const MoneroCheckReserve = require("./model/MoneroCheckReserve");
 const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
 const MoneroError = require("../common/MoneroError");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
@@ -1196,80 +1197,109 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   async checkTxKey(txHash, txKey, address) {
-    throw new Error("MoneroWalletFull.checkTxKey() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
     let that = this;
     return that._module.queueTask(async function() {
-      that._assertNotClosed();
-      let result = that._module.check_tx_key(that._cppAddress, txHash, txKey, address);
-      try { return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(result))); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      that._assertNotClosed(); 
+      return new Promise(function(resolve, reject) {
+        that._module.check_tx_key(that._cppAddress, txHash, txKey, address, function(respJsonStr) {
+          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr));
+          else resolve(new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(respJsonStr))));
+        });
+      });
     });
   }
   
   async getTxProof(txHash, address, message) {
-    throw new Error("MoneroWalletFull.checkTxKey() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      try { return that._module.get_tx_proof(that._cppAddress, txHash, address, message); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      return new Promise(function(resolve, reject) {
+        that._module.get_tx_proof(that._cppAddress, txHash || "", address || "", message || "", function(signature) {
+          let errorKey = "error: ";
+          if (signature.indexOf(errorKey) === 0) reject(new MoneroError(signature.substring(errorKey.length)));
+          else resolve(signature);
+        });
+      });
     });
   }
   
   async checkTxProof(txHash, address, message, signature) {
     let that = this;
     return that._module.queueTask(async function() {
-      that._assertNotClosed();
-      try { return new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature)))); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      that._assertNotClosed(); 
+      return new Promise(function(resolve, reject) {
+        that._module.check_tx_proof(that._cppAddress, txHash || "", address || "", message || "", signature || "", function(respJsonStr) {
+          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr));
+          else resolve(new MoneroCheckTx(JSON.parse(GenUtils.stringifyBIs(respJsonStr))));
+        });
+      });
     });
   }
   
   async getSpendProof(txHash, message) {
-    throw new Error("MoneroWalletFull.getSpendProof() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      try { return that._module.get_spend_proof(that._cppAddress, txHash, message); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      return new Promise(function(resolve, reject) {
+        that._module.get_spend_proof(that._cppAddress, txHash || "", message || "", function(signature) {
+          let errorKey = "error: ";
+          if (signature.indexOf(errorKey) === 0) reject(new MoneroError(signature.substring(errorKey.length)));
+          else resolve(signature);
+        });
+      });
     });
   }
   
   async checkSpendProof(txHash, message, signature) {
     let that = this;
     return that._module.queueTask(async function() {
-      that._assertNotClosed();
-      try { return that._module.check_spend_proof(that._cppAddress, txHash, message, signature); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      that._assertNotClosed(); 
+      return new Promise(function(resolve, reject) {
+        that._module.check_spend_proof(that._cppAddress, txHash || "", message || "", signature || "", function(resp) {
+          typeof resp === "string" ? reject(new MoneroError(resp)) : resolve(resp);
+        });
+      });
     });
   }
   
   async getReserveProofWallet(message) {
-    throw new Error("MoneroWalletFull.getReserveProofWallet() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      try { return that._module.get_reserve_proof_wallet(that._cppAddress, message); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      return new Promise(function(resolve, reject) {
+        that._module.get_reserve_proof_wallet(that._cppAddress, message, function(signature) {
+          let errorKey = "error: ";
+          if (signature.indexOf(errorKey) === 0) reject(new MoneroError(signature.substring(errorKey.length), -1));
+          else resolve(signature);
+        });
+      });
     });
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new Error("MoneroWalletFull.getReserveProofAccount() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html"); // TODO
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      try { return that._module.get_reserve_proof_account(that._cppAddress, accountIdx, amount.toString(), message); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      return new Promise(function(resolve, reject) {
+        that._module.get_reserve_proof_account(that._cppAddress, accountIdx, amount.toString(), message, function(signature) {
+          let errorKey = "error: ";
+          if (signature.indexOf(errorKey) === 0) reject(new MoneroError(signature.substring(errorKey.length), -1));
+          else resolve(signature);
+        });
+      });
     });
   }
 
   async checkReserveProof(address, message, signature) {
     let that = this;
     return that._module.queueTask(async function() {
-      that._assertNotClosed();
-      try { return new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature)))); }
-      catch (err) { throw new Error(that._module.get_exception_message(err)); }
+      that._assertNotClosed(); 
+      return new Promise(function(resolve, reject) {
+        that._module.check_reserve_proof(that._cppAddress, address, message, signature, function(respJsonStr) {
+          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr, -1));
+          else resolve(new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBIs(respJsonStr))));
+        });
+      });
     });
   }
   
@@ -2362,11 +2392,13 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
-    return this._invokeWorker("getReserveProofAccount", Array.from(arguments));
+    try { return await this._invokeWorker("getReserveProofAccount", [accountIdx, amount.toString(), message]); }
+    catch (e) { throw new MoneroError(e.message, -1); }
   }
 
   async checkReserveProof(address, message, signature) {
-    return new MoneroCheckReserve(await this._invokeWorker("checkReserveProof", Array.from(arguments)));
+    try { return new MoneroCheckReserve(await this._invokeWorker("checkReserveProof", Array.from(arguments))); }
+    catch (e) { throw new MoneroError(e.message, -1); }
   }
   
   async getTxNotes(txHashes) {

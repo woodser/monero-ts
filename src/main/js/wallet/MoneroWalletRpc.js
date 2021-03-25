@@ -1229,7 +1229,8 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       return check;
     } catch (e) {
-      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      if (e instanceof MoneroRpcError && e.getCode() === -1 && e.message === "basic_string") e = new MoneroRpcError("Must provide signature to check tx proof", -1);
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());
       throw e;
     }
   }

@@ -10,7 +10,7 @@ A Node.js library for creating Monero applications using RPC and WebAssembly bin
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-* Over 270 passing Mocha tests.
+* Over 280 passing Mocha tests.
 
 ## Table of contents
 
