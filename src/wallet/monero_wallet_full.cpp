@@ -370,6 +370,7 @@ namespace monero {
     output->m_subaddress_index = td.m_subaddr_index.minor;
     output->m_is_spent = td.m_spent;
     output->m_is_frozen = td.m_frozen;
+    output->m_stealth_public_key = epee::string_tools::pod_to_hex(td.get_public_key());
     if (td.m_key_image_known) {
       output->m_key_image = std::make_shared<monero_key_image>();
       output->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(td.m_key_image);
