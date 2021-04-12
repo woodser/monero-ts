@@ -82,9 +82,7 @@ void monero_utils::validate_address(const std::string& address, monero_network_t
 void monero_utils::json_to_binary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
   ps.load_from_json(json);
-  epee::byte_slice bin_slice;
-  ps.store_to_binary(bin_slice);
-  bin.assign(reinterpret_cast<const char*>(bin_slice.data()), bin_slice.size());
+  ps.store_to_binary(bin);
 }
 
 void monero_utils::binary_to_json(const std::string &bin, std::string &json) {
