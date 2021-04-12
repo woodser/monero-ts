@@ -1714,7 +1714,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
             async function(height) { await that._fullListener.onNewBlock(height); },
             async function(newBalanceStr, newUnlockedBalanceStr) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
             async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); },
-            async function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
+            async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked); });
       } else {
         that._fullListenerHandle = that._module.set_listener(that._cppAddress, that._fullListenerHandle, undefined, undefined, undefined, undefined, undefined);
       }
@@ -1939,16 +1939,18 @@ class WalletFullListener {
     for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(tx.getOutputs()[0]);
   }
   
-  async onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
+  async onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) {
     
     // build spent output
     let output = new MoneroOutputWallet();
     output.setAmount(BigInteger.parse(amountStr));
-    output.setAccountIndex(accountIdx);
-    output.setSubaddressIndex(subaddressIdx);
+    if (accountIdxStr) output.setAccountIndex(parseInt(accountIdxStr));
+    if (subaddressIdxStr) output.setSubaddressIndex(parseInt(subaddressIdxStr));
     let tx = new MoneroTxWallet();
     tx.setHash(txHash);
     tx.setVersion(version);
+    tx.setUnlockHeight(unlockHeight);
+    tx.setIsLocked(isLocked);
     output.setTx(tx);
     tx.setInputs([output]);
     if (height > 0) {

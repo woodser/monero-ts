@@ -588,7 +588,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
-    if (this.pollListener !== undefined && this.pollListener._isEnabled) await this.pollListener.poll(); // poll if listening
+    await this._poll();
     return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
   }
   
@@ -607,7 +607,7 @@ class MoneroWalletRpc extends MoneroWallet {
     this.syncPeriodInMs = syncPeriodInSeconds * 1000;
     
     // poll if listening
-    if (this.pollListener !== undefined && this.pollListener._isEnabled) await this.pollListener.poll();
+    await this._poll();
   }
   
   async stopSyncing() {
@@ -955,6 +955,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.rpc.sendJsonRequest("relay_tx", { hex: metadata });
       txHashes.push(resp.result.tx_hash);
     }
+    await this._poll(); // notify of changes
     return txHashes;
   }
 
@@ -1012,6 +1013,9 @@ class MoneroWalletRpc extends MoneroWallet {
       txs.push(tx);
     }
     
+    // notify of changes
+    await this._poll();
+    
     // initialize tx set from rpc response with pre-initialized txs
     if (config.getCanSplit()) return MoneroWalletRpc._convertRpcSentTxsToTxSet(result, txs).getTxs();
     else return MoneroWalletRpc._convertRpcTxToTxSet(result, txs === undefined ? undefined : txs[0], true).getTxs();
@@ -1040,6 +1044,9 @@ class MoneroWalletRpc extends MoneroWallet {
     // send request
     let resp = await this.rpc.sendJsonRequest("sweep_single", params);
     let result = resp.result;
+    
+    // notify of changes
+    await this._poll();
     
     // build and return tx response
     let tx = MoneroWalletRpc._initSentTxWallet(config, null);
@@ -1102,6 +1109,8 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
+    // notify of changes
+    await this._poll();
     return txs;
   }
   
@@ -1118,6 +1127,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else if (txSet.getMultisigTxHex() === undefined && txSet.getSignedTxHex() === undefined && txSet.getUnsignedTxHex() === undefined) {
       throw new MoneroError("No dust to sweep");
     }
+    await this._poll();
     return txSet.getTxs();
   }
   
@@ -1134,6 +1144,7 @@ class MoneroWalletRpc extends MoneroWallet {
       unsigned_txset: unsignedTxHex,
       export_raw: false
     });
+    await this._poll();
     return resp.result.signed_txset
   }
   
@@ -1572,7 +1583,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build params for get_transfers rpc call
     let params = {};
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
+    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
@@ -1806,6 +1817,13 @@ class MoneroWalletRpc extends MoneroWallet {
   async _setIsListening(isEnabled) {
     if (this.pollListener === undefined && isEnabled) this.pollListener = new WalletRpcPollListener(this);
     if (this.pollListener !== undefined) this.pollListener.setIsEnabled(isEnabled);
+  }
+  
+  /**
+   * Poll if listening.
+   */
+  async _poll() {
+    if (this.pollListener !== undefined && this.pollListener._isEnabled) await this.pollListener.poll();
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
@@ -2147,6 +2165,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
       else if (key === "frozen") output.setIsFrozen(val);
+      else if (key === "pubkey") output.setStealthPublicKey(val);
       else if (key === "subaddr_index") {
         output.setAccountIndex(val.major);
         output.setSubaddressIndex(val.minor);
@@ -2320,23 +2339,13 @@ class WalletRpcPollListener {
     this._prevLockedTxs = [];
     this._prevUnconfirmedNotifications = new Set(); // tx hashes of previous notifications
     this._prevConfirmedNotifications = new Set(); // tx hashes of previously confirmed but not yet unlocked notifications
-    this._reset();
-  }
-  
-  _reset() {
-    this._isEnabled = false;
-    this._prevHeight = undefined;
-    this._prevBalance = undefined;
-    this._prevUnlockedBalance = undefined;
-    this._prevLockedTxs.splice(0, this._prevLockedTxs.length);
-    this._prevUnconfirmedNotifications.clear();
-    this._prevConfirmedNotifications.clear();
   }
   
   async setIsEnabled(isEnabled) {
-    this._isEnabled = isEnabled;
-    if (isEnabled) this._runPollLoop();
-    else this._reset();
+    if (this._isEnabled != isEnabled) {
+      this._isEnabled = isEnabled;
+      if (isEnabled) this._runPollLoop();
+    }
   }
   
   async _runPollLoop() {
@@ -2377,6 +2386,13 @@ class WalletRpcPollListener {
       return;
     }
     
+    // announce height changes
+    let height = await this._wallet.getHeight();
+    if (this._prevHeight !== height) {
+      for (let i = this._prevHeight; i < height; i++) await this._onNewBlock(i);
+      this._prevHeight = height;
+    }
+    
     // get locked txs for comparison to previous
     let lockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setIncludeOutputs(true));
     
@@ -2394,16 +2410,6 @@ class WalletRpcPollListener {
     // save locked txs for next comparison
     this._prevLockedTxs = lockedTxs;
     
-    // announce height changes
-    let height = await this._wallet.getHeight();
-    if (this._prevHeight !== height) {
-      for (let i = this._prevHeight; i < height; i++) await this._onNewBlock(i);
-      this._prevHeight = height;
-    }
-    
-    // announce balance changes
-    await this._checkForChangedBalances();
-    
     // announce new unconfirmed and confirmed outputs
     for (let lockedTx of lockedTxs) {
       let searchSet = lockedTx.isConfirmed() ? this._prevConfirmedNotifications : this._prevUnconfirmedNotifications;
@@ -2419,6 +2425,9 @@ class WalletRpcPollListener {
       await this._notifyOutputs(unlockedTx);
     }
     
+    // announce balance changes
+    await this._checkForChangedBalances();
+    
     this._isPolling = false;
   }
   
@@ -2428,12 +2437,11 @@ class WalletRpcPollListener {
   
   async _notifyOutputs(tx) {
   
-    // notify spent outputs
-    // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx inputs so providing one input with outgoing transfer values
+    // notify spent outputs // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx inputs so providing one input with outgoing amount
     if (tx.getOutgoingTransfer() !== undefined) {
       assert(tx.getInputs() === undefined);
       let output = new MoneroOutputWallet()
-          .setAmount(tx.getOutgoingTransfer().getAmount())
+          .setAmount(tx.getOutgoingTransfer().getAmount().add(tx.getFee()))
           .setAccountIndex(tx.getOutgoingTransfer().getAccountIndex())
           .setSubaddressIndex(tx.getOutgoingTransfer().getSubaddressIndices().length === 1 ? tx.getOutgoingTransfer().getSubaddressIndices()[0] : undefined) // initialize if transfer sourced from single subaddress
           .setTx(tx);

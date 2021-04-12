@@ -1481,6 +1481,15 @@ class GenUtils {
     try { throw new Error(msg); }
     catch (err) { console.error(err.stack); }
   }
+  
+  /**
+   * Wait for the duration.
+   * 
+   * @param {number} duration - the duration to wait for in ms
+   */
+  static async waitFor(duration) {
+    return new Promise(function(resolve) { setTimeout(resolve, duration); });
+  }
 }
 
 module.exports = GenUtils;

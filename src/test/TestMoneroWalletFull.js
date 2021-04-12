@@ -1271,7 +1271,7 @@ class WalletSyncTester extends SyncProgressTester {
     // test output
     TestUtils.testUnsignedBigInteger(output.getAmount());
     assert(output.getAccountIndex() >= 0);
-    assert(output.getSubaddressIndex() >= 0);
+    if (output.getSubaddressIndex() !== undefined) assert(output.getSubaddressIndex() >= 0); // TODO (monero-project): can be undefined because inputs not provided so one created from outgoing transfer
     
     // test output's tx
     assert(output.getTx());
@@ -1279,7 +1279,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert.equal(output.getTx().getUnlockHeight(), undefined);
+    assert(output.getTx().getUnlockHeight() >= 0);
     assert.equal(output.getTx().getInputs().length, 1);
     assert(output.getTx().getInputs()[0] === output);
     assert.equal(output.getTx().getOutputs(), undefined);

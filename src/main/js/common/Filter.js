@@ -24,7 +24,7 @@ class Filter {
    * @return the new array of filtered elements
    */
   static apply(filter, array) {
-    return array.filter(elem => filter.meetsCriteria(elem));
+    return array.filter(elem => !filter || filter.meetsCriteria(elem));
   }
 }
 

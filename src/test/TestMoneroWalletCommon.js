@@ -5,6 +5,7 @@ const monerojs = require("../../index");
 const Filter = monerojs.Filter; // TODO: don't export filter
 const LibraryUtils = monerojs.LibraryUtils;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
+const MoneroWalletFull = monerojs.MoneroWalletFull;
 const MoneroWalletRpc = monerojs.MoneroWalletRpc;
 const MoneroWalletKeys = monerojs.MoneroWalletKeys;
 const MoneroWallet = monerojs.MoneroWallet;
@@ -2334,253 +2335,279 @@ class TestMoneroWalletCommon {
       // ----------------------------- NOTIFICATION TESTS -------------------------
       
       if (testConfig.testNotifications)
-      it("Receives funds within a sync period.", async function() {
-        await testReceivesFundsWithinSyncPeriod(false);
+      it("Can generate notifications sending to different wallet.", async function() {
+        await testWalletNotifications("testNotificationsDifferentWallet", false, false, false, false, 0);
       });
       
-      if (testConfig.testNotifications && !testConfig.liteMode)
-      it("Receives funds within a sync period to the same account", async function() {
-        await testReceivesFundsWithinSyncPeriod(true);
+      if (testConfig.testNotifications)
+      it("Can generate notifications sending to different wallet when relayed", async function() {
+        await testWalletNotifications("testNotificationsDifferentWalletWhenRelayed", false, false, false, true, 3);
       });
       
-      async function testReceivesFundsWithinSyncPeriod(sameAccount) {
-        let sender = that.wallet;
-        let receiver;
-        let receiverListener;
-        let senderListener;
-        let err;
-        try {
-          
-          // assign wallet to receive funds
-          receiver = sameAccount ? that.wallet : await that.createWallet(new MoneroWalletConfig());
-          
-          // listen for sent funds
-          senderListener = new OutputNotificationCollector();
-          await sender.addListener(senderListener);
-          
-          // listen for received funds
-          receiverListener = new OutputNotificationCollector();
-          await receiver.addListener(receiverListener);
-          
-          // send funds
-          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(sender);
-          await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE);
-          let tx = await sender.createTx({accountIndex: 0, address: await receiver.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true})
-          await sender.getTx(tx.getHash());
-          if (senderListener.getOutputsSpent().length === 0) console.log("WARNING: no notification on send");
-          
-          // unconfirmed funds received within sync period
-          await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
-          await receiver.getTx(tx.getHash());
-          
-          // log warning if late notification
-          if (receiverListener.getOutputsReceived().length === 0) {
-            let notifiedLate = false;
-            for (let i = 0; i < 5; i++) {
-              console.log("Waiting for late output notification...");
-              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
-              if (receiverListener.getOutputsReceived().length > 0) {
-                notifiedLate = true;
-                break;
-              }
-            }
-            if (notifiedLate) console.error("WARNING: late notification of received output");
-            else console.error("Notification of received funds not received after waiting");
-          }
-          assert(receiverListener.getOutputsReceived().length !== 0, "No notification of received funds in " + (sameAccount ? "same account" : "different wallets"));
-          for (let output of receiverListener.getOutputsReceived()) assert(output.getTx().isConfirmed() !== undefined);
-        } catch (e) {
-          err = e;
-        }
-        
-        // finally
-        if (senderListener) await sender.removeListener(senderListener);
-        if (receiverListener) await receiver.removeListener(receiverListener);
-        if (!sameAccount && receiver !== undefined) await that.closeWallet(receiver);
-        if (err) throw err;
+      if (testConfig.testNotifications)
+      it("Can generate notifications sending to different account.", async function() {
+        await testWalletNotifications("testNotificationsDifferentAccounts", true, false, false, false, 0);
+      });
+      
+      if (testConfig.testNotifications)
+      it("Can generate notifications sending to same account", async function() {
+        await testWalletNotifications("testNotificationsSameAccount", true, true, false, false, 0);
+      });
+      
+      if (testConfig.testNotifications)
+      it("Can generate notifications sweeping output to different account", async function() {
+        await testWalletNotifications("testNotificationsDifferentAccountSweepOutput", true, false, true, false, 0);
+      });
+      
+      if (testConfig.testNotifications)
+      it("Can generate notifications sweeping output to same account when relayed", async function() {
+        await testWalletNotifications("testNotificationsSameAccountSweepOutputWhenRelayed", true, true, true, true, 0);
+      });
+      
+      async function testWalletNotifications(testName, sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay) {
+        let issues = await testWalletNotificationsAux(sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay);
+        if (issues.length === 0) return;
+        let msg = testName + "(" + sameWallet + ", " + sameAccount + ", " + sweepOutput + ", " + createThenRelay + ") generated " + issues.length + " issues:\n" + issuesToStr(issues);
+        console.log(msg);
+        if (msg.includes("ERROR:")) throw new Error(msg);
       }
-    
-      /**
-       * 4 output notification tests are considered when transferring within one wallet.  // TODO: multi-wallet tests
-       * 
-       * 1. with local wallet data, transfer from/to same account
-       * 2. with local wallet data, transfer from/to different accounts
-       * 3. without local wallet data, transfer from/to same account
-       * 4. without local wallet data, transfer from/to different accounts
-       * 
-       * For example, two wallets may be instantiated with the same mnemonic,
-       * so neither is privy to the local wallet data of the other.
-       */
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
-        let issues = await testOutputNotifications(true);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsSameAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
       
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
-        let issues = await testOutputNotifications(false);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsDifferentAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Notification test #3: notifies listeners of swept outputs", async function() {
-        let issues = await testOutputNotifications(false, true);
-        if (issues === undefined) return;
-        let msg = "testOutputNotificationsSweep() generated " + issues.length + " issues:\n" + issuesToStr(issues);
-        console.log(msg);
-        assert(!msg.includes("ERROR:"), msg);
-      });
-      
-      async function testOutputNotifications(sameAccount, sweepOutput) {
+      // TODO: test sweepUnlocked()
+      async function testWalletNotificationsAux(sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay) {
+        let MAX_POLL_TIME = TestUtils.SYNC_PERIOD_IN_MS; // maximum time granted for wallet to poll
         
-        // collect errors and warnings
-        let errors = [];
-        let wallet = that.wallet;
+        // collect issues as test runs
+        let issues = [];
         
-        // wait for wallet txs in the pool in case they were sent from another wallet and therefore will not fully sync until confirmed // TODO monero-project
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(wallet);
+        // set sender and receiver
+        let sender = that.wallet;
+        let receiver = sameWallet ? sender : await that.createWallet(new MoneroWalletConfig());
         
-        // get balances before for later comparison
-        let balanceBefore = await wallet.getBalance();
-        let unlockedBalanceBefore = await wallet.getUnlockedBalance();
+        // create receiver accounts if necessary
+        let numAccounts = (await receiver.getAccounts()).length;
+        for (let i = 0; i < 4 - numAccounts; i++) await receiver.createAccount();
         
-        // register a listener to collect notifications
-        let listener = new OutputNotificationCollector();
-        await wallet.addListener(listener);
+        // wait for unlocked funds in source account
+        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(sender);
+        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE.multiply(new BigInteger("10")));
         
-        // start syncing to test automatic notifications
-        await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+        // get balances to compare after sending
+        let senderBalanceBefore = await sender.getBalance();
+        let senderUnlockedBalanceBefore = await sender.getUnlockedBalance();
+        let receiverBalanceBefore = await receiver.getBalance();
+        let receiverUnlockedBalanceBefore = await receiver.getUnlockedBalance();
+        let lastHeight = await that.daemon.getHeight();
         
-        // wait for unlocked balance from source account
-        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(wallet, 0, undefined, TestUtils.MAX_FEE.multiply(BigInteger.parse("10")));
+        // start collecting notifications from sender and receiver
+        let senderNotificationCollector = new WalletNotificationCollector();
+        let receiverNotificationCollector = new WalletNotificationCollector();
+        await sender.addListener(senderNotificationCollector);
+        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS / 2);
+        await receiver.addListener(receiverNotificationCollector);
         
-        // send tx
-        let tx;
+        // send funds
+        let senderTx;
         let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
+        let expectedOutputs = [];
         if (sweepOutput) {
-          let outputs = await wallet.getOutputs({isSpent: false, txQuery: { isLocked: false }, accountIdx: 0, minAmount: TestUtils.MAX_FEE.multiply(new BigInteger(5))});
+          let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE.multiply(new BigInteger("5")), txQuery: {isLocked: false}});
           if (outputs.length === 0) {
-            errors.push("ERROR: No outputs available to sweep");
-            return errors;
+            issues.push("ERROR: No outputs available to sweep from account 0");
+            return issues;
           }
-          tx = await wallet.sweepOutput({address: await wallet.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: true});
+          senderTx = await sender.sweepOutput({address: await receiver.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: !createThenRelay});
+          expectedOutputs.push(new MoneroOutputWallet().setAmount(senderTx.getOutgoingTransfer().getDestinations()[0].getAmount()).setAccountIndex(destinationAccounts[0]).setSubaddressIndex(0));
         } else {
-          let config = new MoneroTxConfig();
-          config.setAccountIndex(0);
-          for (let destinationAccount of destinationAccounts) config.addDestination(new MoneroDestination(await wallet.getAddress(destinationAccount, 0), TestUtils.MAX_FEE));
-          config.setRelay(true);
-          tx = await wallet.createTx(config);
+          let config = new MoneroTxConfig().setAccountIndex(0).setRelay(!createThenRelay);
+          for (let destinationAccount of destinationAccounts) {
+            config.addDestination(await receiver.getAddress(destinationAccount, 0), TestUtils.MAX_FEE); // TODO: send and check random amounts?
+            expectedOutputs.push(new MoneroOutputWallet().setAmount(TestUtils.MAX_FEE).setAccountIndex(destinationAccount).setSubaddressIndex(0));
+          }
+          senderTx = await sender.createTx(config);
+        }
+        if (createThenRelay) await sender.relayTx(senderTx);
+        
+        // start timer to measure end of sync period
+        let startTime = Date.now(); // timestamp in ms
+        
+        // test sender after sending
+        let outputQuery = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(senderTx.getHash())); // query for outputs from sender tx
+        if (sameWallet) {
+          if (senderTx.getIncomingAmount() === undefined) issues.push("WARNING: sender tx incoming amount is null when sent to same wallet");
+          else if (senderTx.getIncomingAmount().compare(new BigInteger("0")) === 0) issues.push("WARNING: sender tx incoming amount is 0 when sent to same wallet");
+          else if (senderTx.getIncomingAmount().compare(senderTx.getOutgoingAmount().subtract(senderTx.getFee())) !== 0) issues.push("WARNING: sender tx incoming amount != outgoing amount - fee when sent to same wallet");
+        } else {
+          if (senderTx.getIncomingAmount() !== undefined) issues.push("ERROR: tx incoming amount should be undefined"); // TODO: should be 0? then can remove undefined checks in this method
+        }
+        senderTx = (await sender.getTxs(new MoneroTxQuery().setHash(senderTx.getHash()).setIncludeOutputs(true)))[0];
+        if ((await sender.getBalance()).compare(senderBalanceBefore.subtract(senderTx.getFee()).subtract(senderTx.getOutgoingAmount()).add(senderTx.getIncomingAmount() === undefined ? new BigInteger("0") : senderTx.getIncomingAmount())) !== 0) issues.push("ERROR: sender balance after send != balance before - tx fee - outgoing amount + incoming amount (" + toStringBI(await sender.getBalance()) + " != " + toStringBI(senderBalanceBefore) + " - " + toStringBI(senderTx.getFee()) + " - " + toStringBI(senderTx.getOutgoingAmount()) + " + " + toStringBI(senderTx.getIncomingAmount()) + ")");
+        if ((await sender.getUnlockedBalance()).compare(senderUnlockedBalanceBefore) >= 0) issues.push("ERROR: sender unlocked balance should have decreased after sending");
+        if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not notify balance change after sending");
+        else {
+          if ((await sender.getBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: sender balance != last notified balance after sending (" + toStringBI(await sender.getBalance()) + " != " + toStringBI(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][0]) + ")");
+          if ((await sender.getUnlockedBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + toStringBI(await sender.getUnlockedBalance()) + " != " + toStringBI(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][1]) + ")");
+        }
+        if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) {
+          if (sender instanceof MoneroWalletRpc) issues.push("ERROR: monero-wallet-rpc sender did not announce unconfirmed spent output"); // TODO: document issue
+          else if (sender instanceof MoneroWalletFull) issues.push("ERROR: sender did not announce unconfirmed spent output: https://github.com/monero-project/monero/issues/7035"); // TODO monero-project: https://github.com/monero-project/monero/issues/7035
+          else issues.push("ERROR: sender did not announce unconfirmed spent output");
         }
         
-        // test wallet's balance
-        let balanceAfter = await wallet.getBalance();
-        let unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        let balanceAfterExpected = balanceBefore.subtract(tx.getFee());  // txs sent from/to same wallet so only decrease in balance is tx fee
-        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: wallet balance immediately after send expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
-            
-        // wait for wallet to send notifications
-        if (listener.getOutputsSpent().length === 0) errors.push("WARNING: wallet does not notify listeners of outputs when tx sent directly through wallet or when refreshed from the pool; must wait for confirmation to receive notifications and have correct balance");
-        try { await StartMining.startMining(); } catch (e) { }
-        while (listener.getOutputsSpent().length === 0) {
-          if ((await that.wallet.getTx(tx.getHash())).isFailed()) {
-            try { await that.daemon.stopMining(); } catch (e) { }
-            errors.push("ERROR: Tx failed in mempool: " + tx.getHash());
-            return errors;
+        // wait for end of sync period
+        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
+        startTime = Date.now(); // reset timer
+        
+        // test receiver after receiving
+        let receiverTx = await receiver.getTx(senderTx.getHash());
+        if (senderTx.getOutgoingAmount().compare(receiverTx.getIncomingAmount()) !== 0) {
+          if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
+          else if (sameAccount) issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
+        }
+        if ((await receiver.getBalance()).compare(receiverBalanceBefore.add(receiverTx.getIncomingAmount() === undefined ? new BigInteger("0") : receiverTx.getIncomingAmount()).subtract(receiverTx.getOutgoingAmount() === undefined ? new BigInteger("0") : receiverTx.getOutgoingAmount()).subtract(sameWallet ? receiverTx.getFee() : new BigInteger("0"))) !== 0) {
+          if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + toStringBI(await receiver.getBalance()) + " != " + toStringBI(receiverBalanceBefore) + " + " + toStringBI(receiverTx.getIncomingAmount()) + " - " + toStringBI(receiverTx.getOutgoingAmount()) + " - " + (sameWallet ? receiverTx.getFee() : new BigInteger("0")).toString() + ")");
+          else issues.push("ERROR: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee (" + toStringBI(await receiver.getBalance()) + " != " + toStringBI(receiverBalanceBefore) + " + " + toStringBI(receiverTx.getIncomingAmount()) + " - " + toStringBI(receiverTx.getOutgoingAmount()) + " - " + (sameWallet ? receiverTx.getFee() : new BigInteger("0")).toString() + ")");
+        }
+        if (!sameWallet && (await receiver.getUnlockedBalance()).compare(receiverUnlockedBalanceBefore) !== 0) issues.push("ERROR: receiver unlocked balance should not have changed after sending");
+        if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not notify balance change when funds received");
+        else {
+          if ((await receiver.getBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: receiver balance != last notified balance after funds received");
+          if ((await receiver.getUnlockedBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds received");
+        }
+        if (receiverNotificationCollector.getOutputsReceived(outputQuery).length === 0) issues.push("ERROR: receiver did not announce received unconfirmed output");
+        else {
+          for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(outputQuery), true)) {
+            issues.push("ERROR: receiver did not announce received output for amount " + toStringBI(output.getAmount()) + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
           }
+        }
+        
+        // mine until test completes
+        await StartMining.startMining();
+        
+        // loop every sync period until unlock tested
+        let threads = [];
+        let expectedUnlockHeight = lastHeight + unlockDelay;
+        let confirmHeight = undefined;
+        while (true) {
           
-          // stop if tx confirms without notification
-          if ((await wallet.getTx(tx.getHash())).isConfirmed()) {
-            try { await that.daemon.stopMining(); } catch (e) { }
-            
-            // wait a moment for notification to be received
-            let isWalletRpcWithoutZmq = wallet instanceof MoneroWalletRpc;
-            await new Promise(function(resolve) { setTimeout(resolve, isWalletRpcWithoutZmq ? TestUtils.SYNC_PERIOD_IN_MS : 1); });
-            if (!hasOutput(listener.getOutputsSpent(), tx.getHash(), undefined, undefined, undefined)) {
-              errors.push("ERROR: tx is confirmed but no notifications were received");
-              return errors;
-            }
-          }
-          await new Promise(function(resolve) { setTimeout(resolve, 3000); });
-        }
-        try { await that.daemon.stopMining(); } catch (e) { }
-        
-        // test output notifications
-        for (let input of listener.getOutputsSpent()) testNotifiedOutput(wallet, input, true);
-        for (let output of listener.getOutputsReceived()) testNotifiedOutput(wallet, output, false);
-        if (listener.getOutputsReceived().length === 0) {
-          errors.push("ERROR: got " + listener.getOutputsReceived().length + " output received notifications when at least 1 was expected");
-          return errors;
-        }
-        if (listener.getOutputsSpent().length === 0) {
-          errors.push("ERROR: got " + listener.getOutputsSpent().length + " output spent notifications when at least 1 was expected");
-          return errors;
-        }
-        
-        // must receive outputs with known subaddresses and amounts
-        for (let destinationAccount of destinationAccounts) {
-          if (!hasOutput(listener.getOutputsReceived(), tx.getHash(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
-            
-            // log warning if late notification
-            let notifiedLate = false;
-            for (let i = 0; i < 5; i++) {
-              console.log("Waiting for late output notification...");
-              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
-              if (hasOutput(listener.getOutputsReceived(), tx.getHash(), destinationAccount, 0, sweepOutput ? undefined : TestUtils.MAX_FEE)) {
-                notifiedLate = true;
-                break;
+          // test height notifications
+          let height = await that.daemon.getHeight();
+          if (height > lastHeight) {
+            let testStartHeight = lastHeight;
+            lastHeight = height;
+            let threadFn = async function() {
+              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+              let senderBlockNotifications = senderNotificationCollector.getBlockNotifications();
+              let receiverBlockNotifications = receiverNotificationCollector.getBlockNotifications();
+              for (let i = testStartHeight; i < height; i++) {
+                if (!GenUtils.arrayContains(senderBlockNotifications, i)) issues.push("ERROR: sender did not announce block " + i);
+                if (!GenUtils.arrayContains(receiverBlockNotifications, i)) issues.push("ERROR: receiver did not announce block " + i);
               }
             }
-            if (notifiedLate) {
-              let msg = "WARNING: late notification of received output";
-              console.error(msg);
-              errors.push(msg);
-            } else {
-              errors.push("ERROR: missing expected received output to subaddress [" + destinationAccount + ", 0] of amount " + TestUtils.MAX_FEE);
-              return errors;
+            threads.push(threadFn());
+          }
+          
+          // check if tx confirmed
+          if (confirmHeight === undefined) {
+            
+            // get updated tx
+            let tx = await receiver.getTx(senderTx.getHash());
+            
+            // break if tx fails
+            if (tx.isFailed()) {
+              issues.push("ERROR: tx failed in tx pool");
+              break;
+            }
+            
+            // test confirm notifications
+            if (tx.isConfirmed() && confirmHeight === undefined) {
+              confirmHeight = tx.getHeight();
+              expectedUnlockHeight = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockHeight); // exact unlock height known
+              let threadFn = async function() {
+                await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+                let confirmedQuery = outputQuery.getTxQuery().copy().setIsConfirmed(true).setIsLocked(true).getOutputQuery();
+                if (senderNotificationCollector.getOutputsSpent(confirmedQuery).length === 0) issues.push("ERROR: sender did not announce confirmed spent output"); // TODO: test amount
+                if (receiverNotificationCollector.getOutputsReceived(confirmedQuery).length === 0) issues.push("ERROR: receiver did not announce confirmed received output");
+                else for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(confirmedQuery), true)) issues.push("ERROR: receiver did not announce confirmed received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
+                
+                // if same wallet, net amount spent = tx fee = outputs spent - outputs received
+                if (sameWallet) {
+                  let netAmount = new BigInteger("0");
+                  for (let outputSpent of senderNotificationCollector.getOutputsSpent(confirmedQuery)) netAmount = netAmount.add(outputSpent.getAmount());
+                  for (let outputReceived of senderNotificationCollector.getOutputsReceived(confirmedQuery)) netAmount = netAmount.subtract(outputReceived.getAmount());
+                  if (tx.getFee().compare(netAmount) !== 0) {
+                    if (sameAccount) issues.push("WARNING: net output amount != tx fee when funds sent to same account: " + netAmount + " vs " + tx.getFee());
+                    else if (sender instanceof MoneroWalletRpc) issues.push("WARNING: net output amount != tx fee when funds sent to same wallet because monero-wallet-rpc does not provide tx inputs: " + netAmount + " vs " + tx.getFee()); // TODO (monero-project): open issue to provide tx inputs
+                    else issues.push("ERROR: net output amount must equal tx fee when funds sent to same wallet: " + netAmount + " vs " + tx.getFee());
+                  }
+                }
+              }
+              threads.push(threadFn());
             }
           }
-        }
-        
-        // since sending from/to the same wallet, the net amount spent = tx fee = outputs spent - outputs received
-        let numConfirmedOutputs = 0;
-        let netAmount = BigInteger.parse("0");
-        for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
-        for (let outputReceived of listener.getOutputsReceived()) {
-          if (outputReceived.getTx().isConfirmed()) {
-            numConfirmedOutputs++;
-            netAmount = netAmount.subtract(outputReceived.getAmount());
+          
+          // otherwise test unlock notifications
+          else if (height >= expectedUnlockHeight) {
+            let threadFn = async function() {
+              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+              let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
+              if (senderNotificationCollector.getOutputsSpent(unlockedQuery).length === 0) issues.push("ERROR: sender did not announce unlocked spent output"); // TODO: test amount?
+              for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(unlockedQuery), true)) issues.push("ERROR: receiver did not announce unlocked received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
+              if (!sameWallet && (await receiver.getBalance()).compare(await receiver.getUnlockedBalance()) !== 0) issues.push("ERROR: receiver balance != unlocked balance after funds unlocked");
+              if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not announce any balance notifications");
+              else {
+                if ((await sender.getBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: sender balance != last notified balance after funds unlocked");
+                if ((await sender.getUnlockedBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after funds unlocked");
+              }
+              if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not announce any balance notifications");
+              else {
+                if ((await receiver.getBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: receiver balance != last notified balance after funds unlocked");
+                if ((await receiver.getUnlockedBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds unlocked");
+              }
+            }
+            threads.push(threadFn());
+            break;
           }
+          
+          // wait for end of sync period
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
+          startTime = Date.now(); // reset timer
         }
-        if (tx.getFee().compare(netAmount) !== 0) {
-          errors.push("WARNING: net output amount must equal tx fee: " + tx.getFee().toString() + " vs " + netAmount.toString() + " (probably received notifications from other tests)");
-          return errors;
-        }
         
-        // receives notifications when outputs confirm
-        if (numConfirmedOutputs === 0) errors.push("ERROR: expected notifications when outputs confirm");
-        
-        // receives notifications when the balances change
-        if (listener.getBalanceNotifications().length === 0) errors.push("ERROR: expected at least one updated balance notification per confirmed output received");
-        
-        // test wallet's balance
-        balanceAfter = await wallet.getBalance();
-        unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        if (balanceAfterExpected.compare(balanceAfter) !== 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
-        
-        // remove listener
-        await wallet.removeListener(listener);
+        // wait for test threads
+        await Promise.all(threads);
 
-        // return all errors and warnings as single string
-        return errors;
+        // test notified outputs
+        for (let output of senderNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
+        for (let output of senderNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
+        for (let output of receiverNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
+        for (let output of receiverNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
+        
+        // clean up
+        if ((await that.daemon.getMiningStatus()).isActive()) await that.daemon.stopMining();
+        await sender.removeListener(senderNotificationCollector);
+        senderNotificationCollector.setListening(false);
+        await receiver.removeListener(receiverNotificationCollector);
+        receiverNotificationCollector.setListening(false);
+        if (sender !== receiver) await that.closeWallet(receiver);
+        return issues;
+      }
+      
+      function getMissingOutputs(expectedOutputs, actualOutputs, matchSubaddress) {
+        let missing = [];
+        let used = [];
+        for (let expectedOutput of expectedOutputs) {
+          let found = false;
+          for (let actualOutput of actualOutputs) {
+            if (GenUtils.arrayContains(used, actualOutput, true)) continue;
+            if (actualOutput.getAmount().compare(expectedOutput.getAmount()) === 0 && (!matchSubaddress || (actualOutput.getAccountIndex() === expectedOutput.getAccountIndex() && actualOutput.getSubaddressIndex() === expectedOutput.getSubaddressIndex()))) {
+              used.push(actualOutput);
+              found = true;
+              break;
+            }
+          }
+          if (!found) missing.push(expectedOutput);
+        }
+        return missing;
       }
       
       function issuesToStr(issues) {
@@ -2593,15 +2620,7 @@ class TestMoneroWalletCommon {
         return str;
       }
       
-      function hasOutput(outputs, txHash, accountIdx, subaddressIdx, amount) { // TODO: use common filter?
-        let query = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(txHash)).setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx).setAmount(amount);
-        for (let output of outputs) {
-          if (query.meetsCriteria(output)) return true;
-        }
-        return false;
-      }
-      
-      function testNotifiedOutput(wallet, output, isTxInput) {
+      function testNotifiedOutput(output, isTxInput, issues) {
         
         // test tx link
         assert.notEqual(undefined, output.getTx());
@@ -2610,9 +2629,27 @@ class TestMoneroWalletCommon {
         
         // test output values
         TestUtils.testUnsignedBigInteger(output.getAmount());
-        assert(output.getAccountIndex() >= 0);
-        if (output.getSubaddressIndex() === undefined) assert(isTxInput && wallet instanceof MoneroWalletRpc, "Output must have subaddress index unless it is an input from monero-wallet-rpc since monero-wallet-rpc does not support scrape of tx inputs"); // TODO (monero-project): allow scrape of tx inputs
-        else assert(output.getSubaddressIndex() >= 0);
+        if (output.getAccountIndex() !== undefined) assert(output.getAccountIndex() >= 0);
+        else {
+          if (isTxInput) issues.push("WARNING: notification of " + getOutputState(output) + " spent output missing account index"); // TODO (monero-project): account index not provided when output swept by key image.  could retrieve it but slows tx creation significantly
+          else issues.push("ERROR: notification of " + getOutputState(output) + " received output missing account index");
+        }
+        if (output.getSubaddressIndex() !== undefined) assert(output.getSubaddressIndex() >= 0);
+        else {
+          if (isTxInput) issues.push("WARNING: notification of " + getOutputState(output) + " spent output missing subaddress index"); // TODO (monero-project): because inputs are not provided, creating fake input from outgoing transfer, which can be sourced from multiple subaddress indices, whereas an output can only come from one subaddress index; need to provide tx inputs to resolve this
+          else issues.push("ERROR: notification of " + getOutputState(output) + " received output missing subaddress index");
+        }
+      }
+      
+      function getOutputState(output) {
+        if (false === output.getTx().isLocked()) return "unlocked";
+        if (true === output.getTx().isConfirmed()) return "confirmed";
+        if (false === output.getTx().isConfirmed()) return "unconfirmed";
+        throw new Error("Unknown output state: " + output.toString());
+      }
+      
+      function toStringBI(bi) {
+        return bi ? bi.toString() : bi + "";
       }
       
       it("Can stop listening", async function() {
@@ -2621,7 +2658,7 @@ class TestMoneroWalletCommon {
         let wallet = await that.createWallet(new MoneroWalletConfig());
         
         // add listener
-        let listener = new OutputNotificationCollector();
+        let listener = new WalletNotificationCollector();
         await wallet.addListener(listener);
         await new Promise(function(resolve) { setTimeout(resolve, 1000); });
         
@@ -2629,140 +2666,6 @@ class TestMoneroWalletCommon {
         await wallet.removeListener(listener);
         await that.closeWallet(wallet);
       });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Can receive notifications when outputs are received, confirmed, and unlocked.", async function() {
-        await testReceivedOutputNotificationsWithUnlockHeight(0);
-      });
-      
-      if (!testConfig.liteMode && testConfig.testNotifications)
-      it("Can receive notifications when outputs are received, confirmed, and unlocked with an unlock height", async function() {
-        await testReceivedOutputNotificationsWithUnlockHeight(13);
-      });
-      
-      async function testReceivedOutputNotificationsWithUnlockHeight(unlockDelay) {
-        let expectedUnlockHeight = await that.daemon.getHeight() + unlockDelay;
-        
-        // wait for txs to confirm and for sufficient unlocked balance
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, TestUtils.MAX_FEE);
-        
-        // create wallet to test received output notifications
-        let receiver = await that.createWallet(new MoneroWalletConfig());
-        let err;
-        try {
-          
-          // create tx to transfer funds to receiver
-          let sendAmount = TestUtils.MAX_FEE.multiply(BigInteger.parse("10"));
-          let tx = await that.wallet.createTx({
-            accountIndex: 0,
-            address: await receiver.getPrimaryAddress(),
-            amount: sendAmount,
-            unlockHeight: expectedUnlockHeight,
-            relay: false
-          });
-          
-          // register listener to test notifications
-          let listener = new ReceivedOutputNotificationTester(tx.getHash());
-          await receiver.addListener(listener);
-          
-          // flush tx to prevent double spends from previous tests
-          await that.daemon.flushTxPool();
-          
-          // relay transaction to pool
-          let submitHeight = await that.daemon.getHeight();
-          let result = await that.daemon.submitTxHex(tx.getFullHex());
-          assert(result.isGood(), "Bad submit tx result: " + result.toJson());
-          
-          // listen for new blocks to test output notifications
-          receiver.addListener(new class extends MoneroWalletListener {
-            
-            async onNewBlock(height) {
-              if (listener.testComplete) return;
-              
-              runTestThread();
-              async function runTestThread() {
-                try {
-                  
-                  // wait a moment for all notifications from last sync
-                  await new Promise(function(resolve) { setTimeout(resolve, 2000); });
-                  
-                  // skip tests if output not received due to monero-project not returning unconfirmed outputs
-                  if (listener.lastNotifiedOutput === undefined) { // TODO (monero-project): support retrieving unconfirmed outputs
-                    assert(receiver instanceof MoneroWalletRpc, "Must receive notification of unconfirmed output unless monero-wallet-rpc without ZMQ"); // TODO (monero-project): support retrieving unconfirmed outputs TODO (monero-project): support monero-wallet-rpc ZMQ
-                    console.log("WARNING: notification of unconfirmed outputs not supported by monero-wallet-rpc without ZMQ");
-                    return;
-                  }
-                  
-                  // first confirmation expected
-                  if (listener.confirmedHeight === undefined && listener.lastNotifiedOutput.getTx().isConfirmed()) { // only run by first thread after confirmation
-                    listener.confirmedHeight = listener.lastNotifiedOutput.getTx().getHeight();
-                    if (listener.confirmedHeight != submitHeight) console.log("WARNING: tx submitted on height " + submitHeight + " but confirmed on height " + listener.confirmedHeight);  // TODO monero-project: sometimes pool tx does not confirm for several blocks
-                  }
-                  
-                  // skip tests if more recent block received
-                  if (height < listener.lastOnNewBlockHeight) return;
-                  
-                  let blockchainHeight = height + 1; // notification is for new block's height (i.e. number of blocks before it), so blockchain height is block height + 1
-                  let unlockHeight = listener.confirmedHeight === undefined ? undefined : Math.max(listener.confirmedHeight + NUM_BLOCKS_LOCKED, expectedUnlockHeight);
-                  
-                  // output should be locked until max of expected unlock height and NUM_BLOCKS_LOCKED confirmations
-                  if ((listener.confirmedHeight === undefined || blockchainHeight < unlockHeight) && listener.lastNotifiedOutput.isLocked() !== true) throw new Error("Last notified output expected to be locked but isLocked=" + listener.lastNotifiedOutput.isLocked() + " at height " + height);
-                  
-                  // receives notification of unlocked tx when blockchain height reaches unlock height
-                  if (listener.confirmedHeight !== undefined && blockchainHeight >= unlockHeight) {
-                    
-                    // log warning if late notification
-                    if (listener.lastNotifiedOutput.isLocked() !== false) {
-                      let notifiedLate = false;
-                      for (let i = 0; i < 5; i++) { // wait a few sync periods to receive unlock notification
-                        console.log("Waiting for late unlock notification...");
-                        await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
-                        if (listener.lastNotifiedOutput.isLocked() === false) {
-                          notifiedLate = true;
-                          break;
-                        }
-                      }
-                      if (notifiedLate) console.error("WARNING: late notification of unlocked output");
-                    }
-                    if (listener.lastNotifiedOutput.isLocked() !== false) throw new Error("Last notified output expected to be unlocked but isLocked=" + listener.lastNotifiedOutput.isLocked());
-                    if (sendAmount.compare(listener.lastOnBalancesChangedBalance) !== 0 || sendAmount.compare(listener.lastOnBalancesChangedUnlockedBalance) !== 0) throw new Error("Expected last notified onBalancesChanged() to be with unlocked send amount");
-                    listener.unlockedSeen = true;
-                    listener.testComplete = true;
-                  }
-                } catch (err) {
-                  listener.testError = err;
-                  listener.testComplete = true;
-                }
-              }
-          }});
-          
-          // test notification of tx in pool within sync period
-          await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
-          if (listener.lastNotifiedOutput === undefined) {
-            assert(receiver instanceof MoneroWalletRpc, "Must receive notification of unconfirmed output unless monero-wallet-rpc without ZMQ"); // TODO (monero-project): support retrieving unconfirmed outputs TODO (monero-project): support monero-wallet-rpc ZMQ
-            console.log("WARNING: notification of unconfirmed outputs not supported by monero-wallet-rpc without ZMQ");
-          } else {
-            if (listener.lastOnNewBlockHeight === undefined || listener.lastOnNewBlockHeight < submitHeight) assert(!listener.lastNotifiedOutput.getTx().isConfirmed());
-          }
-          
-          // mine until complete
-          await StartMining.startMining();
-          
-          // run until test completes
-          while (!listener.testComplete) await new Promise(function(resolve) { setTimeout(resolve, 5000); });
-          if (listener.testError) throw listener.testError;
-          assert(listener.confirmedHeight !== undefined, "No notification of output confirmed", );
-          assert(listener.unlockedSeen, "No notification of output unlocked");
-        } catch(e) {
-          err = e;
-        }
-        
-        // final cleanup
-        await that.closeWallet(receiver);
-        if ((await that.daemon.getMiningStatus()).isActive()) await that.daemon.stopMining();
-        if (err) throw err;
-      }
       
       if (testConfig.testNotifications)
       it("Can be created and receive funds", async function() {
@@ -2773,7 +2676,7 @@ class TestMoneroWalletCommon {
         try {
           
           // listen for received outputs
-          let myListener = new OutputNotificationCollector(receiver);
+          let myListener = new WalletNotificationCollector(receiver);
           await receiver.addListener(myListener);
           
           // wait for txs to confirm and for sufficient unlocked balance
@@ -4647,8 +4550,8 @@ function testAccount(account) {
       balance = balance.add(account.getSubaddresses()[i].getBalance());
       unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
     }
-    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance.toString() + " does not equal account " + account.getIndex() + " balance " + account.getBalance().toString());
-    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance.toString() + " does not equal account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance().toString());
+    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance.toString() + " != account " + account.getIndex() + " balance " + account.getBalance().toString());
+    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance.toString() + " != account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance().toString());
   }
   
   // tag must be undefined or non-empty
@@ -4962,27 +4865,6 @@ function testGetTxsStructure(txs, query = undefined) {
       }
     }
   }
-  
-  // TODO monero-project wallet2 does not provide ordered blocks or txs
-//  // collect given tx hashes
-//  List<String> txHashes = new ArrayList<String>();
-//  for (MoneroTx tx : txs) txHashes.add(tx.getHash());
-//  
-//  // fetch network blocks at tx heights
-//  List<Long> heights = new ArrayList<Long>();
-//  for (MoneroBlock block : blocks) heights.add(block.getHeight());
-//  List<MoneroBlock> networkBlocks = that.daemon.getBlocksByHeight(heights);
-//  
-//  // collect matching tx hashes from network blocks in order
-//  List<String> expectedTxIds = new ArrayList<String>();
-//  for (MoneroBlock networkBlock : networkBlocks) {
-//    for (String txHash : networkBlock.getTxHashes()) {
-//      if (!txHashes.contains(txHash)) expectedTxIds.add(txHash);
-//    }
-//  }
-//  
-//  // order of hashes must match
-//  assertEquals(expectedTxIds, txHashes);
 }
 
 function countNumInstances(instances) {
@@ -5037,16 +4919,25 @@ class ReceivedOutputNotificationTester extends MoneroWalletListener {
 /**
  * Wallet listener to collect output notifications.
  */
-class OutputNotificationCollector extends MoneroWalletListener {
+class WalletNotificationCollector extends MoneroWalletListener {
   
   constructor() {
     super();
+    this.listening = true;
+    this.blockNotifications = [];
     this.balanceNotifications = [];
     this.outputsReceived = [];
     this.outputsSpent = [];
   }
   
+  onNewBlock(height) {
+    assert(this.listening);
+    if (this.blockNotifications.length > 0) assert(height === this.blockNotifications[this.blockNotifications.length - 1] + 1);
+    this.blockNotifications.push(height);
+  }
+  
   onBalancesChanged(newBalance, newUnlockedBalance) {
+    assert(this.listening);
     if (this.balanceNotifications.length > 0) {
       this.lastNotification = this.balanceNotifications[this.balanceNotifications.length - 1];
       assert(newBalance.toString() !== this.lastNotification.balance.toString() || newUnlockedBalance.toString() !== this.lastNotification.unlockedBalance.toString());
@@ -5055,23 +4946,33 @@ class OutputNotificationCollector extends MoneroWalletListener {
   }
   
   onOutputReceived(output) {
+    assert(this.listening);
     this.outputsReceived.push(output);
   }
   
   onOutputSpent(output) {
+    assert(this.listening);
     this.outputsSpent.push(output);
+  }
+  
+  getBlockNotifications() {
+    return this.blockNotifications;
   }
   
   getBalanceNotifications() {
     return this.balanceNotifications;
   }
   
-  getOutputsReceived() {
-    return this.outputsReceived;
+  getOutputsReceived(query) {
+    return Filter.apply(query, this.outputsReceived);
   }
   
-  getOutputsSpent() {
-    return this.outputsSpent;
+  getOutputsSpent(query) {
+    return Filter.apply(query, this.outputsSpent);
+  }
+  
+  setListening(listening) {
+    this.listening = listening;
   }
 }
 
