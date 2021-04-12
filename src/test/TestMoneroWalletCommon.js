@@ -5,7 +5,6 @@ const monerojs = require("../../index");
 const Filter = monerojs.Filter; // TODO: don't export filter
 const LibraryUtils = monerojs.LibraryUtils;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
-const MoneroWalletFull = monerojs.MoneroWalletFull;
 const MoneroWalletRpc = monerojs.MoneroWalletRpc;
 const MoneroWalletKeys = monerojs.MoneroWalletKeys;
 const MoneroWallet = monerojs.MoneroWallet;
@@ -2447,11 +2446,7 @@ class TestMoneroWalletCommon {
           if ((await sender.getBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: sender balance != last notified balance after sending (" + toStringBI(await sender.getBalance()) + " != " + toStringBI(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][0]) + ")");
           if ((await sender.getUnlockedBalance()).compare(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + toStringBI(await sender.getUnlockedBalance()) + " != " + toStringBI(senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][1]) + ")");
         }
-        if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) {
-          if (sender instanceof MoneroWalletRpc) issues.push("ERROR: monero-wallet-rpc sender did not announce unconfirmed spent output"); // TODO: document issue
-          else if (sender instanceof MoneroWalletFull) issues.push("ERROR: sender did not announce unconfirmed spent output: https://github.com/monero-project/monero/issues/7035"); // TODO monero-project: https://github.com/monero-project/monero/issues/7035
-          else issues.push("ERROR: sender did not announce unconfirmed spent output");
-        }
+        if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) issues.push("ERROR: sender did not announce unconfirmed spent output");
         
         // wait for end of sync period
         await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
