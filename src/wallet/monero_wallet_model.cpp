@@ -232,9 +232,9 @@ namespace monero {
       }
     }
     if (src->m_outgoing_transfer != boost::none) {
-      std::shared_ptr<monero_outgoing_transfer> transferCopy = src->m_outgoing_transfer.get()->copy(src->m_outgoing_transfer.get(), std::make_shared<monero_outgoing_transfer>());
-      transferCopy->m_tx = tgt;
-      tgt->m_outgoing_transfer = transferCopy;
+      std::shared_ptr<monero_outgoing_transfer> transfer_copy = src->m_outgoing_transfer.get()->copy(src->m_outgoing_transfer.get(), std::make_shared<monero_outgoing_transfer>());
+      transfer_copy->m_tx = tgt;
+      tgt->m_outgoing_transfer = transfer_copy;
     }
     tgt->m_note = src->m_note;
     tgt->m_is_locked = src->m_is_locked;

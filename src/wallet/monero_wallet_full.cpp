@@ -877,8 +877,11 @@ namespace monero {
 
     void on_spend_txs(const std::vector<std::shared_ptr<monero_tx_wallet>>& txs) {
       if (m_wallet.get_listeners().empty()) return;
-      check_for_changed_balances();
-      for (const std::shared_ptr<monero_tx_wallet>& tx : txs) notify_outputs(tx);
+      tools::threadpool::waiter waiter(*m_notification_pool);
+      m_notification_pool->submit(&waiter, [this, txs]() {
+        check_for_changed_balances();
+        for (const std::shared_ptr<monero_tx_wallet>& tx : txs) notify_outputs(tx);
+      });
     }
 
   private:
@@ -955,7 +958,7 @@ namespace monero {
       // notify spent outputs // TODO: this provides one input with outgoing amount like monero-wallet-rpc client, use real inputs instead
       if (tx->m_outgoing_transfer != boost::none) {
         std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
-        tx->m_inputs.push_back(output);
+        tx->m_inputs.push_back(output); // TODO: should copy tx and block before modifying
         output->m_tx = tx;
         output->m_amount = tx->m_outgoing_transfer.get()->m_amount.get() + tx->m_fee.get();
         output->m_account_index = tx->m_outgoing_transfer.get()->m_account_index;
