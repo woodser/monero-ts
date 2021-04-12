@@ -2165,7 +2165,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
       else if (key === "frozen") output.setIsFrozen(val);
-      else if (key === "pubkey") output.setStealthPublicKey(val);
+      //else if (key === "pubkey") output.setStealthPublicKey(val);
       else if (key === "subaddr_index") {
         output.setAccountIndex(val.major);
         output.setSubaddressIndex(val.minor);

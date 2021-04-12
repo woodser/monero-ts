@@ -1,6 +1,6 @@
 # Monero JavaScript Library
 
-A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.1.9 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.9).
+A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.2.0 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.2.0).
 
 * Supports wallet and daemon RPC clients.
 * Supports client-side wallets in Node.js or the browser using WebAssembly.
