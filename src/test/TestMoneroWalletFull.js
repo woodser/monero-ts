@@ -438,6 +438,34 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
+      if (!testConfig.liteMode)
+      it("Is compatible with monero-wallet-rpc multisig wallets", async function() {
+        
+        // create participants with monero-wallet-rpc and full wallet
+        let participants = [];
+        participants.push(await (await TestUtils.startWalletRpcProcess()).createWallet(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD)));
+        participants.push(await (await TestUtils.startWalletRpcProcess()).createWallet(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD)));
+        participants.push(await that.createWallet(new MoneroWalletConfig()));
+        
+        // test multisig
+        let err;
+        try {
+          await that._testMultisigParticipants(participants, 3, 3, true);
+        } catch (e) {
+          err = e;
+        }
+        
+        // stop mining at end of test
+        try { await that.daemon.stopMining(); }
+        catch (e) { }
+        
+        // save and close participants
+        await TestUtils.stopWalletRpcProcess(participants[0]);
+        await TestUtils.stopWalletRpcProcess(participants[1]);
+        await that.closeWallet(participants[2], true);
+        if (err) throw err;
+      });
+      
       // TODO monero-project: cannot re-sync from lower block height after wallet saved
       if (testConfig.testNonRelays && !testConfig.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {

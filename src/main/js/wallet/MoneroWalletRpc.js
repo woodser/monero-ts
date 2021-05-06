@@ -240,6 +240,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} pathOrConfig.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} pathOrConfig.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {string} password is the wallet's password
+   * @return {MoneroWalletRpc} this wallet client
    */
   async openWallet(pathOrConfig, password) {
     
@@ -256,6 +257,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // set daemon if provided
     if (config.getServer()) return this.setDaemonConnection(config.getServer());
+    return this;
   }
   
   /**
@@ -292,6 +294,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed (default true)
+   * @return {MoneroWalletRpc} this wallet client
    */
   async createWallet(config) {
     
@@ -318,6 +321,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // set daemon if provided
     if (config.getServer()) return this.setDaemonConnection(config.getServer());
+    return this;
   }
   
   /**
@@ -326,6 +330,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} name - name of the wallet file to create
    * @param {string} password - wallet's password
    * @param {string} language - language for the wallet's mnemonic phrase
+   * @return {MoneroWalletRpc} this wallet client
    */
   async _createWalletRandom(name, password, language) {
     if (!name) throw new MoneroError("Name is not initialized");
@@ -339,6 +344,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     await this._clear();
     this.path = name;
+    return this;
   }
   
   /**
@@ -352,6 +358,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} language - language of the mnemonic in case the old language is invalid
    * @param {string} seedOffset - offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
    * @param {boolean} saveCurrent - specifies if the current RPC wallet should be saved before being closed
+   * @return {MoneroWalletRpc} this wallet client
    */
   async _createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent) {
     try {
@@ -369,6 +376,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     await this._clear();
     this.path = name;
+    return this;
   }
   
   /**
@@ -382,6 +390,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param spendKey - spend key of the wallet to construct or null to create a view-only wallet
    * @param restoreHeight - block height to restore (i.e. scan the chain) from (default = 0)
    * @param language - wallet and mnemonic's language (default = "English")
+   * @return {MoneroWalletRpc} this wallet client
    */
   async _createWalletFromKeys(name, password, address, viewKey, spendKey, restoreHeight, language, saveCurrent) {
     if (restoreHeight === undefined) restoreHeight = 0;
@@ -401,6 +410,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     await this._clear();
     this.path = name;
+    return this;
   }
   
   _handleCreateWalletError(name, err) {
