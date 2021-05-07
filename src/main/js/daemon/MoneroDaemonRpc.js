@@ -65,12 +65,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a worker if true (default true)
    * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
    * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {boolean} proxyToWorker - runs the daemon client in a worker if true (default true)
    */
   constructor(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     super();
@@ -96,12 +96,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a worker if true (default true)
    * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
    * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
    * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
-   * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true if browser, false otherwise)
+   * @param {boolean} proxyToWorker - runs the daemon client in a worker if true (default true)
    * @return {MoneroDaemonRpc} the daemon RPC client
    */
   static async _connectToDaemonRpc(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
@@ -889,7 +889,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       config = Object.assign(config, new MoneroRpcConnection(config.server).getConfig());
       delete config.server;
     }
-    if (config.proxyToWorker === undefined) config.proxyToWorker = GenUtils.isBrowser();
+    if (config.proxyToWorker === undefined) config.proxyToWorker = true;
     return config;
   }
   
@@ -1441,7 +1441,7 @@ MoneroDaemonRpc.MAX_REQ_SIZE = "3000000";  // max request size when fetching blo
 MoneroDaemonRpc.NUM_HEADERS_PER_REQ = "750";  // number of headers to fetch and cache per request
 
 /**
- * Implements a MoneroDaemon by proxying requests to a web worker.
+ * Implements a MoneroDaemon by proxying requests to a worker.
  * 
  * @private
  */
