@@ -13,11 +13,11 @@ const MoneroWalletListener = require("../wallet/model/MoneroWalletListener");
 const MoneroWalletFull = require("../wallet/MoneroWalletFull");
 
 /**
- * Web worker to manage a daemon and wasm wallet off the main thread with messages.
+ * Worker to manage a daemon and wasm wallet off the main thread using messages.
  * 
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
  *
- * This file must be browserified and placed in the web app root.
+ * For browser applications, this file must be browserified and placed in the web app root.
  * 
  * @private
  */
@@ -30,9 +30,9 @@ onmessage = async function(e) {
   let objectId = e.data[0];
   let fnName = e.data[1];
   let callbackId = e.data[2];
-  assert(objectId, "Must provide object id to web worker");
-  assert(fnName, "Must provide function name to web worker");
-  assert(callbackId, "Must provide callback id to web worker");
+  assert(objectId, "Must provide object id to worker");
+  assert(fnName, "Must provide function name to worker");
+  assert(callbackId, "Must provide callback id to worker");
   if (!self[fnName]) throw new Error("Method '" + fnName + "' is not registered with worker");
   e.data.splice(1, 2); // remove function name and callback id to apply function with arguments
   

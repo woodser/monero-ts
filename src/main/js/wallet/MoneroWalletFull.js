@@ -90,14 +90,14 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} configOrPath.serverUri - uri of the wallet's daemon (optional)
    * @param {string} configOrPath.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} configOrPath.serverPassword - password to authenticate with the daemon (optional)
-   * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (default true)
    * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
-   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
+   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} configOrPath.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {string} password - password of the wallet to open
    * @param {string|number} networkType - network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
-   * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
+   * @param {boolean} proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @return {MoneroWalletFull} the opened wallet
    */
@@ -113,7 +113,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
       if (typeof daemonUriOrConnection === "object") config.setServer(daemonUriOrConnection);
       else config.setServerUri(daemonUriOrConnection);
     }
-    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(GenUtils.isBrowser());
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
     if (config.getMnemonic() !== undefined) throw new MoneroError("Cannot specify mnemonic when opening wallet");
     if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when opening wallet");
     if (config.getPrimaryAddress() !== undefined) throw new MoneroError("Cannot specify primary address when opening wallet");
@@ -168,7 +168,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-   * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default true if browser, false otherwise)
+   * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @return {MoneroWalletFull} the created wallet
    */
@@ -198,7 +198,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = true;
     if (proxyToWorker) return MoneroWalletFullProxy._createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
@@ -241,7 +241,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = true;
     if (proxyToWorker) return MoneroWalletFullProxy._createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
     
     // validate and normalize params
@@ -285,7 +285,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = GenUtils.isBrowser();
+    if (proxyToWorker === undefined) proxyToWorker = true;
     if (proxyToWorker) return MoneroWalletFullProxy._createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
     
     // validate and normalize params
@@ -1452,13 +1452,13 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
     this._assertNotClosed();
-    let daemon = new MoneroDaemonRpc(await this.getDaemonConnection());
+    let daemon = new MoneroDaemonRpc(Object.assign((await this.getDaemonConnection()).getConfig(), {proxyToWorker: false}));
     await daemon.startMining(await this.getPrimaryAddress(), numThreads, backgroundMining, ignoreBattery);
   }
   
   async stopMining() {
     this._assertNotClosed();
-    let daemon = new MoneroDaemonRpc(await this.getDaemonConnection());
+    let daemon = new MoneroDaemonRpc(Object.assign((await this.getDaemonConnection()).getConfig(), {proxyToWorker: false}));
     await daemon.stopMining();
   }
   
@@ -1824,7 +1824,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   /**
-   * Set the path of the wallet on the browser main thread if run as a web worker.
+   * Set the path of the wallet on the browser main thread if run as a worker.
    * 
    * @param {string} browserMainPath - path of the wallet on the browser main thread
    */
@@ -1971,10 +1971,10 @@ class WalletFullListener {
 }
 
 /**
- * Implements a MoneroWallet by proxying requests to a web worker which runs a full wallet.
+ * Implements a MoneroWallet by proxying requests to a worker which runs a full wallet.
  * 
  * TODO: sort these methods according to master sort in MoneroWallet.js
- * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
+ * TODO: probably only allow one listener to worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
  * TODO: using LibraryUtils.WORKER_OBJECTS directly breaks encapsulation
  * 
@@ -2032,7 +2032,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
    * static wallet creation utilities in this class.
    * 
    * @param {string} walletId - identifies the wallet with the worker
-   * @param {Worker} worker - web worker to communicate with via messages
+   * @param {Worker} worker - worker to communicate with via messages
    */
   constructor(walletId, worker, path, fs) {
     super();

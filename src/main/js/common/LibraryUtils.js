@@ -87,7 +87,7 @@ class LibraryUtils {
    * 
    * The full module is a superset of the keys module and overrides it.
    * 
-   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle web worker using runtime param for conditional import
+   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle worker using runtime param for conditional import
    */
   static async loadFullModule() {
     
@@ -140,19 +140,19 @@ class LibraryUtils {
   }
   
   /**
-   * Set the path to load monero_web_worker.js when running this library in
-   * a web worker (defaults to "/monero_web_worker.js" in Browser and "./MoneroWebWorker.js" in node).
+   * Set the path to load the worker. Defaults to "/monero_web_worker.js" in the browser
+   * and "./MoneroWebWorker.js" in node.
    * 
-   * @param {string} workerDistPath - path to load monero_web_worker.js
+   * @param {string} workerDistPath - path to load the worker
    */
   static setWorkerDistPath(workerDistPath) {
     let path = workerDistPath ? workerDistPath : LibraryUtils.WORKER_DIST_PATH_DEFAULT;
     if (path !== LibraryUtils.WORKER_DIST_PATH) delete LibraryUtils.WORKER;
-    LibraryUtils.WORKER_DIST_PATH = path; 
+    LibraryUtils.WORKER_DIST_PATH = path;
   }
 
   /**
-   * Get a singleton instance of a web worker to share.
+   * Get a singleton instance of a worker to share.
    * 
    * @return {Worker} a worker to share among wallet instances
    */
@@ -165,7 +165,7 @@ class LibraryUtils {
       
       // receive worker errors
       LibraryUtils.WORKER.onerror = function(err) {
-        console.error("Error posting message to MoneroWebWorker.js; is it copied to the web app's build directory (e.g. in the root)?");
+        console.error("Error posting message to MoneroWebWorker.js; is it copied to the app's build directory (e.g. in the root)?");
       };
       
       // receive worker messages
@@ -191,7 +191,7 @@ class LibraryUtils {
   }
   
   /**
-   * Invoke a web worker function and get the result with error handling.
+   * Invoke a worker function and get the result with error handling.
    * 
    * @param {objectId} identifies the worker object to invoke
    * @param {string} fnName is the name of the function to invoke
@@ -213,13 +213,10 @@ class LibraryUtils {
 }
 
 LibraryUtils.LOG_LEVEL = 0;
-LibraryUtils.WORKER_DIST_PATH_DEFAULT = "/monero_web_worker.js";
-LibraryUtils.WORKER_NODE_DIST_PATH_DEFAULT = "./MoneroWebWorker.js";
-LibraryUtils.WORKER_DIST_PATH = GenUtils.isBrowser() ? LibraryUtils.WORKER_DIST_PATH_DEFAULT : 
-function() {
-
-  const path = require("path");
-  return path.join(__dirname, LibraryUtils.WORKER_THREAD_DIST_PATH_DEFAULT);
+LibraryUtils.WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
+    const path = require("path");
+    return path.join(__dirname, "./MoneroWebWorker.js");
 }();
+LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
 
 module.exports = LibraryUtils;
