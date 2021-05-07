@@ -37,7 +37,8 @@
     "serialize-javascript": "^3.1.0",
     "text-encoding": "^0.7.0",
     "tls": "0.0.1",
-    "uuid": "3.3.2"
+    "uuid": "3.3.2",
+    "web-worker": "^1.0.0"
   },
   "devDependencies": {
     "babel-core": "6.26.3",
