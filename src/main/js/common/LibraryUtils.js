@@ -2,6 +2,7 @@ const assert = require("assert");
 const GenUtils = require("./GenUtils");
 const MoneroError = require("./MoneroError");
 const ThreadPool = require("./ThreadPool");
+const Worker = require("web-worker");
 
 /**
  * Collection of helper utilities for the library.
@@ -140,7 +141,7 @@ class LibraryUtils {
   
   /**
    * Set the path to load monero_web_worker.js when running this library in
-   * a web worker (defaults to "/monero_web_worker.js").
+   * a web worker (defaults to "/monero_web_worker.js" in Browser and "./MoneroWebWorker.js" in node).
    * 
    * @param {string} workerDistPath - path to load monero_web_worker.js
    */
@@ -149,7 +150,7 @@ class LibraryUtils {
     if (path !== LibraryUtils.WORKER_DIST_PATH) delete LibraryUtils.WORKER;
     LibraryUtils.WORKER_DIST_PATH = path; 
   }
-  
+
   /**
    * Get a singleton instance of a web worker to share.
    * 
@@ -213,6 +214,12 @@ class LibraryUtils {
 
 LibraryUtils.LOG_LEVEL = 0;
 LibraryUtils.WORKER_DIST_PATH_DEFAULT = "/monero_web_worker.js";
-LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
+LibraryUtils.WORKER_NODE_DIST_PATH_DEFAULT = "./MoneroWebWorker.js";
+LibraryUtils.WORKER_DIST_PATH = GenUtils.isBrowser() ? LibraryUtils.WORKER_DIST_PATH_DEFAULT : 
+function() {
+
+  const path = require("path");
+  return path.join(__dirname, LibraryUtils.WORKER_THREAD_DIST_PATH_DEFAULT);
+}();
 
 module.exports = LibraryUtils;
