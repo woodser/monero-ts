@@ -148,7 +148,7 @@ get_boost_source() {
 
   # Github source is missing stuff
   #local DL_URL="https://github.com/boostorg/boost/archive/boost-1.75.0.tar.gz"
-  local DL_URL="https://dl.bintray.com/boostorg/release/1.75.0/source"
+  local DL_URL="https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/"
   local DL_FILE="boost_1_75_0.tar.gz"
 
   check_archive "${SDK_PATH}/${DL_FILE}" \
