@@ -81,6 +81,15 @@ namespace monero {
 
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
 
+  struct key_image_list
+  {
+    std::list<std::string> key_images;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(key_images)
+    END_KV_SERIALIZE_MAP()
+  };
+
   /**
    * Remove query criteria which require looking up other transfers/outputs to
    * fulfill query.
@@ -92,6 +101,7 @@ namespace monero {
     query->m_is_incoming = boost::none;
     query->m_is_outgoing = boost::none;
     query->m_transfer_query = boost::none;
+    query->m_input_query = boost::none;
     query->m_output_query = boost::none;
     return query;
   }
@@ -100,6 +110,7 @@ namespace monero {
     if (query.m_tx_query == boost::none) return false;
     if (query.m_tx_query.get()->m_is_incoming != boost::none) return true;    // requires context of all transfers
     if (query.m_tx_query.get()->m_is_outgoing != boost::none) return true;
+    if (query.m_tx_query.get()->m_input_query != boost::none) return true;    // requires context of inputs
     if (query.m_tx_query.get()->m_output_query != boost::none) return true;   // requires context of outputs
     return false;
   }
@@ -370,7 +381,7 @@ namespace monero {
     output->m_subaddress_index = td.m_subaddr_index.minor;
     output->m_is_spent = td.m_spent;
     output->m_is_frozen = td.m_frozen;
-    //output->m_stealth_public_key = epee::string_tools::pod_to_hex(td.get_public_key());
+    //output->m_stealth_public_key = epee::string_tools::pod_to_hex(td.get_public_key()); // TODO (monero-wallet-rpc): provide this field
     if (td.m_key_image_known) {
       output->m_key_image = std::make_shared<monero_key_image>();
       output->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(td.m_key_image);
@@ -606,10 +617,10 @@ namespace monero {
     return amount;
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  template<typename Ts, typename Tu>
+  template<typename Ts, typename Tu, typename Tk>
   bool fill_response(wallet2* m_w2, std::vector<tools::wallet2::pending_tx> &ptx_vector,
       bool get_tx_key, Ts& tx_key, Tu &amount, Tu &fee, Tu &weight, std::string &multisig_txset, std::string &unsigned_txset, bool do_not_relay,
-      Ts &tx_hash, bool get_tx_hex, Ts &tx_blob, bool get_tx_metadata, Ts &tx_metadata, epee::json_rpc::error &er)
+      Ts &tx_hash, bool get_tx_hex, Ts &tx_blob, bool get_tx_metadata, Ts &tx_metadata, Tk &spent_key_images, epee::json_rpc::error &er)
   {
     for (const auto & ptx : ptx_vector)
     {
@@ -624,6 +635,17 @@ namespace monero {
       fill(amount, total_amount(ptx));
       fill(fee, ptx.fee);
       fill(weight, cryptonote::get_transaction_weight(ptx.tx));
+
+      // add spent key images
+      key_image_list key_image_list;
+      bool all_are_txin_to_key = std::all_of(ptx.tx.vin.begin(), ptx.tx.vin.end(), [&](const cryptonote::txin_v& s_e) -> bool
+      {
+        CHECKED_GET_SPECIFIC_VARIANT(s_e, const cryptonote::txin_to_key, in, false);
+        key_image_list.key_images.push_back(epee::string_tools::pod_to_hex(in.k_image));
+        return true;
+      });
+      THROW_WALLET_EXCEPTION_IF(!all_are_txin_to_key, error::unexpected_txin_type, ptx.tx);
+      fill(spent_key_images, key_image_list);
     }
 
     if (m_w2->multisig())
@@ -1550,7 +1572,7 @@ namespace monero {
   
   std::vector<std::shared_ptr<monero_tx_wallet>> monero_wallet_full::get_txs(const monero_tx_query& query) const {
     std::vector<std::string> missing_tx_hashes;
-    std::vector<std::shared_ptr<monero_tx_wallet>> txs = monero_wallet_full::get_txs(query, missing_tx_hashes);
+    std::vector<std::shared_ptr<monero_tx_wallet>> txs = get_txs(query, missing_tx_hashes);
     if (!missing_tx_hashes.empty()) throw std::runtime_error("Tx not found in wallet: " + missing_tx_hashes[0]);
     return txs;
   }
@@ -1568,8 +1590,10 @@ namespace monero {
 
     // temporarily disable transfer and output queries in order to collect all tx context
     boost::optional<std::shared_ptr<monero_transfer_query>> transfer_query = _query->m_transfer_query;
+    boost::optional<std::shared_ptr<monero_output_query>> input_query = _query->m_input_query;
     boost::optional<std::shared_ptr<monero_output_query>> output_query = _query->m_output_query;
     _query->m_transfer_query = boost::none;
+    _query->m_input_query = boost::none;
     _query->m_output_query = boost::none;
 
     // fetch all transfers that meet tx query
@@ -1615,6 +1639,7 @@ namespace monero {
 
     // restore transfer and output queries
     _query->m_transfer_query = transfer_query;
+    _query->m_input_query = input_query;
     _query->m_output_query = output_query;
 
     // filter txs that don't meet transfer query
@@ -1754,6 +1779,27 @@ namespace monero {
     return result;
   }
 
+  void monero_wallet_full::freeze_output(const std::string& key_image) {
+    if (key_image.empty()) throw std::runtime_error("Must specify key image to freeze");
+    crypto::key_image ki;
+    if (!epee::string_tools::hex_to_pod(key_image, ki)) throw new std::runtime_error("failed to parse key imge");
+    m_w2->freeze(ki);
+  }
+
+  void monero_wallet_full::thaw_output(const std::string& key_image) {
+    if (key_image.empty()) throw std::runtime_error("Must specify key image to thaw");
+    crypto::key_image ki;
+    if (!epee::string_tools::hex_to_pod(key_image, ki)) throw new std::runtime_error("failed to parse key imge");
+    m_w2->thaw(ki);
+  }
+
+  bool monero_wallet_full::is_output_frozen(const std::string& key_image) {
+    if (key_image.empty()) throw std::runtime_error("Must specify key image to check if frozen");
+    crypto::key_image ki;
+    if (!epee::string_tools::hex_to_pod(key_image, ki)) throw new std::runtime_error("failed to parse key imge");
+    return m_w2->frozen(ki);
+  }
+
   std::vector<std::shared_ptr<monero_tx_wallet>> monero_wallet_full::create_txs(const monero_tx_config& config) {
     MTRACE("monero_wallet_full::create_txs");
     //std::cout << "monero_tx_config: " << config.serialize()  << std::endl;
@@ -1815,7 +1861,8 @@ namespace monero {
     std::list<std::string> tx_hashes;
     std::list<std::string> tx_blobs;
     std::list<std::string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    std::list<key_image_list> input_key_images_list;
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, input_key_images_list, err)) {
       throw std::runtime_error("need to handle error filling response!");  // TODO
     }
 
@@ -1828,6 +1875,7 @@ namespace monero {
     auto tx_weights_iter = tx_weights.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
+    auto input_key_images_list_iter = input_key_images_list.begin();
     while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
@@ -1842,6 +1890,16 @@ namespace monero {
       std::shared_ptr<monero_outgoing_transfer> out_transfer = std::make_shared<monero_outgoing_transfer>();
       tx->m_outgoing_transfer = out_transfer;
       out_transfer->m_amount = *tx_amounts_iter;
+
+      // init inputs with key images
+      std::list<std::string> input_key_images = (*input_key_images_list_iter).key_images;
+      for (const std::string& input_key_image : input_key_images) {
+        std::shared_ptr<monero_output_wallet> input = std::make_shared<monero_output_wallet>();
+        input->m_tx = tx;
+        tx->m_inputs.push_back(input);
+        input->m_key_image = std::make_shared<monero_key_image>();
+        input->m_key_image.get()->m_hex = input_key_image;
+      }
 
       // init other known fields
       tx->m_is_outgoing = true;
@@ -1869,6 +1927,7 @@ namespace monero {
       tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
+      input_key_images_list_iter++;
     }
 
     // build tx set
@@ -2004,7 +2063,8 @@ namespace monero {
     std::list<std::string> tx_hashes;
     std::list<std::string> tx_blobs;
     std::list<std::string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    std::list<key_image_list> input_key_images_list;
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, input_key_images_list, err)) {
       throw std::runtime_error("need to handle error filling response!");  // TODO
     }
 
@@ -2017,6 +2077,7 @@ namespace monero {
     auto tx_weights_iter = tx_weights.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
+    auto input_key_images_list_iter = input_key_images_list.begin();
     while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
@@ -2035,6 +2096,16 @@ namespace monero {
       out_transfer->m_amount = *tx_amounts_iter;
       std::shared_ptr<monero_destination> destination = std::make_shared<monero_destination>(destinations[0]->m_address.get(), out_transfer->m_amount.get());
       out_transfer->m_destinations.push_back(destination);
+
+      // init inputs with key images
+      std::list<std::string> input_key_images = (*input_key_images_list_iter).key_images;
+      for (const std::string& input_key_image : input_key_images) {
+        std::shared_ptr<monero_output_wallet> input = std::make_shared<monero_output_wallet>();
+        input->m_tx = tx;
+        tx->m_inputs.push_back(input);
+        input->m_key_image = std::make_shared<monero_key_image>();
+        input->m_key_image.get()->m_hex = input_key_image;
+      }
 
       // init other known fields
       tx->m_payment_id = config.m_payment_id;
@@ -2059,6 +2130,7 @@ namespace monero {
       tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
+      input_key_images_list_iter++;
     }
 
     // link tx std::set and return
@@ -2127,7 +2199,8 @@ namespace monero {
     std::list<std::string> tx_hashes;
     std::list<std::string> tx_blobs;
     std::list<std::string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    std::list<key_image_list> input_key_images_list;
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, input_key_images_list, err)) {
       throw std::runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
@@ -2140,6 +2213,7 @@ namespace monero {
     auto tx_weights_iter = tx_weights.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
+    auto input_key_images_list_iter = input_key_images_list.begin();
     while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
@@ -2155,6 +2229,16 @@ namespace monero {
       std::shared_ptr<monero_outgoing_transfer> out_transfer = std::make_shared<monero_outgoing_transfer>();
       tx->m_outgoing_transfer = out_transfer;
       out_transfer->m_amount = *tx_amounts_iter;
+
+      // init inputs with key images
+      std::list<std::string> input_key_images = (*input_key_images_list_iter).key_images;
+      for (const std::string& input_key_image : input_key_images) {
+        std::shared_ptr<monero_output_wallet> input = std::make_shared<monero_output_wallet>();
+        input->m_tx = tx;
+        tx->m_inputs.push_back(input);
+        input->m_key_image = std::make_shared<monero_key_image>();
+        input->m_key_image.get()->m_hex = input_key_image;
+      }
 
       // init other known fields
       tx->m_payment_id = config.m_payment_id;
@@ -2182,6 +2266,7 @@ namespace monero {
       tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
+      input_key_images_list_iter++;
     }
 
     // validate one transaction
@@ -2220,8 +2305,9 @@ namespace monero {
     std::list<std::string> tx_hashes;
     std::list<std::string> tx_blobs;
     std::list<std::string> tx_metadatas;
+    std::list<key_image_list> input_key_images_list;
     epee::json_rpc::error er;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, tx_weights, multisig_tx_hex, unsigned_tx_hex, !relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, input_key_images_list, er)) {
       throw std::runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
@@ -2234,6 +2320,7 @@ namespace monero {
     auto tx_weights_iter = tx_weights.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
+    auto input_key_images_list_iter = input_key_images_list.begin();
     while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
@@ -2249,6 +2336,16 @@ namespace monero {
       std::shared_ptr<monero_outgoing_transfer> out_transfer = std::make_shared<monero_outgoing_transfer>();
       tx->m_outgoing_transfer = out_transfer;
       out_transfer->m_amount = *tx_amounts_iter;
+
+      // init inputs with key images
+      std::list<std::string> input_key_images = (*input_key_images_list_iter).key_images;
+      for (const std::string& input_key_image : input_key_images) {
+        std::shared_ptr<monero_output_wallet> input = std::make_shared<monero_output_wallet>();
+        input->m_tx = tx;
+        tx->m_inputs.push_back(input);
+        input->m_key_image = std::make_shared<monero_key_image>();
+        input->m_key_image.get()->m_hex = input_key_image;
+      }
 
       // init other known fields
       tx->m_is_confirmed = false;
@@ -2271,13 +2368,11 @@ namespace monero {
       tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
+      input_key_images_list_iter++;
     }
 
-    // throw exception if no dust to sweep (dust only exists pre-rct)
-    if (txs.empty() && multisig_tx_hex.empty() && unsigned_tx_hex.empty()) throw std::runtime_error("No dust to sweep");
-
     // link tx set
-    std::shared_ptr<monero_tx_set> tx_set;
+    std::shared_ptr<monero_tx_set> tx_set = std::make_shared<monero_tx_set>();
     tx_set->m_txs = txs;
     for (int i = 0; i < txs.size(); i++) txs[i]->m_tx_set = tx_set;
     if (!multisig_tx_hex.empty()) tx_set->m_multisig_tx_hex = multisig_tx_hex;
@@ -3333,7 +3428,7 @@ namespace monero {
       std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>> payments;
       m_w2->get_unconfirmed_payments(payments, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        if (!tx_query->m_hashes.empty() && std::find(tx_query->m_hashes.begin(), tx_query->m_hashes.end(), epee::string_tools::pod_to_hex(i->second.m_pd.m_tx_hash)) == tx_query->m_hashes.end()); // skip if hash filtered
+        if (!tx_query->m_hashes.empty() && std::find(tx_query->m_hashes.begin(), tx_query->m_hashes.end(), epee::string_tools::pod_to_hex(i->second.m_pd.m_tx_hash)) == tx_query->m_hashes.end()) continue; // skip if hash filtered
         std::shared_ptr<monero_tx_wallet> tx = build_tx_with_incoming_transfer_unconfirmed(*m_w2, height, i->first, i->second);
         merge_tx(tx, tx_map, block_map);
       }

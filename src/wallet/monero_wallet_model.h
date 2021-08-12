@@ -286,6 +286,7 @@ namespace monero {
     boost::optional<uint64_t> m_max_height;
     boost::optional<uint64_t> m_include_outputs;
     boost::optional<std::shared_ptr<monero_transfer_query>> m_transfer_query;
+    boost::optional<std::shared_ptr<monero_output_query>> m_input_query;
     boost::optional<std::shared_ptr<monero_output_query>> m_output_query;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;

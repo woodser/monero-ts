@@ -228,6 +228,9 @@ namespace monero {
     int import_outputs(const std::string& outputs_hex) override;
     std::vector<std::shared_ptr<monero_key_image>> export_key_images(bool all = false) const override;
     std::shared_ptr<monero_key_image_import_result> import_key_images(const std::vector<std::shared_ptr<monero_key_image>>& key_images) override;
+    void freeze_output(const std::string& key_image) override;
+    void thaw_output(const std::string& key_image) override;
+    bool is_output_frozen(const std::string& key_image) override;
     std::vector<std::shared_ptr<monero_tx_wallet>> create_txs(const monero_tx_config& config) override;
     std::vector<std::shared_ptr<monero_tx_wallet>> sweep_unlocked(const monero_tx_config& config) override;
     std::shared_ptr<monero_tx_wallet> sweep_output(const monero_tx_config& config) override;

@@ -398,6 +398,11 @@ namespace monero {
         monero_transfer_query::from_property_tree(it->second, tx_query->m_transfer_query.get());
         tx_query->m_transfer_query.get()->m_tx_query = tx_query;
       }
+      else if (key == std::string("inputQuery")) {
+        tx_query->m_input_query = std::make_shared<monero_output_query>();
+        monero_output_query::from_property_tree(it->second, tx_query->m_input_query.get());
+        tx_query->m_input_query.get()->m_tx_query = tx_query;
+      }
       else if (key == std::string("outputQuery")) {
         tx_query->m_output_query = std::make_shared<monero_output_query>();
         monero_output_query::from_property_tree(it->second, tx_query->m_output_query.get());
@@ -452,6 +457,10 @@ namespace monero {
       tgt->m_transfer_query = src->m_transfer_query.get()->copy(src->m_transfer_query.get(), std::make_shared<monero_transfer_query>());
       tgt->m_transfer_query.get()->m_tx_query = tgt;
     }
+    if (src->m_input_query != boost::none) {
+      tgt->m_input_query = src->m_input_query.get()->copy(src->m_input_query.get(), std::make_shared<monero_output_query>());
+      tgt->m_input_query.get()->m_tx_query = tgt;
+    }
     if (src->m_output_query != boost::none) {
       tgt->m_output_query = src->m_output_query.get()->copy(src->m_output_query.get(), std::make_shared<monero_output_query>());
       tgt->m_output_query.get()->m_tx_query = tgt;
@@ -505,6 +514,20 @@ namespace monero {
             match_found = true;
             break;
           }
+        }
+      }
+      if (!match_found) return false;
+    }
+
+    // at least one input must meet input query if defined
+    if (m_input_query != boost::none) {
+      if (tx->m_inputs.empty()) return false;
+      bool match_found = false;
+      for (const std::shared_ptr<monero_output>& input : tx->m_inputs) {
+        std::shared_ptr<monero_output_wallet> vin_wallet = std::static_pointer_cast<monero_output_wallet>(input);
+        if (m_input_query.get()->meets_criteria(vin_wallet.get(), false)) {
+          match_found = true;
+          break;
         }
       }
       if (!match_found) return false;
@@ -1052,10 +1075,12 @@ namespace monero {
     // get tx query
     std::shared_ptr<monero_tx_query> tx_query = std::static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
+    // get / create input query
+    std::shared_ptr<monero_output_query> input_query = tx_query->m_input_query == boost::none ? std::make_shared<monero_output_query>() : *tx_query->m_input_query;
+    input_query->m_tx_query = tx_query;
+
     // get / create output query
     std::shared_ptr<monero_output_query> output_query = tx_query->m_output_query == boost::none ? std::make_shared<monero_output_query>() : *tx_query->m_output_query;
-
-    // set output query's tx query
     output_query->m_tx_query = tx_query;
 
     // return deserialized query
@@ -1093,6 +1118,7 @@ namespace monero {
     if (m_subaddress_index != boost::none && (output->m_subaddress_index == boost::none || *m_subaddress_index != *output->m_subaddress_index)) return false;
     if (m_amount != boost::none && (output->m_amount == boost::none || *m_amount != *output->m_amount)) return false;
     if (m_is_spent != boost::none && (output->m_is_spent == boost::none || *m_is_spent != *output->m_is_spent)) return false;
+    if (m_is_frozen != boost::none && (output->m_is_frozen == boost::none || *m_is_frozen != *output->m_is_frozen)) return false;
 
     // filter on output key image
     if (m_key_image != boost::none) {

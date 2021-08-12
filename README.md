@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-A C++ library for creating Monero applications using native bindings to [monero v0.17.1.9 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.1.9).
+A C++ library for creating Monero applications using native bindings to [monero v0.17.2.0 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.2.0).
 
 * Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
@@ -19,8 +19,6 @@ A C++ library for creating Monero applications using native bindings to [monero 
 * [Donations](#donations)
 
 ## Sample code
-
-_Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome._
 
 ```c++
 // create a wallet from a mnemonic phrase
@@ -171,7 +169,7 @@ wallet_random->close(true);
 ## Documentation
 
 * [API documentation](https://moneroecosystem.org/monero-cpp/annotated.html)
-* [API and model overview with visual diagrams](http://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [API and model overview with visual diagrams](https://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [monero-javascript documentation](https://github.com/monero-ecosystem/monero-javascript#documentation) provides additional documentation which translates to monero-cpp
 
 ## Using this library in your project

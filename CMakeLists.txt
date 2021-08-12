@@ -173,6 +173,10 @@ set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/src/cryptonote_basic/libcryptonote_basic.a)
+    
+add_library(cryptonote_format_utils_basic STATIC IMPORTED)
+set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
+    ${MONERO_PROJECT_BUILD}/src/cryptonote_basic/libcryptonote_format_utils_basic.a)
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
@@ -257,6 +261,7 @@ if (BUILD_LIBRARY)
         
         cryptonote_core
         cryptonote_basic
+        cryptonote_format_utils_basic
         mnemonics
         ringct
         ringct_basic
@@ -280,7 +285,7 @@ if (BUILD_LIBRARY)
 endif()
 
 ########################
-# Build C++ Sample Code
+# Build C++ sample Code
 ########################
 
 if (BUILD_SAMPLE)
@@ -301,6 +306,7 @@ if (BUILD_SAMPLE)
         
         cryptonote_core
         cryptonote_basic
+        cryptonote_format_utils_basic
         mnemonics
         ringct
         ringct_basic
@@ -345,6 +351,7 @@ if (BUILD_SCRATCHPAD)
         
         cryptonote_core
         cryptonote_basic
+        cryptonote_format_utils_basic
         mnemonics
         ringct
         ringct_basic

@@ -300,7 +300,7 @@ namespace monero {
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       std::string key = it->first;
       if (key == std::string("hash")) tx->m_hash = it->second.data();
-      else if (key == std::string("version")) throw std::runtime_error("version deserializationn not implemented");
+      else if (key == std::string("version")) throw std::runtime_error("version deserialization not implemented");
       else if (key == std::string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
       else if (key == std::string("paymentId")) tx->m_payment_id = it->second.data();
       else if (key == std::string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
@@ -321,8 +321,8 @@ namespace monero {
       else if (key == std::string("prunableHash")) tx->m_prunable_hash = it->second.data();
       else if (key == std::string("size")) tx->m_size = it->second.get_value<uint64_t>();
       else if (key == std::string("weight")) tx->m_weight = it->second.get_value<uint64_t>();
-      else if (key == std::string("inputs")) throw std::runtime_error("inputs deserializationn not implemented");
-      else if (key == std::string("outputs")) throw std::runtime_error("outputs deserializationn not implemented");
+      else if (key == std::string("inputs")) throw std::runtime_error("inputs deserialization not implemented");
+      else if (key == std::string("outputs")) throw std::runtime_error("outputs deserialization not implemented");
       else if (key == std::string("outputIndices")) throw std::runtime_error("m_output_indices deserialization not implemented");
       else if (key == std::string("metadata")) tx->m_metadata = it->second.data();
       else if (key == std::string("commonTxSets")) throw std::runtime_error("commonTxSets deserialization not implemented");
@@ -379,7 +379,7 @@ namespace monero {
         tgt->m_outputs.push_back(output_copy);
       }
     }
-    if (!src->m_output_indices.empty()) tgt->m_output_indices = std::vector<uint32_t>(src->m_output_indices);
+    if (!src->m_output_indices.empty()) tgt->m_output_indices = std::vector<uint64_t>(src->m_output_indices);
     tgt->m_metadata = src->m_metadata;
     tgt->m_common_tx_sets = src->m_common_tx_sets;
     if (!src->m_extra.empty()) throw std::runtime_error("extra deep copy not implemented");  // TODO: implement extra
