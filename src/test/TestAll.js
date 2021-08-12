@@ -10,7 +10,7 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestDeveloperGuide = require("./TestDeveloperGuide");
 
 // set log level
-LibraryUtils.setLogLevel(1); // no need for await before worker used
+LibraryUtils.setLogLevel(0); // no need for await before worker used
 
 // test sample code for readme
 new TestSampleCode().runTests();

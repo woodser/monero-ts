@@ -89,7 +89,6 @@ class MoneroRpcConnection {
    * @return {object} is the response map
    */
   async sendJsonRequest(method, params) {
-    
     try {
       
       // build request body
@@ -101,7 +100,7 @@ class MoneroRpcConnection {
       });
       
       // send http request
-      if (LibraryUtils.getLogLevel() >= 2) console.log("Sending json request with method '" + method + "' and body: " + body);
+      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending json request with method '" + method + "' and body: " + body);
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/json_rpc',
@@ -120,7 +119,7 @@ class MoneroRpcConnection {
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (LibraryUtils.getLogLevel() >= 3) {
         let respStr = JSON.stringify(resp);
-        console.log("Received response: " + respStr.substring(0, Math.min(1000, respStr.length)));
+        LibraryUtils.log(3, "Received response: " + respStr.substring(0, Math.min(1000, respStr.length)));
       }
       
       // check rpc response for errors
@@ -138,11 +137,10 @@ class MoneroRpcConnection {
    * E.g. "/get_transactions" with params
    */
   async sendPathRequest(path, params) {
-    if (LibraryUtils.getLogLevel() >= 2) console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
-    
     try {
       
       // send http request
+      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,
@@ -160,6 +158,10 @@ class MoneroRpcConnection {
       if (resp.body[0] != '{') throw resp.body;
       resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
+      if (LibraryUtils.getLogLevel() >= 3) {
+        let respStr = JSON.stringify(resp);
+        LibraryUtils.log(3, "Received response: " + respStr.substring(0, Math.min(1000, respStr.length)));
+      }
       
       // check rpc response for errors
       MoneroRpcConnection.validateRpcResponse(resp, path, params);
@@ -178,7 +180,6 @@ class MoneroRpcConnection {
    * @return a Uint8Array with the binary response
    */
   async sendBinaryRequest(path, params) {
-    if (LibraryUtils.getLogLevel() >= 2) console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // load wasm module
     await LibraryUtils.loadKeysModule();
@@ -189,6 +190,7 @@ class MoneroRpcConnection {
     try {
       
       // send http request
+      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending binary request with path '" + path + "' and params: " + JSON.stringify(params));
       let resp = await HttpClient.request({
         method: "POST",
         uri: this.getUri() + '/' + path,

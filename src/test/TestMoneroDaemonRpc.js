@@ -319,6 +319,7 @@ class TestMoneroDaemonRpc {
         
         // fetch transaction hashes to test
         let txHashes = await getConfirmedTxHashes(that.daemon);
+        assert(txHashes.length > 0);
         
         // fetch txs by hash without pruning
         let txs = await that.daemon.getTxs(txHashes);
@@ -333,6 +334,14 @@ class TestMoneroDaemonRpc {
         for (let tx of txs) {
           testTx(tx, {isPruned: true, isConfirmed: true, fromGetTxPool: false});
         }
+        
+        // fetch missing hash
+        let tx = await that.wallet.createTx({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE});
+        assert.equal(undefined, await that.daemon.getTx(tx.getHash()));
+        txHashes.push(tx.getHash());
+        let numTxs = txs.length;
+        txs = await that.daemon.getTxs(txHashes);
+        assert.equal(numTxs, txs.length);
         
         // fetch invalid hash
         txHashes.push("invalid tx hash");

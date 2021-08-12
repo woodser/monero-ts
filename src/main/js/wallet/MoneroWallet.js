@@ -445,7 +445,8 @@ class MoneroWallet {
    * @return {MoneroTxWallet} the identified transactions
    */
   async getTx(txHash) {
-    return (await this.getTxs([txHash]))[0];
+    let txs = await this.getTxs([txHash]);
+    return txs.length === 0 ? undefined : txs[0]; 
   }
   
   /**
@@ -607,7 +608,7 @@ class MoneroWallet {
   /**
    * Import signed key images and verify their spent status.
    * 
-   * @param {MoneroKeyImage[]} keyImages -  images to import and verify (requires hex and signature)
+   * @param {MoneroKeyImage[]} keyImages - images to import and verify (requires hex and signature)
    * @return {MoneroKeyImageImportResult} results of the import
    */
   async importKeyImages(keyImages) {
@@ -620,6 +621,34 @@ class MoneroWallet {
    * @return {MoneroKeyImage[]} the key images from the last imported outputs
    */
   async getNewKeyImagesFromLastImport() {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Freeze an output.
+   * 
+   * @param {string} keyImage - key image of the output to freeze
+   */
+  async freezeOutput(keyImage) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Thaw a frozen output.
+   * 
+   * @param {string} keyImage - key image of the output to thaw
+   */
+  async thawOutput(keyImage) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Check if an output is frozen.
+   * 
+   * @param {string} keyImage - key image of the output to check if frozen
+   * @return {boolean} true if the output is frozen, false otherwise
+   */
+  async isOutputFrozen(keyImage) {
     throw new MoneroError("Not supported");
   }
   

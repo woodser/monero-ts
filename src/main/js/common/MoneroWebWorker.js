@@ -727,6 +727,18 @@ self.importKeyImages = async function(walletId, keyImagesJson) {
 //  throw new MoneroError("Not implemented");
 //}
 
+self.freezeOutput = async function(walletId, keyImage) {
+  return self.WORKER_OBJECTS[walletId].freezeOutput(keyImage);
+}
+
+self.thawOutput = async function(walletId, keyImage) {
+  return self.WORKER_OBJECTS[walletId].thawOutput(keyImage);
+}
+
+self.isOutputFrozen = async function(walletId, keyImage) {
+  return self.WORKER_OBJECTS[walletId].isOutputFrozen(keyImage);
+}
+
 self.createTxs = async function(walletId, config) {
   if (typeof config === "object") config = new MoneroTxConfig(config);
   let txs = await self.WORKER_OBJECTS[walletId].createTxs(config);
@@ -751,7 +763,7 @@ self.sweepUnlocked = async function(walletId, config) {
 
 self.sweepDust = async function(walletId, relay) {
   let txs = await self.WORKER_OBJECTS[walletId].sweepDust(relay);
-  return txs[0].getTxSet().toJson();
+  return txs.length === 0 ? {} : txs[0].getTxSet().toJson();
 }
 
 self.relayTxs = async function(walletId, txMetadatas) {

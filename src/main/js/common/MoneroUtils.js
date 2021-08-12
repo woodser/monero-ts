@@ -90,6 +90,11 @@ class MoneroUtils {
    * @return {boolean} true if the address is valid, false otherwise
    */
   static isValidAddress(address, networkType) {
+    
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    
+    // validate address and catch error
     try {
       MoneroUtils.validateAddress(address, networkType);
       return true;
@@ -105,13 +110,15 @@ class MoneroUtils {
    * @param {MoneroNetworkType} networkType - network type of the address to validate
    */
   static validateAddress(address, networkType) {
+    
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    
+    // validate inputs
     assert(typeof address === "string", "Address is not string");
     assert(address.length > 0, "Address is empty");
     assert(GenUtils.isBase58(address), "Address is not base 58");
     MoneroNetworkType.validate(networkType);
-    
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
     
     // validate address with wasm module
     let errMsg = LibraryUtils.getWasmModule().validate_address(address, networkType);

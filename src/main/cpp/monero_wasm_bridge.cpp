@@ -727,6 +727,35 @@ void monero_wasm_bridge::import_key_images(int handle, const string& key_images_
 
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
 
+void monero_wasm_bridge::freeze_output(int handle, const string& key_image, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    wallet->freeze_output(key_image);
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::thaw_output(int handle, const string& key_image, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    wallet->thaw_output(key_image);
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::is_output_frozen(int handle, const string& key_image, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    callback(wallet->is_output_frozen(key_image));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::create_txs(int handle, const string& config_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
@@ -795,7 +824,7 @@ void monero_wasm_bridge::sweep_dust(int handle, bool relay, emscripten::val call
     vector<shared_ptr<monero_tx_wallet>> txs = wallet->sweep_dust(relay);
 
     // serialize and return tx set
-    callback(txs[0]->m_tx_set.get()->serialize());
+    callback(txs.empty() ? std::string("{}") : txs[0]->m_tx_set.get()->serialize());
   } catch (exception& e) {
     callback(string(e.what()));
   }

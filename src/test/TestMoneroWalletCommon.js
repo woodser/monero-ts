@@ -941,6 +941,8 @@ class TestMoneroWalletCommon {
         }
         assert(found, "No outputs found in txs");
         
+        // get txs with input query // TODO: no inputs returned to filter
+        
         // get txs with output query
         let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(2);
         txs = await that.wallet.getTxs(new MoneroTxQuery().setOutputQuery(outputQuery));
@@ -3426,14 +3428,9 @@ class TestMoneroWalletCommon {
       it("Can sweep dust without relaying", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
-        // generate non-relayed transactions to sweep dust
-        let txs;
-        try {
-          txs = await that.wallet.sweepDust(true);
-        } catch (e) {
-          assert.equal(e.message, "No dust to sweep");
-          return;
-        }
+        // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
+        let txs = await that.wallet.sweepDust(false);
+        if (txs.length == 0) return;
         
         // test txs
         let ctx = {config: new MoneroTxConfig(), isSendResponse: true, isSweepResponse: true};
@@ -3460,18 +3457,11 @@ class TestMoneroWalletCommon {
       it("Can sweep dust", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
-        // sweep dust which will throw exception if no dust to sweep (dust does not exist after rct) 
-        let txs;
-        try {
-          txs = (await that.wallet.sweepDust()).getTxs();
-        } catch (e) {
-          assert.equal(e.message, "No dust to sweep");
-          return;
-        }
+        // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
+        let txs = await that.wallet.sweepDust(true);
         
-        // if dust swept, test txs
+        // test any txs
         let ctx = {wallet: that.wallet, isSendResponse: true, isSweepResponse: true};
-        assert(txs.length > 0);
         for (let tx of txs) {
           await that._testTxWallet(tx, ctx);
         }
@@ -3702,6 +3692,185 @@ class TestMoneroWalletCommon {
           await that._testTxWallet(tx);
         }
       });
+      
+      if (testConfig.testNonRelays)
+      it("Can freeze and thaw outputs", async function() {
+        
+        // get an available output
+        let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)));
+        for (let output of outputs) assert.equal(false, output.isFrozen());
+        assert(outputs.length > 0);
+        let output = outputs[0];
+        assert.equal(false, output.getTx().isLocked());
+        assert.equal(false, output.isSpent());
+        assert.equal(false, output.isFrozen());
+        assert.equal(false, await that.wallet.isOutputFrozen(output.getKeyImage().getHex()));
+        
+        // freeze output by key image
+        let numFrozenBefore = (await that.wallet.getOutputs(new MoneroOutputQuery().setIsFrozen(true))).length;
+        await that.wallet.freezeOutput(output.getKeyImage().getHex());
+        assert.equal(true, await that.wallet.isOutputFrozen(output.getKeyImage().getHex()));
+    
+        // test querying
+        assert.equal(numFrozenBefore + 1, (await that.wallet.getOutputs(new MoneroOutputQuery().setIsFrozen(true))).length);
+        outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setKeyImage(new MoneroKeyImage().setHex(output.getKeyImage().getHex())).setIsFrozen(true));
+        assert.equal(1, outputs.length);
+        let outputFrozen = outputs[0];
+        assert.equal(true, outputFrozen.isFrozen());
+        assert.equal(output.getKeyImage().getHex(), outputFrozen.getKeyImage().getHex());
+        
+        // try to sweep frozen output
+        try {
+          await that.wallet.sweepOutput(new MoneroTxConfig().setAddress(await that.wallet.getPrimaryAddress()).setKeyImage(output.getKeyImage().getHex()));
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal("No outputs found", e.message);
+        }
+        
+        // try to freeze undefined key image
+        try {
+          await that.wallet.freezeOutput(undefined);
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal("Must specify key image to freeze", e.message);
+        }
+        
+        // try to freeze empty key image
+        try {
+          await that.wallet.freezeOutput("");
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal("Must specify key image to freeze", e.message);
+        }
+        
+        // try to freeze bad key image
+        try {
+          await that.wallet.freezeOutput("123");
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          //assert.equal("Bad key image", e.message);
+        }
+    
+        // thaw output by key image
+        await that.wallet.thawOutput(output.getKeyImage().getHex());
+        assert.equal(false, await that.wallet.isOutputFrozen(output.getKeyImage().getHex()));
+    
+        // test querying
+        assert.equal(numFrozenBefore, (await that.wallet.getOutputs(new MoneroOutputQuery().setIsFrozen(true))).length);
+        outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setKeyImage(new MoneroKeyImage().setHex(output.getKeyImage().getHex())).setIsFrozen(true));
+        assert.equal(0, outputs.length);
+        outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setKeyImage(new MoneroKeyImage().setHex(output.getKeyImage().getHex())).setIsFrozen(false));
+        assert.equal(1, outputs.length);
+        let outputThawed = outputs[0];
+        assert.equal(false, outputThawed.isFrozen());
+        assert.equal(output.getKeyImage().getHex(), outputThawed.getKeyImage().getHex());
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Provides key images of spent outputs", async function() {
+      
+        // test unrelayed single transaction
+        testSpendTx(await that.wallet.createTx(new MoneroTxConfig().addDestination(await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE).setAccountIndex(0)));
+        
+        // test unrelayed split transactions
+        for (let tx of await that.wallet.createTxs(new MoneroTxConfig().addDestination(await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE).setAccountIndex(0))) {
+          testSpendTx(tx);
+        }
+        
+        // test unrelayed sweep dust
+        let dustKeyImages = [];
+        for (let tx of await that.wallet.sweepDust(false)) {
+          testSpendTx(tx);
+          for (let input of tx.getInputs()) dustKeyImages.add(input.getKeyImage().getHex());
+        }
+        
+        // get available outputs above min amount
+        let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)).setMinAmount(TestUtils.MAX_FEE));
+        
+        // filter dust outputs
+        let dustOutputs = [];
+        for (let output of outputs) {
+          if (dustKeyImages.includes(output.getKeyImage().getHex())) dustOutputs.push(output);
+        }
+        outputs = outputs.filter(output => !dustOutputs.includes(output)); // remove dust outputs
+        
+        // test unrelayed sweep output
+        testSpendTx(await that.wallet.sweepOutput(new MoneroTxConfig().setAddress(await that.wallet.getPrimaryAddress()).setKeyImage(outputs[0].getKeyImage().getHex())));
+        
+        // test unrelayed sweep wallet ensuring all non-dust outputs are spent
+        let availableKeyImages = new Set();
+        for (let output of outputs) availableKeyImages.add(output.getKeyImage().getHex());
+        let sweptKeyImages = new Set();
+        let txs = await that.wallet.sweepUnlocked(new MoneroTxConfig().setAddress(await that.wallet.getPrimaryAddress()));
+        for (let tx of txs) {
+          testSpendTx(tx);
+          for (let input of tx.getInputs()) sweptKeyImages.add(input.getKeyImage().getHex());
+        }
+        assert(sweptKeyImages.size > 0);
+        
+        // max skipped output is less than max fee amount
+        let maxSkippedOutput = undefined;
+        for (let output of outputs) {
+          if (!sweptKeyImages.has(output.getKeyImage().getHex())) {
+            if (maxSkippedOutput === undefined || maxSkippedOutput.getAmount().compare(output.getAmount()) < 0) {
+              maxSkippedOutput = output;
+            }
+          }
+        }
+        assert(maxSkippedOutput === undefined || maxSkippedOutput.getAmount().compare(TestUtils.MAX_FEE) < 0);
+      });
+      
+      function testSpendTx(spendTx) {
+        assert.notEqual(undefined, spendTx.getInputs());
+        assert(spendTx.getInputs().length > 0);
+        for (let input of spendTx.getInputs()) assert(input.getKeyImage().getHex());
+      }
+      
+      if (testConfig.testNonRelays)
+      it("Can prove unrelayed txs", async function() {
+      
+        // create unrelayed tx to verify
+        let address1 = "52FnB7ABUrKJzVQRpbMNrqDFWbcKLjFUq8Rgek7jZEuB6WE2ZggXaTf4FK6H8gQymvSrruHHrEuKhMN3qTMiBYzREKsmRKM";
+        let address2 = await that.wallet.getAddress(0, 0);
+        let address3 = await that.wallet.getAddress(1, 0);
+        let tx = await that.wallet.createTx(new MoneroTxConfig()
+                .setAccountIndex(0)
+                .addDestination(address1, TestUtils.MAX_FEE)
+                .addDestination(address2, TestUtils.MAX_FEE.multiply(new BigInteger("2")))
+                .addDestination(address3, TestUtils.MAX_FEE.multiply(new BigInteger("3"))));
+        
+        // submit tx to daemon but do not relay
+        let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
+        assert.equal(true, result.isGood());
+        
+        // create random wallet to verify transfers
+        let verifyingWallet = await that.createWallet(new MoneroWalletConfig());
+        
+        // verify transfer 1
+        let check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address1);
+        assert.equal(true, check.isGood());
+        assert.equal(true, check.inTxPool());
+        assert.equal(0, check.getNumConfirmations());
+        assert.equal(TestUtils.MAX_FEE.toString(), check.getReceivedAmount().toString());
+        
+        // verify transfer 2
+        check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address2);
+        assert.equal(true, check.isGood());
+        assert.equal(true, check.inTxPool());
+        assert.equal(0, check.getNumConfirmations());
+        assert.equal(true, check.getReceivedAmount().compare(TestUtils.MAX_FEE.multiply(new BigInteger("2"))) >= 0); // + change amount
+        
+        // verify transfer 3
+        check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address3);
+        (true, check.isGood());
+        assert.equal(true, check.inTxPool());
+        assert.equal(0, check.getNumConfirmations());
+        assert.equal(TestUtils.MAX_FEE.multiply(new BigInteger("3")).toString(), check.getReceivedAmount().toString());
+        
+        // cleanup
+        await that.daemon.flushTxPool(tx.getHash());
+        await that.closeWallet(verifyingWallet);
+      });
     });
   }
   
@@ -3831,7 +4000,30 @@ class TestMoneroWalletCommon {
     }
     
     // test common field types
-    testTxWalletTypes(tx, ctx);
+    assert.equal(typeof tx.getHash(), "string");
+    assert.equal(typeof tx.isConfirmed(), "boolean");
+    assert.equal(typeof tx.isMinerTx(), "boolean");
+    assert.equal(typeof tx.isFailed(), "boolean");
+    assert.equal(typeof tx.isRelayed(), "boolean");
+    assert.equal(typeof tx.inTxPool(), "boolean");
+    assert.equal(typeof tx.isLocked(), "boolean");
+    TestUtils.testUnsignedBigInteger(tx.getFee());
+    if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
+    if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
+    assert(tx.getUnlockHeight() >= 0);
+    assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
+    assert.equal(tx.getReceivedTimestamp(), undefined);  // TODO monero-wallet-rpc: return received timestamp (asked to file issue if wanted)
+    
+    // test send tx
+    if (ctx.isSendResponse) {
+      assert(tx.getWeight() > 0);
+      assert.notEqual(tx.getInputs(), undefined);
+      assert(tx.getInputs().length > 0);
+      for (let input of tx.getInputs()) assert(input.getTx() === tx);
+    } else {
+      assert.equal(tx.getWeight(), undefined);
+      assert.equal(tx.getInputs(), undefined);
+    }
     
     // test confirmed
     if (tx.isConfirmed()) {
@@ -4565,30 +4757,6 @@ async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
   GenUtils.shuffle(txs);
   if (maxTxs === undefined) return txs;
   else return txs.slice(0, Math.min(maxTxs, txs.length));
-}
-
-/**
- * Tests that common tx field types are valid regardless of tx state.
- * 
- * @param tx is the tx to test
- */
-function testTxWalletTypes(tx, ctx) {
-  assert.equal(typeof tx.getHash(), "string");
-  assert.equal(typeof tx.isConfirmed(), "boolean");
-  assert.equal(typeof tx.isMinerTx(), "boolean");
-  assert.equal(typeof tx.isFailed(), "boolean");
-  assert.equal(typeof tx.isRelayed(), "boolean");
-  assert.equal(typeof tx.inTxPool(), "boolean");
-  assert.equal(typeof tx.isLocked(), "boolean");
-  TestUtils.testUnsignedBigInteger(tx.getFee());
-  assert.equal(tx.getInputs(), undefined);  // TODO no way to expose inputs?
-  if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
-  if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
-  assert(tx.getUnlockHeight() >= 0);
-  assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
-  if (ctx.isSendResponse) assert(tx.getWeight() > 0);
-  else assert.equal(tx.getWeight(), undefined);
-  assert.equal(tx.getReceivedTimestamp(), undefined);  // TODO monero-wallet-rpc: return received timestamp (asked to file issue if wanted)
 }
 
 function testTransfer(transfer, ctx) {

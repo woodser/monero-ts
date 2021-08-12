@@ -798,8 +798,10 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // temporarily disable transfer and output queries in order to collect all tx information
     let transferQuery = query.getTransferQuery();
+    let inputQuery = query.getInputQuery();
     let outputQuery = query.getOutputQuery();
     query.setTransferQuery(undefined);
+    query.setInputQuery(undefined);
     query.setOutputQuery(undefined);
     
     // fetch all transfers that meet tx query
@@ -838,6 +840,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // restore transfer and output queries
     query.setTransferQuery(transferQuery);
+    query.setInputQuery(inputQuery);
     query.setOutputQuery(outputQuery);
     
     // filter txs that don't meet transfer query
@@ -957,18 +960,19 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._rpcExportKeyImages(false);
   }
   
-  async relayTxs(txsOrMetadatas) {
-    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
-    let txHashes = [];
-    for (let txOrMetadata of txsOrMetadatas) {
-      let metadata = txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata;
-      let resp = await this.rpc.sendJsonRequest("relay_tx", { hex: metadata });
-      txHashes.push(resp.result.tx_hash);
-    }
-    await this._poll(); // notify of changes
-    return txHashes;
+  async freezeOutput(keyImage) {
+    return this.rpc.sendJsonRequest("freeze", {key_image: keyImage});
   }
-
+  
+  async thawOutput(keyImage) {
+    return this.rpc.sendJsonRequest("thaw", {key_image: keyImage});
+  }
+  
+  async isOutputFrozen(keyImage) {
+    let resp = await this.rpc.sendJsonRequest("frozen", {key_image: keyImage});
+    return resp.result.frozen === true;
+  }
+  
   async createTxs(config) {
     
     // validate, copy, and normalize config
@@ -1128,17 +1132,26 @@ class MoneroWalletRpc extends MoneroWallet {
     if (relay === undefined) relay = false;
     let resp = await this.rpc.sendJsonRequest("sweep_dust", {do_not_relay: !relay});
     let result = resp.result;
-    let txSet = MoneroWalletRpc._convertRpcSentTxsToTxSet(result);
-    if (txSet.getTxs() !== undefined) {
-      for (let tx of txSet.getTxs()) {
-        tx.setIsRelayed(!relay);
-        tx.setInTxPool(tx.isRelayed());
-      }
-    } else if (txSet.getMultisigTxHex() === undefined && txSet.getSignedTxHex() === undefined && txSet.getUnsignedTxHex() === undefined) {
-      throw new MoneroError("No dust to sweep");
-    }
     await this._poll();
+    let txSet = MoneroWalletRpc._convertRpcSentTxsToTxSet(result);
+    if (txSet.getTxs() === undefined) return [];
+    for (let tx of txSet.getTxs()) {
+      tx.setIsRelayed(!relay);
+      tx.setInTxPool(tx.isRelayed());
+    }
     return txSet.getTxs();
+  }
+  
+  async relayTxs(txsOrMetadatas) {
+    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
+    let txHashes = [];
+    for (let txOrMetadata of txsOrMetadatas) {
+      let metadata = txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata;
+      let resp = await this.rpc.sendJsonRequest("relay_tx", { hex: metadata });
+      txHashes.push(resp.result.tx_hash);
+    }
+    await this._poll(); // notify of changes
+    return txHashes;
   }
   
   async describeTxSet(txSet) {
@@ -1849,6 +1862,7 @@ class MoneroWalletRpc extends MoneroWallet {
     query.setIsIncoming(undefined);
     query.setIsOutgoing(undefined);
     query.setTransferQuery(undefined);
+    query.setInputQuery(undefined);
     query.setOutputQuery(undefined);
     return query;
   }
@@ -2005,7 +2019,17 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "multisig_txset" || key === "unsigned_txset" || key === "signed_txset") {} // handled elsewhere
-      else LOGGER.warning("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
+      else if (key === "spent_key_images_list") {
+        let inputKeyImagesList = val;
+        for (let i = 0; i < inputKeyImagesList.length; i++) {
+          GenUtils.assertTrue(txs[i].getInputs() === undefined);
+          txs[i].setInputs([]);
+          for (let inputKeyImage of inputKeyImagesList[i]["key_images"]) {
+            txs[i].getInputs().push(new MoneroOutputWallet().setKeyImage(new MoneroKeyImage().setHex(inputKeyImage)).setTx(txs[i]));
+          }
+        }
+      }
+      else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
     return txSet;
@@ -2132,6 +2156,14 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "dummy_outputs") tx.setNumDummyOutputs(val);
       else if (key === "extra") tx.setExtraHex(val);
       else if (key === "ring_size") tx.setRingSize(val);
+      else if (key === "spent_key_images") {
+        let inputKeyImages = val.key_images;
+        GenUtils.assertTrue(tx.getInputs() === undefined);
+        tx.setInputs([]);
+        for (let inputKeyImage of inputKeyImages) {
+          tx.getInputs().push(new MoneroOutputWallet().setKeyImage(new MoneroKeyImage().setHex(inputKeyImage)).setTx(tx));
+        }
+      }
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     

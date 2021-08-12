@@ -35,6 +35,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
    * @param {BigInteger} config.maxAmount - get outputs with amount less than or equal to this amount
    * @param {boolean} config.isLocked - get locked xor unlocked outputs
    * @param {boolean} config.isSpent - get spent xor unspent outputs
+   * @param {boolean} config.isFrozen - get frozen xor thawed outputs
    * @param {object|MoneroKeyImage} config.keyImage - get outputs with a key image matching fields defined in this key image
    * @param {string} config.keyImage.hex - get outputs with this key image hex
    * @param {string} config.keyImage.signature - get outputs with this key image signature
@@ -110,6 +111,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== output.getSubaddressIndex()) return false;
     if (this.getAmount() !== undefined && this.getAmount().compare(output.getAmount()) !== 0) return false;
     if (this.isSpent() !== undefined && this.isSpent() !== output.isSpent()) return false;
+    if (this.isFrozen() !== undefined && this.isFrozen() !== output.isFrozen()) return false;
     
     // filter on output's key image
     if (this.getKeyImage() !== undefined) {

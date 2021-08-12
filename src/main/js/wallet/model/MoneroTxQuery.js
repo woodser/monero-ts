@@ -48,6 +48,7 @@ class MoneroTxQuery extends MoneroTxWallet {
    * @param {string} config.paymentIds - get txs with a payment ID among these payment IDs
    * @param {boolean} config.hasPaymentId - get txs with or without payment IDs
    * @param {object|MoneroTransferQuery} config.transferQuery - get txs with transfers matching this transfer query
+   * @param {object|MoneroOutputQuery} config.inputQuery - get txs with inputs matching this input query
    * @param {object|MoneroOutputQuery} config.outputQuery - get txs with outputs matching this output query
    */
   constructor(config) {
@@ -55,10 +56,12 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // deserialize if necessary
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
+    if (this.state.inputQuery && !(this.state.inputQuery instanceof MoneroOutputQuery)) this.state.inputQuery = new MoneroOutputQuery(this.state.inputQuery);
     if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
     
     // link cycles
     if (this.state.transferQuery) this.state.transferQuery.setTxQuery(this);
+    if (this.state.inputQuery) this.state.inputQuery.setTxQuery(this);
     if (this.state.outputQuery) this.state.outputQuery.setTxQuery(this);
     
     // alias 'hash' to hashes
@@ -75,6 +78,7 @@ class MoneroTxQuery extends MoneroTxWallet {
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
     if (this.getTransferQuery()) json.transferQuery = this.getTransferQuery().toJson();
+    if (this.getInputQuery()) json.inputQuery = this.getInputQuery().toJson();
     if (this.getOutputQuery()) json.outputQuery = this.getOutputQuery().toJson();
     delete json.block;  // do not serialize parent block
     return json;
@@ -183,6 +187,16 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
   
+  getInputQuery() {
+    return this.state.inputQuery;
+  }
+  
+  setInputQuery(inputQuery) {
+    this.state.inputQuery = inputQuery;
+    if (inputQuery) inputQuery.state.txQuery = this;
+    return this;
+  }
+  
   getOutputQuery() {
     return this.state.outputQuery;
   }
@@ -248,6 +262,19 @@ class MoneroTxQuery extends MoneroTxWallet {
             matchFound = true;
             break;
           }
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
+    // at least one input must meet input query if defined
+    if (this.getInputQuery() !== undefined) {
+      if (tx.getInputs() === undefined || tx.getInputs().length === 0) return false;
+      let matchFound = false;
+      for (let input of tx.getInputs()) {
+        if (this.getInputQuery().meetsCriteria(input, false)) {
+          matchFound = true;
+          break;
         }
       }
       if (!matchFound) return false;

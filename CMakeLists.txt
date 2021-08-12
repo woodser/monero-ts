@@ -5,7 +5,7 @@ project(monero-javascript-wasm)
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 set(BUILD_MONERO_WALLET_FULL_WASM ON)
@@ -160,6 +160,7 @@ set(
     ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_basic/account.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_format_utils_basic.cpp
     ${MONERO_PROJECT_SRC}/crypto/crypto.cpp
     ${MONERO_PROJECT_SRC}/crypto/hash.c
     ${MONERO_PROJECT_SRC}/crypto/slow-hash.c

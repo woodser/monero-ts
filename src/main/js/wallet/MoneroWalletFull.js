@@ -1005,6 +1005,42 @@ class MoneroWalletFull extends MoneroWalletKeys {
     throw new MoneroError("Not implemented");
   }
   
+  async freezeOutput(keyImage) {
+    if (!keyImage) throw new MoneroError("Must specify key image to freeze");
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function() { resolve(); }
+        that._module.freeze_output(that._cppAddress, keyImage, callbackFn);
+      });
+    });
+  }
+  
+  async thawOutput(keyImage) {
+    if (!keyImage) throw new MoneroError("Must specify key image to thaw");
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function() { resolve(); }
+        that._module.thaw_output(that._cppAddress, keyImage, callbackFn);
+      });
+    });
+  }
+  
+  async isOutputFrozen(keyImage) {
+    if (!keyImage) throw new MoneroError("Must specify key image to check if frozen");
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function(result) { resolve(result); }
+        that._module.is_output_frozen(that._cppAddress, keyImage, callbackFn);
+      });
+    });
+  }
+  
   async createTxs(config) {
     this._assertNotClosed();
     
@@ -1093,7 +1129,11 @@ class MoneroWalletFull extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))).getTxs());
+          else {
+            let txSet = new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr)));
+            if (txSet.getTxs() === undefined) txSet.setTxs([]);
+            resolve(txSet.getTxs());
+          }
         }
         
         // call wasm and invoke callback when done
@@ -1124,6 +1164,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
+      if (txSet.getTxs() !== undefined) for (let tx of txSet.getTxs()) tx.setInputs(undefined); // avoid input deserialization which is not supported in monero-cpp
       try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(that._module.describe_tx_set(that._cppAddress, JSON.stringify(txSet.toJson()))))); }
       catch (err) { throw new Error(that._module.get_exception_message(err)); }
     });
@@ -2314,6 +2355,18 @@ class MoneroWalletFullProxy extends MoneroWallet {
     throw new MoneroError("MoneroWalletFull.getNewKeyImagesFromLastImport() not implemented");
   }
   
+  async freezeOutput(keyImage) {
+    return this._invokeWorker("freezeOutput", [keyImage]);
+  }
+  
+  async thawOutput(keyImage) {
+    return this._invokeWorker("thawOutput", [keyImage]);
+  }
+  
+  async isOutputFrozen(keyImage) {
+    return this._invokeWorker("isOutputFrozen", [keyImage]);
+  }
+  
   async createTxs(config) {
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     let txSetJson = await this._invokeWorker("createTxs", [config.toJson()]);
@@ -2335,7 +2388,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   async sweepDust(relay) {
-    return new MoneroTxSet(await this._invokeWorker("sweepDust", [relay])).getTxs();
+    return new MoneroTxSet(await this._invokeWorker("sweepDust", [relay])).getTxs() || [];
   }
   
   async relayTxs(txsOrMetadatas) {
