@@ -272,7 +272,7 @@ EMCC_LINKER_FLAGS_BASE
 -s NO_DYNAMIC_EXECUTION=1 \
 -s NODEJS_CATCH_EXIT=0 \
 -s RESERVED_FUNCTION_POINTERS=5 \
--s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"makeBigInt\",\"getTempRet0\",\"addFunction\"]' \
+-s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"getTempRet0\",\"addFunction\"]' \
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
 "
