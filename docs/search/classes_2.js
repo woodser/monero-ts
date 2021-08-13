@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wallet2_5flistener_206',['wallet2_listener',['../structmonero_1_1wallet2__listener.html',1,'monero']]]
+  ['serializable_5fstruct_210',['serializable_struct',['../structmonero_1_1serializable__struct.html',1,'monero']]]
 ];

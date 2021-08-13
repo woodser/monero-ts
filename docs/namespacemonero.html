@@ -72,6 +72,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1key__image__list.html">key_image_list</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__account.html">monero_account</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__address__book__entry.html">monero_address_book_entry</a></td></tr>
@@ -215,10 +217,10 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_default_ri
 <tr class="separator:aab39fad177c2dd5acb39537280278043"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11ef2da5190ff16e820b26ada8cfd943"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a11ef2da5190ff16e820b26ada8cfd943">validate_transfer</a> (wallet2 *m_w2, const std::list&lt; wallet_rpc::transfer_destination &gt; &amp;destinations, const std::string &amp;payment_id, std::vector&lt; cryptonote::tx_destination_entry &gt; &amp;dsts, std::vector&lt; uint8_t &gt; &amp;extra, bool at_least_one_destination, epee::json_rpc::error &amp;er)</td></tr>
 <tr class="separator:a11ef2da5190ff16e820b26ada8cfd943"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae743b032b8f40c2d4cf67c1ddc6e0d8b"><td class="memTemplParams" colspan="2"><a id="ae743b032b8f40c2d4cf67c1ddc6e0d8b"></a>
-template&lt;typename Ts , typename Tu &gt; </td></tr>
-<tr class="memitem:ae743b032b8f40c2d4cf67c1ddc6e0d8b"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fill_response</b> (wallet2 *m_w2, std::vector&lt; tools::wallet2::pending_tx &gt; &amp;ptx_vector, bool get_tx_key, Ts &amp;tx_key, Tu &amp;amount, Tu &amp;fee, Tu &amp;weight, std::string &amp;multisig_txset, std::string &amp;unsigned_txset, bool do_not_relay, Ts &amp;tx_hash, bool get_tx_hex, Ts &amp;tx_blob, bool get_tx_metadata, Ts &amp;tx_metadata, epee::json_rpc::error &amp;er)</td></tr>
-<tr class="separator:ae743b032b8f40c2d4cf67c1ddc6e0d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71c6bb5bd68d04f94545b9bd386434a7"><td class="memTemplParams" colspan="2"><a id="a71c6bb5bd68d04f94545b9bd386434a7"></a>
+template&lt;typename Ts , typename Tu , typename Tk &gt; </td></tr>
+<tr class="memitem:a71c6bb5bd68d04f94545b9bd386434a7"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>fill_response</b> (wallet2 *m_w2, std::vector&lt; tools::wallet2::pending_tx &gt; &amp;ptx_vector, bool get_tx_key, Ts &amp;tx_key, Tu &amp;amount, Tu &amp;fee, Tu &amp;weight, std::string &amp;multisig_txset, std::string &amp;unsigned_txset, bool do_not_relay, Ts &amp;tx_hash, bool get_tx_hex, Ts &amp;tx_blob, bool get_tx_metadata, Ts &amp;tx_metadata, Tk &amp;spent_key_images, epee::json_rpc::error &amp;er)</td></tr>
+<tr class="separator:a71c6bb5bd68d04f94545b9bd386434a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad28462ef279a5dddc5369e6a9dbc7d4b"><td class="memItemLeft" align="right" valign="top"><a id="ad28462ef279a5dddc5369e6a9dbc7d4b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_incoming_transfer</b> (std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt;&gt; &amp;transfers, const std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer)</td></tr>
 <tr class="separator:ad28462ef279a5dddc5369e6a9dbc7d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>

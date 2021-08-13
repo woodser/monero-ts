@@ -1,10 +1,6 @@
 var searchData=
 [
-  ['on_5fbalances_5fchanged_293',['on_balances_changed',['../classmonero_1_1monero__wallet__listener.html#a98c1ace6690b5cbb2a72de61275f83e0',1,'monero::monero_wallet_listener']]],
-  ['on_5fnew_5fblock_294',['on_new_block',['../classmonero_1_1monero__wallet__listener.html#a0276dc5dbe62b7df42e3eab1b5967895',1,'monero::monero_wallet_listener']]],
-  ['on_5foutput_5freceived_295',['on_output_received',['../classmonero_1_1monero__wallet__listener.html#a858412263ef3d02da6453334abacff18',1,'monero::monero_wallet_listener']]],
-  ['on_5foutput_5fspent_296',['on_output_spent',['../classmonero_1_1monero__wallet__listener.html#a3938fd913222b0f107d5b133d1afd439',1,'monero::monero_wallet_listener']]],
-  ['on_5fsync_5fprogress_297',['on_sync_progress',['../classmonero_1_1monero__wallet__listener.html#ad118f758ea41c8957cc75b7356e5370e',1,'monero::monero_wallet_listener']]],
-  ['open_5fwallet_298',['open_wallet',['../classmonero_1_1monero__wallet__full.html#aaf1dd304d6aa159d0cda0fb90496a82a',1,'monero::monero_wallet_full']]],
-  ['open_5fwallet_5fdata_299',['open_wallet_data',['../classmonero_1_1monero__wallet__full.html#a3fc25c7c3bc60162c7f60bf8eb0b15eb',1,'monero::monero_wallet_full']]]
+  ['make_5fmultisig_297',['make_multisig',['../classmonero_1_1monero__wallet.html#a98d17406e8da363e0bab6c155aa87267',1,'monero::monero_wallet::make_multisig()'],['../classmonero_1_1monero__wallet__full.html#ab3bd9f79ad125bd5060dabf61faa2d98',1,'monero::monero_wallet_full::make_multisig()']]],
+  ['merge_5ftx_298',['merge_tx',['../namespacemonero.html#a33c4fb9da9e3f83543bb4bc0da940fd9',1,'monero']]],
+  ['move_5fto_299',['move_to',['../classmonero_1_1monero__wallet.html#ad9ac7519494ba946c08ea294a564179d',1,'monero::monero_wallet::move_to()'],['../classmonero_1_1monero__wallet__full.html#a45f93a60a7c7b92508686a624ff692fe',1,'monero::monero_wallet_full::move_to()']]]
 ];

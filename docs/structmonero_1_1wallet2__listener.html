@@ -104,6 +104,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_received</b>
 <tr class="memitem:adb44155c73587a7dd6c6c04fee44bae3"><td class="memItemLeft" align="right" valign="top"><a id="adb44155c73587a7dd6c6c04fee44bae3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spent</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx_in, uint64_t amount, const cryptonote::transaction &amp;cn_tx_out, const cryptonote::subaddress_index &amp;subaddr_index) override</td></tr>
 <tr class="separator:adb44155c73587a7dd6c6c04fee44bae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd3a2169af2a35597c078dc38a60e245"><td class="memItemLeft" align="right" valign="top"><a id="afd3a2169af2a35597c078dc38a60e245"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_spend_tx_hashes</b> (const std::vector&lt; std::string &gt; &amp;tx_hashes)</td></tr>
+<tr class="separator:afd3a2169af2a35597c078dc38a60e245"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c3d7a449c356576a7e25c6e6ccb0171"><td class="memItemLeft" align="right" valign="top"><a id="a6c3d7a449c356576a7e25c6e6ccb0171"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_spend_txs</b> (const std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&gt; &amp;txs)</td></tr>
+<tr class="separator:a6c3d7a449c356576a7e25c6e6ccb0171"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Listens to wallet2 notifications in order to notify external wallet listeners. </p>

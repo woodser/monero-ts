@@ -219,6 +219,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a545c50c3494a8c0c02025f147c78109b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb0be9971d73bf3f929906f2129b5992"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__key__image__import__result.html">monero_key_image_import_result</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#acb0be9971d73bf3f929906f2129b5992">import_key_images</a> (const std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__key__image.html">monero_key_image</a> &gt;&gt; &amp;key_images)</td></tr>
 <tr class="separator:acb0be9971d73bf3f929906f2129b5992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e19e09a0139c773bd51a692a15cb750"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a3e19e09a0139c773bd51a692a15cb750">freeze_output</a> (const std::string &amp;key_image)</td></tr>
+<tr class="separator:a3e19e09a0139c773bd51a692a15cb750"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac40822e28d9a96e45cae5396dbb783f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#aac40822e28d9a96e45cae5396dbb783f">thaw_output</a> (const std::string &amp;key_image)</td></tr>
+<tr class="separator:aac40822e28d9a96e45cae5396dbb783f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a664589fa4ff837479f03457cef5741be"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a664589fa4ff837479f03457cef5741be">is_output_frozen</a> (const std::string &amp;key_image)</td></tr>
+<tr class="separator:a664589fa4ff837479f03457cef5741be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e570aaf14c3fa60cd532c465dc3d093"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a5e570aaf14c3fa60cd532c465dc3d093">create_tx</a> (const <a class="el" href="structmonero_1_1monero__tx__config.html">monero_tx_config</a> &amp;config)</td></tr>
 <tr class="separator:a5e570aaf14c3fa60cd532c465dc3d093"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93058114cff787076edf9440d1087baf"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; std::shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html#a93058114cff787076edf9440d1087baf">create_txs</a> (const <a class="el" href="structmonero_1_1monero__tx__config.html">monero_tx_config</a> &amp;config)</td></tr>
@@ -1172,6 +1178,41 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>outputs in hex format, empty std::string if no outputs </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__full.html#a59470585f491768ae7417538ed1be342">monero::monero_wallet_full</a>.</p>
+
+</div>
+</div>
+<a id="a3e19e09a0139c773bd51a692a15cb750"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e19e09a0139c773bd51a692a15cb750">&#9670;&nbsp;</a></span>freeze_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void monero::monero_wallet::freeze_output </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>key_image</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Freeze an output.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key_image</td><td>key image of the output to freeze </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__full.html#a292a177bc1d7fe3f583abe8e7bb7bad1">monero::monero_wallet_full</a>.</p>
 
 </div>
 </div>
@@ -3284,6 +3325,42 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a664589fa4ff837479f03457cef5741be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a664589fa4ff837479f03457cef5741be">&#9670;&nbsp;</a></span>is_output_frozen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool monero::monero_wallet::is_output_frozen </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>key_image</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Check if an output is frozen.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key_image</td><td>key image of the output to check if frozen </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the output is frozen, false otherwise </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__full.html#a7b7f2e373a70fed3f00e02d83eb14312">monero::monero_wallet_full</a>.</p>
+
+</div>
+</div>
 <a id="a6e17802954d57abd37615388ec1e7133"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6e17802954d57abd37615388ec1e7133">&#9670;&nbsp;</a></span>is_synced()</h2>
 
@@ -4629,6 +4706,41 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>the sync result </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__full.html#a4b9631a522e3e33a6342f52f31504e63">monero::monero_wallet_full</a>.</p>
+
+</div>
+</div>
+<a id="aac40822e28d9a96e45cae5396dbb783f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac40822e28d9a96e45cae5396dbb783f">&#9670;&nbsp;</a></span>thaw_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void monero::monero_wallet::thaw_output </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>key_image</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Thaw a frozen output.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key_image</td><td>key image of the output to thaw </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented in <a class="el" href="classmonero_1_1monero__wallet__full.html#a443bba504a3df69453dee1a575d8d767">monero::monero_wallet_full</a>.</p>
 
 </div>
 </div>
