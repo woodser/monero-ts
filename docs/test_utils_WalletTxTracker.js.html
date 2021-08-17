@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: test/utils/WalletTxTracker.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: test/utils/WalletTxTracker.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const monerojs = require("../../../index");
+const GenUtils = monerojs.GenUtils;
+const MoneroUtils = monerojs.MoneroUtils;
+
+/**
+ * Tracks wallets which are in sync with the tx pool and therefore whose txs in the pool
+ * do not need to be waited on for up-to-date pool information e.g. to create txs.
+ * 
+ * This is only necessary because txs relayed outside wallets are not fully incorporated
+ * into the wallet state until confirmed.
+ * 
+ * TODO monero-project: sync txs relayed outside wallet so this class is unecessary
+ */
+class WalletTxTracker {
+
+  constructor() {
+    this.clearedWallets = new Set();
+  }
+  
+  reset() {
+    this.clearedWallets.clear();
+  }
+  
+//  /**
+//   * Reset the tracker such that all wallets except the given sending wallet will
+//   * need to wait for pool txs to confirm in order to reliably sync.
+//   * 
+//   * @param sendingWallet is the wallet which sent the tx and therefore should not cause txs to be waited on
+//   */
+//  resetExcept(sendingWallet) {
+//    let found = this.clearedWallets.has(sendingWallet);
+//    this.clearedWallets.clear();
+//    if (found) this.clearedWallets.add(sendingWallet);
+//  }
+  
+  /**
+   * Waits for transactions in the pool belonging to the given wallets to clear.
+   * 
+   * @param wallets have transactions to wait on if in the pool
+   */
+  async waitForWalletTxsToClearPool(wallets) {
+    wallets = GenUtils.listify(wallets);
+    
+    // get wallet tx hashes
+    let txHashesWallet = new Set();
+    for (let wallet of wallets) {
+      if (!this.clearedWallets.has(wallet)) {
+        await wallet.sync();
+        for (let tx of await wallet.getTxs()) {
+          txHashesWallet.add(tx.getHash());
+        }
+      }
+    }
+    
+    // loop until all wallet txs clear from pool
+    let isFirst = true;
+    let miningStarted = false;
+    const TestUtils = require("./TestUtils"); // to avoid circular reference
+    let daemon = await TestUtils.getDaemonRpc();
+    while (true) {
+      
+      // get hashes of relayed, non-failed txs in the pool
+      let txHashesPool = new Set();
+      for (let tx of await daemon.getTxPool()) {
+        if (!tx.isRelayed()) continue;
+        else if (tx.isFailed()) await daemon.flushTxPool(tx.getHash());  // flush tx if failed
+        else txHashesPool.add(tx.getHash());
+      }
+      
+      // get hashes to wait for as intersection of wallet and pool txs
+      let txHashesIntersection = new Set();
+      for (let txHashPool of txHashesPool) {
+        if (txHashesWallet.has(txHashPool)) txHashesIntersection.add(txHashPool);
+      }
+      txHashesPool = txHashesIntersection;
+      
+      // break if no txs to wait for
+      if (txHashesPool.size === 0) break;
+
+      // if first time waiting, log message and start mining
+      if (isFirst) {
+        isFirst = false;
+        console.log("Waiting for wallet txs to clear from the pool in order to fully sync and avoid double spend attempts (known issue)");
+        let miningStatus = await daemon.getMiningStatus();
+        if (!miningStatus.isActive()) {
+          try {
+            const StartMining = require("./StartMining");
+            await StartMining.startMining();
+            miningStarted = true;
+          } catch (e) {
+            console.error("Error starting mining:");
+            console.error(e);
+          }
+        }
+      }
+      
+      // sleep for a moment
+      await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+    }
+    
+    // stop mining if started mining
+    if (miningStarted) await daemon.stopMining();
+    
+    // sync wallets with the pool
+    for (let wallet of wallets) {
+      await wallet.sync();
+      this.clearedWallets.add(wallet);
+    }
+  }
+  
+  async waitForUnlockedBalance(wallet, accountIndex, subaddressIndex, minAmount) {
+    if (!minAmount) minAmount = new BigInteger("0");
+    
+    // check if wallet has balance
+    if ((await wallet.getBalance(accountIndex, subaddressIndex)).compare(minAmount) &lt; 0) throw new Error("Wallet does not have enough balance to wait for");
+    
+    // check if wallet has unlocked balance
+    let unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
+    if (unlockedBalance.compare(minAmount) > 0) return unlockedBalance;
+   
+    // start mining
+    const TestUtils = require("./TestUtils"); // to avoid circular reference
+    let daemon = await TestUtils.getDaemonRpc();
+    let miningStarted = false;
+    if (!(await daemon.getMiningStatus()).isActive()) {
+      try {
+        console.log("Starting mining!");
+        const StartMining = require("./StartMining"); // to avoid circular reference
+        await StartMining.startMining();
+        miningStarted = true;
+      } catch (err) {
+        console.error("Error starting mining:");
+        console.error(e);
+      }
+    }
+    
+    // wait for unlocked balance // TODO: promote to MoneroWallet interface?
+    console.log("Waiting for unlocked balance");
+    while (unlockedBalance.compare(minAmount) &lt; 0) {
+      unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
+      await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
+    }
+    
+    // stop mining if started
+    if (miningStarted) await daemon.stopMining();
+    return unlockedBalance;
+  }
+}
+
+module.exports = WalletTxTracker;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ConnectionType.html">ConnectionType</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="LibraryUtils.html">LibraryUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroKeyImageSpentStatus.html">MoneroKeyImageSpentStatus</a></li><li><a href="MoneroMessageSignatureResult.html">MoneroMessageSignatureResult</a></li><li><a href="MoneroMessageSignatureType.html">MoneroMessageSignatureType</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroNetworkType.html">MoneroNetworkType</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxConfig.html">MoneroTxConfig</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxPriority.html">MoneroTxPriority</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletFull.html">MoneroWalletFull</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="ReceivedOutputNotificationTester.html">ReceivedOutputNotificationTester</a></li><li><a href="RunWalletRpcTestServers.html">RunWalletRpcTestServers</a></li><li><a href="SslOptions.html">SslOptions</a></li><li><a href="StartMining.html">StartMining</a></li><li><a href="SyncProgressTester.html">SyncProgressTester</a></li><li><a href="TestDeveloperGuide.html">TestDeveloperGuide</a></li><li><a href="TestMoneroDaemonRpc.html">TestMoneroDaemonRpc</a></li><li><a href="TestMoneroUtils.html">TestMoneroUtils</a></li><li><a href="TestMoneroWalletCommon.html">TestMoneroWalletCommon</a></li><li><a href="TestMoneroWalletFull.html">TestMoneroWalletFull</a></li><li><a href="TestMoneroWalletKeys.html">TestMoneroWalletKeys</a></li><li><a href="TestMoneroWalletRpc.html">TestMoneroWalletRpc</a></li><li><a href="TestSampleCode.html">TestSampleCode</a></li><li><a href="TestUtils.html">TestUtils</a></li><li><a href="ThreadPool.html">ThreadPool</a></li><li><a href="WalletEqualityUtils.html">WalletEqualityUtils</a></li><li><a href="WalletNotificationCollector.html">WalletNotificationCollector</a></li><li><a href="WalletSyncPrinter.html">WalletSyncPrinter</a></li><li><a href="WalletSyncTester.html">WalletSyncTester</a></li><li><a href="WalletTxTracker.html">WalletTxTracker</a></li></ul><h3>Interfaces</h3><ul><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getRandomTransactions">getRandomTransactions</a></li><li><a href="global.html#runTests">runTests</a></li><li><a href="global.html#testGetTxsStructure">testGetTxsStructure</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Aug 17 2021 11:42:14 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
