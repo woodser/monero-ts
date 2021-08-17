@@ -937,6 +937,7 @@ namespace monero {
       monero_tx_query query = monero_tx_query();
       query.m_is_locked = true;
       query.m_is_confirmed = true;
+      query.m_min_height = m_wallet.get_height() - 70; // only monitor recent txs
       std::vector<std::shared_ptr<monero_tx_wallet>> locked_txs = m_wallet.get_txs(query);
 
       // collect hashes of txs no longer locked
@@ -957,7 +958,6 @@ namespace monero {
       if (!tx_hashes_no_longer_locked.empty()) {
         query.m_hashes = tx_hashes_no_longer_locked;
         query.m_is_locked = false;
-        query.m_is_confirmed = true;
         query.m_include_outputs = true;
         std::vector<std::string> missing_tx_hashes;
         txs_no_longer_locked = m_wallet.get_txs(query, missing_tx_hashes);
@@ -977,15 +977,29 @@ namespace monero {
 
     void notify_outputs(const std::shared_ptr<monero_tx_wallet>& tx) {
 
-      // notify spent outputs // TODO: this provides one input with outgoing amount like monero-wallet-rpc client, use real inputs instead
+      // notify spent outputs
       if (tx->m_outgoing_transfer != boost::none) {
-        std::shared_ptr<monero_output_wallet> output = std::make_shared<monero_output_wallet>();
-        tx->m_inputs.push_back(output); // TODO: should copy tx and block before modifying
-        output->m_tx = tx;
-        output->m_amount = tx->m_outgoing_transfer.get()->m_amount.get() + tx->m_fee.get();
-        output->m_account_index = tx->m_outgoing_transfer.get()->m_account_index;
-        if (tx->m_outgoing_transfer.get()->m_subaddress_indices.size() == 1) output->m_subaddress_index = tx->m_outgoing_transfer.get()->m_subaddress_indices[0]; // initialize if transfer sourced from single subaddress
-        for (monero_wallet_listener* listener : m_wallet.get_listeners()) listener->on_output_spent(*output);
+        
+        // build dummy input for notification // TODO: this provides one input with outgoing amount like monero-wallet-rpc client, use real inputs instead
+        std::shared_ptr<monero_output_wallet> input = std::make_shared<monero_output_wallet>();
+        input->m_amount = tx->m_outgoing_transfer.get()->m_amount.get() + tx->m_fee.get();
+        input->m_account_index = tx->m_outgoing_transfer.get()->m_account_index;
+        if (tx->m_outgoing_transfer.get()->m_subaddress_indices.size() == 1) input->m_subaddress_index = tx->m_outgoing_transfer.get()->m_subaddress_indices[0]; // initialize if transfer sourced from single subaddress
+        std::shared_ptr<monero_tx_wallet> tx_notify = std::make_shared<monero_tx_wallet>();
+        input->m_tx = tx_notify;
+        tx_notify->m_inputs.push_back(input);
+        tx_notify->m_hash = tx->m_hash;
+        tx_notify->m_is_locked = tx->m_is_locked;
+        tx_notify->m_unlock_height = tx->m_unlock_height;
+        if (tx->m_block != boost::none) {
+          std::shared_ptr<monero_block> block_notify = std::make_shared<monero_block>();
+          tx_notify->m_block = block_notify;
+          block_notify->m_height = tx->get_height();
+          block_notify->m_txs.push_back(tx_notify);
+        }
+        
+        // notify listeners
+        for (monero_wallet_listener* listener : m_wallet.get_listeners()) listener->on_output_spent(*input);
       }
 
       // notify received outputs

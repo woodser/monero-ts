@@ -145,6 +145,7 @@ namespace monero {
     boost::optional<std::string> m_pow_hash;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+    std::shared_ptr<monero_block_header> copy(const std::shared_ptr<monero_block_header>& src, const std::shared_ptr<monero_block_header>& tgt) const;
     virtual void merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other);
   };
 
@@ -158,6 +159,7 @@ namespace monero {
     std::vector<std::string> m_tx_hashes;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+    std::shared_ptr<monero_block> copy(const std::shared_ptr<monero_block>& src, const std::shared_ptr<monero_block>& tgt) const;
     void merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other);
     void merge(const std::shared_ptr<monero_block>& self, const std::shared_ptr<monero_block>& other);
   };

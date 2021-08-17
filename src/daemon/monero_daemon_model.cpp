@@ -159,7 +159,31 @@ namespace monero {
     // return root
     return root;
   }
-
+  
+  std::shared_ptr<monero_block_header> monero_block_header::copy(const std::shared_ptr<monero_block_header>& src, const std::shared_ptr<monero_block_header>& tgt) const {
+    if (this != src.get()) throw std::runtime_error("this block header != src");
+    tgt->m_hash = src->m_hash;
+    tgt->m_height = src->m_height;
+    tgt->m_timestamp = src->m_timestamp;
+    tgt->m_size = src->m_size;
+    tgt->m_weight = src->m_weight;
+    tgt->m_long_term_weight = src->m_long_term_weight;
+    tgt->m_depth = src->m_depth;
+    tgt->m_difficulty = src->m_difficulty;
+    tgt->m_cumulative_difficulty = src->m_cumulative_difficulty;
+    tgt->m_major_version = src->m_major_version;
+    tgt->m_minor_version = src->m_minor_version;
+    tgt->m_nonce = src->m_nonce;
+    tgt->m_miner_tx_hash = src->m_miner_tx_hash;
+    tgt->m_num_txs = src->m_num_txs;
+    tgt->m_orphan_status = src->m_orphan_status;
+    tgt->m_prev_hash = src->m_prev_hash;
+    tgt->m_reward = src->m_reward;
+    tgt->m_pow_hash = src->m_pow_hash;
+    tgt->m_hash = src->m_hash;
+    return tgt;
+  }
+  
   void monero_block_header::merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other) {
     if (this != self.get()) throw std::runtime_error("this != self");
     if (self == other) return;
@@ -204,7 +228,35 @@ namespace monero {
     // return root
     return root;
   }
-
+  
+  std::shared_ptr<monero_block> monero_block::copy(const std::shared_ptr<monero_block>& src, const std::shared_ptr<monero_block>& tgt) const {
+    if (this != src.get()) throw std::runtime_error("this block != src");
+    monero_block_header::copy(std::static_pointer_cast<monero_block_header>(src), std::static_pointer_cast<monero_block_header>(tgt));
+    tgt->m_hex = src->m_hex;
+    if (src->m_miner_tx) {
+      tgt->m_miner_tx = src->m_miner_tx.get()->copy(src->m_miner_tx.get(), std::make_shared<monero_tx>());
+      tgt->m_miner_tx.get()->m_block = tgt;
+    }
+    if (!src->m_txs.empty()) {
+      bool use_wallet_types = std::dynamic_pointer_cast<monero_tx_wallet>(src->m_txs[0]) != 0;
+      tgt->m_txs = std::vector<std::shared_ptr<monero_tx>>();
+      for (const auto& tx : src->m_txs) {
+        if (use_wallet_types) {
+          std::shared_ptr<monero_tx_wallet> tx_wallet = std::static_pointer_cast<monero_tx_wallet>(tx);
+          std::shared_ptr<monero_tx_wallet> tx_copy = tx_wallet->copy(tx_wallet, std::make_shared<monero_tx_wallet>());
+          tx_copy->m_block = tgt;
+          tgt->m_txs.push_back(tx_copy);
+        } else {
+          std::shared_ptr<monero_tx> tx_copy = tx->copy(tx, std::make_shared<monero_tx>());
+          tx_copy->m_block = tgt;
+          tgt->m_txs.push_back(tx_copy);
+        }
+      }
+    }
+    if (!src->m_tx_hashes.empty()) tgt->m_tx_hashes = std::vector<std::string>(src->m_tx_hashes);
+    return tgt;
+  }
+  
   void monero_block::merge(const std::shared_ptr<monero_block_header>& self, const std::shared_ptr<monero_block_header>& other) {
     merge(std::static_pointer_cast<monero_block>(self), std::static_pointer_cast<monero_block>(other));
   }

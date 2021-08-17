@@ -208,13 +208,11 @@ namespace monero {
   }
 
   std::shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt) const {
-    MTRACE("monero_tx_wallet::copy(const std::shared_ptr<monero_tx>& src, const std::shared_ptr<monero_tx>& tgt)");
     return monero_tx_wallet::copy(std::static_pointer_cast<monero_tx_wallet>(src), std::static_pointer_cast<monero_tx_wallet>(tgt));
   };
 
   std::shared_ptr<monero_tx_wallet> monero_tx_wallet::copy(const std::shared_ptr<monero_tx_wallet>& src, const std::shared_ptr<monero_tx_wallet>& tgt) const {
-    MTRACE("monero_tx_wallet::copy(const std::shared_ptr<monero_tx_wallet>& src, const std::shared_ptr<monero_tx_wallet>& tgt)");
-    if (this != src.get()) throw std::runtime_error("this != src");
+    if (this != src.get()) throw std::runtime_error("this tx != src");
 
     // copy base class
     monero_tx::copy(std::static_pointer_cast<monero_tx>(src), std::static_pointer_cast<monero_tx>(tgt));
@@ -437,7 +435,6 @@ namespace monero {
   };
 
   std::shared_ptr<monero_tx_query> monero_tx_query::copy(const std::shared_ptr<monero_tx_query>& src, const std::shared_ptr<monero_tx_query>& tgt) const {
-    MTRACE("monero_tx_query::copy(const std::shared_ptr<monero_tx_query>& src, const std::shared_ptr<monero_tx_query>& tgt)");
     if (this != src.get()) throw std::runtime_error("this != src");
 
     // copy base class
@@ -579,8 +576,7 @@ namespace monero {
   }
 
   std::shared_ptr<monero_destination> monero_destination::copy(const std::shared_ptr<monero_destination>& src, const std::shared_ptr<monero_destination>& tgt) const {
-    MTRACE("monero_destination::copy(const std::shared_ptr<monero_destination>& src, const std::shared_ptr<monero_destination>& tgt)");
-    if (this != src.get()) throw std::runtime_error("this != src");
+    if (this != src.get()) throw std::runtime_error("this destination!= src");
     tgt->m_address = src->m_address;
     tgt->m_amount = src->m_amount;
     return tgt;
@@ -713,8 +709,12 @@ namespace monero {
   }
 
   std::shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const std::shared_ptr<monero_incoming_transfer>& src, const std::shared_ptr<monero_incoming_transfer>& tgt) const {
-    std::cout << "monero_incoming_transfer::copy()" << std::endl;
-    throw std::runtime_error("monero_incoming_transfer::copy(inTransfer) not implemented");
+    if (this != src.get()) throw std::runtime_error("this incoming transfer != src");
+    monero_transfer::copy(std::static_pointer_cast<monero_transfer>(src), std::static_pointer_cast<monero_transfer>(tgt));
+    tgt->m_subaddress_index = src->m_subaddress_index;
+    tgt->m_address = src->m_address;
+    tgt->m_num_suggested_confirmations = src->m_num_suggested_confirmations;
+    return tgt;
   };
 
   boost::optional<bool> monero_incoming_transfer::is_incoming() const { return true; }
@@ -752,8 +752,17 @@ namespace monero {
   };
 
   std::shared_ptr<monero_outgoing_transfer> monero_outgoing_transfer::copy(const std::shared_ptr<monero_outgoing_transfer>& src, const std::shared_ptr<monero_outgoing_transfer>& tgt) const {
-    std::cout << "monero_outgoing_transfer::copy()" << std::endl;
-    throw std::runtime_error("monero_outgoing_transfer::copy(out_transfer) not implemented");
+    if (this != src.get()) throw std::runtime_error("this outgoing transfer != src");
+    monero_transfer::copy(std::static_pointer_cast<monero_transfer>(src), std::static_pointer_cast<monero_transfer>(tgt));
+    if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = std::vector<uint32_t>(src->m_subaddress_indices);
+    if (!src->m_addresses.empty()) tgt->m_addresses = std::vector<std::string>(src->m_addresses);
+    if (!src->m_destinations.empty()) {
+      tgt->m_destinations = std::vector<std::shared_ptr<monero_destination>>();
+      for (const std::shared_ptr<monero_destination>& destination : src->m_destinations) {
+        tgt->m_destinations.push_back(destination->copy(destination, std::make_shared<monero_destination>()));
+      }
+    }
+    return tgt;
   };
 
   boost::optional<bool> monero_outgoing_transfer::is_incoming() const { return false; }
