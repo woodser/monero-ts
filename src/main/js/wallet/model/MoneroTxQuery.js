@@ -245,7 +245,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.getHashes() !== undefined && !this.getHashes().includes(tx.getHash())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     if (this.getHeight() !== undefined && (txHeight === undefined || txHeight !== this.getHeight())) return false;
-    if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;
+    if (this.getMinHeight() !== undefined && txHeight !== undefined && txHeight < this.getMinHeight()) return false; // do not filter unconfirmed
     if (this.getMaxHeight() !== undefined && (txHeight === undefined || txHeight > this.getMaxHeight())) return false;
     // TODO: filtering not complete
     

@@ -33,7 +33,6 @@ class MoneroOutputQuery extends MoneroOutputWallet {
    * @param {BigInteger} config.amount - get outputs with this amount
    * @param {BigInteger} config.minAmount - get outputs with amount greater than or equal to this amount
    * @param {BigInteger} config.maxAmount - get outputs with amount less than or equal to this amount
-   * @param {boolean} config.isLocked - get locked xor unlocked outputs
    * @param {boolean} config.isSpent - get spent xor unspent outputs
    * @param {boolean} config.isFrozen - get frozen xor thawed outputs
    * @param {object|MoneroKeyImage} config.keyImage - get outputs with a key image matching fields defined in this key image
@@ -50,7 +49,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInteger)) this.state.maxAmount = BigInteger.parse(this.state.maxAmount);
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
     if (this.state.txQuery) this.state.txQuery.setOutputQuery(this);
-    if (this.state.isLocked !== undefined) throw new MoneroError("isLocked must be part of tx query, not output query")
+    if (this.state.isLocked !== undefined) throw new MoneroError("isLocked must be part of tx query, not output query");
   }
   
   copy() {

@@ -2375,7 +2375,7 @@ class TestMoneroWalletCommon {
       
       // TODO: test sweepUnlocked()
       async function testWalletNotificationsAux(sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay) {
-        let MAX_POLL_TIME = TestUtils.SYNC_PERIOD_IN_MS; // maximum time granted for wallet to poll
+        let MAX_POLL_TIME = 5000; // maximum time granted for wallet to poll
         
         // collect issues as test runs
         let issues = [];
@@ -2407,17 +2407,22 @@ class TestMoneroWalletCommon {
         await receiver.addListener(receiverNotificationCollector);
         
         // send funds
+        let ctx = {wallet: sender, isSendResponse: true};
         let senderTx;
         let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
         let expectedOutputs = [];
         if (sweepOutput) {
+          ctx.isSweepResponse = true;
+          ctx.isSweepOutputResponse = true;
           let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE.multiply(new BigInteger("5")), txQuery: {isLocked: false}});
           if (outputs.length === 0) {
             issues.push("ERROR: No outputs available to sweep from account 0");
             return issues;
           }
-          senderTx = await sender.sweepOutput({address: await receiver.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: !createThenRelay});
+          let config = {address: await receiver.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: !createThenRelay};
+          senderTx = await sender.sweepOutput(config);
           expectedOutputs.push(new MoneroOutputWallet().setAmount(senderTx.getOutgoingTransfer().getDestinations()[0].getAmount()).setAccountIndex(destinationAccounts[0]).setSubaddressIndex(0));
+          ctx.config = new MoneroTxConfig(config);
         } else {
           let config = new MoneroTxConfig().setAccountIndex(0).setRelay(!createThenRelay);
           for (let destinationAccount of destinationAccounts) {
@@ -2425,11 +2430,15 @@ class TestMoneroWalletCommon {
             expectedOutputs.push(new MoneroOutputWallet().setAmount(TestUtils.MAX_FEE).setAccountIndex(destinationAccount).setSubaddressIndex(0));
           }
           senderTx = await sender.createTx(config);
+          ctx.config = config;
         }
         if (createThenRelay) await sender.relayTx(senderTx);
         
         // start timer to measure end of sync period
         let startTime = Date.now(); // timestamp in ms
+        
+        // test send tx
+        await that._testTxWallet(senderTx, ctx);
         
         // test sender after sending
         let outputQuery = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(senderTx.getHash())); // query for outputs from sender tx
@@ -2450,11 +2459,9 @@ class TestMoneroWalletCommon {
         }
         if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) issues.push("ERROR: sender did not announce unconfirmed spent output");
         
-        // wait for end of sync period
-        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
+        // test receiver after 2 sync periods
+        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 - (Date.now() - startTime));
         startTime = Date.now(); // reset timer
-        
-        // test receiver after receiving
         let receiverTx = await receiver.getTx(senderTx.getHash());
         if (senderTx.getOutgoingAmount().compare(receiverTx.getIncomingAmount()) !== 0) {
           if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
@@ -2470,7 +2477,7 @@ class TestMoneroWalletCommon {
           if ((await receiver.getBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) !== 0) issues.push("ERROR: receiver balance != last notified balance after funds received");
           if ((await receiver.getUnlockedBalance()).compare(receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) !== 0) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds received");
         }
-        if (receiverNotificationCollector.getOutputsReceived(outputQuery).length === 0) issues.push("ERROR: receiver did not announce received unconfirmed output");
+        if (receiverNotificationCollector.getOutputsReceived(outputQuery).length === 0) issues.push("ERROR: receiver did not announce unconfirmed received output");
         else {
           for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(outputQuery), true)) {
             issues.push("ERROR: receiver did not announce received output for amount " + toStringBI(output.getAmount()) + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
@@ -2492,7 +2499,7 @@ class TestMoneroWalletCommon {
             let testStartHeight = lastHeight;
             lastHeight = height;
             let threadFn = async function() {
-              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
               let senderBlockNotifications = senderNotificationCollector.getBlockNotifications();
               let receiverBlockNotifications = receiverNotificationCollector.getBlockNotifications();
               for (let i = testStartHeight; i < height; i++) {
@@ -2520,7 +2527,7 @@ class TestMoneroWalletCommon {
               confirmHeight = tx.getHeight();
               expectedUnlockHeight = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockHeight); // exact unlock height known
               let threadFn = async function() {
-                await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+                await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
                 let confirmedQuery = outputQuery.getTxQuery().copy().setIsConfirmed(true).setIsLocked(true).getOutputQuery();
                 if (senderNotificationCollector.getOutputsSpent(confirmedQuery).length === 0) issues.push("ERROR: sender did not announce confirmed spent output"); // TODO: test amount
                 if (receiverNotificationCollector.getOutputsReceived(confirmedQuery).length === 0) issues.push("ERROR: receiver did not announce confirmed received output");
@@ -2545,7 +2552,7 @@ class TestMoneroWalletCommon {
           // otherwise test unlock notifications
           else if (height >= expectedUnlockHeight) {
             let threadFn = async function() {
-              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + MAX_POLL_TIME); // wait sync period + poll time for notifications
+              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
               let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
               if (senderNotificationCollector.getOutputsSpent(unlockedQuery).length === 0) issues.push("ERROR: sender did not announce unlocked spent output"); // TODO: test amount?
               for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(unlockedQuery), true)) issues.push("ERROR: receiver did not announce unlocked received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
@@ -4214,6 +4221,14 @@ class TestMoneroWalletCommon {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
     }
     
+    // test inputs
+    if (tx.isOutgoing() && ctx.isSendResponse) {
+      assert(tx.getInputs() !== undefined);
+      assert(tx.getInputs().length > 0);
+    } else {
+      if (tx.getInputs()) for (let input of tx.getInputs()) testInputWallet(output);
+    }
+    
     // test outputs
     if (tx.isIncoming() && ctx.includeOutputs) {
       if (tx.isConfirmed()) {
@@ -4258,6 +4273,12 @@ class TestMoneroWalletCommon {
         assert.deepEqual(copy.getIncomingTransfers()[i].toJson(), tx.getIncomingTransfers()[i].toJson());
         assert(tx.getIncomingTransfers()[i] !== copy.getIncomingTransfers()[i]);
         if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount().toJSValue() === 0);
+      }
+    }
+    if (tx.getInputs()) {
+      for (let i = 0; i < tx.getInputs().length; i++) {
+        assert.deepEqual(copy.getInputs()[i].toJson(), tx.getInputs()[i].toJson());
+        assert(tx.getInputs()[i] !== copy.getInputs()[i]);
       }
     }
     if (tx.getOutputs()) {
@@ -4813,6 +4834,14 @@ function testOutgoingTransfer(transfer, ctx) {
 function testDestination(destination) {
   MoneroUtils.validateAddress(destination.getAddress(), TestUtils.NETWORK_TYPE);
   TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
+}
+
+function testInputWallet(input) {
+  assert(input);
+  assert(input.getKeyImage());
+  assert(input.getKeyImage().getHex());
+  assert(input.getKeyImage().getHex().length > 0);
+  assert(input.getAmount() === undefined); // must get info separately
 }
 
 function testOutputWallet(output) {

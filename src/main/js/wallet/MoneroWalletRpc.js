@@ -36,9 +36,10 @@ const MoneroVersion = require("../daemon/model/MoneroVersion");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroWalletConfig = require("./model/MoneroWalletConfig");
 const MoneroWalletListener = require("./model/MoneroWalletListener");
-const SslOptions = require("../common/SslOptions");
 const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
 const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
+const ThreadPool = require("../common/ThreadPool");
+const SslOptions = require("../common/SslOptions");
 
 /**
  * Copyright (c) woodser
@@ -826,7 +827,10 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // fetch and merge outputs if requested
     if (query.getIncludeOutputs() || outputQuery) {
-      let outputs = await this._getOutputsAux(new MoneroOutputQuery().setTxQuery(MoneroWalletRpc._decontextualize(query.copy())));
+        
+      // fetch outputs
+      let outputQueryAux = (outputQuery ? outputQuery.copy() : new MoneroOutputQuery()).setTxQuery(MoneroWalletRpc._decontextualize(query.copy()));
+      let outputs = await this._getOutputsAux(outputQueryAux);
       
       // merge output txs one time while retaining order
       let outputTxs = [];
@@ -1028,7 +1032,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // notify of changes
-    await this._poll();
+    if (config.getRelay()) await this._poll();
     
     // initialize tx set from rpc response with pre-initialized txs
     if (config.getCanSplit()) return MoneroWalletRpc._convertRpcSentTxsToTxSet(result, txs).getTxs();
@@ -1060,7 +1064,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let result = resp.result;
     
     // notify of changes
-    await this._poll();
+    if (config.getRelay()) await this._poll();
     
     // build and return tx response
     let tx = MoneroWalletRpc._initSentTxWallet(config, null);
@@ -1124,15 +1128,15 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // notify of changes
-    await this._poll();
+    if (config.getRelay()) await this._poll();
     return txs;
   }
   
   async sweepDust(relay) {
     if (relay === undefined) relay = false;
     let resp = await this.rpc.sendJsonRequest("sweep_dust", {do_not_relay: !relay});
+    if (relay) await this._poll();
     let result = resp.result;
-    await this._poll();
     let txSet = MoneroWalletRpc._convertRpcSentTxsToTxSet(result);
     if (txSet.getTxs() === undefined) return [];
     for (let tx of txSet.getTxs()) {
@@ -1175,6 +1179,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.rpc.sendJsonRequest("submit_transfer", {
       tx_data_hex: signedTxHex
     });
+    await this._poll();
     return resp.result.tx_hash_list;
   }
   
@@ -1606,7 +1611,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build params for get_transfers rpc call
     let params = {};
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
+    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
@@ -2381,6 +2386,8 @@ class WalletRpcPollListener {
     this._prevLockedTxs = [];
     this._prevUnconfirmedNotifications = new Set(); // tx hashes of previous notifications
     this._prevConfirmedNotifications = new Set(); // tx hashes of previously confirmed but not yet unlocked notifications
+    this._threadPool = new ThreadPool(1); // synchronize polls
+    this._numPolling = 0;
   }
   
   async setIsEnabled(isEnabled) {
@@ -2416,61 +2423,67 @@ class WalletRpcPollListener {
   
   async poll() {
     
-    // skip if already polling
-    if (this._isPolling) return;
-    this._isPolling = true;
+    // skip if next poll is already queued
+    if (this._numPolling > 1) return;
     
-    // take initial snapshot
-    if (this._prevHeight === undefined) {
-      this._prevHeight = await this._wallet.getHeight();
-      this._prevLockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
-      this._isPolling = false;
-      return;
-    }
-    
-    // announce height changes
-    let height = await this._wallet.getHeight();
-    if (this._prevHeight !== height) {
-      for (let i = this._prevHeight; i < height; i++) await this._onNewBlock(i);
-      this._prevHeight = height;
-    }
-    
-    // get locked txs for comparison to previous
-    let lockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setIncludeOutputs(true));
-    
-    // collect hashes of txs no longer locked
-    let noLongerLockedHashes = [];
-    for (let prevLockedTx of this._prevLockedTxs) {
-      if (this._getTx(lockedTxs, prevLockedTx.getHash()) === undefined) {
-        noLongerLockedHashes.push(prevLockedTx.getHash());
+    // synchronize polls
+    let that = this;
+    return this._threadPool.submit(async function() {
+      that._numPolling++;
+      
+      // take initial snapshot
+      if (that._prevHeight === undefined) {
+        that._prevHeight = await that._wallet.getHeight();
+        that._prevLockedTxs = await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
+        that._prevBalances = await that._wallet._getBalances();
+        that._numPolling--;
+        return;
       }
-    }
-    
-    // fetch txs that are no longer locked
-    let unlockedTxs = await this._wallet.getTxs(new MoneroTxQuery().setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
-    
-    // save locked txs for next comparison
-    this._prevLockedTxs = lockedTxs;
-    
-    // announce new unconfirmed and confirmed outputs
-    for (let lockedTx of lockedTxs) {
-      let searchSet = lockedTx.isConfirmed() ? this._prevConfirmedNotifications : this._prevUnconfirmedNotifications;
-      let unannounced = !searchSet.has(lockedTx.getHash()) 
-      searchSet.add(lockedTx.getHash());
-      if (unannounced) await this._notifyOutputs(lockedTx);
-    }
-    
-    // announce new unlocked outputs
-    for (let unlockedTx of unlockedTxs) {
-      this._prevUnconfirmedNotifications.delete(unlockedTx.getHash());
-      this._prevConfirmedNotifications.delete(unlockedTx.getHash());
-      await this._notifyOutputs(unlockedTx);
-    }
-    
-    // announce balance changes
-    await this._checkForChangedBalances();
-    
-    this._isPolling = false;
+      
+      // announce height changes
+      let height = await that._wallet.getHeight();
+      if (that._prevHeight !== height) {
+        for (let i = that._prevHeight; i < height; i++) await that._onNewBlock(i);
+        that._prevHeight = height;
+      }
+      
+      // get locked txs for comparison to previous
+      let minHeight = height - 70; // only monitor recent txs
+      let lockedTxs = await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setMinHeight(minHeight).setIncludeOutputs(true));
+      
+      // collect hashes of txs no longer locked
+      let noLongerLockedHashes = [];
+      for (let prevLockedTx of that._prevLockedTxs) {
+        if (that._getTx(lockedTxs, prevLockedTx.getHash()) === undefined) {
+          noLongerLockedHashes.push(prevLockedTx.getHash());
+        }
+      }
+      
+      // save locked txs for next comparison
+      that._prevLockedTxs = lockedTxs;
+      
+      // fetch txs which are no longer locked
+      let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(minHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
+      
+      // announce new unconfirmed and confirmed outputs
+      for (let lockedTx of lockedTxs) {
+        let searchSet = lockedTx.isConfirmed() ? that._prevConfirmedNotifications : that._prevUnconfirmedNotifications;
+        let unannounced = !searchSet.has(lockedTx.getHash());
+        searchSet.add(lockedTx.getHash());
+        if (unannounced) await that._notifyOutputs(lockedTx);
+      }
+      
+      // announce new unlocked outputs
+      for (let unlockedTx of unlockedTxs) {
+        that._prevUnconfirmedNotifications.delete(unlockedTx.getHash());
+        that._prevConfirmedNotifications.delete(unlockedTx.getHash());
+        await that._notifyOutputs(unlockedTx);
+      }
+      
+      // announce balance changes
+      await that._checkForChangedBalances();
+      that._numPolling--;
+    });
   }
   
   async _onNewBlock(height) {
@@ -2520,12 +2533,10 @@ class WalletRpcPollListener {
   }
   
   async _checkForChangedBalances() {
-    let balance = await this._wallet.getBalance();
-    let unlockedBalance = await this._wallet.getUnlockedBalance();
-    if (balance.compare(this._prevBalance) !== 0 || unlockedBalance.compare(this._prevUnlockedBalance) !== 0) {
-      this._prevBalance =  balance;
-      this._prevUnlockedBalance = unlockedBalance;
-      for (let listener of await this._wallet.getListeners()) await listener.onBalancesChanged(balance, unlockedBalance);
+    let balances = await this._wallet._getBalances();
+    if (balances[0].compare(this._prevBalances[0]) !== 0 || balances[1].compare(this._prevBalances[1]) !== 0) {
+      this._prevBalances = balances;
+      for (let listener of await this._wallet.getListeners()) await listener.onBalancesChanged(balances[0], balances[1]);
       return true;
     }
     return false;
