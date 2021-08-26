@@ -32,20 +32,21 @@ class HttpClient {
   static async request(request) {
     
     // assign defaults
-    request = Object.assign(HttpClient.DEFAULT_REQUEST, request);
+    request = Object.assign(HttpClient._DEFAULT_REQUEST, request);
     
     // validate request
-    try { new URL(request.uri); } catch (err) { throw new Error("Invalid request URL: " + request.uri); }
+    try { request.host = new URL(request.uri).host; } // hostname:port
+    catch (err) { throw new Error("Invalid request URL: " + request.uri); }
     if (request.body && !(typeof request.body === "string" || typeof request.body === "object")) {
       throw new Error("Request body type is not string or object");
     }
     
-    // initialize task queue one time
-    if (!HttpClient.TASK_QUEUE) HttpClient.TASK_QUEUE = new ThreadPool(1);
+    // initialize one task queue per host
+    if (!HttpClient._TASK_QUEUES[request.host]) HttpClient._TASK_QUEUES[request.host] = new ThreadPool(1);
     
-    // initialize promise throttle one time
-    if (!HttpClient.PROMISE_THROTTLE) {
-      HttpClient.PROMISE_THROTTLE = new PromiseThrottle({
+    // initialize one promise throttle per host
+    if (!HttpClient._PROMISE_THROTTLES[request.host]) {
+      HttpClient._PROMISE_THROTTLES[request.host] = new PromiseThrottle({
         requestsPerSecond: MoneroUtils.MAX_REQUESTS_PER_SECOND, // TODO: HttpClient should not depend on MoneroUtils for configuration
         promiseImplementation: Promise
       });
@@ -80,8 +81,9 @@ class HttpClient {
     if (req.body instanceof Uint8Array) opts.encoding = null;
     
     // queue and throttle request to execute in serial and rate limited
-    let resp = await HttpClient.TASK_QUEUE.submit(async function() {
-      return HttpClient.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
+    let host = req.host;
+    let resp = await HttpClient._TASK_QUEUES[host].submit(async function() {
+      return HttpClient._PROMISE_THROTTLES[host].add(function(opts) { return Request(opts); }.bind(this, opts));
     });
     
     // normalize response
@@ -103,14 +105,15 @@ class HttpClient {
     // collect params from request which change on await
     let method = req.method;
     let uri = req.uri;
+    let host = req.host;
     let username = req.username;
     let password = req.password;
     let body = req.body;
     let isBinary = body instanceof Uint8Array;
     
-    // queue and throttle request to execute in serial and rate limited
-    let resp = await HttpClient.TASK_QUEUE.submit(async function() {
-      return HttpClient.PROMISE_THROTTLE.add(function() {
+    // queue and throttle requests to execute in serial and rate limited per host
+    let resp = await HttpClient._TASK_QUEUES[host].submit(async function() {
+      return HttpClient._PROMISE_THROTTLES[host].add(function() {
         return new Promise(function(resolve, reject) {
           let digestAuthRequest = new HttpClient.digestAuthRequest(method, uri, username, password);
           digestAuthRequest.request(function(resp) {
@@ -169,14 +172,6 @@ class HttpClient {
     }
     return headerMap;
   }
-}
-
-// default request config
-HttpClient.DEFAULT_REQUEST = {
-  method: "GET",
-  requestApi: "fetch",
-  resolveWithFullResponse: false,
-  rejectUnauthorized: true
 }
 
 /**
@@ -457,5 +452,17 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
   }
   this.version = function() { return '0.8.0' }
 }
+
+// default request config
+HttpClient._DEFAULT_REQUEST = {
+  method: "GET",
+  requestApi: "fetch",
+  resolveWithFullResponse: false,
+  rejectUnauthorized: true
+}
+
+// rate limit requests per host
+HttpClient._PROMISE_THROTTLES = [];
+HttpClient._TASK_QUEUES = [];
 
 module.exports = HttpClient;
