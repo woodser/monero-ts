@@ -136,7 +136,7 @@ This project uses WebAssembly to package and execute Monero's source code for us
 
 Compiled WebAssembly binaries are committed to ./dist for convenience, but these files can be built independently from source code:
 
-1. Install and activate emscripten
+1. Install and activate emscripten.
 	1. Clone emscripten repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
 	3. `git pull && ./emsdk install latest-upstream && ./emsdk activate latest-upstream && source ./emsdk_env.sh`
@@ -144,8 +144,8 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 3. `cd monero-javascript`
 4. `./bin/update_submodules.sh`
-5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`
-4. `./bin/build_all.sh`
+5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
+6. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
 
