@@ -174,7 +174,7 @@ namespace monero {
     void set_daemon_connection(const std::string& uri, const std::string& username = "", const std::string& password = "") override;
     void set_daemon_connection(const boost::optional<monero_rpc_connection>& connection) override;
     boost::optional<monero_rpc_connection> get_daemon_connection() const override;
-    bool is_connected() const override;
+    bool is_connected_to_daemon() const override;
     bool is_daemon_synced() const override;
     bool is_daemon_trusted() const override;
     bool is_synced() const override;

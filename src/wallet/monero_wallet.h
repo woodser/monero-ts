@@ -173,8 +173,8 @@ namespace monero {
      *
      * @return true if the wallet is connected to a daemon, false otherwise
      */
-    virtual bool is_connected() const {
-      throw std::runtime_error("is_connected() not supported");
+    virtual bool is_connected_to_daemon() const {
+      throw std::runtime_error("is_connected_to_daemon() not supported");
     }
 
     /**

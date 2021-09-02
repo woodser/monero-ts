@@ -1054,7 +1054,7 @@ namespace monero {
     crypto::secret_key secret_key;
     wallet->m_w2->generate(path, password, secret_key, false, false);
     wallet->init_common();
-    if (wallet->is_connected()) wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height());
+    if (wallet->is_connected_to_daemon()) wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height());
     return wallet;
   }
 
@@ -1176,7 +1176,7 @@ namespace monero {
 
     // init wallet2 and std::set daemon connection
     if (!m_w2->init(uri, login, {}, 0, is_trusted, ssl)) throw std::runtime_error("Failed to initialize wallet with daemon connection");
-    is_connected(); // update m_is_connected cache // TODO: better naming?
+    is_connected_to_daemon(); // update m_is_connected cache // TODO: better naming?
   }
 
   void monero_wallet_full::set_daemon_connection(const boost::optional<monero_rpc_connection>& connection) {
@@ -1199,7 +1199,7 @@ namespace monero {
   }
 
   // TODO: could return Wallet::ConnectionStatus_Disconnected, Wallet::ConnectionStatus_WrongVersion, Wallet::ConnectionStatus_Connected like wallet.cpp::connected()
-  bool monero_wallet_full::is_connected() const {
+  bool monero_wallet_full::is_connected_to_daemon() const {
     uint32_t version = 0;
     m_is_connected = m_w2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
     if (!m_is_connected) return false;
@@ -1783,7 +1783,7 @@ namespace monero {
 
     // import key images
     uint64_t spent = 0, unspent = 0;
-    uint64_t height = m_w2->import_key_images(ski, 0, spent, unspent, is_connected()); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
+    uint64_t height = m_w2->import_key_images(ski, 0, spent, unspent, is_connected_to_daemon()); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
 
     // translate results
     std::shared_ptr<monero_key_image_import_result> result = std::make_shared<monero_key_image_import_result>();
@@ -3399,13 +3399,13 @@ namespace monero {
     }
 
     // check if pool txs explicitly requested without daemon connection
-    if (tx_query->m_in_tx_pool != boost::none && tx_query->m_in_tx_pool.get() && !is_connected()) {
+    if (tx_query->m_in_tx_pool != boost::none && tx_query->m_in_tx_pool.get() && !is_connected_to_daemon()) {
       throw std::runtime_error("Cannot fetch pool transactions because wallet has no daemon connection");
     }
 
     // translate from monero_tx_query to in, out, pending, pool, failed terminology used by monero-wallet-rpc
     bool can_be_confirmed = !bool_equals(false, tx_query->m_is_confirmed) && !bool_equals(true, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed);
-    bool can_be_in_tx_pool = is_connected() && !bool_equals(true, tx_query->m_is_confirmed) && !bool_equals(false, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed) && tx_query->get_height() == boost::none && tx_query->m_min_height == boost::none && !bool_equals(false, tx_query->m_is_locked);
+    bool can_be_in_tx_pool = is_connected_to_daemon() && !bool_equals(true, tx_query->m_is_confirmed) && !bool_equals(false, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed) && tx_query->get_height() == boost::none && tx_query->m_min_height == boost::none && !bool_equals(false, tx_query->m_is_locked);
     bool can_be_incoming = !bool_equals(false, _query->m_is_incoming) && !bool_equals(true, _query->is_outgoing()) && !bool_equals(true, _query->m_has_destinations);
     bool can_be_outgoing = !bool_equals(false, _query->is_outgoing()) && !bool_equals(true, _query->m_is_incoming);
     bool is_in = can_be_incoming && can_be_confirmed;
