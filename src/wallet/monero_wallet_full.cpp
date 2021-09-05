@@ -739,6 +739,8 @@ namespace monero {
     void on_sync_end() {
       tools::threadpool::waiter waiter(*m_notification_pool);
       m_notification_pool->submit(&waiter, [this]() {
+        check_for_changed_balances();
+        if (m_prev_locked_tx_hashes.size() > 0) check_for_changed_unlocked_txs();
         m_sync_start_height = boost::none;
         m_sync_end_height = boost::none;
       });
@@ -802,6 +804,9 @@ namespace monero {
 
         // notify if balances changed
         check_for_changed_balances();
+
+        // watch for unlock
+        m_prev_locked_tx_hashes.insert(tx->m_hash.get());
 
         // free memory
         output.reset();
