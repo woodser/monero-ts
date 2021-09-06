@@ -15,6 +15,11 @@ class MoneroConnectionManager {
     this._listeners = [];
   }
   
+  /**
+   * Add a connection. The connection may have an elevated priority for this manager to use.
+   * 
+   * @param {MoneroRpcConnection} connection - the connection to add
+   */
   addConnection(connection) {
     for (let aConnection of this._connections) {
       if (aConnection.getUri() === connection.getUri()) throw new MoneroError("Connection URI already exists");
@@ -23,27 +28,52 @@ class MoneroConnectionManager {
     return this;
   }
   
+  /**
+   * Remove a connection.
+   * 
+   * @param {MoneroRpcConnection} connection - the connection to remove
+   */
   removeConnection(connection) {
     if (!GenUtils.remove(connections, connection)) throw new MoneroError("Monero connection manager does not contain connection to remove");
     connection._setIsCurrentConnection(false);
     return this;
   }
   
+  /**
+   * Add a listener to receive notifications when the connection changes.
+   * 
+   * @param {MoneroConnectionManagerListener} listener - the listener to add
+   */
   addListener(listener) {
     this._listeners.push(listener);
     return this;
   }
   
+  /**
+   * Remove a listener.
+   * 
+   * @param {MoneroConnectionManagerListener} listener - the listener to remove
+   */
   removeListener(listener) {
     if (!GenUtils.remove(this._listeners, listener)) throw new MoneroError("Monero connection manager does not contain listener to remove");
     return this;
   }
   
+  /**
+   * Set the maximum request time before its connection is considered offline.
+   * 
+   * @param {int} timeoutInMs - the timeout before the connection is considered offline
+   */
   setTimeout(timeoutInMs) {
     this._timeoutInMs = timeoutInMs;
     return this;
   }
   
+  /**
+   * Get the request timeout.
+   * 
+   * @return {int} the request timeout before a connection is considered offline
+   */
   getTimeout() {
     return this._timeoutInMs;
   }
