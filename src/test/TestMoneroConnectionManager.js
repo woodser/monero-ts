@@ -150,6 +150,9 @@ class TestMoneroConnectionManager {
           assert(orderedConnections[4] === await walletRpcs[4].getRpcConnection());
           for (let i = 0; i < orderedConnections.length - 1; i++) assert(orderedConnections[i].isOnline());
           assert.equal(false, orderedConnections[4].isOnline());
+          
+          // stop polling connection
+          connectionManager.stopAutoRefresh();
         } catch(err2) {
           err = err2;
         }

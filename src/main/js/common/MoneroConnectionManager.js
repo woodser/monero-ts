@@ -81,7 +81,7 @@ class MoneroConnectionManager {
    * Stop automatically refreshing the connection status.
    */
   stopAutoRefresh() {
-    if (refreshLooper) refreshLooper.stop();
+    if (this.refreshLooper) this.refreshLooper.stop();
     return this;
   }
   
