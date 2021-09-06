@@ -667,7 +667,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
               await that.daemon.waitForNextBlockHeader();
               
               // ensure wallet has time to detect new block
-              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS + 2000); }); // sleep for wallet interval + time to sync
+              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS + 3000); }); // sleep for wallet interval + time to sync
               
               // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
               assert(walletSyncTester.getOnSyncProgressAfterDone());
