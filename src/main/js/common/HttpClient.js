@@ -23,10 +23,11 @@ class HttpClient {
    * @param {string} request.requestApi - one of "fetch" or "xhr" (default "fetch")
    * @param {boolean} request.resolveWithFullResponse - return full response if true, else body only (default false)
    * @param {boolean} request.rejectUnauthorized - whether or not to reject self-signed certificates (default true)
+   * @param {number} request.timeout - maximum time allowed in milliseconds
    * @returns {object} response - the response object
    * @returns {string|object|Uint8Array} response.body - the response body
    * @returns {number} response.statusCode - the response code
-   * @returns {number} response.statusText - the response message
+   * @returns {String} response.statusText - the response message
    * @returns {object} response.headers - the response headers
    */
   static async request(request) {
@@ -52,8 +53,16 @@ class HttpClient {
       });
     }
     
-    // request using fetch or xhr
-    return request.requestApi === "fetch" ? HttpClient._requestFetch(request) : HttpClient._requestXhr(request);
+    // request using fetch or xhr with timeout
+    let timeout = request.timeout ? request.timeout : HttpClient._DEFAULT_TIMEOUT;
+    let requestPromise = request.requestApi === "fetch" ? HttpClient._requestFetch(request) : HttpClient._requestXhr(request);
+    let timeoutPromise = new Promise((resolve, reject) => {
+      let id = setTimeout(() => {
+        clearTimeout(id);
+        reject('Request timed out in '+ timeout + ' milliseconds')
+      }, timeout);
+    });
+    return Promise.race([requestPromise, timeoutPromise]);
   }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
@@ -464,5 +473,6 @@ HttpClient._DEFAULT_REQUEST = {
 // rate limit requests per host
 HttpClient._PROMISE_THROTTLES = [];
 HttpClient._TASK_QUEUES = [];
+HttpClient._DEFAULT_TIMEOUT = 30000;
 
 module.exports = HttpClient;

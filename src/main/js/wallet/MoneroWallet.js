@@ -98,7 +98,7 @@ class MoneroWallet {
    * 
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
-  async isConnected() {
+  async isConnectedToDaemon() {
     throw new MoneroError("Not supported");
   }
   

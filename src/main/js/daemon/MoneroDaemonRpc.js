@@ -2,6 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../common/biginteger").BigInteger;
 const GenUtils = require("../common/GenUtils");
 const LibraryUtils = require("../common/LibraryUtils");
+const TaskLooper = require("../common/TaskLooper");
 const MoneroAltChain = require("./model/MoneroAltChain");
 const MoneroBan = require("./model/MoneroBan");
 const MoneroBlock = require("./model/MoneroBlock");
@@ -10,6 +11,7 @@ const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
+const MoneroDaemonListener = require("./model/MoneroDaemonListener");
 const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroError = require("../common/MoneroError");
@@ -81,7 +83,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // initialize proxy if proxying to worker
     if (this.config.proxyToWorker) this._proxyPromise = MoneroDaemonRpcProxy.connect(this.config);
     else {
-      this.rpc = new MoneroRpcConnection(this.config);
+      let rpcConfig = Object.assign({}, this.config);
+      delete rpcConfig.proxyToWorker;
+      delete rpcConfig.pollInterval;
+      this.rpc = new MoneroRpcConnection(rpcConfig);
       this.listeners = [];      // block listeners
       this.cachedHeaders = {};  // cached headers for fetching blocks in bound chunks
     }
@@ -106,6 +111,26 @@ class MoneroDaemonRpc extends MoneroDaemon {
    */
   static async _connectToDaemonRpc(uriOrConfig, username, password, rejectUnauthorized, pollInterval, proxyToWorker) {
     return new MoneroDaemonRpc(...arguments);
+  }
+  
+  async addListener(listener) {
+    assert(listener instanceof MoneroDaemonListener, "Listener must be instance of MoneroDaemonListener");
+    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).addListener(listener);
+    this.listeners.push(listener);
+    this._refreshListening();
+  }
+  
+  async removeListener(listener) {
+    assert(listener instanceof MoneroDaemonListener, "Listener must be instance of MoneroDaemonListener");
+    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).removeListener(listener);
+    let idx = this.listeners.indexOf(listener);
+    if (idx > -1) this.listeners.splice(idx, 1);
+    else throw new MoneroError("Listener is not registered with daemon");
+    this._refreshListening();
+  }
+  
+  getListeners() {
+    return this.listeners;
   }
   
   /**
@@ -729,30 +754,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async waitForNextBlockHeader() {
     if (this.config.proxyToWorker) return (await this._getDaemonProxy()).waitForNextBlockHeader();
     let that = this;
-    return new Promise(async function(resolve, reject) {
-      let listener = async function(header) {
-        resolve(header);
-        await that.removeBlockListener(listener);
-      }
-      await that.addBlockListener(listener);
+    return new Promise(async function(resolve) {
+      await that.addListener(new class extends MoneroDaemonListener {
+        async onBlockHeader(header) {
+          await that.removeListener(this);
+          resolve(header);
+        }
+      }); 
     });
-  }
-  
-  async addBlockListener(listener) {
-    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).addBlockListener(listener);
-
-    // register listener
-    this.listeners.push(listener);
-    
-    // start polling for new blocks
-    if (!this.isPollingHeaders) this._startPollingHeaders(this.config.pollInterval);
-  }
-  
-  async removeBlockListener(listener) {
-    if (this.config.proxyToWorker) return (await this._getDaemonProxy()).removeBlockListener(listener);
-    let found = GenUtils.remove(this.listeners, listener);
-    assert(found, "Listener is not registered");
-    if (this.listeners.length === 0) this._stopPollingHeaders();
   }
   
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
@@ -769,35 +778,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return await this._proxyPromise;
   }
   
-  async _startPollingHeaders(interval) {
-    assert(!this.isPollingHeaders, "Daemon is already polling block headers");
-    
-    // get header to detect changes while polling
-    let lastHeader = await this.getLastBlockHeader(); // TODO: this should be passed in
-    
-    // poll until stopped
-    let that = this;
-    this.isPollingHeaders = true;
-    while (this.isPollingHeaders) {
-      await new Promise(function(resolve) { setTimeout(resolve, interval); });
-      let header;
-      try {
-        header = await this.getLastBlockHeader();
-      } catch (e) {
-        console.error("Failed to poll last block header, retrying...");
-        continue;
-      }
-      if (header.getHash() !== lastHeader.getHash()) {
-        lastHeader = header;
-        for (let listener of this.listeners) {
-          listener(header); // notify listener
-        }
-      }
-    }
-  }
-  
-  _stopPollingHeaders() {
-    this.isPollingHeaders = false; // causes polling loop to exit
+  _refreshListening() {
+    if (this.pollListener == undefined && this.listeners.length) this.pollListener = new DaemonPoller(this);
+    if (this.pollListener !== undefined) this.pollListener.setIsPolling(this.listeners.length > 0);
   }
   
   async _getBandwidthLimits() {
@@ -884,11 +867,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else config = Object.assign({}, uriOrConfigOrConnection);
     }
-    if (config.pollInterval === undefined) config.pollInterval = 5000; // TODO: move to config
     if (config.server) {
       config = Object.assign(config, new MoneroRpcConnection(config.server).getConfig());
       delete config.server;
     }
+    if (config.pollInterval === undefined) config.pollInterval = 5000; // TODO: move to config
     if (config.proxyToWorker === undefined) config.proxyToWorker = true;
     return config;
   }
@@ -1465,6 +1448,33 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     this.wrappedListeners = [];
   }
   
+  async addListener(listener) {
+    let wrappedListener = new DaemonWorkerListener(listener);
+    let listenerId = wrappedListener.getId();
+    LibraryUtils.WORKER_OBJECTS[this.daemonId].callbacks["onBlockHeader_" + listenerId] = [wrappedListener.onBlockHeader, wrappedListener];
+    this.wrappedListeners.push(wrappedListener);
+    return this._invokeWorker("daemonAddListener", [listenerId]);
+  }
+  
+  async removeListener(listener) {
+    for (let i = 0; i < this.wrappedListeners.length; i++) {
+      if (this.wrappedListeners[i].getListener() === listener) {
+        let listenerId = this.wrappedListeners[i].getId();
+        await this._invokeWorker("daemonRemoveListener", [listenerId]);
+        delete LibraryUtils.WORKER_OBJECTS[this.daemonId].callbacks["onBlockHeader_" + listenerId];
+        this.wrappedListeners.splice(i, 1);
+        return;
+      }
+    }
+    throw new MoneroError("Listener is not registered with daemon");
+  }
+  
+  getListeners() {
+    let listeners = [];
+    for (let wrappedListener of this.wrappedListeners) listeners.push(wrappedListener.getListener());
+    return listeners;
+  }
+  
   async getRpcConnection() {
     let config = await this._invokeWorker("daemonGetRpcConnection");
     return new MoneroRpcConnection(config);
@@ -1719,7 +1729,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async stopMining() {
-    return this._invokeWorker("daemonStopMining")
+    await this._invokeWorker("daemonStopMining")
   }
   
   async getMiningStatus() {
@@ -1747,32 +1757,57 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     return new MoneroBlockHeader(await this._invokeWorker("daemonWaitForNextBlockHeader"));
   }
   
-  async addBlockListener(listener) {
-    let wrappedListener = new DaemonWorkerListener(listener);
-    let listenerId = wrappedListener.getId();
-    LibraryUtils.WORKER_OBJECTS[this.daemonId].callbacks["onNewBlockHeader_" + listenerId] = [wrappedListener.onNewBlockHeader, wrappedListener];
-    this.wrappedListeners.push(wrappedListener);
-    return this._invokeWorker("daemonAddBlockListener", [listenerId]);
-  }
-  
-  async removeBlockListener(listener) {
-    for (let i = 0; i < this.wrappedListeners.length; i++) {
-      if (this.wrappedListeners[i].getListener() === listener) {
-        let listenerId = this.wrappedListeners[i].getId();
-        await this._invokeWorker("daemonRemoveBlockListener", [listenerId]);
-        delete LibraryUtils.WORKER_OBJECTS[this.daemonId].callbacks["onNewBlockHeader_" + listenerId];
-        this.wrappedListeners.splice(i, 1);
-        return;
-      }
-    }
-    throw new MoneroError("Listener is not registered with wallet");
-  }
-  
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   // TODO: duplicated with MoneroWalletFullProxy
   async _invokeWorker(fnName, args) {
     return LibraryUtils.invokeWorker(this.daemonId, fnName, args);
+  }
+}
+
+/**
+ * Polls a Monero daemon for updates and notifies listeners as they occur.
+ * 
+ * @class
+ * @ignore
+ */
+class DaemonPoller {
+  
+  constructor(daemon) {
+    let that = this;
+    this._daemon = daemon;
+    this._looper = new TaskLooper(async function() { await that.poll(); });
+  }
+  
+  setIsPolling(isPolling) {
+    this._isPolling = isPolling;
+    if (isPolling) this._looper.start(this._daemon.config.pollInterval);
+    else this._looper.stop();
+  }
+  
+  async poll() {
+    try {
+      
+      // get latest block header
+      let header = await this._daemon.getLastBlockHeader();
+      
+      // save first header for comparison
+      if (!this._lastHeader) {
+        this._lastHeader = await this._daemon.getLastBlockHeader();
+        return;
+      }
+      
+      // compare header to last
+      if (header.getHash() !== this._lastHeader.getHash()) {
+        this._lastHeader = header;
+        for (let listener of this._daemon.getListeners()) {
+          await listener.onBlockHeader(header); // notify listener
+        }
+      }
+    } catch (err) {
+      console.error("Failed to background poll daemon header");
+      console.error(err);
+    }
   }
 }
 
@@ -1796,8 +1831,8 @@ class DaemonWorkerListener {
     return this._listener;
   }
   
-  onNewBlockHeader(headerJson) {
-    this._listener(new MoneroBlockHeader(headerJson));
+  async onBlockHeader(headerJson) {
+    return this._listener.onBlockHeader(new MoneroBlockHeader(headerJson));
   }
 }
 

@@ -39,56 +39,149 @@ class MoneroRpcConnection {
     
     // validate and normalize config
     if (typeof uriOrConfigOrConnection === "string") {
-      this.config = {uri: uriOrConfigOrConnection};
-      if (username !== undefined) this.config.username = username;
-      if (password !== undefined) this.config.password = password;
-      if (rejectUnauthorized !== undefined) this.config.rejectUnauthorized = rejectUnauthorized;
+      this._config = {uri: uriOrConfigOrConnection};
+      this.setCredentials(username, password);
+      if (rejectUnauthorized !== undefined) this._config.rejectUnauthorized = rejectUnauthorized;
     } else if (typeof uriOrConfigOrConnection === "object") {
       if (username !== undefined || password !== undefined || rejectUnauthorized !== undefined) throw new MoneroError("Can provide config object or params but not both");
-      if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this.config = Object.assign({}, uriOrConfigOrConnection.getConfig());
-      else this.config = Object.assign({}, uriOrConfigOrConnection);
+      if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this._config = Object.assign({}, uriOrConfigOrConnection.getConfig());
+      else this._config = Object.assign({}, uriOrConfigOrConnection);
     } else if (uriOrConfigOrConnection !== undefined) {
       throw new MoneroError("Invalid configuration to MoneroRpcConnection; must be string or MoneroRpcConnection or equivalent JS object");
     }
     
     // merge default config
-    this.config = Object.assign({}, MoneroRpcConnection.DEFAULT_CONFIG, this.config);
+    this._config = Object.assign({}, MoneroRpcConnection.DEFAULT_CONFIG, this._config);
     
     // standardize uri
-    if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
+    if (this._config.uri) this._config.uri = this._config.uri.replace(/\/$/, ""); // strip trailing slash
     
     // fail with friendly message if using old api
-    if (this.config.user || this.config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
+    if (this._config.user || this._config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
+    
+    // check for unsupported fields
+    for (let key of Object.keys(this._config)) {
+      if (!GenUtils.arrayContains(MoneroRpcConnection.SUPPORTED_FIELDS, key)) {
+        throw new MoneroError("RPC connection includes unsupported field: '" + key + "'");
+      }
+    }
+  }
+  
+  setCredentials(username, password) {
+    if (username || password) {
+      if (!username) throw new MoneroError("username must be defined because password is defined");
+      if (!password) throw new MoneroError("password must be defined because username is defined");
+    }
+    this._config.username = username;
+    this._config.password = password;
+    return this;
   }
   
   getUri() {
-    return this.config.uri;
+    return this._config.uri;
   }
   
   getUsername() {
-    return this.config.username;
+    return this._config.username;
   }
   
   getPassword() {
-    return this.config.password;
+    return this._config.password;
   }
   
   getRejectUnauthorized() {
-    return this.config.rejectUnauthorized;
+    return this._config.rejectUnauthorized;
   }
   
   getConfig() {
-    return this.config;
+    return this._config;
+  }
+  
+  getProxiedUri() {
+    return this._config.proxiedUri;
+  }
+  
+  setProxiedUri(proxiedUri) {
+    this._config.proxiedUri = proxiedUri;
+    return this;
+  }
+  
+  getPriority() {
+    return this._config.priority; 
   }
   
   /**
-   * Sends a JSON RPC request.
+   * Set the connection's priority relative to other managed connections.
    * 
-   * @param method is the JSON RPC method to invoke
-   * @param params are request parameters
+   * @param {int} priority - the connection priority which increases as the value increases (default 0)
+   * @return {MoneroRpcConnection} this connection
+   */
+  setPriority(priority) {
+    if (!(priority >= 0)) throw new MoneroError("Priority must be >= 0");
+    this._config.priority = priority;
+    return this;
+  }
+  
+  setAttribute(key, value) {
+    if (!this.attributes) this.attributes = new Map();
+    this.attributes.put(key, value);
+    return this;
+  }
+  
+  getAttribute(key) {
+    return this.attributes.get(key);
+  }
+  
+  /**
+   * Refresh the connection status to update isOnline, isAuthenticated, etc.
+   * 
+   * @param {int} timeoutInMs - maximum response time before considered offline
+   * @return {boolean} true if there is a change in status, false otherwise
+   */
+  async refreshConnection(timeoutInMs) {
+    let isOnlineBefore = this._isOnline;
+    let isAuthenticatedBefore = this._isAuthenticated;
+    let startTime = Date.now();
+    try {
+      if (this._fakeDisconnected) throw new Error("Connection is fake disconnected");
+      await this.sendJsonRequest("get_version", undefined, timeoutInMs);
+      this._isOnline = true;
+      this._isAuthenticated = true;
+    } catch (err) {
+      if (err instanceof MoneroRpcError && err.getCode() === 401) {
+        this._isOnline = true;
+        this._isAuthenticated = false;
+      } else {
+        this._isOnline = false;
+        this._isAuthenticated = undefined;
+        this._responseTime = undefined;
+      }
+    }
+    if (this._isOnline) this._responseTime = Date.now() - startTime;
+    return isOnlineBefore !== this._isOnline || isAuthenticatedBefore !== this._isAuthenticated;
+  }
+  
+  isOnline() {
+    return this._isOnline;
+  }
+
+  isAuthenticated() {
+    return this._isAuthenticated;
+  }
+
+  getResponseTime() {
+    return this._responseTime;
+  }
+  
+  /**
+   * Send a JSON RPC request.
+   * 
+   * @param {string} method - JSON RPC method to invoke
+   * @param {object} params - request parameters
+   * @param {int} timeoutInMs - request timeout in milliseconds
    * @return {object} is the response map
    */
-  async sendJsonRequest(method, params) {
+  async sendJsonRequest(method, params, timeoutInMs) {
     try {
       
       // build request body
@@ -107,12 +200,13 @@ class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: body,
-        rejectUnauthorized: this.config.rejectUnauthorized,
+        timeout: timeoutInMs,
+        rejectUnauthorized: this._config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       });
       
       // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
+      MoneroRpcConnection._validateHttpResponse(resp);
       
       // deserialize response
       if (resp.body[0] != '{') throw resp.body;
@@ -123,20 +217,25 @@ class MoneroRpcConnection {
       }
       
       // check rpc response for errors
-      MoneroRpcConnection.validateRpcResponse(resp, method, params);
+      MoneroRpcConnection._validateRpcResponse(resp, method, params);
       return resp;
     } catch (err) {
       if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, undefined, method, params);
+      else throw new MoneroRpcError(err, err.statusCode, method, params);
     }
   }
   
   /**
-   * Sends a RPC request to the given path and with the given paramters.
+   * Send a RPC request to the given path and with the given paramters.
    * 
    * E.g. "/get_transactions" with params
+   * 
+   * @param {string} path - JSON RPC path to invoke
+   * @param {object} params - request parameters
+   * @param {int} timeoutInMs - request timeout in milliseconds
+   * @return {object} is the response map
    */
-  async sendPathRequest(path, params) {
+  async sendPathRequest(path, params, timeoutInMs) {
     try {
       
       // send http request
@@ -147,12 +246,13 @@ class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigIntegers are preserved
-        rejectUnauthorized: this.config.rejectUnauthorized,
+        timeout: timeoutInMs,
+        rejectUnauthorized: this._config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
       
       // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
+      MoneroRpcConnection._validateHttpResponse(resp);
       
       // deserialize response
       if (resp.body[0] != '{') throw resp.body;
@@ -164,22 +264,23 @@ class MoneroRpcConnection {
       }
       
       // check rpc response for errors
-      MoneroRpcConnection.validateRpcResponse(resp, path, params);
+      MoneroRpcConnection._validateRpcResponse(resp, path, params);
       return resp;
     } catch (err) {
       if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, undefined, path, params);
+      else throw new MoneroRpcError(err, err.statusCode, path, params);
     }
   }
   
   /**
-   * Sends a binary RPC request.
+   * Send a binary RPC request.
    * 
-   * @param path is the path of the binary RPC method to invoke
-   * @paramm params are the request parameters
-   * @return a Uint8Array with the binary response
+   * @param {string} path - path of the binary RPC method to invoke
+   * @param {object} params - request parameters
+   * @param {int} timeoutInMs - request timeout in milliseconds
+   * @return {Uint8Array} the binary response
    */
-  async sendBinaryRequest(path, params) {
+  async sendBinaryRequest(path, params, timeoutInMs) {
     
     // load wasm module
     await LibraryUtils.loadKeysModule();
@@ -197,12 +298,13 @@ class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: paramsBin,
-        rejectUnauthorized: this.config.rejectUnauthorized,
+        timeout: timeoutInMs,
+        rejectUnauthorized: this._config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
       
       // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
+      MoneroRpcConnection._validateHttpResponse(resp);
       
       // process response
       resp = resp.body;
@@ -214,13 +316,17 @@ class MoneroRpcConnection {
       return resp;
     } catch (err) {
       if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, undefined, path, params);
+      else throw new MoneroRpcError(err, err.statusCode, path, params);
     }
   }
   
-  // ------------------------------ STATIC UTILITIES --------------------------
+  toString() {
+    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + ", isOnline=" + this.isOnline() + ", isAuthenticated=" + this.isAuthenticated() + ")";
+  }
   
-  static validateHttpResponse(resp) {
+  // ------------------------------ PRIVATE HELPERS --------------------------
+  
+  static _validateHttpResponse(resp) {
     let code = resp.statusCode;
     if (code < 200 || code > 299) {
       let content = resp.body;
@@ -228,9 +334,22 @@ class MoneroRpcConnection {
     }
   }
   
-  static validateRpcResponse(resp, method, params) {
+  static _validateRpcResponse(resp, method, params) {
     if (!resp.error) return;
     throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
+  }
+  
+  _setIsCurrentConnection(isCurrentConnection) {
+    this.__isCurrentConnection = isCurrentConnection;
+    return this;
+  }
+  
+  _isCurrentConnection() {
+    return this.__isCurrentConnection;
+  }
+  
+  _setFakeDisconnected(fakeDisconnected) { // used to test connection manager
+    this._fakeDisconnected = fakeDisconnected; 
   }
 }
 
@@ -241,9 +360,10 @@ MoneroRpcConnection.DEFAULT_CONFIG = {
     uri: undefined,
     username: undefined,
     password: undefined,
-    rejectUnauthorized: true  // reject self-signed certificates if true
+    rejectUnauthorized: true, // reject self-signed certificates if true
+    priority: 0
 }
 
-MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized"];
+MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized", "proxiedUri", "priority"];
 
 module.exports = MoneroRpcConnection;

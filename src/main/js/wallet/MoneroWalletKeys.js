@@ -186,7 +186,7 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  async isConnected() {
+  async isConnectedToDaemon() {
     return false;
   }
   

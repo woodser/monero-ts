@@ -2,6 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../common/biginteger").BigInteger;
 const GenUtils = require("../common/GenUtils");
 const LibraryUtils = require("../common/LibraryUtils");
+const TaskLooper = require("../common/TaskLooper");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
@@ -23,7 +24,6 @@ const MoneroSyncResult = require("./model/MoneroSyncResult");
 const MoneroTxConfig = require("./model/MoneroTxConfig");
 const MoneroTxSet = require("./model/MoneroTxSet");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
-const MoneroUtils = require("../common/MoneroUtils");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroWalletConfig = require("./model/MoneroWalletConfig");
 const MoneroWalletKeys = require("./MoneroWalletKeys");
@@ -492,7 +492,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     this._assertNotClosed();
     assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
     this._listeners.push(listener);
-    await this._setIsListening(true);
+    await this._refreshListening();
   }
   
   async removeListener(listener) {
@@ -500,7 +500,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let idx = this._listeners.indexOf(listener);
     if (idx > -1) this._listeners.splice(idx, 1);
     else throw new MoneroError("Listener is not registered with wallet");
-    if (this._listeners.length === 0) await this._setIsListening(false);
+    await this._refreshListening();
   }
   
   getListeners() {
@@ -552,7 +552,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async isConnected() {
+  async isConnectedToDaemon() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -564,7 +564,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
         }
         
         // call wasm and invoke callback when done
-        that._module.is_connected(that._cppAddress, callbackFn);
+        that._module.is_connected_to_daemon(that._cppAddress, callbackFn);
       });
     });
   }
@@ -622,7 +622,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async getDaemonHeight() {
     this._assertNotClosed();
-    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    if (!(await this.isConnectedToDaemon())) throw new MoneroError("Wallet is not connected to daemon");
     
     // schedule task
     let that = this;
@@ -643,7 +643,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async getHeightByDate(year, month, day) {
     this._assertNotClosed();
-    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    if (!(await this.isConnectedToDaemon())) throw new MoneroError("Wallet is not connected to daemon");
     
     // schedule task
     let that = this;
@@ -665,7 +665,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async sync(listenerOrStartHeight, startHeight) {
     this._assertNotClosed();
-    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    if (!(await this.isConnectedToDaemon())) throw new MoneroError("Wallet is not connected to daemon");
     
     // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
@@ -711,17 +711,16 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async startSyncing(syncPeriodInMs) {
     this._assertNotClosed();
-    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    if (!(await this.isConnectedToDaemon())) throw new MoneroError("Wallet is not connected to daemon");
     this._syncPeriodInMs = syncPeriodInMs === undefined ? MoneroWalletFull.DEFAULT_SYNC_PERIOD_IN_MS : syncPeriodInMs;
-    if (!this._syncingEnabled) {
-      this._syncingEnabled = true;
-      this._runSyncLoop();  // sync wallet on loop in background // TODO: switch to c++ sync loop if possible when single-threaded
-    }
+    let that = this;
+    if (!this._syncLooper) this._syncLooper = new TaskLooper(async function() { await that._backgroundSync(); })
+    this._syncLooper.start(this._syncPeriodInMs);
   }
     
   async stopSyncing() {
     this._assertNotClosed();
-    this._syncingEnabled = false;
+    if (this._syncLooper) this._syncLooper.stop();
     this._module.stop_syncing(this._cppAddress); // task is not queued so wallet stops immediately
   }
   
@@ -1655,8 +1654,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async close(save) {
     if (this._isClosed) return; // no effect if closed
-    this._syncingEnabled = false;
-    await this._setIsListening(false);
+    await this._refreshListening();
     await this.stopSyncing();
     await super.close(save);
     delete this._path;
@@ -1720,32 +1718,17 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  /**
-   * Loop while syncing enabled.
-   */
-  async _runSyncLoop() {
-    if (this._syncLoopRunning) return; // only run one loop at a time
-    this._syncLoopRunning = true;
-    
-    // sync while enabled
+  async _backgroundSync() {
     let label = this._path ? this._path : (this._browserMainPath ? this._browserMainPath : "in-memory wallet"); // label for log
-    while (this._syncingEnabled) {
-      let start = Date.now();
-      LibraryUtils.log(1, "Background synchronizing " + label);
-      try { await this.sync(); }
-      catch (err) { if (!this._isClosed) console.error("Failed to background synchronize " + label + ": " + err.message); }
-      let sleepTime = this._syncPeriodInMs - (Date.now() - start); // target regular sync period by accounting for poll time
-      if (this._syncingEnabled) await new Promise(function(resolve) { setTimeout(resolve, sleepTime); });
-    }
-    
-    this._syncLoopRunning = false;
+    LibraryUtils.log(1, "Background synchronizing " + label);
+    try { await this.sync(); }
+    catch (err) { if (!this._isClosed) console.error("Failed to background synchronize " + label + ": " + err.message); }
   }
   
-  /**
-   * Enables or disables listening in the c++ wallet.
-   */
-  async _setIsListening(isEnabled) {
+  async _refreshListening() {
+    let isEnabled = this._listeners.length > 0;
     let that = this;
+    if (that._fullListenerHandle === 0 && !isEnabled || that._fullListenerHandle > 0 && isEnabled) return; // no difference
     return that._module.queueTask(async function() {
       if (isEnabled) {
         that._fullListenerHandle = that._module.set_listener(
@@ -1924,93 +1907,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
   }
 }
 
-// ------------------------------- LISTENERS --------------------------------
-
-/**
- * Receives notifications directly from wasm c++.
- * 
- * @private
- */
-class WalletFullListener {
-  
-  constructor(wallet) {
-    this._wallet = wallet;
-  }
-  
-  async onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    for (let listener of this._wallet.getListeners()) await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
-  }
-  
-  async onNewBlock(height) {
-    for (let listener of this._wallet.getListeners()) await listener.onNewBlock(height);
-  }
-  
-  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
-    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
-  }
-  
-  async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
-    
-    // build received output
-    let output = new MoneroOutputWallet();
-    output.setAmount(BigInteger.parse(amountStr));
-    output.setAccountIndex(accountIdx);
-    output.setSubaddressIndex(subaddressIdx);
-    let tx = new MoneroTxWallet();
-    tx.setHash(txHash);
-    tx.setVersion(version);
-    tx.setUnlockHeight(unlockHeight);
-    output.setTx(tx);
-    tx.setOutputs([output]);
-    tx.setIsIncoming(true);
-    tx.setIsLocked(isLocked);
-    if (height > 0) {
-      let block = new MoneroBlock().setHeight(height);
-      block.setTxs([tx]);
-      tx.setBlock(block);
-      tx.setIsConfirmed(true);
-      tx.setInTxPool(false);
-      tx.setIsFailed(false);
-    } else {
-      tx.setIsConfirmed(false);
-      tx.setInTxPool(true);
-    }
-    
-    // announce output
-    for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(tx.getOutputs()[0]);
-  }
-  
-  async onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) {
-    
-    // build spent output
-    let output = new MoneroOutputWallet();
-    output.setAmount(BigInteger.parse(amountStr));
-    if (accountIdxStr) output.setAccountIndex(parseInt(accountIdxStr));
-    if (subaddressIdxStr) output.setSubaddressIndex(parseInt(subaddressIdxStr));
-    let tx = new MoneroTxWallet();
-    tx.setHash(txHash);
-    tx.setVersion(version);
-    tx.setUnlockHeight(unlockHeight);
-    tx.setIsLocked(isLocked);
-    output.setTx(tx);
-    tx.setInputs([output]);
-    if (height > 0) {
-      let block = new MoneroBlock().setHeight(height);
-      block.setTxs([tx]);
-      tx.setBlock(block);
-      tx.setIsConfirmed(true);
-      tx.setInTxPool(false);
-      tx.setIsFailed(false);
-    } else {
-      tx.setIsConfirmed(false);
-      tx.setInTxPool(true);
-    }
-    
-    // notify wallet listeners
-    for (let listener of this._wallet.getListeners()) await listener.onOutputSpent(tx.getInputs()[0]);
-  }
-}
-
 /**
  * Implements a MoneroWallet by proxying requests to a worker which runs a full wallet.
  * 
@@ -2158,8 +2054,8 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return rpcConfig ? new MoneroRpcConnection(rpcConfig) : undefined;
   }
   
-  async isConnected() {
-    return this._invokeWorker("isConnected");
+  async isConnectedToDaemon() {
+    return this._invokeWorker("isConnectedToDaemon");
   }
   
   async getSyncHeight() {
@@ -2593,6 +2489,93 @@ class MoneroWalletFullProxy extends MoneroWallet {
   
   async _invokeWorker(fnName, args) {
     return LibraryUtils.invokeWorker(this._walletId, fnName, args);
+  }
+}
+
+// -------------------------------- LISTENING ---------------------------------
+
+/**
+ * Receives notifications directly from wasm c++.
+ * 
+ * @private
+ */
+class WalletFullListener {
+  
+  constructor(wallet) {
+    this._wallet = wallet;
+  }
+  
+  async onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+    for (let listener of this._wallet.getListeners()) await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+  }
+  
+  async onNewBlock(height) {
+    for (let listener of this._wallet.getListeners()) await listener.onNewBlock(height);
+  }
+  
+  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
+  }
+  
+  async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
+    
+    // build received output
+    let output = new MoneroOutputWallet();
+    output.setAmount(BigInteger.parse(amountStr));
+    output.setAccountIndex(accountIdx);
+    output.setSubaddressIndex(subaddressIdx);
+    let tx = new MoneroTxWallet();
+    tx.setHash(txHash);
+    tx.setVersion(version);
+    tx.setUnlockHeight(unlockHeight);
+    output.setTx(tx);
+    tx.setOutputs([output]);
+    tx.setIsIncoming(true);
+    tx.setIsLocked(isLocked);
+    if (height > 0) {
+      let block = new MoneroBlock().setHeight(height);
+      block.setTxs([tx]);
+      tx.setBlock(block);
+      tx.setIsConfirmed(true);
+      tx.setInTxPool(false);
+      tx.setIsFailed(false);
+    } else {
+      tx.setIsConfirmed(false);
+      tx.setInTxPool(true);
+    }
+    
+    // announce output
+    for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(tx.getOutputs()[0]);
+  }
+  
+  async onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) {
+    
+    // build spent output
+    let output = new MoneroOutputWallet();
+    output.setAmount(BigInteger.parse(amountStr));
+    if (accountIdxStr) output.setAccountIndex(parseInt(accountIdxStr));
+    if (subaddressIdxStr) output.setSubaddressIndex(parseInt(subaddressIdxStr));
+    let tx = new MoneroTxWallet();
+    tx.setHash(txHash);
+    tx.setVersion(version);
+    tx.setUnlockHeight(unlockHeight);
+    tx.setIsLocked(isLocked);
+    output.setTx(tx);
+    tx.setInputs([output]);
+    if (height > 0) {
+      let block = new MoneroBlock().setHeight(height);
+      block.setTxs([tx]);
+      tx.setBlock(block);
+      tx.setIsConfirmed(true);
+      tx.setInTxPool(false);
+      tx.setIsFailed(false);
+    } else {
+      tx.setIsConfirmed(false);
+      tx.setInTxPool(true);
+    }
+    
+    // notify wallet listeners
+    for (let listener of this._wallet.getListeners()) await listener.onOutputSpent(tx.getInputs()[0]);
   }
 }
 

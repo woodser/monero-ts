@@ -265,9 +265,9 @@ string monero_wasm_bridge::get_daemon_connection(int handle) {
   return daemon_connection == boost::none ? "" : daemon_connection.get().serialize();
 }
 
-void monero_wasm_bridge::is_connected(int handle, emscripten::val callback) {
+void monero_wasm_bridge::is_connected_to_daemon(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback((bool) wallet->is_connected());
+  callback((bool) wallet->is_connected_to_daemon());
 }
 
 void monero_wasm_bridge::get_daemon_max_peer_height(int handle, emscripten::val callback) {

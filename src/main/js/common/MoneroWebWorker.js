@@ -3,6 +3,7 @@ const GenUtils = require("./GenUtils");
 const LibraryUtils = require("./LibraryUtils");
 const MoneroBan = require("../daemon/model/MoneroBan");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
+const MoneroDaemonListener = require("../daemon/model/MoneroDaemonListener");
 const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
 const MoneroError = require("./MoneroError");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
@@ -64,6 +65,23 @@ self.getWasmMemoryUsed = async function(objectId) {
 }
 
 // ---------------------------- DAEMON METHODS --------------------------------
+
+self.daemonAddListener = async function(daemonId, listenerId) {
+  let listener = new class extends MoneroDaemonListener {
+    async onBlockHeader(blockHeader) {
+      self.postMessage([daemonId, "onBlockHeader_" + listenerId, blockHeader.toJson()]);
+    }
+  }
+  if (!self.daemonListeners) self.daemonListeners = {};
+  self.daemonListeners[listenerId] = listener;
+  await self.WORKER_OBJECTS[daemonId].addListener(listener);
+}
+
+self.daemonRemoveListener = async function(daemonId, listenerId) {
+  if (!self.daemonListeners[listenerId]) throw new MoneroError("No daemon worker listener registered with id: " + listenerId);
+  await self.WORKER_OBJECTS[daemonId].removeListener(self.daemonListeners[listenerId]);
+  delete self.daemonListeners[listenerId];
+}
 
 self.connectDaemonRpc = async function(daemonId, config) {
   self.WORKER_OBJECTS[daemonId] = new MoneroDaemonRpc(config);
@@ -355,21 +373,6 @@ self.daemonWaitForNextBlockHeader = async function(daemonId) {
   return (await self.WORKER_OBJECTS[daemonId].waitForNextBlockHeader()).toJson();
 }
 
-self.daemonAddBlockListener = async function(daemonId, listenerId) {
-  let listener = function(blockHeader) {
-    self.postMessage([daemonId, "onNewBlockHeader_" + listenerId, blockHeader.toJson()]);
-  }
-  if (!self.daemonListeners) self.daemonListeners = {};
-  self.daemonListeners[listenerId] = listener;
-  await self.WORKER_OBJECTS[daemonId].addBlockListener(listener);
-}
-
-self.daemonRemoveBlockListener = async function(daemonId, listenerId) {
-  if (!self.daemonListeners[listenerId]) throw new MoneroError("No daemon worker listener registered with id: " + listenerId);
-  await self.WORKER_OBJECTS[daemonId].removeBlockListener(self.daemonListeners[listenerId]);
-  delete self.daemonListeners[listenerId];
-}
-
 //------------------------------ WALLET METHODS -------------------------------
 
 self.openWalletData = async function(walletId, path, password, networkType, keysData, cacheData, daemonUriOrConfig) {
@@ -462,8 +465,8 @@ self.getDaemonConnection = async function(walletId) {
   return connection ? connection.getConfig() : undefined;
 }
 
-self.isConnected = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].isConnected();
+self.isConnectedToDaemon = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isConnectedToDaemon();
 }
 
 self.getSyncHeight = async function(walletId) {

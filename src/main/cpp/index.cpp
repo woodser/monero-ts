@@ -33,7 +33,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("is_view_only", &monero_wasm_bridge::is_view_only);
   emscripten::function("set_daemon_connection", &monero_wasm_bridge::set_daemon_connection);
   emscripten::function("get_daemon_connection", &monero_wasm_bridge::get_daemon_connection);
-  emscripten::function("is_connected", &monero_wasm_bridge::is_connected);
+  emscripten::function("is_connected_to_daemon", &monero_wasm_bridge::is_connected_to_daemon);
   emscripten::function("get_daemon_max_peer_height", &monero_wasm_bridge::get_daemon_max_peer_height);
   emscripten::function("get_version", &monero_wasm_bridge::get_version);
   emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);

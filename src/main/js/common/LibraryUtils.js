@@ -166,6 +166,7 @@ class LibraryUtils {
       // receive worker errors
       LibraryUtils.WORKER.onerror = function(err) {
         console.error("Error posting message to MoneroWebWorker.js; is it copied to the app's build directory (e.g. in the root)?");
+        console.log(err);
       };
       
       // receive worker messages

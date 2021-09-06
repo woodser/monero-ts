@@ -1,8 +1,6 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
-const MoneroWalletFull = monerojs.MoneroWalletFull;
-const MoneroNetworkType = monerojs.MoneroNetworkType;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
 
 /**

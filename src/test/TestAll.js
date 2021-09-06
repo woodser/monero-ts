@@ -8,6 +8,7 @@ const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletFull = require("./TestMoneroWalletFull");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestDeveloperGuide = require("./TestDeveloperGuide");
+const TestMoneroConnectionManager = require("./TestMoneroConnectionManager");
 
 // set log level
 LibraryUtils.setLogLevel(1); // no need for await before worker used
@@ -55,6 +56,9 @@ new TestMoneroWalletRpc({
 
 // test queries for developer guide
 new TestDeveloperGuide().runTests();
+
+// test connection manager
+new TestMoneroConnectionManager().runTests();
 
 // test scratchpad
 require("./Scratchpad");

@@ -9,8 +9,9 @@ const MoneroBan = monerojs.MoneroBan;
 const MoneroKeyImage = monerojs.MoneroKeyImage;
 const MoneroTx = monerojs.MoneroTx;
 const MoneroAltChain = monerojs.MoneroAltChain;
-const MoneroDaemonSyncInfo = monerojs.MoneroDaemonSyncInfo;
+const MoneroDaemonListener = monerojs.MoneroDaemonListener;
 const MoneroDaemonConnection = monerojs.MoneroDaemonConnection;
+const MoneroDaemonSyncInfo = monerojs.MoneroDaemonSyncInfo;
 const MoneroDaemonPeer = monerojs.MoneroDaemonPeer;
 const MoneroKeyImageSpentStatus = monerojs.MoneroKeyImageSpentStatus;
 
@@ -1159,11 +1160,13 @@ class TestMoneroDaemonRpc {
           
           // register a listener
           let listenerHeader;
-          let listener = async function(header) {
-            listenerHeader = header;
-            await that.daemon.removeBlockListener(listener); // otherwise daemon will keep polling
+          let listener = new class extends MoneroDaemonListener {
+            async onBlockHeader(header) {
+              listenerHeader = header;
+              await that.daemon.removeListener(listener); // otherwise daemon will keep polling
+            }
           }
-          await that.daemon.addBlockListener(listener);
+          await that.daemon.addListener(listener);
           
           // wait for next block notification
           let header = await that.daemon.waitForNextBlockHeader();

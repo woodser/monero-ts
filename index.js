@@ -28,6 +28,7 @@ module.exports.MoneroBlockTemplate = require("./src/main/js/daemon/model/MoneroB
 module.exports.MoneroDaemonConnection = require("./src/main/js/daemon/model/MoneroDaemonConnection");
 module.exports.MoneroDaemonConnectionSpan = require("./src/main/js/daemon/model/MoneroDaemonConnectionSpan");
 module.exports.MoneroDaemonInfo = require("./src/main/js/daemon/model/MoneroDaemonInfo");
+module.exports.MoneroDaemonListener = require("./src/main/js/daemon/model/MoneroDaemonListener");
 module.exports.MoneroDaemonPeer = require("./src/main/js/daemon/model/MoneroDaemonPeer");
 module.exports.MoneroDaemonSyncInfo = require("./src/main/js/daemon/model/MoneroDaemonSyncInfo");
 module.exports.MoneroDaemonUpdateCheckResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateCheckResult");
@@ -75,6 +76,10 @@ module.exports.MoneroWalletListener = require("./src/main/js/wallet/model/Monero
 module.exports.MoneroWalletConfig = require("./src/main/js/wallet/model/MoneroWalletConfig");
 module.exports.MoneroMessageSignatureType = require("./src/main/js/wallet/model/MoneroMessageSignatureType");
 module.exports.MoneroMessageSignatureResult = require("./src/main/js/wallet/model/MoneroMessageSignatureResult");
+
+// export connection manager
+module.exports.MoneroConnectionManager = require("./src/main/js/common/MoneroConnectionManager");
+module.exports.MoneroConnectionManagerListener = require("./src/main/js/common/MoneroConnectionManagerListener");
 
 // export daemon, wallet, and utils classes
 module.exports.MoneroUtils = require("./src/main/js/common/MoneroUtils");

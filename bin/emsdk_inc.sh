@@ -117,7 +117,7 @@ download_source() { # url, destination
 
   [ -f "${SDK_PATH}/$(basename ${DL_URL})" ] \
   || {
-    echo "Both wget and curl failed. Don't know how to proseed."
+    echo "Both wget and curl failed. Don't know how to proceed."
     return 1
   }
 }
