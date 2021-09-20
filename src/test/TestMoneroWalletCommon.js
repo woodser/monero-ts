@@ -2465,7 +2465,7 @@ class TestMoneroWalletCommon {
         let receiverTx = await receiver.getTx(senderTx.getHash());
         if (senderTx.getOutgoingAmount().compare(receiverTx.getIncomingAmount()) !== 0) {
           if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
-          else if (sameAccount) issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
+          else issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + toStringBI(senderTx.getOutgoingAmount()) + " != " + toStringBI(receiverTx.getIncomingAmount()) + ")");
         }
         if ((await receiver.getBalance()).compare(receiverBalanceBefore.add(receiverTx.getIncomingAmount() === undefined ? new BigInteger("0") : receiverTx.getIncomingAmount()).subtract(receiverTx.getOutgoingAmount() === undefined ? new BigInteger("0") : receiverTx.getOutgoingAmount()).subtract(sameWallet ? receiverTx.getFee() : new BigInteger("0"))) !== 0) {
           if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + toStringBI(await receiver.getBalance()) + " != " + toStringBI(receiverBalanceBefore) + " + " + toStringBI(receiverTx.getIncomingAmount()) + " - " + toStringBI(receiverTx.getOutgoingAmount()) + " - " + (sameWallet ? receiverTx.getFee() : new BigInteger("0")).toString() + ")");
