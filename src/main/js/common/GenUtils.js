@@ -1235,7 +1235,8 @@ class GenUtils {
   static isBrowser() {
     let isWorker = typeof importScripts === 'function';
     let isBrowserMain = new Function("try {return this===window;}catch(e){return false;}")();
-    return isWorker || isBrowserMain;
+    let isJsDom = isBrowserMain ? new Function("try {return window.navigator.userAgent.includes('jsdom');}catch(e){return false;}")() : false;
+    return isWorker || (isBrowserMain && !isJsDom);
   }
   
   /**
@@ -1252,7 +1253,7 @@ class GenUtils {
    * 
    * Credit: https://stackoverflow.com/questions/19999388/check-if-user-is-using-ie-with-jquery/21712356#21712356
    * 
-   * @returns the IE version number of null if not IE
+   * @returns the IE version number or null if not IE
    */
   static getIEVersion() {
     let ua = window.navigator.userAgent;
