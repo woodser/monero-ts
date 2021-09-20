@@ -33,12 +33,16 @@ class MoneroWalletListener {
    * Invoked 3 times per received output: once when unconfirmed, once when confirmed, and
    * once when unlocked.
    * 
+   * The notified output includes basic fields only, so the output or its transaction should be fetched to get all available fields.
+   * 
    * @param {MoneroOutputWallet} output - the received output
    */
   async onOutputReceived(output) { }
   
   /**
    * Invoked twice per spent output: once when confirmed and once when unlocked.
+   * 
+   * The notified output includes basic fields only, so the output or its transaction should be fetched to get all available fields.
    * 
    * @param {MoneroOutputWallet} output - the spent output
    */
