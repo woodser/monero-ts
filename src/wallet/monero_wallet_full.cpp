@@ -461,7 +461,7 @@ namespace monero {
       if (ow1->m_subaddress_index.get() < ow2->m_subaddress_index.get()) return true;
       if (ow1->m_subaddress_index.get() == ow2->m_subaddress_index.get()) {
         if (ow1->m_index.get() < ow2->m_index.get()) return true;
-        if (ow1->m_index.get() == ow2->m_index.get()) return ow1->m_key_image.get()->m_hex.get().compare(ow2->m_key_image.get()->m_hex.get()) < 0;
+        if (ow1->m_index.get() == ow2->m_index.get() && ow1->m_key_image != boost::none) return ow1->m_key_image.get()->m_hex.get().compare(ow2->m_key_image.get()->m_hex.get()) < 0;
       }
     }
     return false;
