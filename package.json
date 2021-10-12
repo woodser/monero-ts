@@ -47,7 +47,7 @@
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
-    "electron": "9.4.0",
+    "electron": "11.5.0",
     "eslint": "5.6.0",
     "https-browserify": "^1.0.0",
     "jsdoc": "^3.6.7",
