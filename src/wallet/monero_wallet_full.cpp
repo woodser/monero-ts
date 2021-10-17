@@ -449,6 +449,7 @@ namespace monero {
    * Returns true iff wallet vout1 is ordered before vout2 by ascending account and subaddress indices then index.
    */
   bool vout_before(const std::shared_ptr<monero_output>& o1, const std::shared_ptr<monero_output>& o2) {
+    if (o1 == o2) return false; // ignore equal references
     std::shared_ptr<monero_output_wallet> ow1 = std::static_pointer_cast<monero_output_wallet>(o1);
     std::shared_ptr<monero_output_wallet> ow2 = std::static_pointer_cast<monero_output_wallet>(o2);
 
@@ -461,7 +462,7 @@ namespace monero {
       if (ow1->m_subaddress_index.get() < ow2->m_subaddress_index.get()) return true;
       if (ow1->m_subaddress_index.get() == ow2->m_subaddress_index.get()) {
         if (ow1->m_index.get() < ow2->m_index.get()) return true;
-        if (ow1->m_index.get() == ow2->m_index.get() && ow1->m_key_image != boost::none) return ow1->m_key_image.get()->m_hex.get().compare(ow2->m_key_image.get()->m_hex.get()) < 0;
+        if (ow1->m_index.get() == ow2->m_index.get()) throw std::runtime_error("Should never sort outputs with duplicate indices");
       }
     }
     return false;
