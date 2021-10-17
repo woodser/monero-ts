@@ -58,9 +58,20 @@ endif()
 message(STATUS EXTRA_LIBRARIES: ${EXTRA_LIBRARIES})
 
 ############
-# Epee
+# Protobuf
 ############
 
+include(FindProtobuf)
+find_package(Protobuf)
+message(STATUS "Protobuf lib: ${Protobuf_LIBRARY}, inc: ${Protobuf_INCLUDE_DIR}, protoc: ${Protobuf_PROTOC_EXECUTABLE}")
+include_directories(${Protobuf_INCLUDE_DIR})
+
+############
+# LibUSB
+############
+
+find_library(usb_LIBRARY NAMES usb-1.0 libusb usb)
+set(LibUSB_LIBRARIES ${usb_LIBRARY})
 
 ############
 # Boost
@@ -277,6 +288,8 @@ if (BUILD_LIBRARY)
         randomx
         
         ${Boost_LIBRARIES}
+        ${Protobuf_LIBRARY}
+        ${LibUSB_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${SODIUM_LIBRARY}
         ${HIDAPI_LIBRARIES}
@@ -322,6 +335,8 @@ if (BUILD_SAMPLE)
         randomx
         
         ${Boost_LIBRARIES}
+        ${Protobuf_LIBRARY}
+        ${LibUSB_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${SODIUM_LIBRARY}
         ${HIDAPI_LIBRARIES}
@@ -367,6 +382,8 @@ if (BUILD_SCRATCHPAD)
         randomx
         
         ${Boost_LIBRARIES}
+        ${Protobuf_LIBRARY}
+        ${LibUSB_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${SODIUM_LIBRARY}
         ${HIDAPI_LIBRARIES}
