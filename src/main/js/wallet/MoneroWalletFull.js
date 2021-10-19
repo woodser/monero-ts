@@ -663,12 +663,19 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async sync(listenerOrStartHeight, startHeight) {
+  /**
+   * Synchronize the wallet with the daemon as a one-time synchronous process.
+   * 
+   * @param {MoneroWalletListener|number} listenerOrStartHeight - listener xor start height (defaults to no sync listener, the last synced block)
+   * @param {number} startHeight - startHeight if not given in first arg (defaults to last synced block)
+   * @param {bool} allowConcurrentCalls - allow other wallet methods to be processed simultaneously during sync (default false)<br><br><b>WARNING</b>: enabling this option will crash wallet execution if another call makes a simultaneous network request. TODO: possible to sync wasm network requests in http_client_wasm.cpp? 
+   */
+  async sync(listenerOrStartHeight, startHeight, allowConcurrentCalls) {
     this._assertNotClosed();
     if (!(await this.isConnectedToDaemon())) throw new MoneroError("Wallet is not connected to daemon");
     
     // normalize params
-    startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
+    startHeight = listenerOrStartHeight === undefined || listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroWalletListener ? listenerOrStartHeight : undefined;
     if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
     
@@ -680,7 +687,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let result;
     try {
       let that = this;
-      result = await that._module.queueTask(async function() {
+      result = await (allowConcurrentCalls ? syncWasm() : that._module.queueTask(async function() { return syncWasm(); }));
+      function syncWasm() {
         that._assertNotClosed();
         return new Promise(function(resolve, reject) {
         
@@ -696,7 +704,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
           // sync wallet in wasm and invoke callback when done
           that._module.sync(that._cppAddress, startHeight, callbackFn);
         });
-      });
+      }
     } catch (e) {
       err = e;
     }
@@ -2125,7 +2133,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return this._invokeWorker("isSynced");
   }
   
-  async sync(listenerOrStartHeight, startHeight) {
+  async sync(listenerOrStartHeight, startHeight, allowConcurrentCalls) {
     
     // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
@@ -2139,7 +2147,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let err;
     let result;
     try {
-      let resultJson = await this._invokeWorker("sync", [startHeight]);
+      let resultJson = await this._invokeWorker("sync", [startHeight, allowConcurrentCalls]);
       result = new MoneroSyncResult(resultJson.numBlocksFetched, resultJson.receivedMoney);
     } catch (e) {
       err = e;

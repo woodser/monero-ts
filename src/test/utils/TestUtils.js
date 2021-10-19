@@ -248,9 +248,9 @@ TestUtils.MAX_FEE = new BigInteger("7500000").multiply(new BigInteger("10000"));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 
 // default keypair to test
-TestUtils.MNEMONIC = "upload toenail nephew megabyte reorder bicycle oxygen relic casket ledge wrist puffin hiding awoken under bovine sarcasm waking faked yoga urban myth atlas basin wrist";
-TestUtils.ADDRESS = "59M2dSSmrKiimFavjWQ8zFGWe6ziHr9XUjhHcMVEj9ut4EdkcmcqawfgMrtEERipUJA8iNzU65eaELoFYcor1c4jK4FRj1N";
-TestUtils.FIRST_RECEIVE_HEIGHT = 46179; // NOTE: this value MUST be the height of the wallet's first tx for tests
+TestUtils.MNEMONIC = "rally adhesive language injury railway pamphlet moisture baptism strained sarcasm across edited omnibus dormant spout keyboard yeti eagle pepper pelican inkling dauntless ashtray bifocals across";
+TestUtils.ADDRESS = "54C3R6CKseodnw7NPafr5ZdCRj1Qa4SYN56cgfozAwCeMj7TZazWe1bip8A5UCPKK7RrpGaP97vsxHabwYEWUCWQTspBZGZ";
+TestUtils.FIRST_RECEIVE_HEIGHT = 6644; // NOTE: this value MUST be the height of the wallet's first tx for tests
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {

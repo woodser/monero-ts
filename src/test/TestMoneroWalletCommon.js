@@ -3371,6 +3371,7 @@ class TestMoneroWalletCommon {
         // create view-only and offline wallets
         let viewOnlyWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
         let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: "", restoreHeight: 0});
+        await viewOnlyWallet.sync();
         
         // test tx signing with wallets
         let err;
@@ -4633,6 +4634,11 @@ class TestMoneroWalletCommon {
     // wait for txs to confirm and for sufficient unlocked balance
     await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
     await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE.multiply(BigInteger.parse("4")));
+    
+    // test getting txs, transfers, and outputs from view-only wallet
+    assert((await viewOnlyWallet.getTxs()).length, "View-only wallet has no transactions");
+    assert((await viewOnlyWallet.getTransfers()).length, "View-only wallet has no transfers");
+    assert((await viewOnlyWallet.getOutputs()).length, "View-only wallet has no outputs");
     
     // collect info from main test wallet
     let primaryAddress = await this.wallet.getPrimaryAddress();

@@ -564,8 +564,8 @@ self.isSynced = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].isSynced();
 }
 
-self.sync = async function(walletId, startHeight) {
-  return await self.WORKER_OBJECTS[walletId].sync(startHeight);
+self.sync = async function(walletId, startHeight, allowConcurrentCalls) {
+  return await self.WORKER_OBJECTS[walletId].sync(undefined, startHeight, allowConcurrentCalls);
 }
 
 self.startSyncing = async function(walletId, syncPeriodInMs) {

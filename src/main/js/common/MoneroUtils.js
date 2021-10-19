@@ -18,7 +18,7 @@ class MoneroUtils {
    * @return {string} the version of this monero-javascript library
    */
   static getVersion() {
-    return "0.5.6";
+    return "0.5.7";
   }
   
   /**
@@ -35,51 +35,99 @@ class MoneroUtils {
   }
   
   /**
-   * Validate the given private view key, throw an error if invalid.
-   *
-   * TODO: improve validation
+   * Indicates if a private view key is valid.
    * 
-   * @param {string} privateViewKey - private view key to validate
+   * @param {string} privateViewKey is the private view key to validate
+   * @return {bool} true if the private view key is valid, false otherwise
    */
-  static validatePrivateViewKey(privateViewKey) {
-    assert(typeof privateViewKey === "string");
-    assert(privateViewKey.length === 64);
+  static isValidPrivateViewKey(privateViewKey) {
+    try {
+      MoneroUtils.validatePrivateViewKey(privateViewKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
   
   /**
-   * Validate the given private spend key, throw an error if invalid.
-   *
-   * TODO: improve validation
+   * Indicates if a public view key is valid.
    * 
-   * @param {string} privateSpendKey - private spend key to validate
+   * @param {string} publicViewKey is the public view key to validate
+   * @return {bool} true if the public view key is valid, false otherwise
    */
-  static validatePrivateSpendKey(privateSpendKey) {
-    assert(typeof privateSpendKey === "string");
-    assert(privateSpendKey.length === 64);
+  static isValidPublicViewKey(publicViewKey) {
+    try {
+      MoneroUtils.validatePublicViewKey(publicViewKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  /**
+   * Indicates if a private spend key is valid.
+   * 
+   * @param {string} privateSpendKey is the private spend key to validate
+   * @return {bool} true if the private spend key is valid, false otherwise
+   */
+  static isValidPrivateSpendKey(privateSpendKey) {
+    try {
+      MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  /**
+   * Indicates if a public spend key is valid.
+   * 
+   * @param {string} publicSpendKey is the public spend key to validate
+   * @return {bool} true if the public spend key is valid, false otherwise
+   */
+  static isValidPublicSpendKey(publicSpendKey) {
+    try {
+      MoneroUtils.validatePublicSpendKey(publicSpendKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  /**
+   * Validate the given private view key, throw an error if invalid.
+   *
+   * @param {string} privateViewKey - private view key to validate
+   */
+  static validatePrivateViewKey(privateViewKey) {
+    if (!MoneroUtils._isHex64(privateViewKey)) throw new MoneroError("private view key expected to be 64 hex characters");
   }
   
   /**
    * Validate the given public view key, throw an error if invalid.
    *
-   * TODO: improve validation
-   * 
    * @param {string} publicViewKey - public view key to validate
    */
   static validatePublicViewKey(publicViewKey) {
-    assert(typeof publicViewKey === "string");
-    assert(publicViewKey.length === 64);
+    if (!MoneroUtils._isHex64(publicViewKey)) throw new MoneroError("public view key expected to be 64 hex characters");
+  }
+  
+  /**
+   * Validate the given private spend key, throw an error if invalid.
+   *
+   * @param {string} privateSpendKey - private spend key to validate
+   */
+  static validatePrivateSpendKey(privateSpendKey) {
+    if (!MoneroUtils._isHex64(privateSpendKey)) throw new MoneroError("private spend key expected to be 64 hex characters");
   }
   
   /**
    * Validate the given public spend key, throw an error if invalid.
    *
-   * TODO: improve validation
-   * 
    * @param {string} publicSpendKey - public spend key to validate
    */
   static validatePublicSpendKey(publicSpendKey) {
-    assert(typeof publicSpendKey === "string");
-    assert(publicSpendKey.length === 64);
+    if (!MoneroUtils._isHex64(publicSpendKey)) throw new MoneroError("public spend key expected to be 64 hex characters");
   }
   
   /**
@@ -338,6 +386,10 @@ class MoneroUtils {
     else if (!(amountAtomicUnits instanceof BigInteger)) throw new MoneroError("Must provide atomic units as BigInteger or string to convert to XMR");
     let quotientAndRemainder = amountAtomicUnits.divRem(new BigInteger(MoneroUtils.AU_PER_XMR));
     return Number(quotientAndRemainder[0].toJSValue() + quotientAndRemainder[1].toJSValue() / MoneroUtils.AU_PER_XMR);
+  }
+  
+  static _isHex64(str) {
+    return typeof str === "string" && str.length === 64 && GenUtils.isHex(str);
   }
 }
 

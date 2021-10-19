@@ -423,6 +423,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // create view-only wallet in wallet rpc process
         let viewOnlyWallet = await TestUtils.startWalletRpcProcess();
         await viewOnlyWallet.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
+        await viewOnlyWallet.sync();
         
         // create offline full wallet
         let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: "", restoreHeight: 0});
@@ -1179,6 +1180,7 @@ class SyncProgressTester extends WalletSyncPrinter {
     this.wallet = wallet;
     assert(startHeight >= 0);
     assert(endHeight >= 0);
+    console.log("Expected start height: " + startHeight);
     this.startHeight = startHeight;
     this.prevEndHeight = endHeight;
     this.isDone = false;

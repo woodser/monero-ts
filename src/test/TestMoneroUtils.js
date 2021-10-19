@@ -66,9 +66,9 @@ class TestMoneroUtils {
       it("Can validate addresses", function() {
         
         // test mainnet primary address validation
-        MoneroUtils.validateAddress("42U9v3qs5CjZEePHBZHwuSckQXebuZu299NSmVEmQ41YJZQhKcPyujyMSzpDH4VMMVSBo3U3b54JaNvQLwAjqDhKS3rvM3L", MoneroNetworkType.MAINNET);
-        MoneroUtils.validateAddress("48ZxX3Y2y5s4nJ8fdz2w65TrTEp9PRsv5J8iHSShkHQcE2V31FhnWptioNst1K9oeDY4KpWZ7v8V2BZNVa4Wdky89iqmPz2", MoneroNetworkType.MAINNET);
-        MoneroUtils.validateAddress("48W972Fx1SQMCHVKENnPpM7tRcL5oWMgpMCqQDbhH8UrjDFg2H9i5AQWXuU1qacJgUUCVLTsgDmZKXGz1vPLXY8QB5ypYqG", MoneroNetworkType.MAINNET);
+        assert(MoneroUtils.isValidAddress("42U9v3qs5CjZEePHBZHwuSckQXebuZu299NSmVEmQ41YJZQhKcPyujyMSzpDH4VMMVSBo3U3b54JaNvQLwAjqDhKS3rvM3L", MoneroNetworkType.MAINNET));
+        assert(MoneroUtils.isValidAddress("48ZxX3Y2y5s4nJ8fdz2w65TrTEp9PRsv5J8iHSShkHQcE2V31FhnWptioNst1K9oeDY4KpWZ7v8V2BZNVa4Wdky89iqmPz2", MoneroNetworkType.MAINNET));
+        assert(MoneroUtils.isValidAddress("48W972Fx1SQMCHVKENnPpM7tRcL5oWMgpMCqQDbhH8UrjDFg2H9i5AQWXuU1qacJgUUCVLTsgDmZKXGz1vPLXY8QB5ypYqG", MoneroNetworkType.MAINNET));
         
         // test mainnet integrated address validation
         MoneroUtils.validateAddress("4CApvrfMgUFZEePHBZHwuSckQXebuZu299NSmVEmQ41YJZQhKcPyujyMSzpDH4VMMVSBo3U3b54JaNvQLwAjqDhKeGLQ9vfRBRKFKnBtVH", MoneroNetworkType.MAINNET);
@@ -132,13 +132,81 @@ class TestMoneroUtils {
         testInvalidAddress("718B5D2JmMh5TJVWFbygJR15dvio5Z5B24hfSrWDzeroM8j8Lqc9sMoFE6324xg2ReaAZqHJkgfGFRugRmYHugHZ4f17Gxo", MoneroNetworkType.STAGENET);
       });
       
+      it("Can validate keys", async function() {
+        
+        // test private view key validation
+        assert(MoneroUtils.isValidPrivateViewKey("86cf351d10894769feba29b9e201e12fb100b85bb52fc5825c864eef55c5840d"));
+        testInvalidPrivateViewKey("");
+        testInvalidPrivateViewKey();
+        testInvalidPrivateViewKey("5B8s3obCY2ETeQB3GNAGPK2zRGen5UeW1WzegSizVsmf6z5NvM2GLoN6zzk1vHyzGAAfA8pGhuYAeCFZjHAp59jRVQkunGS");
+        
+        // test public view key validation
+        assert(MoneroUtils.isValidPublicViewKey("99873d76ca874ff1aad676b835dd303abcb21c9911ca8a3d9130abc4544d8a0a"));
+        testInvalidPublicViewKey("");
+        testInvalidPublicViewKey();
+        testInvalidPublicViewKey("z86cf351d10894769feba29b9e201e12fb100b85bb52fc5825c864eef55c5840d");
+        
+        // test private spend key validation
+        assert(MoneroUtils.isValidPrivateSpendKey("e9ba887e93620ef9fafdfe0c6d3022949f1c5713cbd9ef631f18a0fb00421dee"));
+        testInvalidPrivateSpendKey("");
+        testInvalidPrivateSpendKey(null);
+        testInvalidPrivateSpendKey("z86cf351d10894769feba29b9e201e12fb100b85bb52fc5825c864eef55c5840d");
+        
+        // test public spend key validation
+        assert(MoneroUtils.isValidPublicSpendKey("3e48df9e9d8038dbf6f5382fac2becd8686273cda5bd87187e45dca7ec5af37b"));
+        testInvalidPublicSpendKey("");
+        testInvalidPublicSpendKey();
+        testInvalidPublicSpendKey("z86cf351d10894769feba29b9e201e12fb100b85bb52fc5825c864eef55c5840d");
+      });
+      
       function testInvalidAddress(address, networkType) {
+        assert(!MoneroUtils.isValidAddress(address, networkType));
         try {
           MoneroUtils.validateAddress(address, networkType);
           throw new Error("Should have thrown exception");
         } catch (err) {
           assert.notEqual("Should have thrown exception", err.message);
           assert(err.message);
+        }
+      }
+      
+      function testInvalidPrivateViewKey(privateViewKey) {
+        assert(!MoneroUtils.isValidPrivateViewKey(privateViewKey));
+        try {
+          MoneroUtils.validatePrivateViewKey(privateViewKey);
+          fail("Should have thrown exception");
+        } catch (e) {
+          assert(e.message.length > 0);
+        }
+      }
+      
+      function testInvalidPublicViewKey(publicViewKey) {
+        assert(!MoneroUtils.isValidPublicViewKey(publicViewKey));
+        try {
+          MoneroUtils.validatePublicViewKey(publicViewKey);
+          fail("Should have thrown exception");
+        } catch (e) {
+          assert(e.message.length > 0);
+        }
+      }
+      
+      function testInvalidPrivateSpendKey(privateSpendKey) {
+        assert(!MoneroUtils.isValidPrivateSpendKey(privateSpendKey));
+        try {
+          MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+          fail("Should have thrown exception");
+        } catch (e) {
+          assert(e.message.length > 0);
+        }
+      }
+      
+      function testInvalidPublicSpendKey(publicSpendKey) {
+        assert(!MoneroUtils.isValidPublicSpendKey(publicSpendKey));
+        try {
+          MoneroUtils.validatePublicSpendKey(publicSpendKey);
+          fail("Should have thrown exception");
+        } catch (e) {
+          assert(e.message.length > 0);
         }
       }
       

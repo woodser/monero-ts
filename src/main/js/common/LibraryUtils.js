@@ -2,7 +2,6 @@ const assert = require("assert");
 const GenUtils = require("./GenUtils");
 const MoneroError = require("./MoneroError");
 const ThreadPool = require("./ThreadPool");
-const Worker = require("web-worker");
 
 /**
  * Collection of helper utilities for the library.
@@ -160,7 +159,12 @@ class LibraryUtils {
     
     // one time initialization
     if (!LibraryUtils.WORKER) {
-      LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      LibraryUtils.WORKER;
+      if (GenUtils.isBrowser()) LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      else { 
+       const Worker = require("web-worker"); // import web worker if nodejs
+       LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      }
       LibraryUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // receive worker errors
