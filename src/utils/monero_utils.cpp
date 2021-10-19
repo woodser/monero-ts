@@ -61,7 +61,7 @@
 using namespace cryptonote;
 using namespace monero_utils;
 
-// ------------------------- ADDRESS VALIDATION -----------------------------
+// --------------------------- VALIDATION UTILS -------------------------------
 
 bool monero_utils::is_valid_address(const std::string& address, monero_network_type network_type) {
   try {
@@ -72,9 +72,43 @@ bool monero_utils::is_valid_address(const std::string& address, monero_network_t
   }
 }
 
+bool monero_utils::is_valid_private_view_key(const std::string& private_view_key) {
+  try {
+    validate_private_view_key(private_view_key);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+bool monero_utils::is_valid_private_spend_key(const std::string& private_spend_key) {
+  try {
+    validate_private_spend_key(private_spend_key);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
 void monero_utils::validate_address(const std::string& address, monero_network_type network_type) {
   cryptonote::address_parse_info info;
   if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("Invalid address");
+}
+
+void monero_utils::validate_private_view_key(const std::string& private_view_key) {
+  if (private_view_key.length() != 64) throw std::runtime_error("private view key expected to be 64 hex characters");
+  cryptonote::blobdata private_view_key_data;
+  if (!epee::string_tools::parse_hexstr_to_binbuff(private_view_key, private_view_key_data) || private_view_key_data.size() != sizeof(crypto::secret_key)) {
+    throw std::runtime_error("private view key expected to be 64 hex characters");
+  }
+}
+
+void monero_utils::validate_private_spend_key(const std::string& private_spend_key) {
+  if (private_spend_key.length() != 64) throw std::runtime_error("private spend key expected to be 64 hex characters");
+  cryptonote::blobdata private_spend_key_data;
+  if (!epee::string_tools::parse_hexstr_to_binbuff(private_spend_key, private_spend_key_data) || private_spend_key_data.size() != sizeof(crypto::secret_key)) {
+    throw std::runtime_error("private spend key expected to be 64 hex characters");
+  }
 }
 
 // -------------------------- BINARY SERIALIZATION ----------------------------
@@ -99,8 +133,8 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
 
   // build property tree from deserialized blocks and transactions
   boost::property_tree::ptree root;
-  boost::property_tree::ptree blocksNode;	// array of block strings
-  boost::property_tree::ptree txsNodes;		// array of txs per block (array of array)
+  boost::property_tree::ptree blocksNode; // array of block strings
+  boost::property_tree::ptree txsNodes;   // array of txs per block (array of array)
   for (int blockIdx = 0; blockIdx < resp_struct.blocks.size(); blockIdx++) {
 
     // parse and validate block
@@ -109,7 +143,7 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
 
       // add block node to blocks node
       boost::property_tree::ptree blockNode;
-      blockNode.put("", cryptonote::obj_to_json_str(block));	// TODO: no pretty print
+      blockNode.put("", cryptonote::obj_to_json_str(block));  // TODO: no pretty print
       blocksNode.push_back(std::make_pair("", blockNode));
     } else {
       throw std::runtime_error("failed to parse block blob at index " + std::to_string(blockIdx));
@@ -124,18 +158,18 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
         // add tx node to txs node
         boost::property_tree::ptree txNode;
         //MTRACE("PRUNED:\n" << monero_utils::get_pruned_tx_json(tx));
-        txNode.put("", monero_utils::get_pruned_tx_json(tx));	// TODO: no pretty print
+        txNode.put("", monero_utils::get_pruned_tx_json(tx)); // TODO: no pretty print
         txs_node.push_back(std::make_pair("", txNode));
       } else {
-	      throw std::runtime_error("failed to parse tx blob at index " + std::to_string(txIdx));
+        throw std::runtime_error("failed to parse tx blob at index " + std::to_string(txIdx));
       }
     }
-    txsNodes.push_back(std::make_pair("", txs_node));	// array of array of transactions, one array per block
+    txsNodes.push_back(std::make_pair("", txs_node)); // array of array of transactions, one array per block
   }
   root.add_child("blocks", blocksNode);
   root.add_child("txs", txsNodes);
   root.put("status", resp_struct.status);
-  root.put("untrusted", resp_struct.untrusted);	// TODO: loss of ints and bools
+  root.put("untrusted", resp_struct.untrusted); // TODO: loss of ints and bools
 
   // convert root to std::string // TODO: common utility with serial_bridge
   std::stringstream ss;

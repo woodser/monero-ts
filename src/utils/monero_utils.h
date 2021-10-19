@@ -57,7 +57,7 @@
 
 #include "wallet/monero_wallet_model.h"
 #include "cryptonote_basic/cryptonote_basic.h"
-#include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
+#include "serialization/keyvalue_serialization.h" // TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
 
 /**
@@ -71,10 +71,14 @@ namespace monero_utils
 
   static const int RING_SIZE = 12;  // network-enforced ring size
 
-  // ------------------------- ADDRESS VALIDATION -----------------------------
+  // -------------------------- VALIDATION UTILS ------------------------------
 
   bool is_valid_address(const std::string& address, monero_network_type network_type);
+  bool is_valid_private_view_key(const std::string& private_view_key);
+  bool is_valid_private_spend_key(const std::string& private_spend_key);
   void validate_address(const std::string& address, monero_network_type network_type);
+  void validate_private_view_key(const std::string& private_view_key);
+  void validate_private_spend_key(const std::string& private_spend_key);
 
   // ------------------------ BINARY SERIALIZATION ----------------------------
 
