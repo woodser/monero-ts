@@ -19,6 +19,7 @@ class MoneroConnectionManager {
    * Add a connection. The connection may have an elevated priority for this manager to use.
    * 
    * @param {MoneroRpcConnection} connection - the connection to add
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   addConnection(connection) {
     for (let aConnection of this._connections) {
@@ -32,6 +33,7 @@ class MoneroConnectionManager {
    * Remove a connection.
    * 
    * @param {MoneroRpcConnection} connection - the connection to remove
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   removeConnection(connection) {
     if (!GenUtils.remove(connections, connection)) throw new MoneroError("Monero connection manager does not contain connection to remove");
@@ -43,6 +45,7 @@ class MoneroConnectionManager {
    * Add a listener to receive notifications when the connection changes.
    * 
    * @param {MoneroConnectionManagerListener} listener - the listener to add
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   addListener(listener) {
     this._listeners.push(listener);
@@ -53,6 +56,7 @@ class MoneroConnectionManager {
    * Remove a listener.
    * 
    * @param {MoneroConnectionManagerListener} listener - the listener to remove
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   removeListener(listener) {
     if (!GenUtils.remove(this._listeners, listener)) throw new MoneroError("Monero connection manager does not contain listener to remove");
@@ -63,6 +67,7 @@ class MoneroConnectionManager {
    * Set the maximum request time before its connection is considered offline.
    * 
    * @param {int} timeoutInMs - the timeout before the connection is considered offline
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   setTimeout(timeoutInMs) {
     this._timeoutInMs = timeoutInMs;
@@ -93,6 +98,7 @@ class MoneroConnectionManager {
    * Automatically refresh the connection status by polling the server in a fixed period loop.
    * 
    * @param {number} refreshPeriod is the time between refreshes in milliseconds (default 10000 or 10 seconds)
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   startAutoRefresh(refreshPeriod) {
     if (!refreshPeriod) refreshPeriod = MoneroConnectionManager.DEFAULT_REFRESH_PERIOD;
@@ -109,6 +115,7 @@ class MoneroConnectionManager {
   
   /**
    * Stop automatically refreshing the connection status.
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   stopAutoRefresh() {
     if (this.refreshLooper) this.refreshLooper.stop();
@@ -119,6 +126,7 @@ class MoneroConnectionManager {
    * Automatically switch to best available connection if current connection disconnects.
    * 
    * @param {boolean} autoSwitch specifies if the connection should switch on disconnect
+   * @return {MoneroConnectionManager} this connection manager for chaining
    */
   setAutoSwitch(autoSwitch) {
     this.autoSwitch = autoSwitch;
