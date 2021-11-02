@@ -164,7 +164,7 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // handle stderr
       that.process.stderr.on('data', function(data) {
-        if (LibaryUtils.getLogLevel() >= 2) console.error(data);
+        if (LibraryUtils.getLogLevel() >= 2) console.error(data);
       });
       
       // handle exit

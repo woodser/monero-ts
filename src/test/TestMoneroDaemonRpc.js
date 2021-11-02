@@ -3,6 +3,7 @@ const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
 const BigInteger = monerojs.BigInteger;
 const ConnectionType = monerojs.ConnectionType;
+const GenUtils = monerojs.GenUtils;
 const MoneroOutput = monerojs.MoneroOutput;
 const MoneroTxConfig = monerojs.MoneroTxConfig;
 const MoneroBan = monerojs.MoneroBan;
@@ -52,6 +53,38 @@ class TestMoneroDaemonRpc {
       });
       
       // -------------------------- TEST NON RELAYS ---------------------------
+      
+      if (testConfig.testNonRelays && !GenUtils.isBrowser())
+      it("Can start and stop a daemon process", async function() {
+        
+        // create command to start monerod process
+        let cmd = [
+            TestUtils.DAEMON_LOCAL_PATH,
+            "--" + monerojs.MoneroNetworkType.toString(TestUtils.NETWORK_TYPE).toLowerCase(),
+            "--no-igd",
+            "--hide-my-port",
+            "--data-dir", TestUtils.MONERO_BINS_DIR + "/node1",
+            "--p2p-bind-port", "58080",
+            "--rpc-bind-port", "58081",
+            "--rpc-login", "superuser:abctesting123",
+            "--zmq-rpc-bind-port", "58082"
+        ];
+        
+        // start monerod process from command
+        let daemon = await monerojs.connectToDaemonRpc(cmd);
+        
+        // query daemon
+        let connection = await daemon.getRpcConnection();
+        assert.equal("http://127.0.0.1:58081", connection.getUri());
+        assert.equal("superuser", connection.getUsername());
+        assert.equal("abctesting123", connection.getPassword());
+        assert(await daemon.getHeight() > 0);
+        let info = await daemon.getInfo();
+        testInfo(info);
+        
+        // stop daemon
+        await daemon.stopProcess();
+      });
       
       if (testConfig.testNonRelays)
       it("Can get the daemon's version", async function() {
@@ -1475,7 +1508,6 @@ function testInfo(info) {
   assert(info.getTopBlockHash());
   assert.equal("boolean", typeof info.isBusySyncing());
   assert.equal("boolean", typeof info.isSynchronized());
-  assert.notEqual(info.isBusySyncing(), info.isSynchronized());
 }
 
 function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?

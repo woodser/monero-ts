@@ -238,6 +238,9 @@ class TestUtils {
 
 // TODO: export these to key/value properties file for tests
 
+// directory with monero binaries to test (monerod and monero-wallet-rpc)
+TestUtils.MONERO_BINS_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.2.3";
+
 // test wallet config
 TestUtils.WALLET_NAME = "test_wallet_1";
 TestUtils.WALLET_PASSWORD = "supersecretpassword123";
@@ -260,7 +263,8 @@ TestUtils.WALLET_RPC_CONFIG = {
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 
-// daemon RPC config
+// daemon config
+TestUtils.DAEMON_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monerod";
 TestUtils.DAEMON_RPC_CONFIG = {
   uri: "http://localhost:38081",
   username: "superuser",
@@ -276,8 +280,8 @@ TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in millisecon
 // monero-wallet-rpc process management
 TestUtils.WALLET_RPC_PORT_START = 38084;
 TestUtils.WALLET_PORT_OFFSETS = {};
-TestUtils.WALLET_RPC_LOCAL_PATH = "/Applications/monero-x86_64-apple-darwin11-v0.17.2.3/monero-wallet-rpc"; // change as needed
-TestUtils.WALLET_RPC_LOCAL_WALLET_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.2.3";
+TestUtils.WALLET_RPC_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monero-wallet-rpc";
+TestUtils.WALLET_RPC_LOCAL_WALLET_DIR = TestUtils.MONERO_BINS_DIR;
 TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS = "http://localhost:8080"; // cors access from web browser
 
 module.exports = TestUtils;
