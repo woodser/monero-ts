@@ -250,7 +250,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line24">line 24</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -409,7 +409,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line50">line 50</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line24">line 24</a>
     </li></ul></dd>
     
 
@@ -467,7 +467,7 @@
     
 
     
-    <h4 class="name" id="connect"><span class="type-signature">(async) </span>connect<span class="signature">(connection)</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
+    <h4 class="name" id="checkConnection"><span class="type-signature">(async) </span>checkConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
     
 
     
@@ -475,166 +475,7 @@
 
 
 <div class="description">
-    Connect to given connection or best available connection in order of priority then response time.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>connection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">connect if given, otherwise connect to best available connection</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line142">line 142</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the selected connection
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getConnection"><span class="type-signature"></span>getConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get the currently used connection.
+    Check the current connection. If disconected and auto switch enabled, switches to best available connection.
 </div>
 
 
@@ -736,6 +577,605 @@
     
 
     
+    <h4 class="name" id="checkConnectionPromises"><span class="type-signature"></span>checkConnectionPromises<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;Promise>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Check all managed connections, returning a promise for each connection check.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line227">line 227</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    a promise for each connection in the order of getConnections().
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Array.html">Array</a>.&lt;Promise></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="checkConnections"><span class="type-signature">(async) </span>checkConnections<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Check all managed connections.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line217">line 217</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroConnectionManager.html">MoneroConnectionManager</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getBestAvailableConnection"><span class="type-signature">(async) </span>getBestAvailableConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get the best available connection in order of priority then response time.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line113">line 113</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the best available connection in order of priority then response time, undefined if no connections available
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getConnection"><span class="type-signature"></span>getConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get the current connection.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the current connection or undefined if no connection set
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getConnectionByUri"><span class="type-signature"></span>getConnectionByUri<span class="signature">(uri)</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a connection by URI.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>uri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">is the URI of the connection to get</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the connection with the URI or undefined if no connection with the URI exists
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getConnections"><span class="type-signature"></span>getConnections<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>>}</span></h4>
     
 
@@ -788,7 +1228,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line91">line 91</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line102">line 102</a>
     </li></ul></dd>
     
 
@@ -898,7 +1338,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line258">line 258</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line308">line 308</a>
     </li></ul></dd>
     
 
@@ -1008,7 +1448,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line82">line 82</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line299">line 299</a>
     </li></ul></dd>
     
 
@@ -1118,7 +1558,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line194">line 194</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -1147,7 +1587,7 @@
 
         
 <div class="param-desc">
-    true if the manager is connected to a node
+    true if the current connection is set, online, and not unauthenticated. false otherwise
 </div>
 
 
@@ -1176,337 +1616,7 @@
     
 
     
-    <h4 class="name" id="refreshAllConnectionPromises"><span class="type-signature"></span>refreshAllConnectionPromises<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;Promise>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Refresh all managed connections, returning a promise for each connection refresh.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line236">line 236</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    a promise for each connection in the order of getConnections().
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Array.html">Array</a>.&lt;Promise></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="refreshAllConnections"><span class="type-signature">(async) </span>refreshAllConnections<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Refresh all managed connections.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line227">line 227</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    resolves when all connections refresh
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="refreshConnection"><span class="type-signature">(async) </span>refreshConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroRpcConnection.html">MoneroRpcConnection</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Refresh the current connection.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line214">line 214</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the current connection
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="removeConnection"><span class="type-signature"></span>removeConnection<span class="signature">(connection)</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    <h4 class="name" id="removeConnection"><span class="type-signature"></span>removeConnection<span class="signature">(uri)</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
     
 
     
@@ -1550,13 +1660,13 @@
 
         <tr>
             
-                <td class="name"><code>connection</code></td>
+                <td class="name"><code>uri</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+<span class="param-type">string</span>
 
 
             
@@ -1566,7 +1676,7 @@
 
             
 
-            <td class="description last">the connection to remove</td>
+            <td class="description last">of the the connection to remove</td>
         </tr>
 
     
@@ -1607,7 +1717,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line38">line 38</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -1766,7 +1876,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line61">line 61</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -1832,7 +1942,7 @@
 
 
 <div class="description">
-    Automatically switch to best available connection if current connection disconnects.
+    Automatically switch to best available connection if current connection is disconnected after being checked.
 </div>
 
 
@@ -1925,7 +2035,171 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line131">line 131</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line278">line 278</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroConnectionManager.html">MoneroConnectionManager</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setConnection"><span class="type-signature"></span>setConnection<span class="signature">(uriOrConnection)</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Set the current connection.
+Provide a URI to select an existing connection without updating its credentials.
+Provide a MoneroRpcConnection to add new connection or update credentials of existing connection with same URI.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>uriOrConnection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">is the uri of the connection or the connection to make current (default undefined for no current connection)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line154">line 154</a>
     </li></ul></dd>
     
 
@@ -2084,7 +2358,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line72">line 72</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line289">line 289</a>
     </li></ul></dd>
     
 
@@ -2142,7 +2416,7 @@
     
 
     
-    <h4 class="name" id="startAutoRefresh"><span class="type-signature"></span>startAutoRefresh<span class="signature">(refreshPeriod)</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    <h4 class="name" id="startCheckingConnection"><span class="type-signature"></span>startCheckingConnection<span class="signature">(periodMs)</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
     
 
     
@@ -2150,7 +2424,7 @@
 
 
 <div class="description">
-    Automatically refresh the connection status by polling the server in a fixed period loop.
+    Start checking connection status by polling the server in a fixed period loop.
 </div>
 
 
@@ -2186,7 +2460,7 @@
 
         <tr>
             
-                <td class="name"><code>refreshPeriod</code></td>
+                <td class="name"><code>periodMs</code></td>
             
 
             <td class="type">
@@ -2202,7 +2476,7 @@
 
             
 
-            <td class="description last">is the time between refreshes in milliseconds (default 10000 or 10 seconds)</td>
+            <td class="description last">is the time between checks in milliseconds (default 10000 or 10 seconds)</td>
         </tr>
 
     
@@ -2243,7 +2517,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line103">line 103</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line249">line 249</a>
     </li></ul></dd>
     
 
@@ -2301,7 +2575,7 @@
     
 
     
-    <h4 class="name" id="stopAutoRefresh"><span class="type-signature"></span>stopAutoRefresh<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    <h4 class="name" id="stopCheckingConnection"><span class="type-signature"></span>stopCheckingConnection<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
     
 
     
@@ -2309,7 +2583,7 @@
 
 
 <div class="description">
-    Stop automatically refreshing the connection status.
+    Stop automatically checking the connection status.
 </div>
 
 
@@ -2353,7 +2627,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line120">line 120</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line267">line 267</a>
     </li></ul></dd>
     
 
@@ -2427,7 +2701,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Oct 19 2021 17:10:27 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Nov 10 2021 12:34:12 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
