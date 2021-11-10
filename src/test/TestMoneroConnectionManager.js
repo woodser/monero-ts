@@ -23,7 +23,7 @@ class TestMoneroConnectionManager {
           
           // create connection manager
           let connectionManager = new MoneroConnectionManager()
-                  .startAutoRefresh(TestUtils.SYNC_PERIOD_IN_MS)
+                  .startCheckingConnection(TestUtils.SYNC_PERIOD_IN_MS)
                   .setAutoSwitch(false);
           
           // listen for changes
@@ -46,8 +46,9 @@ class TestMoneroConnectionManager {
           assert.equal(orderedConnections[4].getUri(), (await walletRpcs[1].getRpcConnection()).getUri());
           for (let connection of orderedConnections) assert.equal(undefined, connection.isOnline());
           
-          // connect in order of priority and response time
-          let connection = await connectionManager.connect();
+          // connect to best available connection in order of priority and response time
+          let connection = await connectionManager.getBestAvailableConnection();
+          await connectionManager.setConnection(connection);
           assert(connection === await walletRpcs[4].getRpcConnection());
           assert(connection.isOnline());
           assert(connection.isAuthenticated());
@@ -63,9 +64,9 @@ class TestMoneroConnectionManager {
           assert.equal(orderedConnections[4].getUri(), (await walletRpcs[1].getRpcConnection()).getUri());
           for (let i = 1; i < orderedConnections.length; i++) assert.equal(undefined, orderedConnections[i].isOnline());
           
-          // test auto refresh by shutting down connected instance
+          // test auto check by shutting down connected instance
           await TestUtils.stopWalletRpcProcess(walletRpcs[4]);
-          if (GenUtils.isBrowser()) connectionManager.getConnection()._setFakeDisconnected(true);
+          if (GenUtils.isBrowser()) connectionManager.getConnection()._setFakeDisconnected(true); // browser does not start or stop instances
           await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS);
           assert.equal(false, connectionManager.isConnected());
           assert.equal(false, connectionManager.getConnection().isOnline());
@@ -81,8 +82,8 @@ class TestMoneroConnectionManager {
           assert(orderedConnections[3] === await walletRpcs[0].getRpcConnection());
           assert.equal(orderedConnections[4].getUri(), (await walletRpcs[1].getRpcConnection()).getUri());
           
-          // refresh all connections
-          await connectionManager.refreshAllConnections();
+          // check all connections
+          await connectionManager.checkConnections();
           
           // test connection order
           orderedConnections = connectionManager.getConnections();
@@ -103,7 +104,7 @@ class TestMoneroConnectionManager {
             else assert(isAuthenticated);
           }
           
-          // test auto reconnect when disconnected
+          // test auto switch when disconnected
           connectionManager.setAutoSwitch(true);
           await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100); // allow time to poll
           assert(connectionManager.isConnected());
@@ -124,21 +125,21 @@ class TestMoneroConnectionManager {
           assert.equal(false, orderedConnections[4].isOnline());
           
           // connect to specific endpoint without authentication
-          try {
-            await connectionManager.connect(orderedConnections[3]);
-          } catch (err2) {
-            assert.equal(err2.message, "Connection is not authenticated");
-          }
+          connection = orderedConnections[3];
+          assert.equal(false, connection.isAuthenticated());
+          await connectionManager.setConnection(connection);
+          assert.equal(false, await connectionManager.isConnected());
+          assert.equal(4, listener.changedConnections.length);
           
           // connect to specific endpoint with authentication
-          orderedConnections[3].setCredentials("rpc_user", "abc123");
           connectionManager.setAutoSwitch(false);
-          connection = await connectionManager.connect(orderedConnections[3]);
+          orderedConnections[3].setCredentials("rpc_user", "abc123");
+          await connectionManager.checkConnection();
           assert.equal(connection.getUri(), (await walletRpcs[1].getRpcConnection()).getUri());
           assert(connection.isOnline());
           assert(connection.isAuthenticated());
-          assert.equal(4, listener.changedConnections.length);
-          assert(listener.changedConnections[3] === connection);
+          assert.equal(5, listener.changedConnections.length);
+          assert(listener.changedConnections[4] === connection);
           
           // test connection order
           orderedConnections = connectionManager.getConnections();
@@ -152,7 +153,7 @@ class TestMoneroConnectionManager {
           assert.equal(false, orderedConnections[4].isOnline());
           
           // stop polling connection
-          connectionManager.stopAutoRefresh();
+          connectionManager.stopCheckingConnection();
         } catch(err2) {
           err = err2;
         }

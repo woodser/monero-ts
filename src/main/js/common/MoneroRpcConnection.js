@@ -133,12 +133,12 @@ class MoneroRpcConnection {
   }
   
   /**
-   * Refresh the connection status to update isOnline, isAuthenticated, etc.
+   * Check the connection status to update isOnline, isAuthenticated, etc.
    * 
    * @param {int} timeoutInMs - maximum response time before considered offline
    * @return {boolean} true if there is a change in status, false otherwise
    */
-  async refreshConnection(timeoutInMs) {
+  async checkConnection(timeoutInMs) {
     let isOnlineBefore = this._isOnline;
     let isAuthenticatedBefore = this._isAuthenticated;
     let startTime = Date.now();
@@ -337,15 +337,6 @@ class MoneroRpcConnection {
   static _validateRpcResponse(resp, method, params) {
     if (!resp.error) return;
     throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
-  }
-  
-  _setIsCurrentConnection(isCurrentConnection) {
-    this.__isCurrentConnection = isCurrentConnection;
-    return this;
-  }
-  
-  _isCurrentConnection() {
-    return this.__isCurrentConnection;
   }
   
   _setFakeDisconnected(fakeDisconnected) { // used to test connection manager

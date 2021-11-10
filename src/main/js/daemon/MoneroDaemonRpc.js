@@ -25,6 +25,7 @@ const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry")
 const MoneroRpcConnection = require("../common/MoneroRpcConnection");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTx = require("./model/MoneroTx");
+const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
 const MoneroUtils = require("../common/MoneroUtils");
 const MoneroVersion = require("./model/MoneroVersion");
 
