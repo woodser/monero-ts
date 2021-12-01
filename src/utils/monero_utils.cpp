@@ -63,6 +63,31 @@ using namespace monero_utils;
 
 // --------------------------- VALIDATION UTILS -------------------------------
 
+monero_integrated_address monero_utils::get_integrated_address(monero_network_type network_type, const std::string& standard_address, const std::string& payment_id) {
+
+  // parse and validate address
+  cryptonote::address_parse_info address_info;
+  if (!get_account_address_from_str(address_info, static_cast<cryptonote::network_type>(network_type), standard_address)) throw std::runtime_error("Invalid address");
+  if (address_info.has_payment_id) throw std::runtime_error("The given address already has a payment id");
+
+  // randomly generate payment id if not given, else validate
+  crypto::hash8 payment_id_h8;
+  if (payment_id.empty()) {
+    payment_id_h8 = crypto::rand<crypto::hash8>();
+  } else {
+    cryptonote::blobdata payment_id_data;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(payment_id, payment_id_data) || sizeof(crypto::hash8) != payment_id_data.size()) throw std::runtime_error("Invalid payment id");
+    payment_id_h8 = *reinterpret_cast<const crypto::hash8*>(payment_id_data.data());
+  }
+
+  // build integrated address
+  monero_integrated_address integrated_address;
+  integrated_address.m_integrated_address = cryptonote::get_account_integrated_address_as_str(static_cast<cryptonote::network_type>(network_type), address_info.address, payment_id_h8);
+  integrated_address.m_standard_address = standard_address;
+  integrated_address.m_payment_id = epee::string_tools::pod_to_hex(payment_id_h8);
+  return integrated_address;
+}
+
 bool monero_utils::is_valid_address(const std::string& address, monero_network_type network_type) {
   try {
     validate_address(address, network_type);

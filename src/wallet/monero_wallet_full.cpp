@@ -1308,16 +1308,16 @@ namespace monero {
     // TODO monero-project: this logic is based on wallet_rpc_server::on_make_integrated_address() and should be moved to wallet so this is unecessary for api users
 
     // randomly generate payment id if not given, else validate
-    crypto::hash8 paymen_id_h8;
+    crypto::hash8 payment_id_h8;
     if (payment_id.empty()) {
-      paymen_id_h8 = crypto::rand<crypto::hash8>();
+      payment_id_h8 = crypto::rand<crypto::hash8>();
     } else {
-      if (!tools::wallet2::parse_short_payment_id(payment_id, paymen_id_h8)) throw std::runtime_error("Invalid payment ID: " + payment_id);
+      if (!tools::wallet2::parse_short_payment_id(payment_id, payment_id_h8)) throw std::runtime_error("Invalid payment ID: " + payment_id);
     }
 
     // use primary address if standard address not given, else validate
     if (standard_address.empty()) {
-      return decode_integrated_address(m_w2->get_integrated_address_as_str(paymen_id_h8));
+      return decode_integrated_address(m_w2->get_integrated_address_as_str(payment_id_h8));
     } else {
 
       // validate standard address
@@ -1328,7 +1328,7 @@ namespace monero {
       if (payment_id.empty()) throw std::runtime_error("Payment ID shouldn't be left unspecified");
 
       // create integrated address from given standard address
-      return decode_integrated_address(cryptonote::get_account_integrated_address_as_str(m_w2->nettype(), info.address, paymen_id_h8));
+      return decode_integrated_address(cryptonote::get_account_integrated_address_as_str(m_w2->nettype(), info.address, payment_id_h8));
     }
   }
 

@@ -67,21 +67,19 @@ namespace monero_utils
 {
   using namespace cryptonote;
 
-  // ------------------------ CONSTANTS ---------------------------
+  // ------------------------------ CONSTANTS ---------------------------------
 
   static const int RING_SIZE = 12;  // network-enforced ring size
 
-  // -------------------------- VALIDATION UTILS ------------------------------
+  // -------------------------------- UTILS -----------------------------------
 
+  monero_integrated_address get_integrated_address(monero_network_type network_type, const std::string& standard_address, const std::string& payment_id);
   bool is_valid_address(const std::string& address, monero_network_type network_type);
   bool is_valid_private_view_key(const std::string& private_view_key);
   bool is_valid_private_spend_key(const std::string& private_spend_key);
   void validate_address(const std::string& address, monero_network_type network_type);
   void validate_private_view_key(const std::string& private_view_key);
   void validate_private_spend_key(const std::string& private_spend_key);
-
-  // ------------------------ BINARY SERIALIZATION ----------------------------
-
   void json_to_binary(const std::string &json, std::string &bin);
   void binary_to_json(const std::string &bin, std::string &json);
   void binary_blocks_to_json(const std::string &bin, std::string &json);
