@@ -239,7 +239,7 @@ class TestUtils {
 // TODO: export these to key/value properties file for tests
 
 // directory with monero binaries to test (monerod and monero-wallet-rpc)
-TestUtils.MONERO_BINS_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.2.3";
+TestUtils.MONERO_BINS_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.3.0";
 
 // test wallet config
 TestUtils.WALLET_NAME = "test_wallet_1";
