@@ -173,7 +173,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-cpp](https://github.com/monero-ecosystem/monero-cpp)
 * [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - repeatedly sends txs to self to stress test the network (under development)
-* [xmr-sample-app](https://github.com/woodser/xmr-sample-app/) - sample web app template (under development)
+* [monero-deposit-scanner](https://github.com/woodser/monero-deposit-scanner) - scan for incoming deposits to an address using a view key (under development)
 * [monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
 
 ## License
