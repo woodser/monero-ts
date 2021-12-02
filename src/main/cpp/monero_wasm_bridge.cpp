@@ -73,6 +73,15 @@ struct wallet_wasm_listener : public monero_wallet_listener {
 
 // ------------------------------- UTILITIES ----------------------------------
 
+string monero_wasm_bridge::get_integrated_address_util(int network_type, const string& standard_address, const string& payment_id)
+{
+  try {
+    return monero_utils::get_integrated_address(static_cast<monero_network_type>(network_type), standard_address, payment_id).serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
+}
+
 string monero_wasm_bridge::validate_address(const string& address, int network_type)
 {
   try {

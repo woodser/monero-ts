@@ -1,6 +1,7 @@
 const assert = require("assert");
 const monerojs = require("../../index");
 const BigInteger = monerojs.BigInteger;
+const MoneroError = monerojs.MoneroError;
 const MoneroUtils = monerojs.MoneroUtils;
 const MoneroNetworkType = monerojs.MoneroNetworkType;
 const LibraryUtils = monerojs.LibraryUtils;
@@ -16,6 +17,33 @@ class TestMoneroUtils {
       // initialize utils to test
       before(async function() {
         await LibraryUtils.loadKeysModule();
+      });
+      
+      it("Can get integrated addresses", function() {
+        let standardAddress = "7BkLzfgpZZXjmEpLokETw3D1WbRr6uURFQupdEDFFZGYRJy5E47T4EkXuWYU5B5kF34kr7bqX6fLP6y9mkz32VgS1PATHkt";
+        let paymentId = "03284e41c342f036";
+        let networkType = MoneroNetworkType.STAGENET;
+        
+        // get integrated address with randomly generated payment id
+        let integratedAddress = MoneroUtils.getIntegratedAddress(networkType, standardAddress);
+        assert.equal(standardAddress, integratedAddress.getStandardAddress());
+        assert.equal(16, integratedAddress.getPaymentId().length);
+        assert.equal(106, integratedAddress.getIntegratedAddress().length);
+        
+        // get integrated address with specific payment id
+        integratedAddress = MoneroUtils.getIntegratedAddress(networkType, standardAddress, paymentId);
+        assert.equal(standardAddress, integratedAddress.getStandardAddress());
+        assert.equal(paymentId, integratedAddress.getPaymentId());
+        assert.equal(106, integratedAddress.getIntegratedAddress().length);
+        
+        // get integrated address with invalid payment id
+        try {
+          MoneroUtils.getIntegratedAddress(networkType, standardAddress, "123");
+          throw new Error("Getting integrated address with invalid payment id should have failed");
+        } catch (err) {
+          assert(err instanceof MoneroError);
+          assert.equal("Invalid payment id", err.message);
+        }
       });
       
       it("Can serialize heights with small numbers", function() {

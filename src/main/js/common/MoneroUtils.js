@@ -3,6 +3,7 @@ const BigInteger = require("./biginteger").BigInteger;
 const GenUtils = require("./GenUtils");
 const LibraryUtils = require("./LibraryUtils");
 const MoneroError = require("./MoneroError");
+const MoneroIntegratedAddress = require("../wallet/model/MoneroIntegratedAddress");
 const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
 
 /**
@@ -131,6 +132,30 @@ class MoneroUtils {
   }
   
   /**
+   * Get an integrated address.
+   * 
+   * @param {string} standardAddress - primary address or subaddress for the integrated address
+   * @param {string} paymentId - optionally specifies the integrated address's payment id (defaults to random payment id)
+   * @return {MoneroIntegratedAddress} the integrated address
+   */
+  static getIntegratedAddress(networkType, standardAddress, paymentId) {
+  
+    // validate inputs
+    MoneroNetworkType.validate(networkType);
+    assert(typeof standardAddress === "string", "Address is not string");
+    assert(standardAddress.length > 0, "Address is empty");
+    assert(GenUtils.isBase58(standardAddress), "Address is not base 58");
+  
+    // wasm module must be preloaded
+    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    
+    // get integrated address
+    let integratedAddressJson = LibraryUtils.getWasmModule().get_integrated_address_util(networkType, standardAddress, paymentId ? paymentId : "");
+    if (integratedAddressJson.charAt(0) !== '{') throw new MoneroError(integratedAddressJson);
+    return new MoneroIntegratedAddress(JSON.parse(integratedAddressJson));
+  }
+  
+  /**
    * Determine if the given address is valid.
    * 
    * @param {string} address - address
@@ -146,7 +171,7 @@ class MoneroUtils {
     try {
       MoneroUtils.validateAddress(address, networkType);
       return true;
-    } catch (e) {
+    } catch (err) {
       return false;
     }
   }
