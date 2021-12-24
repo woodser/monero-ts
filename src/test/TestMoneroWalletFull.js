@@ -401,10 +401,16 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // create full wallet
         walletName = GenUtils.getUUID();
-        walletFull = await monerojs.createWalletFull(new MoneroWalletConfig().setPath(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setMnemonic(TestUtils.MNEMONIC).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setServer(TestUtils.DAEMON_RPC_CONFIG));
+        let path = TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName;
+        walletFull = await monerojs.createWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setMnemonic(TestUtils.MNEMONIC).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.sync();
         balance = await walletFull.getBalance();
         outputsHex = await walletFull.exportOutputs();
+        await walletFull.close(true);
+        
+        // rebuild wallet cache using full wallet
+        TestUtils.getDefaultFs().unlinkSync(path);
+        walletFull = await monerojs.openWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.close(true);
         
         // open wallet using monero-wallet-rpc
@@ -414,7 +420,6 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(TestUtils.ADDRESS, await walletRpc.getPrimaryAddress());
         assert.equal(balance.toString(), (await walletRpc.getBalance()).toString());
         assert.equal(outputsHex.length, (await walletRpc.exportOutputs()).length);
-        await walletRpc.close(true);
       });
       
       if (!testConfig.liteMode && (testConfig.testNonRelays || testConfig.testRelays))

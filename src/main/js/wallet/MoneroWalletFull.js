@@ -53,7 +53,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = MoneroWalletFull._getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
-    let exists = fs.existsSync(path); // TODO: look for keys file
+    let exists = fs.existsSync(path + ".keys");
     LibraryUtils.log(1, "Wallet exists at " + path + ": " + exists);
     return exists;
   }
@@ -127,9 +127,9 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (!config.getKeysData()) {
       let fs = config.getFs() ? config.getFs() : MoneroWalletFull._getFs();
       if (!fs) throw new MoneroError("Must provide file system to read wallet data from");
-      if (!await this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
+      if (!this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
       config.setKeysData(fs.readFileSync(config.getPath() + ".keys"));
-      config.setCacheData(fs.readFileSync(config.getPath()));
+      config.setCacheData(fs.existsSync(config.getPath()) ? fs.readFileSync(config.getPath()) : "");
     }
     
     // open wallet from data
@@ -203,7 +203,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
@@ -246,7 +246,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
@@ -290,7 +290,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (address === undefined) address = "";
@@ -1939,7 +1939,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
@@ -1949,7 +1949,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
@@ -1959,7 +1959,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
-    if (path && await MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
+    if (path && MoneroWalletFull.walletExists(path, fs)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "_createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
