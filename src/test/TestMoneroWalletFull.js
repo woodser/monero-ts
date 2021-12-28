@@ -420,6 +420,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(TestUtils.ADDRESS, await walletRpc.getPrimaryAddress());
         assert.equal(balance.toString(), (await walletRpc.getBalance()).toString());
         assert.equal(outputsHex.length, (await walletRpc.exportOutputs()).length);
+        await walletRpc.close(true);
       });
       
       if (!testConfig.liteMode && (testConfig.testNonRelays || testConfig.testRelays))
