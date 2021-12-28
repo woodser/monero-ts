@@ -203,8 +203,9 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   async stopProcess() {
     if (this.process === undefined) throw new MoneroError("MoneroWalletRpc instance not created from new process");
-    await this._clear();
-    this.process.kill();
+    let listenersCopy = GenUtils.copyArray(this.getListeners());
+    for (let listener of listenersCopy) await this.removeListener(listener);
+    return GenUtils.killProcess(this.process);
   }
   
   /**

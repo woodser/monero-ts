@@ -1491,6 +1491,19 @@ class GenUtils {
   static async waitFor(duration) {
     return new Promise(function(resolve) { setTimeout(resolve, duration); });
   }
+  
+  /**
+   * Kill the given nodejs child process.
+   * 
+   * @param process is the nodejs child process to kill
+   */
+  static async killProcess(process) {
+    return new Promise(function(resolve, reject) {
+      process.on("exit", function() { resolve(); });
+      process.on("error", function(err) { reject(err); });
+      process.kill("SIGINT");
+    });
+  }
 }
 
 module.exports = GenUtils;

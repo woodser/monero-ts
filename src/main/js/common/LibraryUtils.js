@@ -159,7 +159,6 @@ class LibraryUtils {
     
     // one time initialization
     if (!LibraryUtils.WORKER) {
-      LibraryUtils.WORKER;
       if (GenUtils.isBrowser()) LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
       else { 
        const Worker = require("web-worker"); // import web worker if nodejs

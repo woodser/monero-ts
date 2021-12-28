@@ -203,7 +203,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (this.process === undefined) throw new MoneroError("MoneroDaemonRpc instance not created from new process");
     let listenersCopy = GenUtils.copyArray(this.getListeners());
     for (let listener of listenersCopy) await this.removeListener(listener);
-    this.process.kill();
+    return GenUtils.killProcess(this.process);
   }
   
   async addListener(listener) {
