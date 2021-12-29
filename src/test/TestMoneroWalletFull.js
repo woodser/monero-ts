@@ -1186,7 +1186,6 @@ class SyncProgressTester extends WalletSyncPrinter {
     this.wallet = wallet;
     assert(startHeight >= 0);
     assert(endHeight >= 0);
-    console.log("Expected start height: " + startHeight);
     this.startHeight = startHeight;
     this.prevEndHeight = endHeight;
     this.isDone = false;

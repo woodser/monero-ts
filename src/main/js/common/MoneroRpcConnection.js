@@ -111,9 +111,10 @@ class MoneroRpcConnection {
   }
   
   /**
-   * Set the connection's priority relative to other managed connections.
+   * Set the connection's priority relative to other connections. Priority 1 is highest,
+   * then priority 2, etc. The default priority of 0 is lowest priority.
    * 
-   * @param {int} priority - the connection priority which increases as the value increases (default 0)
+   * @param {int} priority - the connection priority (default 0)
    * @return {MoneroRpcConnection} this connection
    */
   setPriority(priority) {
@@ -136,7 +137,7 @@ class MoneroRpcConnection {
    * Check the connection status to update isOnline, isAuthenticated, etc.
    * 
    * @param {int} timeoutInMs - maximum response time before considered offline
-   * @return {boolean} true if there is a change in status, false otherwise
+   * @return {Promise<boolean>} true if there is a change in status, false otherwise
    */
   async checkConnection(timeoutInMs) {
     let isOnlineBefore = this._isOnline;
