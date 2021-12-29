@@ -296,8 +296,8 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from keys
-          let wallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
-          let path; try { path = await wallet.getPath(); } catch(e) { }  // TODO: factor out keys-only tests?
+          let wallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, restoreHeight: await that.daemon.getHeight()});
+          let path; try { path = await wallet.getPath(); } catch(e) { } // TODO: factor out keys-only tests?
           let e2 = undefined;
           try {
             assert.equal(await wallet.getPrimaryAddress(), primaryAddress);
@@ -313,6 +313,27 @@ class TestMoneroWalletCommon {
           }
           await that.closeWallet(wallet);
           if (e2 !== undefined) throw e2;
+          
+          // recreate test wallet from spend key
+          if (!(wallet instanceof MoneroWalletRpc)) { // TODO monero-wallet-rpc: cannot create wallet from spend key?
+            wallet = await that.createWallet({privateSpendKey: privateSpendKey, restoreHeight: await that.daemon.getHeight()});
+            try { path = await wallet.getPath(); } catch(e) { } // TODO: factor out keys-only tests?
+            e2 = undefined;
+            try {
+              assert.equal(await wallet.getPrimaryAddress(), primaryAddress);
+              assert.equal(await wallet.getPrivateViewKey(), privateViewKey);
+              assert.equal(await wallet.getPrivateSpendKey(), privateSpendKey);
+              if (!(wallet instanceof MoneroWalletKeys) && !await wallet.isConnectedToDaemon()) console.log("WARNING: wallet created from keys is not connected to authenticated daemon"); // TODO monero-project: keys wallets not connected
+              if (!(wallet instanceof MoneroWalletRpc)) {
+                assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+                assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+              }
+            } catch (e) {
+              e2 = e;
+            }
+            await that.closeWallet(wallet);
+            if (e2 !== undefined) throw e2;
+          }
           
           // attempt to create wallet at same path
           if (path) {
@@ -4403,8 +4424,6 @@ class TestMoneroWalletCommon {
     
     // test sending a multisig transaction if configured
     if (testTx) {
-      
-      console.log("Creating account");
       
       // create an account in the first multisig wallet to receive funds to
       await participant.createAccount();

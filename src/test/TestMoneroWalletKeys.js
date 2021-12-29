@@ -16,10 +16,8 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     super(config);
   }
   
-  // override default behavior from common tests
-  async beforeAll() {
-    console.log("Before all");
-    this.wallet = await this.getTestWallet();
+  async beforeAll(currentTest) {
+    await super.beforeAll(currentTest);
   }
   
   async beforeEach(currentTest) {
@@ -40,7 +38,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   }
   
   async getTestDaemon() {
-    throw new Error("TestMoneroWalletKeys.getTestDaemon() not applicable");
+    return await TestUtils.getDaemonRpc();
   }
   
   async openWallet(config) {

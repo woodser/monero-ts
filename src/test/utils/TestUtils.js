@@ -89,7 +89,7 @@ class TestUtils {
   /**
    * Create a monero-wallet-rpc process bound to the next available port.
    *
-   * @return {MoneroWalletRpc} - client connected to an internal monero-wallet-rpc instance
+   * @return {Promise<MoneroWalletRpc>} - client connected to an internal monero-wallet-rpc instance
    */
   static async startWalletRpcProcess() {
     
