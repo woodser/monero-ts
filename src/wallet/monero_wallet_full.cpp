@@ -1093,11 +1093,7 @@ namespace monero {
     MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, network_type, daemon_connection, restore_height, language)");
     monero_wallet_full* wallet = new monero_wallet_full();
 
-    // validate and parse address
-    cryptonote::address_parse_info info;
-    if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("failed to parse address");
-
-    // validate and parse optional private spend key
+    // parse and validate private spend key
     crypto::secret_key spend_key_sk;
     bool has_spend_key = false;
     if (!spend_key.empty()) {
@@ -1109,12 +1105,12 @@ namespace monero {
       spend_key_sk = *reinterpret_cast<const crypto::secret_key*>(spend_key_data.data());
     }
 
-    // validate and parse private view key
+    // parse and validate private view key
     bool has_view_key = true;
     crypto::secret_key view_key_sk;
     if (view_key.empty()) {
       if (has_spend_key) has_view_key = false;
-      else throw std::runtime_error("Neither view key nor spend key supplied, cancelled");
+      else throw std::runtime_error("Neither spend key nor view key supplied");
     }
     if (has_view_key) {
       cryptonote::blobdata view_key_data;
@@ -1124,15 +1120,23 @@ namespace monero {
       view_key_sk = *reinterpret_cast<const crypto::secret_key*>(view_key_data.data());
     }
 
-    // check the spend and view keys match the given address
-    crypto::public_key pkey;
-    if (has_spend_key) {
-      if (!crypto::secret_key_to_public_key(spend_key_sk, pkey)) throw std::runtime_error("failed to verify secret spend key");
-      if (info.address.m_spend_public_key != pkey) throw std::runtime_error("spend key does not match address");
-    }
-    if (has_view_key) {
-      if (!crypto::secret_key_to_public_key(view_key_sk, pkey)) throw std::runtime_error("failed to verify secret view key");
-      if (info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
+    // parse and validate address
+    cryptonote::address_parse_info address_info;
+    if (address.empty()) {
+      if (has_view_key) throw std::runtime_error("must provide address if providing private view key");
+    } else {
+      if (!get_account_address_from_str(address_info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("failed to parse address");
+
+      // check the spend and view keys match the given address
+      crypto::public_key pkey;
+      if (has_spend_key) {
+        if (!crypto::secret_key_to_public_key(spend_key_sk, pkey)) throw std::runtime_error("failed to verify secret spend key");
+        if (address_info.address.m_spend_public_key != pkey) throw std::runtime_error("spend key does not match address");
+      }
+      if (has_view_key) {
+        if (!crypto::secret_key_to_public_key(view_key_sk, pkey)) throw std::runtime_error("failed to verify secret view key");
+        if (address_info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
+      }
     }
 
     // validate language
@@ -1141,9 +1145,9 @@ namespace monero {
     // initialize wallet
     if (http_client_factory == nullptr) wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, std::move(http_client_factory)));
-    if (has_spend_key && has_view_key) wallet->m_w2->generate(path, password, info.address, spend_key_sk, view_key_sk);
+    if (has_spend_key && has_view_key) wallet->m_w2->generate(path, password, address_info.address, spend_key_sk, view_key_sk);
     else if (has_spend_key) wallet->m_w2->generate(path, password, spend_key_sk, true, false);
-    else wallet->m_w2->generate(path, password, info.address, view_key_sk);
+    else wallet->m_w2->generate(path, password, address_info.address, view_key_sk);
     wallet->set_daemon_connection(daemon_connection);
     wallet->m_w2->set_refresh_from_block_height(restore_height);
     wallet->m_w2->set_seed_language(language);

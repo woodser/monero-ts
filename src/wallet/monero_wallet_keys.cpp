@@ -127,11 +127,7 @@ namespace monero {
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_keys(const monero_network_type network_type, const std::string& address, const std::string& view_key, const std::string& spend_key, const std::string& language) {
 
-    // validate and parse address
-    cryptonote::address_parse_info info;
-    if (!cryptonote::get_account_address_from_str(info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("failed to parse address");
-
-    // validate and parse optional private spend key
+    // parse and validate private spend key
     crypto::secret_key spend_key_sk;
     bool has_spend_key = false;
     if (!spend_key.empty()) {
@@ -143,12 +139,12 @@ namespace monero {
       spend_key_sk = *reinterpret_cast<const crypto::secret_key*>(spend_key_data.data());
     }
 
-    // validate and parse private view key
+    // parse and validate private view key
     bool has_view_key = true;
     crypto::secret_key view_key_sk;
     if (view_key.empty()) {
       if (has_spend_key) has_view_key = false;
-      else throw std::runtime_error("Neither view key nor spend key supplied, cancelled");
+      else throw std::runtime_error("Neither spend key nor view key supplied");
     }
     if (has_view_key) {
       cryptonote::blobdata view_key_data;
@@ -158,15 +154,23 @@ namespace monero {
       view_key_sk = *reinterpret_cast<const crypto::secret_key*>(view_key_data.data());
     }
 
-    // check the spend and view keys match the given address
-    crypto::public_key pkey;
-    if (has_spend_key) {
-      if (!crypto::secret_key_to_public_key(spend_key_sk, pkey)) throw std::runtime_error("failed to verify secret spend key");
-      if (info.address.m_spend_public_key != pkey) throw std::runtime_error("spend key does not match address");
-    }
-    if (has_view_key) {
-      if (!crypto::secret_key_to_public_key(view_key_sk, pkey)) throw std::runtime_error("failed to verify secret view key");
-      if (info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
+    // parse and validate address
+    cryptonote::address_parse_info address_info;
+    if (address.empty()) {
+      if (has_view_key) throw std::runtime_error("must provide address if providing private view key");
+    } else {
+      if (!get_account_address_from_str(address_info, static_cast<cryptonote::network_type>(network_type), address)) throw std::runtime_error("failed to parse address");
+
+      // check the spend and view keys match the given address
+      crypto::public_key pkey;
+      if (has_spend_key) {
+        if (!crypto::secret_key_to_public_key(spend_key_sk, pkey)) throw std::runtime_error("failed to verify secret spend key");
+        if (address_info.address.m_spend_public_key != pkey) throw std::runtime_error("spend key does not match address");
+      }
+      if (has_view_key) {
+        if (!crypto::secret_key_to_public_key(view_key_sk, pkey)) throw std::runtime_error("failed to verify secret view key");
+        if (address_info.address.m_view_public_key != pkey) throw std::runtime_error("view key does not match address");
+      }
     }
 
     // validate language
@@ -175,11 +179,11 @@ namespace monero {
     // initialize wallet account
     monero_wallet_keys* wallet = new monero_wallet_keys();
     if (has_spend_key && has_view_key) {
-      wallet->m_account.create_from_keys(info.address, spend_key_sk, view_key_sk);
+      wallet->m_account.create_from_keys(address_info.address, spend_key_sk, view_key_sk);
     } else if (has_spend_key) {
       wallet->m_account.generate(spend_key_sk, true, false);
     } else {
-      wallet->m_account.create_from_viewkey(info.address, view_key_sk);
+      wallet->m_account.create_from_viewkey(address_info.address, view_key_sk);
     }
 
     // initialize remaining wallet
