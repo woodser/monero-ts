@@ -158,7 +158,10 @@ class MoneroConnectionManager {
   setConnection(uriOrConnection) {
     
     // handle uri
-    if (typeof uriOrConnection === "string") return this.setConnection(new MoneroRpcConnection(uriOrConnection));
+    if (typeof uriOrConnection === "string") {
+      let connection = this.getConnectionByUri(uriOrConnection);
+      return this.setConnection(connection === undefined ? new MoneroRpcConnection(uriOrConnection) : connection);
+    }
     
     // handle connection
     let connection = uriOrConnection;
