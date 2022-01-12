@@ -72,6 +72,10 @@ class MoneroRpcConnection {
       if (!username) throw new MoneroError("username must be defined because password is defined");
       if (!password) throw new MoneroError("password must be defined because username is defined");
     }
+    if (this._config.username !== username || this._config.password !== password) {
+      this._isOnline = undefined;
+      this._isAuthenticated = undefined;
+    }
     this._config.username = username;
     this._config.password = password;
     return this;
@@ -134,7 +138,7 @@ class MoneroRpcConnection {
   }
   
   /**
-   * Check the connection status to update isOnline, isAuthenticated, etc.
+   * Check the connection status to update isOnline, isAuthenticated, and response time.
    * 
    * @param {int} timeoutInMs - maximum response time before considered offline
    * @return {Promise<boolean>} true if there is a change in status, false otherwise
@@ -160,6 +164,10 @@ class MoneroRpcConnection {
     }
     if (this._isOnline) this._responseTime = Date.now() - startTime;
     return isOnlineBefore !== this._isOnline || isAuthenticatedBefore !== this._isAuthenticated;
+  }
+  
+  isConnected() {
+    return this._isOnline && this._isAuthenticated !== false;
   }
   
   isOnline() {

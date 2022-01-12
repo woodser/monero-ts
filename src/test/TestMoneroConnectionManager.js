@@ -178,22 +178,35 @@ class TestMoneroConnectionManager {
           assert(listener.changedConnections[listener.changedConnections.length - 1] === walletRpcs[2].getRpcConnection());
           
           // set connection to new uri
+          connectionManager.stopCheckingConnection();
           let uri = "http://localhost:49999";
           connectionManager.setConnection(uri);
           assert.equal(connectionManager.getConnection().getUri(), uri);
           assert.equal(9, listener.changedConnections.length);
           assert.equal(uri, listener.changedConnections[listener.changedConnections.length - 1].getUri());
           
-          // test no available connection
-          connection = await connectionManager.getBestAvailableConnection();
-          connectionManager.setConnection(connection);
+          // set connection to empty string
+          connectionManager.setConnection("");
+          assert.equal(undefined, connectionManager.getConnection());
           assert.equal(10, listener.changedConnections.length);
+          
+          // check all connections and test auto switch
           connectionManager.setAutoSwitch(true);
+          await connectionManager.checkConnections();
+          assert.equal(11, listener.changedConnections.length);
+          assert(connectionManager.isConnected());
+          
+          // check connection promises
+          await Promise.all(connectionManager.checkConnectionPromises());
+          
+          // shut down all connections
+          connection = connectionManager.getConnection();
+          await connectionManager.startCheckingConnection(TestUtils.SYNC_PERIOD_IN_MS);
           for (let walletRpc of walletRpcs) walletRpc.getRpcConnection()._setFakeDisconnected(true); // browser does not start or stop instances
           await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100);
-          assert.equal(11, listener.changedConnections.length);
-          assert(listener.changedConnections[listener.changedConnections.length - 1] == connection);
           assert.equal(false, connection.isOnline());
+          assert.equal(12, listener.changedConnections.length);
+          assert(listener.changedConnections[listener.changedConnections.length - 1] == connection);
           
           // stop polling connection
           connectionManager.stopCheckingConnection();
