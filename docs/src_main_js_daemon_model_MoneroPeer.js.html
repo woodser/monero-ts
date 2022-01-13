@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: src/main/js/daemon/model/MoneroBlock.js</title>
+    <title>JSDoc: Source: src/main/js/daemon/model/MoneroPeer.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroBlock.js</h1>
+    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroPeer.js</h1>
 
     
 
@@ -26,164 +26,266 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroBlockHeader = require("./MoneroBlockHeader");
-const MoneroTx = require("./MoneroTx");
-const MoneroTxQuery = require("../../wallet/model/MoneroTxQuery");
-const MoneroTxWallet = require("../../wallet/model/MoneroTxWallet");
+            <pre class="prettyprint source linenums"><code>const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
- * Models a Monero block in the blockchain.
- * 
- * @extends {MoneroBlockHeader}
+ * Models a peer to the daemon.
  */
-class MoneroBlock extends MoneroBlockHeader {
+class MoneroPeer {
   
-  /**
-   * Construct the model.
-   * 
-   * @param {MoneroBlock|MoneroBlockHeader|object} state is existing state to initialize from (optional)
-   * @param {MoneroBlock.DeserializationType} txType informs the tx deserialization type (MoneroTx, MoneroTxWallet, MoneroTxQuery)
-   */
-  constructor(state, txType) {
-    super(state);
-    state = this.state;
-    
-    // deserialize miner tx
-    if (state.minerTx &amp;&amp; !(state.minerTx instanceof MoneroTx)) state.minerTx = new MoneroTx(state.minerTx).setBlock(this);
-    
-    // deserialize non-miner txs
-    if (state.txs) {
-      for (let i = 0; i &lt; state.txs.length; i++) {
-        if (txType === MoneroBlock.DeserializationType.TX || txType === undefined) {
-          if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
-        } else if (txType === MoneroBlock.DeserializationType.TX_WALLET) {
-          if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]).setBlock(this);
-        } else if (txType === MoneroBlock.DeserializationType.TX_QUERY) {
-          if (!(state.txs[i] instanceof MoneroTxQuery)) state.txs[i] = new MoneroTxQuery(state.txs[i]).setBlock(this);
-        } else {
-          throw new Error("Unrecognized tx deserialization type: " + txType);
-        }
-      }
-    }
-  }
-  
-  getHex() {
-    return this.state.hex;
-  }
-  
-  setHex(hex) {
-    this.state.hex = hex;
-    return this;
-  }
-  
-  getMinerTx() {
-    return this.state.minerTx;
-  }
-  
-  setMinerTx(minerTx) {
-    this.state.minerTx = minerTx;
-    return this;
-  }
-  
-  getTxs() {
-    return this.state.txs;
-  }
-  
-  setTxs(txs) {
-    this.state.txs = txs;
-    return this;
-  }
-  
-  getTxHashes() {
-    return this.state.txHashes;
-  }
-  
-  setTxHashes(txHashes) {
-    this.state.txHashes = txHashes;
-    return this;
-  }
-  
-  copy() {
-    return new MoneroBlock(this);
+  constructor(state) {
+    this.state = Object.assign({}, state);
+    if (this.state.rpcCreditsPerHash !== undefined &amp;&amp; !(this.state.rpcCreditsPerHash instanceof BigInteger)) this.state.rpcCreditsPerHash = BigInteger.parse(this.state.rpcCreditsPerHash);
   }
   
   toJson() {
-    let json = super.toJson();
-    if (this.getMinerTx()) json.minerTx = this.getMinerTx().toJson();
-    if (this.getTxs()) {
-      json.txs = [];
-      for (let tx of this.getTxs()) json.txs.push(tx.toJson());
-    }
+    let json = Object.assign({}, this.state);
+    if (json.rpcCreditsPerHash) json.rpcCreditsPerHash = json.rpcCreditsPerHash.toString();
     return json;
   }
   
-  merge(block) {
-    assert(block instanceof MoneroBlock);
-    if (this === block) return this;
-    
-    // merge header fields
-    super.merge(block);
-    
-    // merge reconcilable block extensions
-    this.setHex(GenUtils.reconcile(this.getHex(), block.getHex()));
-    this.setTxHashes(GenUtils.reconcile(this.getTxHashes(), block.getTxHashes()));
-    
-    // merge miner tx
-    if (this.getMinerTx() === undefined) this.setMinerTx(block.getMinerTx());
-    if (block.getMinerTx() !== undefined) {
-      block.getMinerTx().setBlock(this);
-      this.getMinerTx().merge(block.getMinerTx());
-    }
-    
-    // merge non-miner txs
-    if (block.getTxs() !== undefined) {
-      for (let tx of block.getTxs()) {
-        tx.setBlock(this);
-        MoneroBlock._mergeTx(this.getTxs(), tx);
-      }
-    }
+  getId() {
+    return this.state.id;
+  }
 
+  setId(id) {
+    this.state.id = id;
+    return this;
+  }
+
+  getAddress() {
+    return this.state.address;
+  }
+
+  setAddress(address) {
+    this.state.address = address;
+    return this;
+  }
+
+  getHost() {
+    return this.state.host;
+  }
+
+  setHost(host) {
+    this.state.host = host;
+    return this;
+  }
+
+  getPort() {
+    return this.state.port;
+  }
+
+  setPort(port) {
+    this.state.port = port;
     return this;
   }
   
-  toString(indent = 0) {
-    let str = super.toString(indent) + "\n";
-    str += GenUtils.kvLine("Hex", this.getHex(), indent);
-    if (this.getTxs()) {
-      str += GenUtils.kvLine("Txs", "", indent);
-      for (let tx of this.getTxs()) {
-        str += tx.toString(indent + 1) + "\n";
-      }
-    }
-    if (this.getMinerTx()) {
-      str += GenUtils.kvLine("Miner tx", "", indent);
-      str += this.getMinerTx().toString(indent + 1) + "\n";
-    }
-    str += GenUtils.kvLine("Txs hashes", this.getTxHashes(), indent);
-    return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
+  /**
+   * Indicates if the peer was online when last checked (aka "white listed" as
+   * opposed to "gray listed").
+   * 
+   * @return {boolean} true if peer was online when last checked, false otherwise
+   */
+  isOnline() {
+    return this.state.isOnline;
   }
   
-  // private helper to merge txs
-  static _mergeTx(txs, tx) {
-    for (let aTx of txs) {
-      if (aTx.getHash() === tx.getHash()) {
-        aTx.merge(tx);
-        return;
-      }
-    }
-    txs.push(tx);
+  setIsOnline(isOnline) {
+    this.state.isOnline = isOnline;
+    return this;
+  }
+  
+  getLastSeenTimestamp() {
+    return this.state.lastSeenTimestamp;
+  }
+  
+  setLastSeenTimestamp(lastSeenTimestamp) {
+    this.state.lastSeenTimestamp = lastSeenTimestamp;
+    return this;
+  }
+  
+  getPruningSeed() {
+    return this.state.pruningSeed;
+  }
+  
+  setPruningSeed(pruningSeed) {
+    this.state.pruningSeed = pruningSeed;
+    return this;
+  }
+  
+  getRpcPort() {
+    return this.state.rpcPort;
+  }
+
+  setRpcPort(rpcPort) {
+    this.state.rpcPort = rpcPort;
+    return this;
+  }
+  
+  getRpcCreditsPerHash() {
+    return this.state.rpcCreditsPerHash;
+  }
+  
+  setRpcCreditsPerHash(rpcCreditsPerHash) {
+    this.state.rpcCreditsPerHash = rpcCreditsPerHash;
+    return this;
+  }
+  
+    getId() {
+    return this.state.id;
+  }
+
+  setId(id) {
+    this.state.id = id;
+    return this;
+  }
+
+  getAvgDownload() {
+    return this.state.avgDownload;
+  }
+
+  setAvgDownload(avgDownload) {
+    this.state.avgDownload = avgDownload;
+    return this;
+  }
+
+  getAvgUpload() {
+    return this.state.avgUpload;
+  }
+
+  setAvgUpload(avgUpload) {
+    this.state.avgUpload = avgUpload;
+    return this;
+  }
+
+  getCurrentDownload() {
+    return this.state.currentDownload;
+  }
+
+  setCurrentDownload(currentDownload) {
+    this.state.currentDownload = currentDownload;
+    return this;
+  }
+
+  getCurrentUpload() {
+    return this.state.currentUpload;
+  }
+
+  setCurrentUpload(currentUpload) {
+    this.state.currentUpload = currentUpload;
+    return this;
+  }
+
+  getHeight() {
+    return this.state.height;
+  }
+
+  setHeight(height) {
+    this.state.height = height;
+    return this;
+  }
+
+  isIncoming() {
+    return this.state.isIncoming;
+  }
+
+  setIsIncoming(isIncoming) {
+    this.state.isIncoming = isIncoming;
+    return this;
+  }
+
+  getLiveTime() {
+    return this.state.liveTime;
+  }
+
+  setLiveTime(liveTime) {
+    this.state.liveTime = liveTime;
+    return this;
+  }
+
+  isLocalIp() {
+    return this.state.isLocalIp;
+  }
+
+  setIsLocalIp(isLocalIp) {
+    this.state.isLocalIp = isLocalIp;
+    return this;
+  }
+
+  isLocalHost() {
+    return this.state.isLocalHost;
+  }
+
+  setIsLocalHost(isLocalHost) {
+    this.state.isLocalHost = isLocalHost;
+    return this;
+  }
+
+  getNumReceives() {
+    return this.state.numReceives;
+  }
+
+  setNumReceives(numReceives) {
+    this.state.numReceives = numReceives;
+    return this;
+  }
+
+  getNumSends() {
+    return this.state.numSends;
+  }
+
+  setNumSends(numSends) {
+    this.state.numSends = numSends;
+    return this;
+  }
+
+  getReceiveIdleTime() {
+    return this.state.receiveIdleTime;
+  }
+
+  setReceiveIdleTime(receiveIdleTime) {
+    this.state.receiveIdleTime = receiveIdleTime;
+    return this;
+  }
+
+  getSendIdleTime() {
+    return this.state.sendIdleTime;
+  }
+
+  setSendIdleTime(sendIdleTime) {
+    this.state.sendIdleTime = sendIdleTime;
+    return this;
+  }
+
+  getState() {
+    return this.state.state;
+  }
+
+  setState(state) {
+    this.state.state = state;
+    return this;
+  }
+
+  getNumSupportFlags() {
+    return this.state.numSupportFlags;
+  }
+
+  setNumSupportFlags(numSupportFlags) {
+    this.state.numSupportFlags = numSupportFlags;
+    return this;
+  }
+  
+  getType() {
+    return this.state.type;
+  }
+  
+  setType(type) {
+    this.state.type = type;
+    return this;
   }
 }
 
-MoneroBlock.DeserializationType = {
-    TX: 0,
-    TX_WALLET: 1,
-    TX_QUERY: 2
-}
-
-module.exports = MoneroBlock;</code></pre>
+module.exports = MoneroPeer;</code></pre>
         </article>
     </section>
 
