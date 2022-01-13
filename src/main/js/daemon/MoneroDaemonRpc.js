@@ -9,10 +9,8 @@ const MoneroBlock = require("./model/MoneroBlock");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
 const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemon = require("./MoneroDaemon");
-const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonListener = require("./model/MoneroDaemonListener");
-const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroError = require("../common/MoneroError");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
@@ -22,6 +20,7 @@ const MoneroMiningStatus = require("./model/MoneroMiningStatus");
 const MoneroNetworkType = require("./model/MoneroNetworkType");
 const MoneroOutput = require("./model/MoneroOutput");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
+const MoneroPeer = require("./model/MoneroPeer");
 const MoneroRpcConnection = require("../common/MoneroRpcConnection");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTx = require("./model/MoneroTx");
@@ -674,15 +673,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return (await this._setBandwidthLimits(0, -1))[1];
   }
   
-  async getConnections() {
+  async getPeers() {
     let resp = await this.rpc.sendJsonRequest("get_connections");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    let connections = [];
-    if (!resp.result.connections) return connections;
+    let peers = [];
+    if (!resp.result.connections) return peers;
     for (let rpcConnection of resp.result.connections) {
-      connections.push(MoneroDaemonRpc._convertRpcConnection(rpcConnection));
+      peers.push(MoneroDaemonRpc._convertRpcConnection(rpcConnection));
     }
-    return connections;
+    return peers;
   }
   
   async getKnownPeers() {
@@ -1189,10 +1188,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcSyncInfo[key];
       if (key === "height") syncInfo.setHeight(val);
       else if (key === "peers") {
-        syncInfo.setConnections([]);
+        syncInfo.setPeers([]);
         let rpcConnections = val;
         for (let rpcConnection of rpcConnections) {
-          syncInfo.getConnections().push(MoneroDaemonRpc._convertRpcConnection(rpcConnection.info));
+          syncInfo.getPeers().push(MoneroDaemonRpc._convertRpcConnection(rpcConnection.info));
         }
       }
       else if (key === "spans") {
@@ -1243,7 +1242,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   static _convertRpcConnectionSpan(rpcConnectionSpan) {
-    let span = new MoneroDaemonConnectionSpan();
+    let span = new MoneroConnectionSpan();
     for (let key of Object.keys(rpcConnectionSpan)) {
       let val = rpcConnectionSpan[key];
       if (key === "connection_id") span.setConnectionId(val);
@@ -1338,7 +1337,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _convertRpcPeer(rpcPeer) {
     assert(rpcPeer);
-    let peer = new MoneroDaemonPeer();
+    let peer = new MoneroPeer();
     for (let key of Object.keys(rpcPeer)) {
       let val = rpcPeer[key];
       if (key === "host") peer.setHost(val);
@@ -1355,40 +1354,38 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   static _convertRpcConnection(rpcConnection) {
-    let connection = new MoneroDaemonConnection();
-    let peer = new MoneroDaemonPeer();
-    connection.setPeer(peer);
+    let peer = new MoneroPeer();
     peer.setIsOnline(true);
     for (let key of Object.keys(rpcConnection)) {
       let val = rpcConnection[key];
       if (key === "address") peer.setAddress(val);
-      else if (key === "avg_download") connection.setAvgDownload(val);
-      else if (key === "avg_upload") connection.setAvgUpload(val);
-      else if (key === "connection_id") connection.setId(val);
-      else if (key === "current_download") connection.setCurrentDownload(val);
-      else if (key === "current_upload") connection.setCurrentUpload(val);
-      else if (key === "height") connection.setHeight(val);
+      else if (key === "avg_download") peer.setAvgDownload(val);
+      else if (key === "avg_upload") peer.setAvgUpload(val);
+      else if (key === "connection_id") peer.setId(val);
+      else if (key === "current_download") peer.setCurrentDownload(val);
+      else if (key === "current_upload") peer.setCurrentUpload(val);
+      else if (key === "height") peer.setHeight(val);
       else if (key === "host") peer.setHost(val);
       else if (key === "ip") {} // host used instead which is consistently a string
-      else if (key === "incoming") connection.setIsIncoming(val);
-      else if (key === "live_time") connection.setLiveTime(val);
-      else if (key === "local_ip") connection.setIsLocalIp(val);
-      else if (key === "localhost") connection.setIsLocalHost(val);
+      else if (key === "incoming") peer.setIsIncoming(val);
+      else if (key === "live_time") peer.setLiveTime(val);
+      else if (key === "local_ip") peer.setIsLocalIp(val);
+      else if (key === "localhost") peer.setIsLocalHost(val);
       else if (key === "peer_id") peer.setId(val);
       else if (key === "port") peer.setPort(parseInt(val));
       else if (key === "rpc_port") peer.setRpcPort(val);
-      else if (key === "recv_count") connection.setNumReceives(val);
-      else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
-      else if (key === "send_count") connection.setNumSends(val);
-      else if (key === "send_idle_time") connection.setSendIdleTime(val);
-      else if (key === "state") connection.setState(val);
-      else if (key === "support_flags") connection.setNumSupportFlags(val);
+      else if (key === "recv_count") peer.setNumReceives(val);
+      else if (key === "recv_idle_time") peer.setReceiveIdleTime(val);
+      else if (key === "send_count") peer.setNumSends(val);
+      else if (key === "send_idle_time") peer.setSendIdleTime(val);
+      else if (key === "state") peer.setState(val);
+      else if (key === "support_flags") peer.setNumSupportFlags(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
       else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(BigInteger.parse(val));
-      else if (key === "address_type") connection.setType(val);
-      else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
+      else if (key === "address_type") peer.setType(val);
+      else console.log("WARNING: ignoring unexpected field in peer: " + key + ": " + val);
     }
-    return connection;
+    return peer;
   }
   
   static _convertToRpcBan(ban) {
@@ -1738,16 +1735,16 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     return this._invokeWorker("daemonResetUploadLimit");
   }
   
-  async getKnownPeers() {
+  async getPeers() {
     let peers = [];
-    for (let peerJson of await this._invokeWorker("daemonGetKnownPeers")) peers.push(new MoneroDaemonPeer(peerJson));
+    for (let peerJson of await this._invokeWorker("daemonGetPeers")) peers.push(new MoneroPeer(peerJson));
     return peers;
   }
   
-  async getConnections() {
-    let connections = [];
-    for (let connectionJson of await this._invokeWorker("daemonGetConnections")) connections.push(new MoneroDaemonConnection(connectionJson));
-    return connections;
+  async getKnownPeers() {
+    let peers = [];
+    for (let peerJson of await this._invokeWorker("daemonGetKnownPeers")) peers.push(new MoneroPeer(peerJson));
+    return peers;
   }
   
   async setOutgoingPeerLimit(limit) {

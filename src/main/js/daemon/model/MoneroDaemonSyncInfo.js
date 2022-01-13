@@ -1,6 +1,6 @@
 const BigInteger = require("../../common/biginteger").BigInteger;
-const MoneroDaemonConnection = require("./MoneroDaemonConnection");
-const MoneroDaemonConnectionSpan = require("./MoneroDaemonConnectionSpan");
+const MoneroConnectionSpan = require("./MoneroConnectionSpan");
+const MoneroPeer = require("./MoneroPeer");
 
 /**
  * Models daemon synchronization information.
@@ -13,17 +13,17 @@ class MoneroDaemonSyncInfo {
     state = Object.assign({}, state);
     
     // deserialize if necessary
-    if (state.connections) {
-      for (let i = 0; i < state.connections.length; i++) {
-        if (!(state.connections[i] instanceof MoneroDaemonConnection)) {
-          state.connections[i] = new MoneroDaemonConnection(state.connections[i]);
+    if (state.peers) {
+      for (let i = 0; i < state.peers.length; i++) {
+        if (!(state.peers[i] instanceof MoneroPeer)) {
+          state.peers[i] = new MoneroPeer(state.peers[i]);
         }
       }
     }
     if (state.spans) {
       for (let i = 0; i < state.spans.length; i++) {
-        if (!(state.spans[i] instanceof MoneroDaemonConnectionSpan)) {
-          state.spans[i] = new MoneroDaemonConnectionSpan(state.spans[i]);
+        if (!(state.spans[i] instanceof MoneroConnectionSpan)) {
+          state.spans[i] = new MoneroConnectionSpan(state.spans[i]);
         }
       }
     }
@@ -35,9 +35,9 @@ class MoneroDaemonSyncInfo {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (json.connections) {
-      for (let i = 0; i < json.connections.length; i++) {
-        json.connections[i] = json.connections[i].toJson();
+    if (json.peers) {
+      for (let i = 0; i < json.peers.length; i++) {
+        json.peers[i] = json.peers[i].toJson();
       }
     }
     if (json.spans) {
@@ -58,12 +58,12 @@ class MoneroDaemonSyncInfo {
     return this;
   }
   
-  getConnections() {
-    return this.state.connections;
+  getPeers() {
+    return this.state.peers;
   }
   
-  setConnections(connections) {
-    this.state.connections = connections;
+  setPeers(peers) {
+    this.state.peers = peers;
     return this;
   }
   

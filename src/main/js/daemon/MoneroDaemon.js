@@ -538,20 +538,20 @@ class MoneroDaemon {
   }
   
   /**
-   * Get known peers including their last known online status.
+   * Get peers with active incoming or outgoing connections to the node.
    * 
-   * @return {MoneroDaemonPeer[]} known peers
+   * @return {MoneroPeer[]} the daemon's peers
    */
-  async getKnownPeers() {
+  async getPeers() {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Get incoming and outgoing connections to the node.
+   * Get known peers including their last known online status.
    * 
-   * @return {MoneroDaemonConnection[]} daemon's peer connections
+   * @return {MoneroPeer[]} the daemon's known peers
    */
-  async getConnections() {
+  async getKnownPeers() {
     throw new MoneroError("Subclass must implement");
   }
   

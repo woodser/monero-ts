@@ -1,7 +1,7 @@
 /**
  * Monero daemon connection span.
  */
-class MoneroDaemonConnectionSpan {
+class MoneroConnectionSpan {
   
   constructor(state) {
     this.state = Object.assign({}, state);
@@ -75,4 +75,4 @@ class MoneroDaemonConnectionSpan {
   }
 }
 
-module.exports = MoneroDaemonConnectionSpan;
+module.exports = MoneroConnectionSpan;

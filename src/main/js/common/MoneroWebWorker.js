@@ -308,16 +308,16 @@ self.daemonResetUploadLimit = async function(daemonId) {
   return self.WORKER_OBJECTS[daemonId].resetUploadLimit();
 }
 
+self.daemonGetPeers = async function(daemonId) {
+  let peersJson = [];
+  for (let peer of await self.WORKER_OBJECTS[daemonId].getPeers()) peersJson.push(peer.toJson());
+  return peersJson;
+}
+
 self.daemonGetKnownPeers = async function(daemonId) {
   let peersJson = [];
   for (let peer of await self.WORKER_OBJECTS[daemonId].getKnownPeers()) peersJson.push(peer.toJson());
   return peersJson;
-}
-
-self.daemonGetConnections = async function(daemonId) {
-  let connectionsJson = [];
-  for (let connection of await self.WORKER_OBJECTS[daemonId].getConnections()) connectionsJson.push(connection.toJson());
-  return connectionsJson;
 }
 
 self.daemonSetOutgoingPeerLimit = async function(daemonId, limit) {
