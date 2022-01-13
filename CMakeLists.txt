@@ -5,7 +5,7 @@ project(monero-javascript-wasm)
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 set(BUILD_MONERO_WALLET_FULL_WASM ON)
@@ -260,7 +260,7 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -std=c++11 -Oz \
+"-Wall -Werror -Wl,--allow-undefined -std=c++11 -Oz \
 --bind -s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_javascript\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
