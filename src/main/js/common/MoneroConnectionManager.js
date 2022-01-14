@@ -9,7 +9,13 @@ const ThreadPool = require("./ThreadPool");
  */
 class MoneroConnectionManager {
   
-  constructor() {
+  /**
+   * Construct a connection manager.
+   * 
+   * @param {boolean} proxyToWorker - configure all connections to proxy to worker (default true)
+   */
+  constructor(proxyToWorker) {
+    this._proxyToWorker = proxyToWorker !== false;
     this._timeoutInMs = MoneroConnectionManager.DEFAULT_TIMEOUT;
     this._connections = [];
     this._listeners = [];
@@ -47,6 +53,7 @@ class MoneroConnectionManager {
     for (let aConnection of this._connections) {
       if (aConnection.getUri() === connection.getUri()) throw new MoneroError("Connection URI already exists");
     }
+    if (this._proxyToWorker !== undefined) connection.setProxyToWorker(this._proxyToWorker);
     this._connections.push(connection);
     if (this._autoSwitch && !this.isConnected()) this.setConnection(await this.getBestAvailableConnection());
     return this;
@@ -187,6 +194,7 @@ class MoneroConnectionManager {
     if (!prevConnection) {
       this.addConnection(connection);
       this._currentConnection = connection;
+      if (this._proxyToWorker !== undefined) connection.setProxyToWorker(this._proxyToWorker);
       this._onConnectionChanged(this._currentConnection);
       return this;
     }
@@ -196,6 +204,7 @@ class MoneroConnectionManager {
       prevConnection.setCredentials(connection.getUsername(), connection.getPassword());
       prevConnection.setPriority(connection.getPriority());
       this._currentConnection = prevConnection;
+      if (this._proxyToWorker !== undefined) connection.setProxyToWorker(this._proxyToWorker);
       this._onConnectionChanged(this._currentConnection);
     }
     

@@ -1,3 +1,5 @@
+const GenUtils = require("../common/GenUtils");
+const LibraryUtils = require("./LibraryUtils");
 const MoneroUtils = require("./MoneroUtils");
 const ThreadPool = require("./ThreadPool");
 const PromiseThrottle = require("promise-throttle");
@@ -24,6 +26,7 @@ class HttpClient {
    * @param {boolean} request.resolveWithFullResponse - return full response if true, else body only (default false)
    * @param {boolean} request.rejectUnauthorized - whether or not to reject self-signed certificates (default true)
    * @param {number} request.timeout - maximum time allowed in milliseconds
+   * @param {number} request.proxyToWorker - proxy request to worker thread
    * @returns {object} response - the response object
    * @returns {string|object|Uint8Array} response.body - the response body
    * @returns {number} response.statusCode - the response code
@@ -31,6 +34,20 @@ class HttpClient {
    * @returns {object} response.headers - the response headers
    */
   static async request(request) {
+    
+    // proxy to worker if configured
+    if (request.proxyToWorker) {
+      try {
+        return await LibraryUtils.invokeWorker(GenUtils.getUUID(), "httpRequest", request);
+      } catch (err) {
+        if (err.message.length > 0 && err.message.charAt(0) === "{") {
+          let parsed = JSON.parse(err.message);
+          err.message = parsed.statusMessage;
+          err.statusCode = parsed.statusCode;
+          throw err;
+        }
+      }
+    }
     
     // assign defaults
     request = Object.assign(HttpClient._DEFAULT_REQUEST, request);

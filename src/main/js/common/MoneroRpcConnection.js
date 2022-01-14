@@ -22,7 +22,8 @@ class MoneroRpcConnection {
    * &nbsp;&nbsp; uri: http://localhost:38081,<br>
    * &nbsp;&nbsp; username: "daemon_user",<br>
    * &nbsp;&nbsp; password: "daemon_password_123",<br>
-   * &nbsp;&nbsp; rejectUnauthorized: false // accept self-signed certificates e.g. for local development<br>
+   * &nbsp;&nbsp; rejectUnauthorized: false, // accept self-signed certificates e.g. for local development<br>
+   * &nbsp;&nbsp; proxyToWorker: true // proxy request to worker (default false)<br>
    * });
    * </code>
    * 
@@ -31,19 +32,21 @@ class MoneroRpcConnection {
    * @param {string} uriOrConfigOrConnection.username - username to authenticate with the RPC endpoint (optional)
    * @param {string} uriOrConfigOrConnection.password - password to authenticate with the RPC endpoint (optional)
    * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {boolean} uriOrConfigOrConnection.proxyToWorker - proxy requests to worker
    * @param {string} username - username to authenticate with the RPC endpoint (optional)
    * @param {string} password - password to authenticate with the RPC endpoint (optional)
    * @param {boolean} rejectUnauthorized - reject self-signed certificates if true (default true)
    */
-  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
+  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, proxyToWorker) {
     
     // validate and normalize config
     if (typeof uriOrConfigOrConnection === "string") {
       this._config = {uri: uriOrConfigOrConnection};
       this.setCredentials(username, password);
       if (rejectUnauthorized !== undefined) this._config.rejectUnauthorized = rejectUnauthorized;
+      if (proxyToWorker !== undefined) this._config.proxyToWorker = proxyToWorker;
     } else if (typeof uriOrConfigOrConnection === "object") {
-      if (username !== undefined || password !== undefined || rejectUnauthorized !== undefined) throw new MoneroError("Can provide config object or params but not both");
+      if (username !== undefined || password !== undefined || rejectUnauthorized !== undefined || proxyToWorker !== undefined) throw new MoneroError("Can provide config object or params but not both");
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this._config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else this._config = Object.assign({}, uriOrConfigOrConnection);
     } else if (uriOrConfigOrConnection !== undefined) {
@@ -97,17 +100,17 @@ class MoneroRpcConnection {
     return this._config.rejectUnauthorized;
   }
   
+  setProxyToWorker(proxyToWorker) {
+    this._config.proxyToWorker = proxyToWorker;
+    return this;
+  }
+  
+  getProxyToWorker() {
+    return this._config.proxyToWorker;
+  }
+  
   getConfig() {
     return this._config;
-  }
-  
-  getProxiedUri() {
-    return this._config.proxiedUri;
-  }
-  
-  setProxiedUri(proxiedUri) {
-    this._config.proxiedUri = proxiedUri;
-    return this;
   }
   
   getPriority() {
@@ -211,7 +214,8 @@ class MoneroRpcConnection {
         body: body,
         timeout: timeoutInMs,
         rejectUnauthorized: this._config.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
+        proxyToWorker: this._config.proxyToWorker
       });
       
       // validate response
@@ -257,7 +261,8 @@ class MoneroRpcConnection {
         body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigIntegers are preserved
         timeout: timeoutInMs,
         rejectUnauthorized: this._config.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
+        proxyToWorker: this._config.proxyToWorker
       });
       
       // validate response
@@ -309,7 +314,8 @@ class MoneroRpcConnection {
         body: paramsBin,
         timeout: timeoutInMs,
         rejectUnauthorized: this._config.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
+        proxyToWorker: this._config.proxyToWorker
       });
       
       // validate response
@@ -361,9 +367,10 @@ MoneroRpcConnection.DEFAULT_CONFIG = {
     username: undefined,
     password: undefined,
     rejectUnauthorized: true, // reject self-signed certificates if true
+    proxyToWorker: false,
     priority: 0
 }
 
-MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized", "proxiedUri", "priority"];
+MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized", "priority", "proxyToWorker"];
 
 module.exports = MoneroRpcConnection;

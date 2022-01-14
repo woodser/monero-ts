@@ -1,5 +1,6 @@
 const assert = require("assert");
 const GenUtils = require("./GenUtils");
+const HttpClient = require("./HttpClient");
 const LibraryUtils = require("./LibraryUtils");
 const MoneroBan = require("../daemon/model/MoneroBan");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
@@ -55,6 +56,14 @@ self.initOneTime = async function() {
 // --------------------------- STATIC UTILITIES -------------------------------
 
 // TODO: object id not needed for static utilites, using throwaway uuid
+
+self.httpRequest = async function(objectId, opts) {
+  try {
+    return await HttpClient.request(Object.assign(opts, {proxyToWorker: false}));  
+  } catch (err) {
+    throw err.statusCode ? new Error(JSON.stringify({statusCode: err.statusCode, statusMessage: err.message})) : err;
+  }
+}
 
 self.setLogLevel = async function(objectId, level) {
   return LibraryUtils.setLogLevel(level);
