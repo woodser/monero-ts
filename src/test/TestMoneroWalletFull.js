@@ -14,7 +14,6 @@ const BigInteger = monerojs.BigInteger;
 const MoneroNetworkType = monerojs.MoneroNetworkType;
 const MoneroTxWallet = monerojs.MoneroTxWallet;
 const MoneroTxConfig = monerojs.MoneroTxConfig;
-const MoneroRpcConnection = monerojs.MoneroRpcConnection;
 const MoneroDestination = monerojs.MoneroDestination;
 const MoneroOutputQuery = monerojs.MoneroOutputQuery;
 const MoneroOutputWallet = monerojs.MoneroOutputWallet;
@@ -181,56 +180,6 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
       it("Can get the daemon's max peer height", async function() {
         let height = await that.wallet.getDaemonMaxPeerHeight();
         assert(height > 0);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can set the daemon connection", async function() {
-        let err;
-        let wallet;
-        try {
-          
-          // create unconnected random wallet
-          wallet = await that.createWallet({serverUri: ""});
-          assert.equal(await wallet.getDaemonConnection(), undefined);
-          
-          // set daemon uri
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
-          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password, TestUtils.DAEMON_RPC_CONFIG.rejectUnauthorized);
-          assert(await wallet.isConnectedToDaemon());
-          
-          // nullify daemon connection
-          await wallet.setDaemonConnection(undefined);
-          assert.equal(await wallet.getDaemonConnection(), undefined);
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
-          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
-          await wallet.setDaemonConnection(undefined);
-          assert.equal(await wallet.getDaemonConnection(), undefined);
-          
-          // set daemon uri to non-daemon
-          await wallet.setDaemonConnection("www.getmonero.org");
-          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection("www.getmonero.org").getConfig());
-          assert(!await wallet.isConnectedToDaemon());
-          
-          // set daemon to invalid uri
-          await wallet.setDaemonConnection("abc123");
-          assert(!await wallet.isConnectedToDaemon());
-          
-          // attempt to sync
-          try {
-            await wallet.sync();
-            throw new Error("Exception expected");
-          } catch (e1) {
-            assert.equal(e1.message, "Wallet is not connected to daemon");
-          }
-        } catch (e) {
-          err = e;
-        }
-        
-        // close wallet and throw if error occurred
-        if (err) console.log(err);
-        await wallet.close();
-        if (err) throw err;
       });
       
       if (testConfig.testNonRelays)

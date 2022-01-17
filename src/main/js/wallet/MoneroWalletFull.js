@@ -508,18 +508,15 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return this._listeners;
   }
   
-  async setDaemonConnection(uriOrRpcConnection, username, password, rejectUnauthorized) {
+  async setDaemonConnection(uriOrRpcConnection) {
     this._assertNotClosed();
     
     // normalize connection
-    let connection = new MoneroRpcConnection(uriOrRpcConnection, username, password, rejectUnauthorized);
-    let uri = connection.getUri();
-    username = connection.getUsername();
-    password = connection.getPassword();
-    rejectUnauthorized = connection.getRejectUnauthorized();
-    if (!uri) uri = "";
-    if (!username) username = "";
-    if (!password) password = "";
+    let connection = !uriOrRpcConnection ? undefined : uriOrRpcConnection instanceof MoneroRpcConnection ? uriOrRpcConnection : new MoneroRpcConnection(uriOrRpcConnection);
+    let uri = connection && connection.getUri() ? connection.getUri() : "";
+    let username = connection && connection.getUsername() ? connection.getUsername() : "";
+    let password = connection && connection.getPassword() ? connection.getPassword() : "";
+    let rejectUnauthorized = connection ? connection.getRejectUnauthorized() : undefined;
     this._rejectUnauthorized = rejectUnauthorized;  // persist locally
     
     // set connection in queue
@@ -2049,11 +2046,11 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return new MoneroIntegratedAddress(await this._invokeWorker("decodeIntegratedAddress", Array.from(arguments)));
   }
   
-  async setDaemonConnection(uriOrRpcConnection, username, password) {
+  async setDaemonConnection(uriOrRpcConnection) {
     if (!uriOrRpcConnection) await this._invokeWorker("setDaemonConnection");
     else {
-      let connection = uriOrRpcConnection instanceof MoneroRpcConnection? uriOrRpcConnection : new MoneroRpcConnection({uri: uriOrRpcConnection, username: username, password: password});
-      await this._invokeWorker("setDaemonConnection", connection.getConfig());
+      let connection = !uriOrRpcConnection ? undefined : uriOrRpcConnection instanceof MoneroRpcConnection ? uriOrRpcConnection : new MoneroRpcConnection(uriOrRpcConnection);
+      await this._invokeWorker("setDaemonConnection", connection ? connection.getConfig() : undefined);
     }
   }
   

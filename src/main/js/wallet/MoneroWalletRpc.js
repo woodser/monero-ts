@@ -439,12 +439,13 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} isTrusted - indicates if the daemon in trusted
    * @param {SslOptions} sslOptions - custom SSL configuration
    */
-  async setDaemonConnection(daemonUriOrConnection, isTrusted, sslOptions) {
-    let daemonConnection = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection : new MoneroRpcConnection(daemonUriOrConnection);
-    if (daemonConnection.getUsername()) throw new MoneroError("monero-wallet-rpc does not support setting daemon connection with authentication");
+  async setDaemonConnection(uriOrRpcConnection, isTrusted, sslOptions) {
+    let connection = !uriOrRpcConnection ? undefined : uriOrRpcConnection instanceof MoneroRpcConnection ? uriOrRpcConnection : new MoneroRpcConnection(uriOrRpcConnection);
     if (!sslOptions) sslOptions = new SslOptions();
     let params = {};
-    params.address = !daemonConnection ? "bad_uri" : daemonConnection.getUri(); // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
+    params.address = connection ? connection.getUri() : "bad_uri"; // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
+    params.username = connection ? connection.getUsername() : "";
+    params.password = connection ? connection.getPassword() : "";
     params.trusted = isTrusted;
     params.ssl_support = "autodetect";
     params.ssl_private_key_path = sslOptions.getPrivateKeyPath();
@@ -453,10 +454,11 @@ class MoneroWalletRpc extends MoneroWallet {
     params.ssl_allowed_fingerprints = sslOptions.getAllowedFingerprints();
     params.ssl_allow_any_cert = sslOptions.getAllowAnyCert();
     await this.rpc.sendJsonRequest("set_daemon", params);
+    this.daemonConnection = connection;
   }
   
   async getDaemonConnection() {
-    throw new MoneroError("Not implemented");
+    return this.daemonConnection;
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -599,9 +601,14 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
-    let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
-    await this._poll();
-    return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
+    try {
+      let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+      await this._poll();
+      return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
+    } catch (err) {
+      if (err.message === "no connection to daemon") throw new MoneroError("Wallet is not connected to daemon");
+      throw err;
+    }
   }
   
   async startSyncing(syncPeriodInMs) {
@@ -2438,7 +2445,7 @@ class WalletPoller {
         }
         
         // get locked txs for comparison to previous
-        let minHeight = height - 70; // only monitor recent txs
+        let minHeight = Math.max(0, height - 70); // only monitor recent txs
         let lockedTxs = await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setMinHeight(minHeight).setIncludeOutputs(true));
         
         // collect hashes of txs no longer locked
