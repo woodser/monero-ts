@@ -55,7 +55,6 @@ class MoneroConnectionManager {
     }
     if (this._proxyToWorker !== undefined) connection.setProxyToWorker(this._proxyToWorker);
     this._connections.push(connection);
-    if (this._autoSwitch && !this.isConnected()) this.setConnection(await this.getBestAvailableConnection());
     return this;
   }
   
@@ -71,7 +70,7 @@ class MoneroConnectionManager {
     GenUtils.remove(connections, connection);
     if (connection === this._currentConnection) {
       this._currentConnection = undefined;
-      if (this._autoSwitch) this.setConnection(await this.getBestAvailableConnection());
+      this._onConnectionChanged(this._currentConnection);
     }
     return this;
   }
@@ -409,6 +408,6 @@ class MoneroConnectionManager {
 }
 
 MoneroConnectionManager.DEFAULT_TIMEOUT = 5000;
-MoneroConnectionManager.DEFAULT_CHECK_CONNECTION_PERIOD = 10000;
+MoneroConnectionManager.DEFAULT_CHECK_CONNECTION_PERIOD = 15000;
 
 module.exports = MoneroConnectionManager;
