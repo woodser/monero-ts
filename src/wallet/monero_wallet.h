@@ -1328,10 +1328,13 @@ namespace monero {
     }
 
     /**
-     * Save the wallet at its current path.
+     * Change the wallet password.
+     *
+     * @param old_password is the wallet's old password
+     * @param new_password is the wallet's new password
      */
-    virtual void save() {
-      throw std::runtime_error("save() not supported");
+    virtual void change_password(const std::string& old_password, const std::string& new_password) {
+      throw std::runtime_error("change_password() not supported");
     }
 
     /**
@@ -1340,8 +1343,15 @@ namespace monero {
      * @param path is the new wallet's path
      * @param password is the new wallet's password
      */
-    virtual void move_to(std::string path, std::string password) {
+    virtual void move_to(const std::string& path, const std::string& password) {
       throw std::runtime_error("move_to() not supported");
+    }
+
+    /**
+     * Save the wallet at its current path.
+     */
+    virtual void save() {
+      throw std::runtime_error("save() not supported");
     }
 
     /**

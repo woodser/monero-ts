@@ -3312,14 +3312,22 @@ namespace monero {
     return tx_hashes;
   }
 
+  void monero_wallet_full::change_password(const std::string& old_password, const std::string& new_password) {
+    MTRACE("change_password(" << "***" << ", ***)");
+    #if !defined(__EMSCRIPTEN__) // TODO: wallet2 verify_password loads from disk so password is verified in js for wasm
+      if (!m_w2->verify_password(old_password)) throw std::runtime_error("Invalid original password.");
+    #endif
+    m_w2->change_password(m_w2->get_wallet_file(), old_password, new_password);
+  }
+
+  void monero_wallet_full::move_to(const std::string& path, const std::string& password) {
+    MTRACE("move_to(" << path << ", ***)");
+    m_w2->store_to(path, password);
+  }
+
   void monero_wallet_full::save() {
     MTRACE("save()");
     m_w2->store();
-  }
-
-  void monero_wallet_full::move_to(std::string path, std::string password) {
-    MTRACE("move_to(" << path << ", ***)");
-    m_w2->store_to(path, password);
   }
 
   std::string monero_wallet_full::get_keys_file_buffer(const epee::wipeable_string& password, bool view_only) const {
