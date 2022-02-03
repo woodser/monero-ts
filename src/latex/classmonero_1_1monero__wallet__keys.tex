@@ -1,0 +1,469 @@
+\hypertarget{classmonero_1_1monero__wallet__keys}{}\doxysection{monero\+::monero\+\_\+wallet\+\_\+keys Class Reference}
+\label{classmonero_1_1monero__wallet__keys}\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+keys.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+wallet\+\_\+keys\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classmonero_1_1monero__wallet__keys}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a9a394861dde530e80add1949a130deb0}{$\sim$monero\+\_\+wallet\+\_\+keys}} ()
+\item 
+bool \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a534e10f6fa13d8da262e81c581355937}{is\+\_\+view\+\_\+only}} () const override
+\item 
+\mbox{\hyperlink{structmonero_1_1monero__version}{monero\+\_\+version}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a408e2f71d80854ba59f49207042cbabc}{get\+\_\+version}} () const override
+\item 
+\mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_af0d118734096a7faa1e4018d920c43e1}{get\+\_\+network\+\_\+type}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_adbd25fc8a99d2f58abfeb949193c23c3}{get\+\_\+mnemonic}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_abb98e76ecadd4bb739569586b1efbeb4}{get\+\_\+mnemonic\+\_\+language}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a1a256166f00fbb8487c52dc7dcdae32e}{get\+\_\+private\+\_\+view\+\_\+key}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_aeca6751dff2d1286878b0bff755b73d4}{get\+\_\+private\+\_\+spend\+\_\+key}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_ad3d14076b6b7c07e89924e9a1b7741d7}{get\+\_\+public\+\_\+view\+\_\+key}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_aaa29dad0f3eddf8a325e377779be9b85}{get\+\_\+public\+\_\+spend\+\_\+key}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_acca0795b9455f5f67dbdb4a8f50f3448}{get\+\_\+primary\+\_\+address}} () const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_ad74a044419431c480ca773a7bab0a2ed}{get\+\_\+address}} (const uint32\+\_\+t account\+\_\+idx, const uint32\+\_\+t subaddress\+\_\+idx) const override
+\item 
+\mbox{\hyperlink{structmonero_1_1monero__integrated__address}{monero\+\_\+integrated\+\_\+address}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_ac33f17c60d237822b60a960d4f8f1ded}{get\+\_\+integrated\+\_\+address}} (const std\+::string \&standard\+\_\+address=\char`\"{}\char`\"{}, const std\+::string \&payment\+\_\+id=\char`\"{}\char`\"{}) const override
+\item 
+\mbox{\hyperlink{structmonero_1_1monero__integrated__address}{monero\+\_\+integrated\+\_\+address}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_aef45d1c29b6604da1248c3e7e72353b2}{decode\+\_\+integrated\+\_\+address}} (const std\+::string \&integrated\+\_\+address) const override
+\item 
+\mbox{\hyperlink{structmonero_1_1monero__account}{monero\+\_\+account}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a01be7fd8f0f4791cb42dc9901350d3c5}{get\+\_\+account}} (const uint32\+\_\+t account\+\_\+idx, bool include\+\_\+subaddresses) const override
+\item 
+std\+::vector$<$ \mbox{\hyperlink{structmonero_1_1monero__subaddress}{monero\+\_\+subaddress}} $>$ \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a3c524bd25e4c7013d60b114b61d8b9d0}{get\+\_\+subaddresses}} (const uint32\+\_\+t account\+\_\+idx, const std\+::vector$<$ uint32\+\_\+t $>$ \&subaddress\+\_\+indices) const override
+\item 
+std\+::string \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a817780c43761f5471bea5153e705f1d5}{sign\+\_\+message}} (const std\+::string \&msg, \mbox{\hyperlink{namespacemonero_a5ada8f66cddd59159701650a6a8c078b}{monero\+\_\+message\+\_\+signature\+\_\+type}} signature\+\_\+type, uint32\+\_\+t account\+\_\+idx=0, uint32\+\_\+t subaddress\+\_\+idx=0) const override
+\item 
+\mbox{\hyperlink{structmonero_1_1monero__message__signature__result}{monero\+\_\+message\+\_\+signature\+\_\+result}} \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a423810896328a3c25a9ad36b52001a5b}{verify\+\_\+message}} (const std\+::string \&msg, const std\+::string \&address, const std\+::string \&signature) const override
+\item 
+void \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a2847e32abdcc6c9882297368d68c94c2}{close}} (bool \mbox{\hyperlink{classmonero_1_1monero__wallet_a0160f23ebba72ab5be52e6509c918a5e}{save}}=false) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_af022822e7ba6578bc4ab1c8b89f503d4}{create\+\_\+wallet\+\_\+random}} (const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type, const std\+::string \&language=\char`\"{}English\char`\"{})
+\item 
+static \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_ab2da0b513c5e14703910e141cf8bc813}{create\+\_\+wallet\+\_\+from\+\_\+mnemonic}} (const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type, const std\+::string \&mnemonic, const std\+::string \&seed\+\_\+offset)
+\item 
+static \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a6401cfd63ee6a45ef01d016ee91529e5}{create\+\_\+wallet\+\_\+from\+\_\+keys}} (const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type, const std\+::string \&address, const std\+::string \&view\+\_\+key, const std\+::string \&spend\+\_\+key, const std\+::string \&language=\char`\"{}English\char`\"{})
+\item 
+static std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classmonero_1_1monero__wallet__keys_a930493eafbd467eb9c4633f8611b7b1d}{get\+\_\+mnemonic\+\_\+languages}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements a Monero wallet to provide basic key management. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a9a394861dde530e80add1949a130deb0}\label{classmonero_1_1monero__wallet__keys_a9a394861dde530e80add1949a130deb0}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!````~monero\_wallet\_keys@{$\sim$monero\_wallet\_keys}}
+\index{````~monero\_wallet\_keys@{$\sim$monero\_wallet\_keys}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{$\sim$monero\_wallet\_keys()}{~monero\_wallet\_keys()}}
+{\footnotesize\ttfamily monero\+::monero\+\_\+wallet\+\_\+keys\+::$\sim$monero\+\_\+wallet\+\_\+keys (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Destruct the wallet. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a2847e32abdcc6c9882297368d68c94c2}\label{classmonero_1_1monero__wallet__keys_a2847e32abdcc6c9882297368d68c94c2}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!close@{close}}
+\index{close@{close}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{close()}{close()}}
+{\footnotesize\ttfamily void monero\+::monero\+\_\+wallet\+\_\+keys\+::close (\begin{DoxyParamCaption}\item[{bool}]{save = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Optionally save then close the wallet.
+
+
+\begin{DoxyParams}{Parameters}
+{\em save} & specifies if the wallet should be saved before being closed (default false) \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_ae89a5f2984886242c841b494276d79a7}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a6401cfd63ee6a45ef01d016ee91529e5}\label{classmonero_1_1monero__wallet__keys_a6401cfd63ee6a45ef01d016ee91529e5}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!create\_wallet\_from\_keys@{create\_wallet\_from\_keys}}
+\index{create\_wallet\_from\_keys@{create\_wallet\_from\_keys}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{create\_wallet\_from\_keys()}{create\_wallet\_from\_keys()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ monero\+::monero\+\_\+wallet\+\_\+keys\+::create\+\_\+wallet\+\_\+from\+\_\+keys (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}}}]{network\+\_\+type,  }\item[{const std\+::string \&}]{address,  }\item[{const std\+::string \&}]{view\+\_\+key,  }\item[{const std\+::string \&}]{spend\+\_\+key,  }\item[{const std\+::string \&}]{language = {\ttfamily \char`\"{}English\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a wallet from an address, view key, and spend key.
+
+
+\begin{DoxyParams}{Parameters}
+{\em network\+\_\+type} & is the wallet\textquotesingle{}s network type \\
+\hline
+{\em address} & is the address of the wallet to construct \\
+\hline
+{\em view\+\_\+key} & is the private view key of the wallet to construct \\
+\hline
+{\em spend\+\_\+key} & is the private spend key of the wallet to construct \\
+\hline
+{\em language} & is the wallet and mnemonic\textquotesingle{}s language (default = \char`\"{}\+English\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_ab2da0b513c5e14703910e141cf8bc813}\label{classmonero_1_1monero__wallet__keys_ab2da0b513c5e14703910e141cf8bc813}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!create\_wallet\_from\_mnemonic@{create\_wallet\_from\_mnemonic}}
+\index{create\_wallet\_from\_mnemonic@{create\_wallet\_from\_mnemonic}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{create\_wallet\_from\_mnemonic()}{create\_wallet\_from\_mnemonic()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ monero\+::monero\+\_\+wallet\+\_\+keys\+::create\+\_\+wallet\+\_\+from\+\_\+mnemonic (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}}}]{network\+\_\+type,  }\item[{const std\+::string \&}]{mnemonic,  }\item[{const std\+::string \&}]{seed\+\_\+offset }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a wallet from an existing mnemonic phrase.
+
+
+\begin{DoxyParams}{Parameters}
+{\em network\+\_\+type} & is the wallet\textquotesingle{}s network type \\
+\hline
+{\em mnemonic} & is the mnemonic of the wallet to construct \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_af022822e7ba6578bc4ab1c8b89f503d4}\label{classmonero_1_1monero__wallet__keys_af022822e7ba6578bc4ab1c8b89f503d4}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!create\_wallet\_random@{create\_wallet\_random}}
+\index{create\_wallet\_random@{create\_wallet\_random}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{create\_wallet\_random()}{create\_wallet\_random()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classmonero_1_1monero__wallet__keys}{monero\+\_\+wallet\+\_\+keys}} $\ast$ monero\+::monero\+\_\+wallet\+\_\+keys\+::create\+\_\+wallet\+\_\+random (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}}}]{network\+\_\+type,  }\item[{const std\+::string \&}]{language = {\ttfamily \char`\"{}English\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Create a new wallet with a randomly generated seed.
+
+
+\begin{DoxyParams}{Parameters}
+{\em network\+\_\+type} & is the wallet\textquotesingle{}s network type (default = monero\+\_\+network\+\_\+type.\+M\+A\+I\+N\+N\+ET) \\
+\hline
+{\em language} & is the wallet and mnemonic\textquotesingle{}s language (default = \char`\"{}\+English\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_aef45d1c29b6604da1248c3e7e72353b2}\label{classmonero_1_1monero__wallet__keys_aef45d1c29b6604da1248c3e7e72353b2}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!decode\_integrated\_address@{decode\_integrated\_address}}
+\index{decode\_integrated\_address@{decode\_integrated\_address}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{decode\_integrated\_address()}{decode\_integrated\_address()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmonero_1_1monero__integrated__address}{monero\+\_\+integrated\+\_\+address}} monero\+::monero\+\_\+wallet\+\_\+keys\+::decode\+\_\+integrated\+\_\+address (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{integrated\+\_\+address }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Decode an integrated address to get its standard address and payment id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em integrated\+\_\+address} & is an integrated address to decode \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the decoded integrated address including standard address and payment id 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a7a0c8667be57e608559e747f8f87e27b}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a01be7fd8f0f4791cb42dc9901350d3c5}\label{classmonero_1_1monero__wallet__keys_a01be7fd8f0f4791cb42dc9901350d3c5}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_account@{get\_account}}
+\index{get\_account@{get\_account}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_account()}{get\_account()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmonero_1_1monero__account}{monero\+\_\+account}} monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+account (\begin{DoxyParamCaption}\item[{const uint32\+\_\+t}]{account\+\_\+idx,  }\item[{bool}]{include\+\_\+subaddresses }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get an account.
+
+
+\begin{DoxyParams}{Parameters}
+{\em account\+\_\+idx} & specifies the account to get \\
+\hline
+{\em include\+\_\+subaddresses} & specifies if subaddresses should be included \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the retrieved account 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_aea7bd458801615a1fa94e99a7c83dd6b}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_ad74a044419431c480ca773a7bab0a2ed}\label{classmonero_1_1monero__wallet__keys_ad74a044419431c480ca773a7bab0a2ed}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_address@{get\_address}}
+\index{get\_address@{get\_address}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_address()}{get\_address()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+address (\begin{DoxyParamCaption}\item[{const uint32\+\_\+t}]{account\+\_\+idx,  }\item[{const uint32\+\_\+t}]{subaddress\+\_\+idx }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the address of a specific subaddress.
+
+
+\begin{DoxyParams}{Parameters}
+{\em account\+\_\+idx} & specifies the account index of the address\textquotesingle{}s subaddress \\
+\hline
+{\em subaddress\+\_\+idx} & specifies the subaddress index within the account \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the receive address of the specified subaddress 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a98fdb5e65c9e9c4e0baa948250a54421}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_ac33f17c60d237822b60a960d4f8f1ded}\label{classmonero_1_1monero__wallet__keys_ac33f17c60d237822b60a960d4f8f1ded}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_integrated\_address@{get\_integrated\_address}}
+\index{get\_integrated\_address@{get\_integrated\_address}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_integrated\_address()}{get\_integrated\_address()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmonero_1_1monero__integrated__address}{monero\+\_\+integrated\+\_\+address}} monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+integrated\+\_\+address (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{standard\+\_\+address = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const std\+::string \&}]{payment\+\_\+id = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get an integrated address from a standard address and a payment id.
+
+
+\begin{DoxyParams}{Parameters}
+{\em standard\+\_\+address} & is the integrated addresse\textquotesingle{}s standard address (defaults to wallet\textquotesingle{}s primary address) \\
+\hline
+{\em payment\+\_\+id} & is the integrated addresse\textquotesingle{}s payment id (defaults to randomly generating new payment id) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the integrated address 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_afb1e8e58940572f5b82d91189d0d00e0}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_adbd25fc8a99d2f58abfeb949193c23c3}\label{classmonero_1_1monero__wallet__keys_adbd25fc8a99d2f58abfeb949193c23c3}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_mnemonic@{get\_mnemonic}}
+\index{get\_mnemonic@{get\_mnemonic}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_mnemonic()}{get\_mnemonic()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+mnemonic (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s mnemonic phrase.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mnemonic} & is assigned the wallet\textquotesingle{}s mnemonic phrase \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a292c1a06b6896858a75533d6e229368a}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_abb98e76ecadd4bb739569586b1efbeb4}\label{classmonero_1_1monero__wallet__keys_abb98e76ecadd4bb739569586b1efbeb4}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_mnemonic\_language@{get\_mnemonic\_language}}
+\index{get\_mnemonic\_language@{get\_mnemonic\_language}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_mnemonic\_language()}{get\_mnemonic\_language()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+mnemonic\+\_\+language (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the language of the wallet\textquotesingle{}s mnemonic phrase.
+
+\begin{DoxyReturn}{Returns}
+the language of the wallet\textquotesingle{}s mnemonic phrase 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a48a81da08b5cf031ea3e239d89bf2a55}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a930493eafbd467eb9c4633f8611b7b1d}\label{classmonero_1_1monero__wallet__keys_a930493eafbd467eb9c4633f8611b7b1d}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_mnemonic\_languages@{get\_mnemonic\_languages}}
+\index{get\_mnemonic\_languages@{get\_mnemonic\_languages}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_mnemonic\_languages()}{get\_mnemonic\_languages()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+mnemonic\+\_\+languages (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Get a list of available languages for the wallet\textquotesingle{}s mnemonic phrase.
+
+\begin{DoxyReturn}{Returns}
+the available languages for the wallet\textquotesingle{}s mnemonic phrase 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_af0d118734096a7faa1e4018d920c43e1}\label{classmonero_1_1monero__wallet__keys_af0d118734096a7faa1e4018d920c43e1}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_network\_type@{get\_network\_type}}
+\index{get\_network\_type@{get\_network\_type}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_network\_type()}{get\_network\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+network\+\_\+type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s network type (mainnet, testnet, or stagenet).
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s network type 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a8a34be813b6285ed15fd61fcc3200cb8}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_acca0795b9455f5f67dbdb4a8f50f3448}\label{classmonero_1_1monero__wallet__keys_acca0795b9455f5f67dbdb4a8f50f3448}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_primary\_address@{get\_primary\_address}}
+\index{get\_primary\_address@{get\_primary\_address}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_primary\_address()}{get\_primary\_address()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+primary\+\_\+address (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s primary address.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s primary address 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a9136cf9c9ea362bf5b90b89d4377239b}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_aeca6751dff2d1286878b0bff755b73d4}\label{classmonero_1_1monero__wallet__keys_aeca6751dff2d1286878b0bff755b73d4}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_private\_spend\_key@{get\_private\_spend\_key}}
+\index{get\_private\_spend\_key@{get\_private\_spend\_key}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_private\_spend\_key()}{get\_private\_spend\_key()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+private\+\_\+spend\+\_\+key (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s private spend key.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s private spend key 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a8e81e19a990723b04bb807a55885eb0e}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a1a256166f00fbb8487c52dc7dcdae32e}\label{classmonero_1_1monero__wallet__keys_a1a256166f00fbb8487c52dc7dcdae32e}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_private\_view\_key@{get\_private\_view\_key}}
+\index{get\_private\_view\_key@{get\_private\_view\_key}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_private\_view\_key()}{get\_private\_view\_key()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+private\+\_\+view\+\_\+key (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s private view key.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s private view key 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a02a0dffa31a1ad6ba9b8c407b07965a1}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_aaa29dad0f3eddf8a325e377779be9b85}\label{classmonero_1_1monero__wallet__keys_aaa29dad0f3eddf8a325e377779be9b85}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_public\_spend\_key@{get\_public\_spend\_key}}
+\index{get\_public\_spend\_key@{get\_public\_spend\_key}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_public\_spend\_key()}{get\_public\_spend\_key()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+public\+\_\+spend\+\_\+key (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s public spend key.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s public spend key 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a2266e22ebb43a9c86a76eb37a1c6fe16}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_ad3d14076b6b7c07e89924e9a1b7741d7}\label{classmonero_1_1monero__wallet__keys_ad3d14076b6b7c07e89924e9a1b7741d7}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_public\_view\_key@{get\_public\_view\_key}}
+\index{get\_public\_view\_key@{get\_public\_view\_key}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_public\_view\_key()}{get\_public\_view\_key()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+public\+\_\+view\+\_\+key (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s public view key.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s public view key 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_aa14e6da8c148be38336f9a987fc60643}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a3c524bd25e4c7013d60b114b61d8b9d0}\label{classmonero_1_1monero__wallet__keys_a3c524bd25e4c7013d60b114b61d8b9d0}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_subaddresses@{get\_subaddresses}}
+\index{get\_subaddresses@{get\_subaddresses}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_subaddresses()}{get\_subaddresses()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{structmonero_1_1monero__subaddress}{monero\+\_\+subaddress}} $>$ monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+subaddresses (\begin{DoxyParamCaption}\item[{const uint32\+\_\+t}]{account\+\_\+idx,  }\item[{const std\+::vector$<$ uint32\+\_\+t $>$ \&}]{subaddress\+\_\+indices }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get subaddresses in an account.
+
+
+\begin{DoxyParams}{Parameters}
+{\em account\+\_\+idx} & specifies the account to get subaddresses within \\
+\hline
+{\em subaddress\+\_\+indices} & are specific subaddresses to get (optional) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the retrieved subaddresses 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a9212ef66270ce18faffaaf7235dc5b4a}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a408e2f71d80854ba59f49207042cbabc}\label{classmonero_1_1monero__wallet__keys_a408e2f71d80854ba59f49207042cbabc}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!get\_version@{get\_version}}
+\index{get\_version@{get\_version}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{get\_version()}{get\_version()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmonero_1_1monero__version}{monero\+\_\+version}} monero\+::monero\+\_\+wallet\+\_\+keys\+::get\+\_\+version (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Get the wallet\textquotesingle{}s version.
+
+\begin{DoxyReturn}{Returns}
+the wallet\textquotesingle{}s version 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a6b69f718345c5425264b0de9b89b6a27}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a534e10f6fa13d8da262e81c581355937}\label{classmonero_1_1monero__wallet__keys_a534e10f6fa13d8da262e81c581355937}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!is\_view\_only@{is\_view\_only}}
+\index{is\_view\_only@{is\_view\_only}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{is\_view\_only()}{is\_view\_only()}}
+{\footnotesize\ttfamily bool monero\+::monero\+\_\+wallet\+\_\+keys\+::is\+\_\+view\+\_\+only (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Supported wallet methods. 
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a93fa8c7bce2de04a771618378ebebe4f}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a817780c43761f5471bea5153e705f1d5}\label{classmonero_1_1monero__wallet__keys_a817780c43761f5471bea5153e705f1d5}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!sign\_message@{sign\_message}}
+\index{sign\_message@{sign\_message}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{sign\_message()}{sign\_message()}}
+{\footnotesize\ttfamily std\+::string monero\+::monero\+\_\+wallet\+\_\+keys\+::sign\+\_\+message (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{msg,  }\item[{\mbox{\hyperlink{namespacemonero_a5ada8f66cddd59159701650a6a8c078b}{monero\+\_\+message\+\_\+signature\+\_\+type}}}]{signature\+\_\+type,  }\item[{uint32\+\_\+t}]{account\+\_\+idx = {\ttfamily 0},  }\item[{uint32\+\_\+t}]{subaddress\+\_\+idx = {\ttfamily 0} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Sign a message.
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & -\/ the message to sign \\
+\hline
+{\em signature\+\_\+type} & -\/ sign with spend key or spend key \\
+\hline
+{\em account\+\_\+idx} & -\/ the account index of the message signature (default 0) \\
+\hline
+{\em subaddress\+\_\+idx} & -\/ the subaddress index of the message signature (default 0) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the message signature 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_af65667677cd03973ab87389c1dc0c545}{monero\+::monero\+\_\+wallet}}.
+
+\mbox{\Hypertarget{classmonero_1_1monero__wallet__keys_a423810896328a3c25a9ad36b52001a5b}\label{classmonero_1_1monero__wallet__keys_a423810896328a3c25a9ad36b52001a5b}} 
+\index{monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}!verify\_message@{verify\_message}}
+\index{verify\_message@{verify\_message}!monero::monero\_wallet\_keys@{monero::monero\_wallet\_keys}}
+\doxysubsubsection{\texorpdfstring{verify\_message()}{verify\_message()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmonero_1_1monero__message__signature__result}{monero\+\_\+message\+\_\+signature\+\_\+result}} monero\+::monero\+\_\+wallet\+\_\+keys\+::verify\+\_\+message (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{msg,  }\item[{const std\+::string \&}]{address,  }\item[{const std\+::string \&}]{signature }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Verify a message signature.
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & -\/ the signed message \\
+\hline
+{\em address} & -\/ signing address \\
+\hline
+{\em signature} & -\/ signature \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the message signature result 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classmonero_1_1monero__wallet_a1d124fdc9f8586974aa03cbaad0e315d}{monero\+::monero\+\_\+wallet}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+keys.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+keys.\+cpp\end{DoxyCompactItemize}

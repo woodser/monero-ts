@@ -1,0 +1,85 @@
+\hypertarget{structmonero_1_1monero__transfer}{}\doxysection{monero\+::monero\+\_\+transfer Struct Reference}
+\label{structmonero_1_1monero__transfer}\index{monero::monero\_transfer@{monero::monero\_transfer}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+transfer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.568807cm]{structmonero_1_1monero__transfer}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__transfer_ae34c855d2139c06df65ee46be86df9e6}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_ad53b0718badc90907f949c8daf554f81}\label{structmonero_1_1monero__transfer_ad53b0718badc90907f949c8daf554f81}} 
+virtual boost\+::optional$<$ bool $>$ {\bfseries is\+\_\+incoming} () const =0
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_a3f949ec6d6103551275ff9878dd1345f}\label{structmonero_1_1monero__transfer_a3f949ec6d6103551275ff9878dd1345f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_acc7af8616fc33332d01db190e1fcd0a8}\label{structmonero_1_1monero__transfer_acc7af8616fc33332d01db190e1fcd0a8}} 
+boost\+::optional$<$ bool $>$ {\bfseries is\+\_\+outgoing} () const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_a280c676c6dcd71a4949840da1fc83589}\label{structmonero_1_1monero__transfer_a280c676c6dcd71a4949840da1fc83589}} 
+void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&other)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_af911925165dfff164db015ae8783c8b9}\label{structmonero_1_1monero__transfer_af911925165dfff164db015ae8783c8b9}} 
+static void {\bfseries from\+\_\+property\+\_\+tree} (const boost\+::property\+\_\+tree\+::ptree \&node, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&transfer)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_ad8805f58288f529e5a28426ea8a97e79}\label{structmonero_1_1monero__transfer_ad8805f58288f529e5a28426ea8a97e79}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ {\bfseries m\+\_\+tx}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_a8f102f3f43572bceff25243ac5cb89bf}\label{structmonero_1_1monero__transfer_a8f102f3f43572bceff25243ac5cb89bf}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+amount}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_a121fc549ccc450ae81c0e8626fa81565}\label{structmonero_1_1monero__transfer_a121fc549ccc450ae81c0e8626fa81565}} 
+boost\+::optional$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+account\+\_\+index}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models a base transfer of funds to or from the wallet.
+
+T\+O\+DO\+: m\+\_\+is\+\_\+incoming for api consistency 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__transfer_ae34c855d2139c06df65ee46be86df9e6}\label{structmonero_1_1monero__transfer_ae34c855d2139c06df65ee46be86df9e6}} 
+\index{monero::monero\_transfer@{monero::monero\_transfer}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_transfer@{monero::monero\_transfer}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+transfer\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{structmonero_1_1serializable__struct_a3c53ab95b12f02db20cf20cd6d69ad4b}{monero\+::serializable\+\_\+struct}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{structmonero_1_1monero__transfer__query_a04694bb70b70a24b2eb347f127c2aed8}{monero\+::monero\+\_\+transfer\+\_\+query}}, \mbox{\hyperlink{structmonero_1_1monero__outgoing__transfer_ae2252aa8350174cb8a365ba8fd617c68}{monero\+::monero\+\_\+outgoing\+\_\+transfer}}, and \mbox{\hyperlink{structmonero_1_1monero__incoming__transfer_a085ed3aefec908c716f35ab4e1692708}{monero\+::monero\+\_\+incoming\+\_\+transfer}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

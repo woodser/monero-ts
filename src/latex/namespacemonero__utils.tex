@@ -1,0 +1,138 @@
+\hypertarget{namespacemonero__utils}{}\doxysection{monero\+\_\+utils Namespace Reference}
+\label{namespacemonero__utils}\index{monero\_utils@{monero\_utils}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a11294d88ca6e0fc0d9c6ddbf11ef2364}\label{namespacemonero__utils_a11294d88ca6e0fc0d9c6ddbf11ef2364}} 
+\mbox{\hyperlink{structmonero_1_1monero__integrated__address}{monero\+\_\+integrated\+\_\+address}} {\bfseries get\+\_\+integrated\+\_\+address} (\mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type, const std\+::string \&standard\+\_\+address, const std\+::string \&payment\+\_\+id)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a11d2a1e6abd4cb53fe843e45436beb06}\label{namespacemonero__utils_a11d2a1e6abd4cb53fe843e45436beb06}} 
+bool {\bfseries is\+\_\+valid\+\_\+address} (const std\+::string \&address, \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_ae058351807a85ac8b3f2fdd6454fbb05}\label{namespacemonero__utils_ae058351807a85ac8b3f2fdd6454fbb05}} 
+bool {\bfseries is\+\_\+valid\+\_\+private\+\_\+view\+\_\+key} (const std\+::string \&private\+\_\+view\+\_\+key)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a8d0375434cb1597357e6f75dc5de1ca4}\label{namespacemonero__utils_a8d0375434cb1597357e6f75dc5de1ca4}} 
+bool {\bfseries is\+\_\+valid\+\_\+private\+\_\+spend\+\_\+key} (const std\+::string \&private\+\_\+spend\+\_\+key)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a08fd0c3d66963989597d5bd9f8b57684}\label{namespacemonero__utils_a08fd0c3d66963989597d5bd9f8b57684}} 
+void {\bfseries validate\+\_\+address} (const std\+::string \&address, \mbox{\hyperlink{namespacemonero_ac9023a1d513e2526775d1e061bb5beed}{monero\+\_\+network\+\_\+type}} network\+\_\+type)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a9aad060756ea95bb1bf6780ab7ae82d1}\label{namespacemonero__utils_a9aad060756ea95bb1bf6780ab7ae82d1}} 
+void {\bfseries validate\+\_\+private\+\_\+view\+\_\+key} (const std\+::string \&private\+\_\+view\+\_\+key)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a382e142a1cc6b5791b7b6b95e40ecafa}\label{namespacemonero__utils_a382e142a1cc6b5791b7b6b95e40ecafa}} 
+void {\bfseries validate\+\_\+private\+\_\+spend\+\_\+key} (const std\+::string \&private\+\_\+spend\+\_\+key)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a4b46d88c2b662d0b36f8c93171601d39}\label{namespacemonero__utils_a4b46d88c2b662d0b36f8c93171601d39}} 
+void {\bfseries json\+\_\+to\+\_\+binary} (const std\+::string \&json, std\+::string \&bin)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a6eae9999c9eec429dc10985bc96e16ab}\label{namespacemonero__utils_a6eae9999c9eec429dc10985bc96e16ab}} 
+void {\bfseries binary\+\_\+to\+\_\+json} (const std\+::string \&bin, std\+::string \&json)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a4e75da8e9e45070df04827553a3c1940}\label{namespacemonero__utils_a4e75da8e9e45070df04827553a3c1940}} 
+void {\bfseries binary\+\_\+blocks\+\_\+to\+\_\+json} (const std\+::string \&bin, std\+::string \&json)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a2a295a41b9e95d2b6e59dca1bd270c65}\label{namespacemonero__utils_a2a295a41b9e95d2b6e59dca1bd270c65}} 
+std\+::string {\bfseries serialize} (const rapidjson\+::\+Document \&doc)
+\item 
+{\footnotesize template$<$class T $>$ }\\void \mbox{\hyperlink{namespacemonero__utils_abc8108fdc0269db2f50c2ac24d7e5774}{add\+\_\+json\+\_\+member}} (std\+::string key, T val, rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, rapidjson\+::\+Value \&root, rapidjson\+::\+Value \&field)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_ae9f858a72bb3b027201d14b18a5bb86f}\label{namespacemonero__utils_ae9f858a72bb3b027201d14b18a5bb86f}} 
+void {\bfseries add\+\_\+json\+\_\+member} (std\+::string key, std\+::string val, rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, rapidjson\+::\+Value \&root, rapidjson\+::\+Value \&field)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_ad4a51b300d2e55e58e851377fdf1d70d}\label{namespacemonero__utils_ad4a51b300d2e55e58e851377fdf1d70d}} 
+void {\bfseries add\+\_\+json\+\_\+member} (std\+::string key, bool val, rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, rapidjson\+::\+Value \&root)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a2ed87748bee21fea57c61e525e94d756}\label{namespacemonero__utils_a2ed87748bee21fea57c61e525e94d756}} 
+{\footnotesize template$<$class T $>$ }\\rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ T $>$$>$ \&vals)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a8a858a2811088a52b873face58bb9fc7}\label{namespacemonero__utils_a8a858a2811088a52b873face58bb9fc7}} 
+{\footnotesize template$<$class T $>$ }\\rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ T $>$ \&vals)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a4ed2b6bca0e2ee02afa5c62056b3f4c3}\label{namespacemonero__utils_a4ed2b6bca0e2ee02afa5c62056b3f4c3}} 
+rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ std\+::string $>$ \&strs)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_ae744c4753657ad125b0b44d5e5330822}\label{namespacemonero__utils_ae744c4753657ad125b0b44d5e5330822}} 
+rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ uint8\+\_\+t $>$ \&nums)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a70a083d99f64024794d49df445b4f839}\label{namespacemonero__utils_a70a083d99f64024794d49df445b4f839}} 
+rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ uint32\+\_\+t $>$ \&nums)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_aa78d122ad53b7c880c17ff684a6248da}\label{namespacemonero__utils_aa78d122ad53b7c880c17ff684a6248da}} 
+rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator, const std\+::vector$<$ uint64\+\_\+t $>$ \&nums)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a994464a826d732d56dc1538809a79f9c}\label{namespacemonero__utils_a994464a826d732d56dc1538809a79f9c}} 
+std\+::string {\bfseries serialize} (const boost\+::property\+\_\+tree\+::ptree \&node)
+\item 
+\mbox{\Hypertarget{namespacemonero__utils_a6c3de434c99895049dd1b01b040cbecc}\label{namespacemonero__utils_a6c3de434c99895049dd1b01b040cbecc}} 
+void {\bfseries deserialize} (const std\+::string \&json, boost\+::property\+\_\+tree\+::ptree \&root)
+\item 
+bool \mbox{\hyperlink{namespacemonero__utils_a3b9ee3d8bd81e28c3bbdf4e747300277}{is\+\_\+valid\+\_\+language}} (const std\+::string \&language)
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ \mbox{\hyperlink{namespacemonero__utils_ab2fb8889ec17d02e54541e90a3ffd47f}{cn\+\_\+block\+\_\+to\+\_\+block}} (const cryptonote\+::block \&cn\+\_\+block)
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \mbox{\hyperlink{namespacemonero__utils_ad4b5df3026350e762bfa40c6acdb6a0d}{cn\+\_\+tx\+\_\+to\+\_\+tx}} (const cryptonote\+::transaction \&cn\+\_\+tx, bool init\+\_\+as\+\_\+tx\+\_\+wallet=false)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Collection of utilities for the Monero library. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacemonero__utils_abc8108fdc0269db2f50c2ac24d7e5774}\label{namespacemonero__utils_abc8108fdc0269db2f50c2ac24d7e5774}} 
+\index{monero\_utils@{monero\_utils}!add\_json\_member@{add\_json\_member}}
+\index{add\_json\_member@{add\_json\_member}!monero\_utils@{monero\_utils}}
+\doxysubsubsection{\texorpdfstring{add\_json\_member()}{add\_json\_member()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+void monero\+\_\+utils\+::add\+\_\+json\+\_\+member (\begin{DoxyParamCaption}\item[{std\+::string}]{key,  }\item[{T}]{val,  }\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator,  }\item[{rapidjson\+::\+Value \&}]{root,  }\item[{rapidjson\+::\+Value \&}]{field }\end{DoxyParamCaption})}
+
+Add number, string, and boolean json members using template specialization.
+
+T\+O\+DO\+: add\+\_\+json\+\_\+member(\char`\"{}key\char`\"{}, \char`\"{}val\char`\"{}, ...) treated as integer instead of string literal \mbox{\Hypertarget{namespacemonero__utils_ab2fb8889ec17d02e54541e90a3ffd47f}\label{namespacemonero__utils_ab2fb8889ec17d02e54541e90a3ffd47f}} 
+\index{monero\_utils@{monero\_utils}!cn\_block\_to\_block@{cn\_block\_to\_block}}
+\index{cn\_block\_to\_block@{cn\_block\_to\_block}!monero\_utils@{monero\_utils}}
+\doxysubsubsection{\texorpdfstring{cn\_block\_to\_block()}{cn\_block\_to\_block()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ monero\+\_\+utils\+::cn\+\_\+block\+\_\+to\+\_\+block (\begin{DoxyParamCaption}\item[{const cryptonote\+::block \&}]{cn\+\_\+block }\end{DoxyParamCaption})}
+
+Convert a cryptonote\+::block to a block in this library\textquotesingle{}s native model.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cn\+\_\+block} & is the block to convert \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a block in this library\textquotesingle{}s native model 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespacemonero__utils_ad4b5df3026350e762bfa40c6acdb6a0d}\label{namespacemonero__utils_ad4b5df3026350e762bfa40c6acdb6a0d}} 
+\index{monero\_utils@{monero\_utils}!cn\_tx\_to\_tx@{cn\_tx\_to\_tx}}
+\index{cn\_tx\_to\_tx@{cn\_tx\_to\_tx}!monero\_utils@{monero\_utils}}
+\doxysubsubsection{\texorpdfstring{cn\_tx\_to\_tx()}{cn\_tx\_to\_tx()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ monero\+\_\+utils\+::cn\+\_\+tx\+\_\+to\+\_\+tx (\begin{DoxyParamCaption}\item[{const cryptonote\+::transaction \&}]{cn\+\_\+tx,  }\item[{bool}]{init\+\_\+as\+\_\+tx\+\_\+wallet = {\ttfamily false} }\end{DoxyParamCaption})}
+
+Convert a cryptonote\+::transaction to a transaction in this library\textquotesingle{}s native model.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cn\+\_\+tx} & is the transaction to convert \\
+\hline
+{\em init\+\_\+as\+\_\+tx\+\_\+wallet} & specifies if a monero\+\_\+tx xor monero\+\_\+tx\+\_\+wallet should be initialized \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{namespacemonero__utils_a3b9ee3d8bd81e28c3bbdf4e747300277}\label{namespacemonero__utils_a3b9ee3d8bd81e28c3bbdf4e747300277}} 
+\index{monero\_utils@{monero\_utils}!is\_valid\_language@{is\_valid\_language}}
+\index{is\_valid\_language@{is\_valid\_language}!monero\_utils@{monero\_utils}}
+\doxysubsubsection{\texorpdfstring{is\_valid\_language()}{is\_valid\_language()}}
+{\footnotesize\ttfamily bool monero\+\_\+utils\+::is\+\_\+valid\+\_\+language (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{language }\end{DoxyParamCaption})}
+
+Indicates if the given language is valid.
+
+
+\begin{DoxyParams}{Parameters}
+{\em language} & is the language to validate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the language is valid, false otherwise 
+\end{DoxyReturn}

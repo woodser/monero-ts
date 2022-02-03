@@ -1,0 +1,73 @@
+\hypertarget{structmonero_1_1monero__block}{}\doxysection{monero\+::monero\+\_\+block Struct Reference}
+\label{structmonero_1_1monero__block}\index{monero::monero\_block@{monero::monero\_block}}
+
+
+{\ttfamily \#include $<$monero\+\_\+daemon\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+block\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{structmonero_1_1monero__block}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__block_aff7b5fbba400067c049aed9afaf8359b}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_ad9adb64f52a77cd7ce7ccfb7dab8c6bf}\label{structmonero_1_1monero__block_ad9adb64f52a77cd7ce7ccfb7dab8c6bf}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_aa498256fb34182d78de40e70e13fc37c}\label{structmonero_1_1monero__block_aa498256fb34182d78de40e70e13fc37c}} 
+void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block__header}{monero\+\_\+block\+\_\+header}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block__header}{monero\+\_\+block\+\_\+header}} $>$ \&other)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_a09d172165fc15dd3ec4b61eb4d51fb71}\label{structmonero_1_1monero__block_a09d172165fc15dd3ec4b61eb4d51fb71}} 
+void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ \&other)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_a932331002c0704737f2599660e38bf5b}\label{structmonero_1_1monero__block_a932331002c0704737f2599660e38bf5b}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+hex}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_ad4879e6b343783e93502a6002b1a4760}\label{structmonero_1_1monero__block_ad4879e6b343783e93502a6002b1a4760}} 
+boost\+::optional$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ $>$ {\bfseries m\+\_\+miner\+\_\+tx}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_a125a65069bfd44ee2dd44716f7d067ee}\label{structmonero_1_1monero__block_a125a65069bfd44ee2dd44716f7d067ee}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ $>$ {\bfseries m\+\_\+txs}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__block_a21b256d7201a86f05e3bf6d47023b7ca}\label{structmonero_1_1monero__block_a21b256d7201a86f05e3bf6d47023b7ca}} 
+std\+::vector$<$ std\+::string $>$ {\bfseries m\+\_\+tx\+\_\+hashes}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models a Monero block in the blockchain. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__block_aff7b5fbba400067c049aed9afaf8359b}\label{structmonero_1_1monero__block_aff7b5fbba400067c049aed9afaf8359b}} 
+\index{monero::monero\_block@{monero::monero\_block}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_block@{monero::monero\_block}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+block\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{structmonero_1_1monero__block__header_a7d75c164db7b4b16c50bec984b32b134}{monero\+::monero\+\_\+block\+\_\+header}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+daemon/monero\+\_\+daemon\+\_\+model.\+h\item 
+daemon/monero\+\_\+daemon\+\_\+model.\+cpp\end{DoxyCompactItemize}

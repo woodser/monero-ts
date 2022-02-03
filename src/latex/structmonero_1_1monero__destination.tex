@@ -1,0 +1,42 @@
+\hypertarget{structmonero_1_1monero__destination}{}\doxysection{monero\+::monero\+\_\+destination Struct Reference}
+\label{structmonero_1_1monero__destination}\index{monero::monero\_destination@{monero::monero\_destination}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_a73d248db4f8cd4b69e5cc3c12db8fb8e}\label{structmonero_1_1monero__destination_a73d248db4f8cd4b69e5cc3c12db8fb8e}} 
+{\bfseries monero\+\_\+destination} (boost\+::optional$<$ std\+::string $>$ address=boost\+::none, boost\+::optional$<$ uint64\+\_\+t $>$ amount=boost\+::none)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_aeb8bdaa5255ebf44d13f78ad5f7acc4c}\label{structmonero_1_1monero__destination_aeb8bdaa5255ebf44d13f78ad5f7acc4c}} 
+rapidjson\+::\+Value {\bfseries to\+\_\+rapidjson\+\_\+val} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_a5d8642560f449a6baa60c1f2d3639af4}\label{structmonero_1_1monero__destination_a5d8642560f449a6baa60c1f2d3639af4}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__destination}{monero\+\_\+destination}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__destination}{monero\+\_\+destination}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__destination}{monero\+\_\+destination}} $>$ \&tgt) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_aa7659ac5b8d8d4d3f7f10201ee8fb433}\label{structmonero_1_1monero__destination_aa7659ac5b8d8d4d3f7f10201ee8fb433}} 
+static void {\bfseries from\+\_\+property\+\_\+tree} (const boost\+::property\+\_\+tree\+::ptree \&node, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__destination}{monero\+\_\+destination}} $>$ \&destination)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_a68a50f9f31c75a8e15e87586d1edb986}\label{structmonero_1_1monero__destination_a68a50f9f31c75a8e15e87586d1edb986}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+address}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__destination_a0cbc705e3256dcb13c5a792010412088}\label{structmonero_1_1monero__destination_a0cbc705e3256dcb13c5a792010412088}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+amount}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models an outgoing transfer destination. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

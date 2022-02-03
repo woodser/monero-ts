@@ -1,0 +1,61 @@
+\hypertarget{structmonero_1_1monero__sync__result}{}\doxysection{monero\+::monero\+\_\+sync\+\_\+result Struct Reference}
+\label{structmonero_1_1monero__sync__result}\index{monero::monero\_sync\_result@{monero::monero\_sync\_result}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+sync\+\_\+result\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structmonero_1_1monero__sync__result}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__sync__result_a7e3bec0b6cd84430bc36a8c72cedf530}\label{structmonero_1_1monero__sync__result_a7e3bec0b6cd84430bc36a8c72cedf530}} 
+{\bfseries monero\+\_\+sync\+\_\+result} (const uint64\+\_\+t num\+\_\+blocks\+\_\+fetched, const bool received\+\_\+money)
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__sync__result_a554b3c5d14d71f256f0ed3dcfec67f15}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__sync__result_a3bb7ced24d1ca829d87e91404f30b737}\label{structmonero_1_1monero__sync__result_a3bb7ced24d1ca829d87e91404f30b737}} 
+uint64\+\_\+t {\bfseries m\+\_\+num\+\_\+blocks\+\_\+fetched}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__sync__result_aec0fd50c964b199b6470c392e618d2b6}\label{structmonero_1_1monero__sync__result_aec0fd50c964b199b6470c392e618d2b6}} 
+bool {\bfseries m\+\_\+received\+\_\+money}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models a result of syncing a wallet. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__sync__result_a554b3c5d14d71f256f0ed3dcfec67f15}\label{structmonero_1_1monero__sync__result_a554b3c5d14d71f256f0ed3dcfec67f15}} 
+\index{monero::monero\_sync\_result@{monero::monero\_sync\_result}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_sync\_result@{monero::monero\_sync\_result}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+sync\+\_\+result\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{structmonero_1_1serializable__struct_a3c53ab95b12f02db20cf20cd6d69ad4b}{monero\+::serializable\+\_\+struct}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,99 @@
+\hypertarget{structmonero_1_1monero__transfer__query}{}\doxysection{monero\+::monero\+\_\+transfer\+\_\+query Struct Reference}
+\label{structmonero_1_1monero__transfer__query}\index{monero::monero\_transfer\_query@{monero::monero\_transfer\_query}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+transfer\+\_\+query\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{structmonero_1_1monero__transfer__query}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__transfer__query_a04694bb70b70a24b2eb347f127c2aed8}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_ad2b88fba68ddb2ba205c2357991a3e01}\label{structmonero_1_1monero__transfer__query_ad2b88fba68ddb2ba205c2357991a3e01}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a2c0bbffd581384cb70ca887decc2a3dc}\label{structmonero_1_1monero__transfer__query_a2c0bbffd581384cb70ca887decc2a3dc}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_adbaf53a704b5b516d786c46ca0892c91}\label{structmonero_1_1monero__transfer__query_adbaf53a704b5b516d786c46ca0892c91}} 
+boost\+::optional$<$ bool $>$ {\bfseries is\+\_\+incoming} () const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a8fe50215cc6bf6c41e1160885cb37efd}\label{structmonero_1_1monero__transfer__query_a8fe50215cc6bf6c41e1160885cb37efd}} 
+bool {\bfseries meets\+\_\+criteria} (\mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $\ast$transfer, bool query\+\_\+parent=true) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_ad2ee39d4c27d125b22c5c3ee42da49bb}\label{structmonero_1_1monero__transfer__query_ad2ee39d4c27d125b22c5c3ee42da49bb}} 
+static void {\bfseries from\+\_\+property\+\_\+tree} (const boost\+::property\+\_\+tree\+::ptree \&node, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ \&transfer\+\_\+query)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a095a96413f5fa5c9d212e260422420c3}\label{structmonero_1_1monero__transfer__query_a095a96413f5fa5c9d212e260422420c3}} 
+static std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} $>$ {\bfseries deserialize\+\_\+from\+\_\+block} (const std\+::string \&transfer\+\_\+query\+\_\+json)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_af6f8b3f4cacd525021b8df7d4d69d0e7}\label{structmonero_1_1monero__transfer__query_af6f8b3f4cacd525021b8df7d4d69d0e7}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+incoming}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_ac490da7c206f934362d884c2033b1a4b}\label{structmonero_1_1monero__transfer__query_ac490da7c206f934362d884c2033b1a4b}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+address}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a8a9d36404be1ec5ce1b4661973dc12be}\label{structmonero_1_1monero__transfer__query_a8a9d36404be1ec5ce1b4661973dc12be}} 
+std\+::vector$<$ std\+::string $>$ {\bfseries m\+\_\+addresses}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_ac85ba9eb1f5960823f67850b75334194}\label{structmonero_1_1monero__transfer__query_ac85ba9eb1f5960823f67850b75334194}} 
+boost\+::optional$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+subaddress\+\_\+index}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a7ecfb148b7261b017e506564f7ac1ffa}\label{structmonero_1_1monero__transfer__query_a7ecfb148b7261b017e506564f7ac1ffa}} 
+std\+::vector$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+subaddress\+\_\+indices}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a8039f7dd5701df5d040fb065eafaeefa}\label{structmonero_1_1monero__transfer__query_a8039f7dd5701df5d040fb065eafaeefa}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__destination}{monero\+\_\+destination}} $>$ $>$ {\bfseries m\+\_\+destinations}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a5f92651508297de4a9b343845ad5b013}\label{structmonero_1_1monero__transfer__query_a5f92651508297de4a9b343845ad5b013}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+has\+\_\+destinations}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a20686254568cd570d66605c430a3685e}\label{structmonero_1_1monero__transfer__query_a20686254568cd570d66605c430a3685e}} 
+boost\+::optional$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__query}{monero\+\_\+tx\+\_\+query}} $>$ $>$ {\bfseries m\+\_\+tx\+\_\+query}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Configures a query to retrieve transfers.
+
+All transfers are returned except those that do not meet the criteria defined in this query. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__transfer__query_a04694bb70b70a24b2eb347f127c2aed8}\label{structmonero_1_1monero__transfer__query_a04694bb70b70a24b2eb347f127c2aed8}} 
+\index{monero::monero\_transfer\_query@{monero::monero\_transfer\_query}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_transfer\_query@{monero::monero\_transfer\_query}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+transfer\+\_\+query\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{structmonero_1_1monero__transfer_ae34c855d2139c06df65ee46be86df9e6}{monero\+::monero\+\_\+transfer}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,58 @@
+\hypertarget{structmonero_1_1monero__multisig__init__result}{}\doxysection{monero\+::monero\+\_\+multisig\+\_\+init\+\_\+result Struct Reference}
+\label{structmonero_1_1monero__multisig__init__result}\index{monero::monero\_multisig\_init\_result@{monero::monero\_multisig\_init\_result}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+multisig\+\_\+init\+\_\+result\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structmonero_1_1monero__multisig__init__result}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__multisig__init__result_a58d52e773d96251edfeba893ca5cdf51}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__multisig__init__result_a47eeaa7b9df31dbaf803e2b24d77980a}\label{structmonero_1_1monero__multisig__init__result_a47eeaa7b9df31dbaf803e2b24d77980a}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+address}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__multisig__init__result_a0d3626eb627870320ed57c27f185318c}\label{structmonero_1_1monero__multisig__init__result_a0d3626eb627870320ed57c27f185318c}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+multisig\+\_\+hex}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models the result of initializing a multisig wallet which results in the multisig wallet\textquotesingle{}s address xor another multisig hex to share with participants to create the wallet. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__multisig__init__result_a58d52e773d96251edfeba893ca5cdf51}\label{structmonero_1_1monero__multisig__init__result_a58d52e773d96251edfeba893ca5cdf51}} 
+\index{monero::monero\_multisig\_init\_result@{monero::monero\_multisig\_init\_result}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_multisig\_init\_result@{monero::monero\_multisig\_init\_result}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+multisig\+\_\+init\+\_\+result\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{structmonero_1_1serializable__struct_a3c53ab95b12f02db20cf20cd6d69ad4b}{monero\+::serializable\+\_\+struct}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

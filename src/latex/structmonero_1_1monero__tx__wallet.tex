@@ -1,0 +1,132 @@
+\hypertarget{structmonero_1_1monero__tx__wallet}{}\doxysection{monero\+::monero\+\_\+tx\+\_\+wallet Struct Reference}
+\label{structmonero_1_1monero__tx__wallet}\index{monero::monero\_tx\_wallet@{monero::monero\_tx\_wallet}}
+
+
+{\ttfamily \#include $<$monero\+\_\+wallet\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+tx\+\_\+wallet\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{structmonero_1_1monero__tx__wallet}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__tx__wallet_ab00bc1f8108ea8f863418ab1418bb801}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a005c6127789087cf3e898a8a9897aa13}\label{structmonero_1_1monero__tx__wallet_a005c6127789087cf3e898a8a9897aa13}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ab260c28ef4ca0b677bdb55c626c194be}\label{structmonero_1_1monero__tx__wallet_ab260c28ef4ca0b677bdb55c626c194be}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a4eaa656dfdae74dd71055d3bfe4405df}\label{structmonero_1_1monero__tx__wallet_a4eaa656dfdae74dd71055d3bfe4405df}} 
+void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&other)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a41c118401b9411c8d128eb82fe2f673e}\label{structmonero_1_1monero__tx__wallet_a41c118401b9411c8d128eb82fe2f673e}} 
+void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ \&other)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_abf2cf49553d5c4e49045cb7fefa7a776}\label{structmonero_1_1monero__tx__wallet_abf2cf49553d5c4e49045cb7fefa7a776}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ $>$ {\bfseries get\+\_\+transfers} () const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ac05bd6fa4044ef5ec540eca85ddde6e4}\label{structmonero_1_1monero__tx__wallet_ac05bd6fa4044ef5ec540eca85ddde6e4}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ $>$ {\bfseries get\+\_\+transfers} (const \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} \&query) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_aed0db7a7532adb0934bbd0d447424f05}\label{structmonero_1_1monero__tx__wallet_aed0db7a7532adb0934bbd0d447424f05}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__transfer}{monero\+\_\+transfer}} $>$ $>$ {\bfseries filter\+\_\+transfers} (const \mbox{\hyperlink{structmonero_1_1monero__transfer__query}{monero\+\_\+transfer\+\_\+query}} \&query)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_af18b2ac8162cb3319963dc48d08cc37e}\label{structmonero_1_1monero__tx__wallet_af18b2ac8162cb3319963dc48d08cc37e}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__output__wallet}{monero\+\_\+output\+\_\+wallet}} $>$ $>$ {\bfseries get\+\_\+outputs\+\_\+wallet} () const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ac80b251ccc6e26433d67fc53d887e0fe}\label{structmonero_1_1monero__tx__wallet_ac80b251ccc6e26433d67fc53d887e0fe}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__output__wallet}{monero\+\_\+output\+\_\+wallet}} $>$ $>$ {\bfseries get\+\_\+outputs\+\_\+wallet} (const \mbox{\hyperlink{structmonero_1_1monero__output__query}{monero\+\_\+output\+\_\+query}} \&query) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ad03c3352fe6529d020f7d21a5541562d}\label{structmonero_1_1monero__tx__wallet_ad03c3352fe6529d020f7d21a5541562d}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__output__wallet}{monero\+\_\+output\+\_\+wallet}} $>$ $>$ {\bfseries filter\+\_\+outputs\+\_\+wallet} (const \mbox{\hyperlink{structmonero_1_1monero__output__query}{monero\+\_\+output\+\_\+query}} \&query)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a4f7c6924ffa279cd7f9f828b277d9a73}\label{structmonero_1_1monero__tx__wallet_a4f7c6924ffa279cd7f9f828b277d9a73}} 
+static void {\bfseries from\+\_\+property\+\_\+tree} (const boost\+::property\+\_\+tree\+::ptree \&node, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__wallet}{monero\+\_\+tx\+\_\+wallet}} $>$ \&tx\+\_\+wallet)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a4e5b15663fd28fef91799039b37725cf}\label{structmonero_1_1monero__tx__wallet_a4e5b15663fd28fef91799039b37725cf}} 
+boost\+::optional$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx__set}{monero\+\_\+tx\+\_\+set}} $>$ $>$ {\bfseries m\+\_\+tx\+\_\+set}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a7196d0896b81dda06cdcd85d64044ddd}\label{structmonero_1_1monero__tx__wallet_a7196d0896b81dda06cdcd85d64044ddd}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+incoming}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a9b1a19bad6addadae32a296b1c66ce9c}\label{structmonero_1_1monero__tx__wallet_a9b1a19bad6addadae32a296b1c66ce9c}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+outgoing}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_aa7eb30f5b01a8ddd1558ef0460feacc2}\label{structmonero_1_1monero__tx__wallet_aa7eb30f5b01a8ddd1558ef0460feacc2}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__incoming__transfer}{monero\+\_\+incoming\+\_\+transfer}} $>$ $>$ {\bfseries m\+\_\+incoming\+\_\+transfers}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a1e789ce9839c43236d385b9f07ff94ec}\label{structmonero_1_1monero__tx__wallet_a1e789ce9839c43236d385b9f07ff94ec}} 
+boost\+::optional$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__outgoing__transfer}{monero\+\_\+outgoing\+\_\+transfer}} $>$ $>$ {\bfseries m\+\_\+outgoing\+\_\+transfer}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a0f08b97dfa718687615f68013636d3ee}\label{structmonero_1_1monero__tx__wallet_a0f08b97dfa718687615f68013636d3ee}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+note}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a657e628368821979cb7b0afe985f82d3}\label{structmonero_1_1monero__tx__wallet_a657e628368821979cb7b0afe985f82d3}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+locked}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_aa581e2647501af751212357abef8dd87}\label{structmonero_1_1monero__tx__wallet_aa581e2647501af751212357abef8dd87}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+input\+\_\+sum}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_afa7627cfd139fad3d152e6c0167efb9c}\label{structmonero_1_1monero__tx__wallet_afa7627cfd139fad3d152e6c0167efb9c}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+output\+\_\+sum}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a068498795ed640ce324f3d5e71292925}\label{structmonero_1_1monero__tx__wallet_a068498795ed640ce324f3d5e71292925}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+change\+\_\+address}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a0bbd9775ee75a70026b2117219d94a0a}\label{structmonero_1_1monero__tx__wallet_a0bbd9775ee75a70026b2117219d94a0a}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+change\+\_\+amount}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ac60ae5e68b10d2a930fc4b89b94a55f9}\label{structmonero_1_1monero__tx__wallet_ac60ae5e68b10d2a930fc4b89b94a55f9}} 
+boost\+::optional$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+num\+\_\+dummy\+\_\+outputs}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_a66cdfe35c40c00505d422a6f09b8119b}\label{structmonero_1_1monero__tx__wallet_a66cdfe35c40c00505d422a6f09b8119b}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+extra\+\_\+hex}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Models a Monero transaction in the context of a wallet. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__tx__wallet_ab00bc1f8108ea8f863418ab1418bb801}\label{structmonero_1_1monero__tx__wallet_ab00bc1f8108ea8f863418ab1418bb801}} 
+\index{monero::monero\_tx\_wallet@{monero::monero\_tx\_wallet}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_tx\_wallet@{monero::monero\_tx\_wallet}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+tx\+\_\+wallet\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{structmonero_1_1monero__tx_a17cef8cbfdb09e73ad48873db3095115}{monero\+::monero\+\_\+tx}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{structmonero_1_1monero__tx__query_a2355afaf070c49ae18fee757145e2391}{monero\+::monero\+\_\+tx\+\_\+query}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+h\item 
+wallet/monero\+\_\+wallet\+\_\+model.\+cpp\end{DoxyCompactItemize}

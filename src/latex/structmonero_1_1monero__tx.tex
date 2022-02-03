@@ -1,0 +1,191 @@
+\hypertarget{structmonero_1_1monero__tx}{}\doxysection{monero\+::monero\+\_\+tx Struct Reference}
+\label{structmonero_1_1monero__tx}\index{monero::monero\_tx@{monero::monero\_tx}}
+
+
+{\ttfamily \#include $<$monero\+\_\+daemon\+\_\+model.\+h$>$}
+
+Inheritance diagram for monero\+::monero\+\_\+tx\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{structmonero_1_1monero__tx}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+rapidjson\+::\+Value \mbox{\hyperlink{structmonero_1_1monero__tx_a17cef8cbfdb09e73ad48873db3095115}{to\+\_\+rapidjson\+\_\+val}} (rapidjson\+::\+Document\+::\+Allocator\+Type \&allocator) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a4291a5718caa553aabd76bd629e42a31}\label{structmonero_1_1monero__tx_a4291a5718caa553aabd76bd629e42a31}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ {\bfseries copy} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&src, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&tgt) const
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a9d2e1f99b3ed7d6a31badce0f5031681}\label{structmonero_1_1monero__tx_a9d2e1f99b3ed7d6a31badce0f5031681}} 
+virtual void {\bfseries merge} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&self, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ \&other)
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a45cf09fa9289ad3412d4f2d5224bb8e4}\label{structmonero_1_1monero__tx_a45cf09fa9289ad3412d4f2d5224bb8e4}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries get\+\_\+height} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_ade4aa298dc3f99cfa413499fabfbb267}\label{structmonero_1_1monero__tx_ade4aa298dc3f99cfa413499fabfbb267}} 
+static void {\bfseries from\+\_\+property\+\_\+tree} (const boost\+::property\+\_\+tree\+::ptree \&node, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__tx}{monero\+\_\+tx}} $>$ tx)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a0b0107ffb55edf774c12001288c750a3}\label{structmonero_1_1monero__tx_a0b0107ffb55edf774c12001288c750a3}} 
+boost\+::optional$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__block}{monero\+\_\+block}} $>$ $>$ {\bfseries m\+\_\+block}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a6d400d955b7bd74c4ac096e9de8a9b59}\label{structmonero_1_1monero__tx_a6d400d955b7bd74c4ac096e9de8a9b59}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+hash}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_af9f86b2160ed5979796c0415bcb938eb}\label{structmonero_1_1monero__tx_af9f86b2160ed5979796c0415bcb938eb}} 
+boost\+::optional$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+version}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a39dd7cdd8874f04742ebcc22881ee0d9}\label{structmonero_1_1monero__tx_a39dd7cdd8874f04742ebcc22881ee0d9}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+miner\+\_\+tx}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_aed1cd94483df4ecef3f8a91932ffc6db}\label{structmonero_1_1monero__tx_aed1cd94483df4ecef3f8a91932ffc6db}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+payment\+\_\+id}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a838257958c8e135f6e9bbd250fb3b0cf}\label{structmonero_1_1monero__tx_a838257958c8e135f6e9bbd250fb3b0cf}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+fee}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a07ec0f1c2d78058473e97098f98a56ab}\label{structmonero_1_1monero__tx_a07ec0f1c2d78058473e97098f98a56ab}} 
+boost\+::optional$<$ uint32\+\_\+t $>$ {\bfseries m\+\_\+ring\+\_\+size}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a73502c3ac4b430bf96f9955eafa9eb26}\label{structmonero_1_1monero__tx_a73502c3ac4b430bf96f9955eafa9eb26}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+relay}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a6409e9abff653c7ec233de6e0532ccd5}\label{structmonero_1_1monero__tx_a6409e9abff653c7ec233de6e0532ccd5}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+relayed}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_abcb0853e533afe2ca71a131c36b5c4d3}\label{structmonero_1_1monero__tx_abcb0853e533afe2ca71a131c36b5c4d3}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+confirmed}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a633111406207be869118cdfdbdf7b789}\label{structmonero_1_1monero__tx_a633111406207be869118cdfdbdf7b789}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+in\+\_\+tx\+\_\+pool}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_acfd192c7826cebb3158e9abcf7557122}\label{structmonero_1_1monero__tx_acfd192c7826cebb3158e9abcf7557122}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+num\+\_\+confirmations}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_ae06bfcb53fc5b002c9d61073643b073e}\label{structmonero_1_1monero__tx_ae06bfcb53fc5b002c9d61073643b073e}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+unlock\+\_\+height}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a0f4f21c343058cd8f0237e5cee6f9970}\label{structmonero_1_1monero__tx_a0f4f21c343058cd8f0237e5cee6f9970}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+last\+\_\+relayed\+\_\+timestamp}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_ad4848cd4b615813fadb28b18b5dcf279}\label{structmonero_1_1monero__tx_ad4848cd4b615813fadb28b18b5dcf279}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+received\+\_\+timestamp}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a76124f831163bb3baedff81d2740a2cb}\label{structmonero_1_1monero__tx_a76124f831163bb3baedff81d2740a2cb}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+double\+\_\+spend\+\_\+seen}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_aa7bb36d5c50128dd0f781f351ed63ba5}\label{structmonero_1_1monero__tx_aa7bb36d5c50128dd0f781f351ed63ba5}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+key}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a082979ede82247163efa88a15653d02e}\label{structmonero_1_1monero__tx_a082979ede82247163efa88a15653d02e}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+full\+\_\+hex}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a45acf8ddf87003be44334b951518d6d3}\label{structmonero_1_1monero__tx_a45acf8ddf87003be44334b951518d6d3}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+pruned\+\_\+hex}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_aa9906c72ff7eb5cd71305970b6b01df2}\label{structmonero_1_1monero__tx_aa9906c72ff7eb5cd71305970b6b01df2}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+prunable\+\_\+hex}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a206cb1a8e344d25791ee6c6929690063}\label{structmonero_1_1monero__tx_a206cb1a8e344d25791ee6c6929690063}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+prunable\+\_\+hash}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a51162d977c8ebb1b2c7eddfd4f831b36}\label{structmonero_1_1monero__tx_a51162d977c8ebb1b2c7eddfd4f831b36}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+size}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_acc27203e75e4105ba781aa6b34c0c9db}\label{structmonero_1_1monero__tx_acc27203e75e4105ba781aa6b34c0c9db}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+weight}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a4fa4fac0211e1b9d0831dde92d68764e}\label{structmonero_1_1monero__tx_a4fa4fac0211e1b9d0831dde92d68764e}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__output}{monero\+\_\+output}} $>$ $>$ {\bfseries m\+\_\+inputs}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a046d9431a31967761fd31579b1deaaa3}\label{structmonero_1_1monero__tx_a046d9431a31967761fd31579b1deaaa3}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structmonero_1_1monero__output}{monero\+\_\+output}} $>$ $>$ {\bfseries m\+\_\+outputs}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a22940c356e666cd7514f14dd31f626d6}\label{structmonero_1_1monero__tx_a22940c356e666cd7514f14dd31f626d6}} 
+std\+::vector$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+output\+\_\+indices}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a0e599a72a56a7c8cb394a468a6bad8a5}\label{structmonero_1_1monero__tx_a0e599a72a56a7c8cb394a468a6bad8a5}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+metadata}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a7c74b1e2c75df4f0c466a1c56f8b1ee8}\label{structmonero_1_1monero__tx_a7c74b1e2c75df4f0c466a1c56f8b1ee8}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+common\+\_\+tx\+\_\+sets}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a1a5196637b750b1bd4232faff262e50b}\label{structmonero_1_1monero__tx_a1a5196637b750b1bd4232faff262e50b}} 
+std\+::vector$<$ uint8\+\_\+t $>$ {\bfseries m\+\_\+extra}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a63233d6daf2a51e7a4fae5eb0886d5ca}\label{structmonero_1_1monero__tx_a63233d6daf2a51e7a4fae5eb0886d5ca}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+rct\+\_\+signatures}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a1edaa98a8c1679f29a0018809b6c15a1}\label{structmonero_1_1monero__tx_a1edaa98a8c1679f29a0018809b6c15a1}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+rct\+\_\+sig\+\_\+prunable}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_abf973815c824a23fdf6fd238d0ae03e8}\label{structmonero_1_1monero__tx_abf973815c824a23fdf6fd238d0ae03e8}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+kept\+\_\+by\+\_\+block}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a4503ed5307419392f4ebb97337473c34}\label{structmonero_1_1monero__tx_a4503ed5307419392f4ebb97337473c34}} 
+boost\+::optional$<$ bool $>$ {\bfseries m\+\_\+is\+\_\+failed}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_ae61222623d04a1f11eb7da147e0f8914}\label{structmonero_1_1monero__tx_ae61222623d04a1f11eb7da147e0f8914}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+last\+\_\+failed\+\_\+height}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a0195449c1fcd4e8a32a68277940e0ec3}\label{structmonero_1_1monero__tx_a0195449c1fcd4e8a32a68277940e0ec3}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+last\+\_\+failed\+\_\+hash}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_aaefd34bb219947b8979095df42d05271}\label{structmonero_1_1monero__tx_aaefd34bb219947b8979095df42d05271}} 
+boost\+::optional$<$ uint64\+\_\+t $>$ {\bfseries m\+\_\+max\+\_\+used\+\_\+block\+\_\+height}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_ad617f83b4c62fea6fd42043fa7aa86d2}\label{structmonero_1_1monero__tx_ad617f83b4c62fea6fd42043fa7aa86d2}} 
+boost\+::optional$<$ std\+::string $>$ {\bfseries m\+\_\+max\+\_\+used\+\_\+block\+\_\+hash}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_abac7d2188c358d602a8c33fd2425639e}\label{structmonero_1_1monero__tx_abac7d2188c358d602a8c33fd2425639e}} 
+std\+::vector$<$ std\+::string $>$ {\bfseries m\+\_\+signatures}
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a2d2b64018c8d84979a31c273d85185f0}\label{structmonero_1_1monero__tx_a2d2b64018c8d84979a31c273d85185f0}} 
+static const std\+::string {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+P\+A\+Y\+M\+E\+N\+T\+\_\+\+ID} = std\+::string(\char`\"{}0000000000000000\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Models a Monero transaction on the blockchain. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structmonero_1_1monero__tx_a17cef8cbfdb09e73ad48873db3095115}\label{structmonero_1_1monero__tx_a17cef8cbfdb09e73ad48873db3095115}} 
+\index{monero::monero\_tx@{monero::monero\_tx}!to\_rapidjson\_val@{to\_rapidjson\_val}}
+\index{to\_rapidjson\_val@{to\_rapidjson\_val}!monero::monero\_tx@{monero::monero\_tx}}
+\doxysubsubsection{\texorpdfstring{to\_rapidjson\_val()}{to\_rapidjson\_val()}}
+{\footnotesize\ttfamily rapidjson\+::\+Value monero\+::monero\+\_\+tx\+::to\+\_\+rapidjson\+\_\+val (\begin{DoxyParamCaption}\item[{rapidjson\+::\+Document\+::\+Allocator\+Type \&}]{allocator }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Converts the struct to a rapidjson Value.
+
+
+\begin{DoxyParams}{Parameters}
+{\em allocator} & is the rapidjson document allocator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the struct as a rapidjson Value 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{structmonero_1_1serializable__struct_a3c53ab95b12f02db20cf20cd6d69ad4b}{monero\+::serializable\+\_\+struct}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{structmonero_1_1monero__tx__query_a2355afaf070c49ae18fee757145e2391}{monero\+::monero\+\_\+tx\+\_\+query}}, and \mbox{\hyperlink{structmonero_1_1monero__tx__wallet_ab00bc1f8108ea8f863418ab1418bb801}{monero\+::monero\+\_\+tx\+\_\+wallet}}.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+daemon/monero\+\_\+daemon\+\_\+model.\+h\item 
+daemon/monero\+\_\+daemon\+\_\+model.\+cpp\end{DoxyCompactItemize}
