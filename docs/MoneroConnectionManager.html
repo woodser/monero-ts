@@ -30,7 +30,58 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>MoneroConnectionManager<span class="signature">(proxyToWorker)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Manages a collection of prioritized Monero RPC connections.</div>
+            <div class="class-description"><p>Manages a collection of prioritized connections to daemon or wallet RPC endpoints.</p>
+
+<p>Example usage:</p>
+
+<code>
+// imports<br>
+const monerojs = require("monero-javascript");<br>
+const MoneroRpcConnection = monerojs.MoneroRpcConnection;<br>
+const MoneroConnectionManager = monerojs.MoneroConnectionManager;<br>
+const MoneroConnectionManagerListener = monerojs.MoneroConnectionManagerListener;<br><br>
+
+// create connection manager<br>
+let connectionManager = new MoneroConnectionManager();<br><br>
+
+// add managed connections with priorities<br>
+connectionManager.addConnection(new MoneroRpcConnection("http://localhost:38081").setPriority(1)); // use localhost as first priority<br>
+connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); // default priority is prioritized last<br><br>
+
+// set current connection<br>
+connectionManager.setConnection(new MoneroRpcConnection("http://foo.bar", "admin", "password")); // connection is added if new<br><br>
+
+// check connection status<br>
+await connectionManager.checkConnection();<br>
+console.log("Connection manager is connected: " + connectionManager.isConnected());<br>
+console.log("Connection is online: " + connectionManager.getConnection().isOnline());<br>
+console.log("Connection is authenticated: " + connectionManager.getConnection().isAuthenticated());<br><br>
+
+// receive notifications of any changes to current connection<br>
+connectionManager.addListener(new class extends MoneroConnectionManagerListener {<br>
+&nbsp;&nbsp; onConnectionChanged(connection) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp; console.log("Connection changed to: " + connection);<br>
+&nbsp;&nbsp; }<br>
+});<br><br>
+ 
+// check connection status every 10 seconds<br>
+await connectionManager.startCheckingConnection(10000);<br><br>
+
+// automatically switch to best available connection if disconnected<br>
+connectionManager.setAutoSwitch(true);<br><br>
+
+// get best available connection in order of priority then response time<br>
+let bestConnection = await connectionManager.getBestAvailableConnection();<br><br>
+
+// check status of all connections<br>
+await connectionManager.checkConnections();<br><br>
+
+// get connections in order of current connection, online status from last check, priority, and name<br>
+let connections = connectionManager.getConnections();<br><br>
+
+// clear connection manager<br>
+connectionManager.clear();
+<code></div>
         
     
 </header>
@@ -146,7 +197,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line10">line 10</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line61">line 61</a>
     </li></ul></dd>
     
 
@@ -303,7 +354,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line52">line 52</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line113">line 113</a>
     </li></ul></dd>
     
 
@@ -462,7 +513,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line30">line 30</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line81">line 81</a>
     </li></ul></dd>
     
 
@@ -572,7 +623,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line218">line 218</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line273">line 273</a>
     </li></ul></dd>
     
 
@@ -683,7 +734,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line262">line 262</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line322">line 322</a>
     </li></ul></dd>
     
 
@@ -793,7 +844,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line233">line 233</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line293">line 293</a>
     </li></ul></dd>
     
 
@@ -851,7 +902,117 @@ Does not auto switch if disconnected.
     
 
     
-    <h4 class="name" id="disconnect"><span class="type-signature"></span>disconnect<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="clear"><span class="type-signature"></span>clear<span class="signature">()</span><span class="type-signature"> &rarr; {MoneroConnectonManager}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Remove all connections.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line438">line 438</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">MoneroConnectonManager</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="disconnect"><span class="type-signature"></span>disconnect<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
     
 
     
@@ -903,7 +1064,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line357">line 357</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line428">line 428</a>
     </li></ul></dd>
     
 
@@ -928,6 +1089,28 @@ Does not auto switch if disconnected.
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroConnectionManager.html">MoneroConnectionManager</a></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -991,7 +1174,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line330">line 330</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line390">line 390</a>
     </li></ul></dd>
     
 
@@ -1150,7 +1333,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line124">line 124</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -1260,7 +1443,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line92">line 92</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -1419,7 +1602,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line102">line 102</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -1529,7 +1712,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line112">line 112</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line173">line 173</a>
     </li></ul></dd>
     
 
@@ -1639,7 +1822,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line366">line 366</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line419">line 419</a>
     </li></ul></dd>
     
 
@@ -1749,7 +1932,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line350">line 350</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line410">line 410</a>
     </li></ul></dd>
     
 
@@ -1859,7 +2042,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line83">line 83</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -2018,7 +2201,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line67">line 67</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -2177,7 +2360,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line41">line 41</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -2218,6 +2401,226 @@ Does not auto switch if disconnected.
     <dd>
         
 <span class="param-type"><a href="MoneroConnectionManager.html">MoneroConnectionManager</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeListeners"><span class="type-signature"></span>removeListeners<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MoneroConnectionManager.html">MoneroConnectionManager</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Remove all listeners.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroConnectionManager.html">MoneroConnectionManager</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"> &rarr; {MoneroConnectonManager}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Reset to default state.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line452">line 452</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    this connection manager for chaining
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">MoneroConnectonManager</span>
 
 
     </dd>
@@ -2336,7 +2739,7 @@ Does not auto switch if disconnected.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line320">line 320</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line380">line 380</a>
     </li></ul></dd>
     
 
@@ -2502,7 +2905,7 @@ Does not check the connection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line168">line 168</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line223">line 223</a>
     </li></ul></dd>
     
 
@@ -2661,7 +3064,7 @@ Does not check the connection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line340">line 340</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line400">line 400</a>
     </li></ul></dd>
     
 
@@ -2820,7 +3223,7 @@ Does not check the connection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line285">line 285</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
@@ -2930,7 +3333,7 @@ Does not check the connection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line308">line 308</a>
+        <a href="src_main_js_common_MoneroConnectionManager.js.html">src/main/js/common/MoneroConnectionManager.js</a>, <a href="src_main_js_common_MoneroConnectionManager.js.html#line368">line 368</a>
     </li></ul></dd>
     
 
@@ -3004,7 +3407,7 @@ Does not check the connection.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jan 18 2022 19:46:00 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri Feb 04 2022 10:01:28 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
