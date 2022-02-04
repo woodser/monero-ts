@@ -1527,6 +1527,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.result.tx_hash_list;
   }
   
+  async changePassword(oldPassword, newPassword) {
+    return this.rpc.sendJsonRequest("change_wallet_password", {old_password: oldPassword, new_password: newPassword});
+  }
+  
   async save() {
     await this.rpc.sendJsonRequest("store");
   }

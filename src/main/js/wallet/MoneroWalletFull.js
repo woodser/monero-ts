@@ -1652,7 +1652,23 @@ class MoneroWalletFull extends MoneroWalletKeys {
       return views;
     });
   }
-
+  
+  async changePassword(oldPassword, newPassword) {
+    if (oldPassword !== this._password) throw new MoneroError("Invalid original password."); // wallet2 verify_password loads from disk so verify password here
+    let that = this;
+    await that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        that._module.change_wallet_password(that._cppAddress, oldPassword, newPassword, async function(errMsg) {
+          if (errMsg) reject(new MoneroError(errMsg));
+          else resolve();
+        });
+      });
+    });
+    this._password = newPassword;
+    if (this._path) await this.save(); // auto save
+  }
+  
   async save() {
     return MoneroWalletFull._save(this);
   }
@@ -1861,7 +1877,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     this._browserMainPath = browserMainPath;
   }
   
-  // TODO: accessing wallet._fs and wallet._path breaks encapcapsulation, getter and setter?
   static async _moveTo(path, wallet) {
     if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
     if (!path) throw new MoneroError("Must provide path of destination wallet");
@@ -1880,7 +1895,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
       catch (err) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
     }
     
-    // write new wallet files
+    // write wallet files
     let data = await wallet.getData();
     wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
     wallet._fs.writeFileSync(path, data[1], "binary");
@@ -1896,7 +1911,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     }
   }
   
-  // TODO: accessing wallet._fs breaks encapcapsulation, getter?
   static async _save(wallet) {
     if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
         
@@ -1904,11 +1918,17 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let path = await wallet.getPath();
     if (!path) throw new MoneroError("Cannot save wallet because path is not set");
     
-    // write wallet files
+    // write wallet files to *.new
+    let pathNew = path + ".new";
     let data = await wallet.getData();
-    wallet._fs.writeFileSync(path + ".keys", data[0], "binary");
-    wallet._fs.writeFileSync(path, data[1], "binary");
-    wallet._fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
+    wallet._fs.writeFileSync(pathNew + ".keys", data[0], "binary");
+    wallet._fs.writeFileSync(pathNew, data[1], "binary");
+    wallet._fs.writeFileSync(pathNew + ".address.txt", await wallet.getPrimaryAddress());
+    
+    // replace old wallet files with new
+    wallet._fs.renameSync(pathNew + ".keys", path + ".keys");
+    wallet._fs.renameSync(pathNew, path, path + ".keys");
+    wallet._fs.renameSync(pathNew + ".address.txt", path + ".address.txt", path + ".keys");
   }
 }
 
@@ -2473,6 +2493,11 @@ class MoneroWalletFullProxy extends MoneroWallet {
   
   async moveTo(path) {
     return MoneroWalletFull._moveTo(path, this);
+  }
+  
+  async changePassword(oldPassword, newPassword) {
+    await this._invokeWorker("changePassword", Array.from(arguments));
+    if (this._path) await this.save(); // auto save
   }
   
   async save() {

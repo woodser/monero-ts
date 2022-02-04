@@ -5,7 +5,58 @@ const TaskLooper = require("./TaskLooper");
 const ThreadPool = require("./ThreadPool");
 
 /**
- * Manages a collection of prioritized Monero RPC connections.
+ * <p>Manages a collection of prioritized connections to daemon or wallet RPC endpoints.</p>
+ *
+ * <p>Example usage:</p>
+ * 
+ * <code>
+ * // imports<br>
+ * const monerojs = require("monero-javascript");<br>
+ * const MoneroRpcConnection = monerojs.MoneroRpcConnection;<br>
+ * const MoneroConnectionManager = monerojs.MoneroConnectionManager;<br>
+ * const MoneroConnectionManagerListener = monerojs.MoneroConnectionManagerListener;<br><br>
+ * 
+ * // create connection manager<br>
+ * let connectionManager = new MoneroConnectionManager();<br><br>
+ * 
+ * // add managed connections with priorities<br>
+ * connectionManager.addConnection(new MoneroRpcConnection("http://localhost:38081").setPriority(1)); // use localhost as first priority<br>
+ * connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); // default priority is prioritized last<br><br>
+ * 
+ * // set current connection<br>
+ * connectionManager.setConnection(new MoneroRpcConnection("http://foo.bar", "admin", "password")); // connection is added if new<br><br>
+ * 
+ * // check connection status<br>
+ * await connectionManager.checkConnection();<br>
+ * console.log("Connection manager is connected: " + connectionManager.isConnected());<br>
+ * console.log("Connection is online: " + connectionManager.getConnection().isOnline());<br>
+ * console.log("Connection is authenticated: " + connectionManager.getConnection().isAuthenticated());<br><br>
+ * 
+ * // receive notifications of any changes to current connection<br>
+ * connectionManager.addListener(new class extends MoneroConnectionManagerListener {<br>
+ * &nbsp;&nbsp; onConnectionChanged(connection) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp; console.log("Connection changed to: " + connection);<br>
+ * &nbsp;&nbsp; }<br>
+ * });<br><br>
+ *  
+ * // check connection status every 10 seconds<br>
+ * await connectionManager.startCheckingConnection(10000);<br><br>
+ * 
+ * // automatically switch to best available connection if disconnected<br>
+ * connectionManager.setAutoSwitch(true);<br><br>
+ * 
+ * // get best available connection in order of priority then response time<br>
+ * let bestConnection = await connectionManager.getBestAvailableConnection();<br><br>
+ * 
+ * // check status of all connections<br>
+ * await connectionManager.checkConnections();<br><br>
+ * 
+ * // get connections in order of current connection, online status from last check, priority, and name<br>
+ * let connections = connectionManager.getConnections();<br><br>
+ * 
+ * // clear connection manager<br>
+ * connectionManager.clear();
+ * <code>
  */
 class MoneroConnectionManager {
   
@@ -40,6 +91,16 @@ class MoneroConnectionManager {
    */
   removeListener(listener) {
     if (!GenUtils.remove(this._listeners, listener)) throw new MoneroError("Monero connection manager does not contain listener to remove");
+    return this;
+  }
+  
+  /**
+   * Remove all listeners.
+   * 
+   * @return {MoneroConnectionManager} this connection manager for chaining
+   */
+  removeListeners() {
+    this._listeners.splice(0, this._listeners.length);
     return this;
   }
   
@@ -126,22 +187,16 @@ class MoneroConnectionManager {
     // try connections within each ascending priority
     for (let prioritizedConnections of this._getConnectionsInAscendingPriority()) {
       try {
-      
-        // check connections in parallel
+        
+        // create promises to check connections
         let that = this;
         let checkPromises = [];
-        let pool = new ThreadPool(prioritizedConnections.length);
         for (let connection of prioritizedConnections) {
           if (excludedConnections && GenUtils.arrayContains(excludedConnections, connection)) continue;
-          checkPromises.push(pool.submit(async function() {
-            return new Promise(function(resolve, reject) {
-              connection.checkConnection(that._timeoutInMs).then(function() {
-                if (connection.isConnected()) resolve(connection);
-                else reject();
-              }, function(err) {
-                reject(err);
-              })
-            });
+          checkPromises.push(new Promise(async function(resolve, reject) {
+            await connection.checkConnection(that._timeoutInMs);
+            if (connection.isConnected()) resolve(connection);
+            reject();
           }));
         }
         
@@ -216,12 +271,17 @@ class MoneroConnectionManager {
    * @return {Promise<MoneroConnectionManager>} this connection manager for chaining
    */
   async checkConnection() {
+    let connectionChanged = false;
     let connection = this.getConnection();
-    if (connection && await connection.checkConnection(this._timeoutInMs)) await this._onConnectionChanged(connection);   
+    if (connection && await connection.checkConnection(this._timeoutInMs)) connectionChanged = true;
     if (this._autoSwitch && !this.isConnected()) {
       let bestConnection = await this.getBestAvailableConnection([connection]);
-      if (bestConnection) this.setConnection(bestConnection);
+      if (bestConnection) {
+        this.setConnection(bestConnection);
+        return this;
+      }
     }
+    if (connectionChanged) await this._onConnectionChanged(connection);   
     return this;
   }
   
@@ -352,19 +412,50 @@ class MoneroConnectionManager {
   }
   
   /**
-   * Disconnect from the current connection.
-   */
-  disconnect() {
-    this.setConnection(undefined);
-  }
-  
-  /**
    * Collect connectable peers of the managed connections.
    *
    * @return {MoneroRpcConnection[]} connectable peers
    */
   async getPeerConnections() {
     throw new MoneroError("Not implemented");
+  }
+  
+  /**
+   * Disconnect from the current connection.
+   * 
+   * @return {MoneroConnectionManager} this connection manager for chaining
+   */
+  disconnect() {
+    this.setConnection(undefined);
+    return this;
+  }
+  
+  /**
+   * Remove all connections.
+   * 
+   * @return {MoneroConnectonManager} this connection manager for chaining
+   */
+  clear() {
+    this._connections.splice(0, this._connections.length);
+    if (this._currentConnection) {
+      this._currentConnection = undefined;
+      this._onConnectionChanged(undefined);
+    }
+    return this;
+  }
+  
+  /**
+   * Reset to default state.
+   * 
+   * @return {MoneroConnectonManager} this connection manager for chaining
+   */
+  reset() {
+    this.removeListeners();
+    this.stopCheckingConnection();
+    this.clear();
+    this._timeoutMs = MoneroConnectionManager.DEFAULT_TIMEOUT;
+    this._autoSwitch = false;
+    return this;
   }
   
   // ------------------------------ PRIVATE HELPERS ---------------------------
@@ -384,7 +475,7 @@ class MoneroConnectionManager {
     let ascendingPriorities = new Map([...connectionPriorities].sort((a, b) => parseInt(a[0]) - parseInt(b[0]))); // create map in ascending order
     let ascendingPrioritiesList = [];
     for (let priorityConnections of ascendingPriorities.values()) ascendingPrioritiesList.push(priorityConnections);
-    if (connectionPriorities.has(0)) ascendingPrioritiesList.push(ascendingPrioritiesList.splice(0, 1)); // move priority 0 to end
+    if (connectionPriorities.has(0)) ascendingPrioritiesList.push(ascendingPrioritiesList.splice(0, 1)[0]); // move priority 0 to end
     return ascendingPrioritiesList;
   }
   

@@ -1218,6 +1218,16 @@ void monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed
   }
 }
 
+void monero_wasm_bridge::change_wallet_password(int handle, const string& old_password, const string& new_password, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    wallet->change_password(old_password, new_password);
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
 

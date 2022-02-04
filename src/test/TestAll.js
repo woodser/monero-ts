@@ -7,7 +7,6 @@ const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletFull = require("./TestMoneroWalletFull");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
-const TestDeveloperGuide = require("./TestDeveloperGuide");
 const TestMoneroConnectionManager = require("./TestMoneroConnectionManager");
 
 // set log level
@@ -53,9 +52,6 @@ new TestMoneroWalletRpc({
   testNotifications: true,
   testResets: false
 }).runTests();
-
-// test queries for developer guide
-new TestDeveloperGuide().runTests();
 
 // test connection manager
 new TestMoneroConnectionManager().runTests();

@@ -948,6 +948,10 @@ self.getData = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getData();
 }
 
+self.changePassword = async function(walletId, oldPassword, newPassword) {
+  return self.WORKER_OBJECTS[walletId].changePassword(oldPassword, newPassword);
+}
+
 self.isClosed = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].isClosed();
 }

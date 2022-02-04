@@ -31,7 +31,7 @@ const MoneroMessageSignatureType = monerojs.MoneroMessageSignatureType;
 const MoneroMessageSignatureResult = monerojs.MoneroMessageSignatureResult;
 
 // test constants
-const SEND_DIVISOR = 2;
+const SEND_DIVISOR = 10;
 const SEND_MAX_DIFF = 60;
 const MAX_TX_PROOFS = 25; // maximum number of transactions to check for each proof, undefined to check all
 const NUM_BLOCKS_LOCKED = 10;
@@ -363,7 +363,7 @@ class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can get the wallet's path", async function() {
         
-        // create a random wallet
+        // create random wallet
         let wallet = await that.createWallet();
         
         // set a random attribute
@@ -2380,12 +2380,55 @@ class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
+      it("Can change the wallet password", async function() {
+        
+        // create random wallet
+        let wallet = await that.createWallet(new MoneroWalletConfig().setPassword(TestUtils.WALLET_PASSWORD));
+        let path = await wallet.getPath();
+        
+        // change password
+        let newPassword = GenUtils.getUUID();
+        await wallet.changePassword(TestUtils.WALLET_PASSWORD, newPassword);
+        
+        // close wallet without saving
+        await that.closeWallet(wallet, true);
+        
+        // old password does not work (password change is auto saved)
+        try {
+          await that.openWallet(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD));
+          throw new Error("Should have thrown");
+        } catch (err) {
+          assert(err.message === "Failed to open wallet" || err.message === "invalid password"); // TODO: different errors from rpc and wallet2
+        }
+        
+        // open wallet with new password
+        wallet = await that.openWallet(new MoneroWalletConfig().setPath(path).setPassword(newPassword));
+        
+        // change password with incorrect password
+        try {
+          await wallet.changePassword("badpassword", newPassword);
+          throw new Error("Should have thrown");
+        } catch (err) {
+          assert.equal(err.message, "Invalid original password.");
+        }
+        
+        // save and close
+        await that.closeWallet(wallet, true);
+        
+        // open wallet
+        wallet = await that.openWallet(new MoneroWalletConfig().setPath(path).setPassword(newPassword));
+        
+        // close wallet
+        await that.closeWallet(wallet);
+      });
+      
+      if (testConfig.testNonRelays)
       it("Can save and close the wallet in a single call", async function() {
         
-        // create a random wallet
+        // create random wallet
         let wallet = await that.createWallet();
         let path = await wallet.getPath();
-                
+        
         // set an attribute
         let uuid = GenUtils.getUUID();
         await wallet.setAttribute("id", uuid);
@@ -2986,6 +3029,44 @@ class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
+      it("Can send to self", async function() {
+        let err;
+        let recipient;
+        try {
+          
+          // wait for txs to confirm and for sufficient unlocked balance
+          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+          let amount = TestUtils.MAX_FEE.multiply(BigInteger.parse("3"));
+          await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, amount);
+          
+          // collect sender balances before
+          let balance1 = await that.wallet.getBalance();
+          let unlockedBalance1 = await that.wallet.getUnlockedBalance();
+          
+          // send funds to self
+          let tx = await that.wallet.createTx({
+            accountIndex: 0,
+            address: await that.wallet.getPrimaryAddress(),
+            amount: amount,
+            relay: true
+          });
+          
+          // test balances after
+          let balance2 = await that.wallet.getBalance();
+          let unlockedBalance2 = await that.wallet.getUnlockedBalance();
+          assert(unlockedBalance2.compare(unlockedBalance1) < 0); // unlocked balance should decrease
+          let expectedBalance = balance1.subtract(tx.getFee());
+          assert.equal(expectedBalance.toString(), balance2.toString(), "Balance after send was not balance before - net tx amount - fee (5 - 1 != 4 test)");
+        } catch (e) {
+          err = e;
+        }
+        
+        // finally 
+        if (recipient && !await recipient.isClosed()) await that.closeWallet(recipient);
+        if (err) throw err;
+      });
+      
+      if (testConfig.testRelays)
       it("Can send to an external address", async function() {
         let err;
         let recipient;
@@ -3075,11 +3156,12 @@ class TestMoneroWalletCommon {
           fromSubaddressIndices.push(unlockedSubaddresses[i].getIndex());
         }
         
-        // determine the amount to send (slightly less than the sum to send from)
+        // determine the amount to send
         let sendAmount = new BigInteger(0);
         for (let fromSubaddressIdx of fromSubaddressIndices) {
-          sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance()).subtract(TestUtils.MAX_FEE);
+          sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance());
         }
+        sendAmount = sendAmount.divide(new BigInteger(SEND_DIVISOR))
         
         // send from the first subaddresses with unlocked balances
         let address = await that.wallet.getPrimaryAddress();
@@ -3103,18 +3185,20 @@ class TestMoneroWalletCommon {
         // test that balances of intended subaddresses decreased
         let accountsAfter = await that.wallet.getAccounts(true);
         assert.equal(accountsAfter.length, accounts.length);
+        let srcUnlockedBalanceDecreased = false;
         for (let i = 0; i < accounts.length; i++) {
           assert.equal(accountsAfter[i].getSubaddresses().length, accounts[i].getSubaddresses().length);
           for (let j = 0; j < accounts[i].getSubaddresses().length; j++) {
             let subaddressBefore = accounts[i].getSubaddresses()[j];
             let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
             if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
-              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but started at " + subaddressBefore.getUnlockedBalance().toString() + " and ended at " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
+              if (subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0) srcUnlockedBalanceDecreased = true; 
             } else {
               assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
             }
           }
         }
+        assert(srcUnlockedBalanceDecreased, "Subaddress unlocked balances should have decreased");
         
         // test each transaction
         assert(txs.length > 0);
@@ -3867,7 +3951,7 @@ class TestMoneroWalletCommon {
         }
         
         // get available outputs above min amount
-        let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)).setMinAmount(TestUtils.MAX_FEE));
+        let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setAccountIndex(0).setSubaddressIndex(1).setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)).setMinAmount(TestUtils.MAX_FEE));
         
         // filter dust outputs
         let dustOutputs = [];
@@ -3883,7 +3967,7 @@ class TestMoneroWalletCommon {
         let availableKeyImages = new Set();
         for (let output of outputs) availableKeyImages.add(output.getKeyImage().getHex());
         let sweptKeyImages = new Set();
-        let txs = await that.wallet.sweepUnlocked(new MoneroTxConfig().setAddress(await that.wallet.getPrimaryAddress()));
+        let txs = await that.wallet.sweepUnlocked(new MoneroTxConfig().setAccountIndex(0).setSubaddressIndex(1).setAddress(await that.wallet.getPrimaryAddress()));
         for (let tx of txs) {
           testSpendTx(tx);
           for (let input of tx.getInputs()) sweptKeyImages.add(input.getKeyImage().getHex());

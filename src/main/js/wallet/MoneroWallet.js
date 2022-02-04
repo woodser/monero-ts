@@ -1199,7 +1199,17 @@ class MoneroWallet {
   async submitMultisigTxHex(signedMultisigTxHex) {
     throw new MoneroError("Not supported");
   }
-
+  
+  /**
+   * Change the wallet password.
+   * 
+   * @param {string} oldPassword - the wallet's old password
+   * @param {string} newPassword - the wallet's new password
+   */
+  async changePassword(oldPassword, newPassword) {
+    throw new MoneroError("Not supported");
+  }
+  
   /**
    * Save the wallet at its current path.
    */

@@ -80,9 +80,10 @@ class TestMoneroConnectionManager {
           assert.equal(orderedConnections[4].getUri(), walletRpcs[1].getRpcConnection().getUri());
           for (let i = 1; i < orderedConnections.length; i++) assert.equal(undefined, orderedConnections[i].isOnline());
           
-          // test auto connect by shutting down connected instance
-          await TestUtils.stopWalletRpcProcess(walletRpcs[4]);
-          if (GenUtils.isBrowser()) connectionManager.getConnection()._setFakeDisconnected(true); // browser does not start or stop instances
+          // shut down prioritized servers
+          walletRpcs[2].getRpcConnection()._setFakeDisconnected(true); // browser does not start or stop instances
+          walletRpcs[3].getRpcConnection()._setFakeDisconnected(true);
+          walletRpcs[4].getRpcConnection()._setFakeDisconnected(true);
           await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100);
           assert.equal(false, connectionManager.isConnected());
           assert.equal(false, connectionManager.getConnection().isOnline());
@@ -104,20 +105,20 @@ class TestMoneroConnectionManager {
           // test connection order
           orderedConnections = connectionManager.getConnections();
           assert(orderedConnections[0] === walletRpcs[4].getRpcConnection());
-          assert(orderedConnections[1] === walletRpcs[2].getRpcConnection());
-          assert(orderedConnections[2] === walletRpcs[3].getRpcConnection());
-          assert(orderedConnections[3] === walletRpcs[0].getRpcConnection());
-          assert.equal(orderedConnections[4].getUri(), walletRpcs[1].getRpcConnection().getUri());
+          assert(orderedConnections[1] === walletRpcs[0].getRpcConnection());
+          assert(orderedConnections[2].getUri() === walletRpcs[1].getRpcConnection().getUri());
+          assert(orderedConnections[3] === walletRpcs[2].getRpcConnection());
+          assert(orderedConnections[4] === walletRpcs[3].getRpcConnection());
           
           // test online and authentication status
           for (let i = 0; i < orderedConnections.length; i++) {
             let isOnline = orderedConnections[i].isOnline();
             let isAuthenticated = orderedConnections[i].isAuthenticated();
-            if (i === 0) assert.equal(false, isOnline);
-            else assert(isOnline);
-            if (i === 0) assert.equal(undefined, isAuthenticated);
-            else if (i === 4) assert.equal(false, isAuthenticated);
-            else assert(isAuthenticated);
+            if (i === 1 || i === 2) assert.equal(true, isOnline);
+            else assert.equal(false, isOnline);
+            if (i === 1) assert.equal(true, isAuthenticated);
+            else if (i === 2) assert.equal(false, isAuthenticated);
+            else assert.equal(undefined, isAuthenticated);
           }
           
           // test auto switch when disconnected
@@ -126,22 +127,21 @@ class TestMoneroConnectionManager {
           assert(connectionManager.isConnected());
           connection = connectionManager.getConnection();
           assert(connection.isOnline());
-          assert(connection === walletRpcs[2].getRpcConnection() || connection === walletRpcs[3].getRpcConnection());
+          assert(connection === walletRpcs[0].getRpcConnection());
           assert.equal(5, listener.changedConnections.length);
           assert(listener.changedConnections[listener.changedConnections.length - 1] === connection);
           
           // test connection order
           orderedConnections = connectionManager.getConnections();
           assert(orderedConnections[0] === connection);
-          assert(connection === walletRpcs[2].getRpcConnection() ? orderedConnections[1] === walletRpcs[3].getRpcConnection() : orderedConnections[1] === walletRpcs[2].getRpcConnection());
-          assert(orderedConnections[2] === walletRpcs[0].getRpcConnection()); // assumes uri is first alphabetically
-          assert.equal(orderedConnections[3].getUri(), walletRpcs[1].getRpcConnection().getUri());
-          assert(orderedConnections[4] === walletRpcs[4].getRpcConnection());
-          for (let i = 0; i < orderedConnections.length - 1; i++) assert(orderedConnections[i].isOnline());
-          assert.equal(false, orderedConnections[4].isOnline());
+          assert(orderedConnections[0] === walletRpcs[0].getRpcConnection());
+          assert(orderedConnections[1].getUri() === walletRpcs[1].getRpcConnection().getUri());
+          assert(orderedConnections[2] === walletRpcs[4].getRpcConnection());
+          assert(orderedConnections[3] === walletRpcs[2].getRpcConnection());
+          assert(orderedConnections[4] === walletRpcs[3].getRpcConnection());
           
           // connect to specific endpoint without authentication
-          connection = orderedConnections[3];
+          connection = orderedConnections[1];
           assert.equal(false, connection.isAuthenticated());
           connectionManager.setConnection(connection);
           assert.equal(false, connectionManager.isConnected());
@@ -149,7 +149,7 @@ class TestMoneroConnectionManager {
           
           // connect to specific endpoint with authentication
           connectionManager.setAutoSwitch(false);
-          orderedConnections[3].setCredentials("rpc_user", "abc123");
+          orderedConnections[1].setCredentials("rpc_user", "abc123");
           await connectionManager.checkConnection();
           assert.equal(connection.getUri(), walletRpcs[1].getRpcConnection().getUri());
           assert(connection.isOnline());
@@ -161,21 +161,20 @@ class TestMoneroConnectionManager {
           orderedConnections = connectionManager.getConnections();
           assert(orderedConnections[0] === connectionManager.getConnection());
           assert.equal(orderedConnections[0].getUri(), walletRpcs[1].getRpcConnection().getUri());
-          assert(orderedConnections[1] === walletRpcs[2].getRpcConnection());
-          assert(orderedConnections[2] === walletRpcs[3].getRpcConnection());
-          assert(orderedConnections[3] === walletRpcs[0].getRpcConnection());
-          assert(orderedConnections[4] === walletRpcs[4].getRpcConnection());
-          for (let i = 0; i < orderedConnections.length - 1; i++) assert(orderedConnections[i].isOnline());
-          assert.equal(false, orderedConnections[4].isOnline());
+          assert(orderedConnections[1] === walletRpcs[0].getRpcConnection());
+          assert(orderedConnections[2] === walletRpcs[4].getRpcConnection());
+          assert(orderedConnections[3] === walletRpcs[2].getRpcConnection());
+          assert(orderedConnections[4] === walletRpcs[3].getRpcConnection());
+          for (let i = 0; i < orderedConnections.length; i++) assert(i <= 1 ? orderedConnections[i].isOnline() : !orderedConnections[i].isOnline());
           
           // set connection to existing uri
-          connectionManager.setConnection(walletRpcs[2].getRpcConnection().getUri());
+          connectionManager.setConnection(walletRpcs[0].getRpcConnection().getUri());
           assert(connectionManager.isConnected());
-          assert(walletRpcs[2].getRpcConnection() === connectionManager.getConnection());
+          assert(walletRpcs[0].getRpcConnection() === connectionManager.getConnection());
           assert.equal(TestUtils.WALLET_RPC_CONFIG.username, connectionManager.getConnection().getUsername());
           assert.equal(TestUtils.WALLET_RPC_CONFIG.password, connectionManager.getConnection().getPassword());
           assert.equal(8, listener.changedConnections.length);
-          assert(listener.changedConnections[listener.changedConnections.length - 1] === walletRpcs[2].getRpcConnection());
+          assert(listener.changedConnections[listener.changedConnections.length - 1] === walletRpcs[0].getRpcConnection());
           
           // set connection to new uri
           connectionManager.stopCheckingConnection();
@@ -202,14 +201,16 @@ class TestMoneroConnectionManager {
           // shut down all connections
           connection = connectionManager.getConnection();
           await connectionManager.startCheckingConnection(TestUtils.SYNC_PERIOD_IN_MS);
-          for (let walletRpc of walletRpcs) walletRpc.getRpcConnection()._setFakeDisconnected(true); // browser does not start or stop instances
+          for (let connection of orderedConnections) connection._setFakeDisconnected(true);
           await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100);
           assert.equal(false, connection.isOnline());
           assert.equal(12, listener.changedConnections.length);
-          assert(listener.changedConnections[listener.changedConnections.length - 1] == connection);
+          assert(listener.changedConnections[listener.changedConnections.length - 1] === connection);
           
-          // stop polling connection
-          connectionManager.stopCheckingConnection();
+          // reset
+          connectionManager.reset();
+          assert.equal(connectionManager.getConnections().length, 0);
+          assert.equal(connectionManager.getConnection(), undefined);
         } catch(err2) {
           err = err2;
         }

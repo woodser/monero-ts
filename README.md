@@ -116,12 +116,13 @@ await walletFull.close(true);
 * [Sending funds](docs/developer_guide/sending_funds.md)
 * [Multisig wallets](docs/developer_guide/multisig_wallets.md)
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [Connection manager](docs/developer_guide/connection_manager.md)
 * [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
 
 ## Using monero-javascript in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.6.3`
+2. `npm install monero-javascript@0.6.4`
 3. Add `require("monero-javascript")` to your application code.
 4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
