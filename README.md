@@ -110,18 +110,6 @@ struct : monero_wallet_listener {
 } my_listener;
 wallet_random->add_listener(my_listener);
 
-// receive notifications when the wallet receives funds
-struct : monero_wallet_listener {
-  void on_output_received(const monero_output_wallet& output) {
-    cout << "Wallet received funds!" << endl;
-    string tx_hash = output.m_tx->m_hash.get();
-    int account_index = output.m_account_index.get();
-    int subaddress_index = output.m_subaddress_index.get();
-    FUNDS_RECEIVED = true;
-  }
-} my_listener;
-wallet_random->add_listener(my_listener);
-
 // send funds from the restored wallet to the random wallet
 monero_tx_config config;
 config.m_account_index = 0;
