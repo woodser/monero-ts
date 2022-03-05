@@ -1,6 +1,7 @@
 const GenUtils = require("./GenUtils");
 const MoneroError = require("./MoneroError");
 const MoneroRpcConnection = require("./MoneroRpcConnection");
+const MoneroConnectionManager = require("./MoneroConnectionManager");
 const TaskLooper = require("./TaskLooper");
 const ThreadPool = require("./ThreadPool");
 
@@ -394,7 +395,7 @@ class MoneroConnectionManager {
   /**
    * Set the maximum request time before its connection is considered offline.
    * 
-   * @param {int} timeoutInMs - the timeout before the connection is considered offline
+   * @param {integer} timeoutInMs - the timeout before the connection is considered offline
    * @return {MoneroConnectionManager} this connection manager for chaining
    */
   setTimeout(timeoutInMs) {
@@ -405,7 +406,7 @@ class MoneroConnectionManager {
   /**
    * Get the request timeout.
    * 
-   * @return {int} the request timeout before a connection is considered offline
+   * @return {integer} the request timeout before a connection is considered offline
    */
   getTimeout() {
     return this._timeoutInMs;
