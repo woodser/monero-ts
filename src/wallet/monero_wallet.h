@@ -1289,8 +1289,8 @@ namespace monero {
      *
      * @return this wallet's multisig info as hex for other participants
      */
-    virtual std::string get_multisig_hex() {
-      throw std::runtime_error("get_multisig_hex() not supported");
+    virtual std::string export_multisig_hex() {
+      throw std::runtime_error("export_multisig_hex() not supported");
     }
 
     /**

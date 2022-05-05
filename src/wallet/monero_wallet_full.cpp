@@ -3193,7 +3193,7 @@ namespace monero {
     return result;
   }
 
-  std::string monero_wallet_full::get_multisig_hex() {
+  std::string monero_wallet_full::export_multisig_hex() {
     bool ready;
     if (!m_w2->multisig(&ready)) throw std::runtime_error("This wallet is not multisig");
     if (!ready) throw std::runtime_error("This wallet is multisig, but not yet finalized");
