@@ -392,7 +392,7 @@ namespace monero {
   }
 
   /**
-   * Merges a transaction into a unique std::set of transactions.
+   * Merges a transaction into a unique set of transactions.
    *
    * @param tx is the transaction to merge into the existing txs
    * @param tx_map maps tx hashes to txs
@@ -655,7 +655,7 @@ namespace monero {
       if (multisig_txset.empty())
       {
         er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
-        er.message = "Failed to save multisig tx std::set after creation";
+        er.message = "Failed to save multisig tx set after creation";
         return false;
       }
     }
@@ -666,7 +666,7 @@ namespace monero {
         if (unsigned_txset.empty())
         {
           er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
-          er.message = "Failed to save unsigned tx std::set after creation";
+          er.message = "Failed to save unsigned tx set after creation";
           return false;
         }
       }
@@ -1184,7 +1184,7 @@ namespace monero {
     // detect ssl TODO: wallet2 does not detect ssl from uri
     epee::net_utils::ssl_support_t ssl = uri.rfind("https", 0) == 0 ? epee::net_utils::ssl_support_t::e_ssl_support_enabled : epee::net_utils::ssl_support_t::e_ssl_support_disabled;
 
-    // init wallet2 and std::set daemon connection
+    // init wallet2 and set daemon connection
     if (!m_w2->init(uri, login, {}, 0, is_trusted, ssl)) throw std::runtime_error("Failed to initialize wallet with daemon connection");
     is_connected_to_daemon(); // update m_is_connected cache // TODO: better naming?
   }
@@ -1939,7 +1939,7 @@ namespace monero {
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       out_transfer->m_destinations = config.get_normalized_destinations();
@@ -2143,7 +2143,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
 
@@ -2157,7 +2157,7 @@ namespace monero {
       input_key_images_list_iter++;
     }
 
-    // link tx std::set and return
+    // link tx set and return
     std::shared_ptr<monero_tx_set> tx_set = std::make_shared<monero_tx_set>();
     tx_set->m_txs = txs;
     for (int i = 0; i < txs.size(); i++) txs[i]->m_tx_set = tx_set;
@@ -2277,7 +2277,7 @@ namespace monero {
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = config.m_unlock_height == boost::none ? 0 : config.m_unlock_height.get();
       tx->m_is_locked = true;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_account_index = config.m_account_index;
       if (config.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(config.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       out_transfer->m_destinations = destinations;
@@ -2382,7 +2382,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_height = 0;
-      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // std::set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero-project: this should be encapsulated in wallet2
       out_transfer->m_destinations[0]->m_amount = *tx_amounts_iter;
 
       // iterate to next element
@@ -2603,7 +2603,7 @@ namespace monero {
         txs.push_back(tx);
       }
 
-      // build and return tx std::set
+      // build and return tx set
       monero_tx_set tx_set;
       tx_set.m_txs = txs;
       return tx_set;
@@ -3079,7 +3079,7 @@ namespace monero {
     // only mine on trusted daemon
     if (!m_w2->is_trusted_daemon()) throw std::runtime_error("This command requires a trusted daemon.");
 
-    // std::set defaults
+    // set defaults
     if (num_threads == boost::none || num_threads.get() == 0) num_threads = 1;  // TODO: how to autodetect optimal number of threads which daemon supports?
     if (background_mining == boost::none) background_mining = false;
     if (ignore_battery == boost::none) ignore_battery = false;
@@ -3489,7 +3489,7 @@ namespace monero {
     }
 
     // sort txs by block height
-    std::vector<std::shared_ptr<monero_tx_wallet>> txs ;
+    std::vector<std::shared_ptr<monero_tx_wallet>> txs;
     for (std::map<std::string, std::shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.begin(); tx_iter != tx_map.end(); tx_iter++) {
       txs.push_back(tx_iter->second);
     }
@@ -3499,7 +3499,7 @@ namespace monero {
     std::vector<std::shared_ptr<monero_transfer>> transfers;
     for (const std::shared_ptr<monero_tx_wallet>& tx : txs) {
 
-      // tx is not incoming/outgoing unless already std::set
+      // tx is not incoming/outgoing unless already set
       if (tx->m_is_incoming == boost::none) tx->m_is_incoming = false;
       if (tx->m_is_outgoing == boost::none) tx->m_is_outgoing = false;
 
@@ -3675,7 +3675,7 @@ namespace monero {
 
     // determine sync start height
     uint64_t sync_start_height = start_height == boost::none ? std::max(get_height(), get_sync_height()) : *start_height;
-    if (sync_start_height < get_sync_height()) set_sync_height(sync_start_height); // TODO monero-project: start height processed > requested start height unless sync height manually std::set
+    if (sync_start_height < get_sync_height()) set_sync_height(sync_start_height); // TODO monero-project: start height processed > requested start height unless sync height manually set
 
     // notify listeners of sync start
     m_w2_listener->on_sync_start(sync_start_height);
