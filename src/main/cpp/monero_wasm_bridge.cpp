@@ -1167,9 +1167,9 @@ string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args
   return wallet->exchange_multisig_keys(multisig_hexes, password).serialize();
 }
 
-string monero_wasm_bridge::get_multisig_hex(int handle) {
+string monero_wasm_bridge::export_multisig_hex(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_multisig_hex();
+  return wallet->export_multisig_hex();
 }
 
 void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, emscripten::val callback) {

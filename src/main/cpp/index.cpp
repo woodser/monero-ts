@@ -120,7 +120,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("prepare_multisig", &monero_wasm_bridge::prepare_multisig);
   emscripten::function("make_multisig", &monero_wasm_bridge::make_multisig);
   emscripten::function("exchange_multisig_keys", &monero_wasm_bridge::exchange_multisig_keys);
-  emscripten::function("get_multisig_hex", &monero_wasm_bridge::get_multisig_hex);
+  emscripten::function("export_multisig_hex", &monero_wasm_bridge::export_multisig_hex);
   emscripten::function("import_multisig_hex", &monero_wasm_bridge::import_multisig_hex);
   emscripten::function("sign_multisig_tx_hex", &monero_wasm_bridge::sign_multisig_tx_hex);
   emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);

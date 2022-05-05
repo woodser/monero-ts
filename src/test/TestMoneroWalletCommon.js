@@ -4765,7 +4765,7 @@ class TestMoneroWalletCommon {
     let multisigHexes = [];
     for (let wallet of wallets) {
       await wallet.sync();
-      multisigHexes.push(await wallet.getMultisigHex());
+      multisigHexes.push(await wallet.exportMultisigHex());
     }
     
     // import each wallet's peer multisig hex 

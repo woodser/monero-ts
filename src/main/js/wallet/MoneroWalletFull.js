@@ -1555,11 +1555,11 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async getMultisigHex() {
+  async exportMultisigHex() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_multisig_hex(that._cppAddress);
+      return that._module.export_multisig_hex(that._cppAddress);
     });
   }
   
@@ -2471,8 +2471,8 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return new MoneroMultisigInitResult(await this._invokeWorker("exchangeMultisigKeys", Array.from(arguments)));
   }
   
-  async getMultisigHex() {
-    return this._invokeWorker("getMultisigHex");
+  async exportMultisigHex() {
+    return this._invokeWorker("exportMultisigHex");
   }
   
   async importMultisigHex(multisigHexes) {

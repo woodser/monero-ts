@@ -1502,7 +1502,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return msResult;
   }
   
-  async getMultisigHex() {
+  async exportMultisigHex() {
     let resp = await this.rpc.sendJsonRequest("export_multisig_info");
     return resp.result.info;
   }

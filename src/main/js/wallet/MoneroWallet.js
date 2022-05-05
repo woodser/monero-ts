@@ -1166,8 +1166,18 @@ class MoneroWallet {
    * 
    * @return {string} this wallet's multisig info as hex for other participants
    */
+  async exportMultisigHex() {
+    throw new MoneroError("Not supported?");
+  }
+  
+  /**
+   * Alias for exportMultisigHex().
+   * 
+   * @deprecated
+   * @return {string} this wallet's multisig info as hex for other participants
+   */
   async getMultisigHex() {
-    throw new MoneroError("Not supported");
+    return this.exportMultisigHex();
   }
   
   /**

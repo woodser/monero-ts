@@ -928,8 +928,8 @@ self.exchangeMultisigKeys = async function(walletId, multisigHexes, password) {
   return (await self.WORKER_OBJECTS[walletId].exchangeMultisigKeys(multisigHexes, password)).toJson();
 }
 
-self.getMultisigHex = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getMultisigHex();
+self.exportMultisigHex = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].exportMultisigHex();
 }
 
 self.importMultisigHex = async function(walletId, multisigHexes) {
