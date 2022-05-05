@@ -1614,18 +1614,13 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async _getTransfersAux(query) {
     
-    // check if pool txs explicitly requested without daemon connection
-    let txQuery = query.getTxQuery();
-    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnectedToDaemon()) {
-      throw new MoneroError("Cannot fetch pool transactions because wallet has no daemon connection");
-    }
-    
     // build params for get_transfers rpc call
-    let params = {};
+    let txQuery = query.getTxQuery();
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = await this.isConnectedToDaemon() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
+    let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
+    let params = {};
     params.in = canBeIncoming && canBeConfirmed;
     params.out = canBeOutgoing && canBeConfirmed;
     params.pool = canBeIncoming && canBeInTxPool;
