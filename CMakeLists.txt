@@ -192,6 +192,9 @@ set(
     ${MONERO_PROJECT_SRC}/device/device.cpp
     ${MONERO_PROJECT_SRC}/device/device_default.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig_account.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig_account_kex_impl.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig_kex_msg.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctOps.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctTypes.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctCryptoOps.c

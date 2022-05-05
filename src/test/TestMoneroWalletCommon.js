@@ -4007,31 +4007,31 @@ class TestMoneroWalletCommon {
         
         // submit tx to daemon but do not relay
         let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
-        assert.equal(true, result.isGood());
+        assert.equal(result.isGood(), true);
         
         // create random wallet to verify transfers
         let verifyingWallet = await that.createWallet(new MoneroWalletConfig());
         
         // verify transfer 1
         let check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address1);
-        assert.equal(true, check.isGood());
-        assert.equal(true, check.inTxPool());
-        assert.equal(0, check.getNumConfirmations());
-        assert.equal(TestUtils.MAX_FEE.toString(), check.getReceivedAmount().toString());
+        assert.equal(check.isGood(), true);
+        assert.equal(check.inTxPool(), true);
+        assert.equal(check.getNumConfirmations(), 0);
+        assert.equal(check.getReceivedAmount().toString(), TestUtils.MAX_FEE.toString());
         
         // verify transfer 2
         check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address2);
-        assert.equal(true, check.isGood());
-        assert.equal(true, check.inTxPool());
-        assert.equal(0, check.getNumConfirmations());
-        assert.equal(true, check.getReceivedAmount().compare(TestUtils.MAX_FEE.multiply(new BigInteger("2"))) >= 0); // + change amount
+        assert.equal(check.isGood(), true);
+        assert.equal(check.inTxPool(), true);
+        assert.equal(check.getNumConfirmations(), 0);
+        assert.equal(check.getReceivedAmount().compare(TestUtils.MAX_FEE.multiply(new BigInteger("2"))) >= 0, true); // + change amount
         
         // verify transfer 3
         check = await verifyingWallet.checkTxKey(tx.getHash(), tx.getKey(), address3);
-        (true, check.isGood());
-        assert.equal(true, check.inTxPool());
-        assert.equal(0, check.getNumConfirmations());
-        assert.equal(TestUtils.MAX_FEE.multiply(new BigInteger("3")).toString(), check.getReceivedAmount().toString());
+        assert.equal(check.isGood(), true);
+        assert.equal(check.inTxPool(), true);
+        assert.equal(check.getNumConfirmations(), 0);
+        assert.equal(check.getReceivedAmount().toString(), TestUtils.MAX_FEE.multiply(new BigInteger("3")).toString());
         
         // cleanup
         await that.daemon.flushTxPool(tx.getHash());
