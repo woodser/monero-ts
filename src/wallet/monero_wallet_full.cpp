@@ -3158,7 +3158,7 @@ namespace monero {
   std::string monero_wallet_full::prepare_multisig() {
     if (m_w2->multisig()) throw std::runtime_error("This wallet is already multisig");
     if (m_w2->watch_only()) throw std::runtime_error("This wallet is view-only and cannot be made multisig");
-    return m_w2->get_multisig_info();
+    return m_w2->get_multisig_first_kex_msg();
   }
 
   monero_multisig_init_result monero_wallet_full::make_multisig(const std::vector<std::string>& multisig_hexes, int threshold, const std::string& password) {
