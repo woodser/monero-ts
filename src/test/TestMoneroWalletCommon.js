@@ -1404,13 +1404,13 @@ class TestMoneroWalletCommon {
         }
         
         // get incoming transfers to a specific address
-        let subaddress = await that.wallet.getAddress(0, 1);
+        let subaddress = await that.wallet.getAddress(1, 0);
         transfers = await that.wallet.getTransfers({isIncoming: true, address: subaddress});
         assert(transfers.length > 0);
         for (let transfer of transfers) {
           assert(transfer instanceof MoneroIncomingTransfer);
-          assert.equal(0, transfer.getAccountIndex());
-          assert.equal(1, transfer.getSubaddressIndex());
+          assert.equal(1, transfer.getAccountIndex());
+          assert.equal(0, transfer.getSubaddressIndex());
           assert.equal(subaddress, transfer.getAddress());
         }
       });
@@ -4660,7 +4660,7 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       
       // parse multisig tx hex and test
-      testDescribedTxSet(await participant.describeTxSet(txSet));
+      testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       let multisigTxHex = txSet.getMultisigTxHex();
@@ -4693,6 +4693,9 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getSignedTxHex(), undefined);
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       assert(txSet.getTxs().length > 0);
+      
+      // parse multisig tx hex and test
+      testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       multisigTxHex = txSet.getMultisigTxHex();
@@ -4843,7 +4846,7 @@ class TestMoneroWalletCommon {
     assert(signedTxHex.length > 0);
     
     // parse or "describe" unsigned tx set
-    let describedTxSet = await offlineWallet.describeTxSet(unsignedTx.getTxSet());
+    let describedTxSet = await offlineWallet.describeUnsignedTxSet(unsignedTx.getTxSet().getUnsignedTxHex());
     testDescribedTxSet(describedTxSet);
     
     // submit signed tx using view-only wallet

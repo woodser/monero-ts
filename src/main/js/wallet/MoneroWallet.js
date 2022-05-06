@@ -6,6 +6,7 @@ const MoneroOutputQuery = require("./model/MoneroOutputQuery");
 const MoneroTransferQuery = require("./model/MoneroTransferQuery");
 const MoneroTxConfig = require("./model/MoneroTxConfig");
 const MoneroTxQuery = require("./model/MoneroTxQuery");
+const MoneroTxSet = require("./model/MoneroTxSet");
 
 /**
  * Copyright (c) woodser
@@ -758,6 +759,36 @@ class MoneroWallet {
    * @return {string[]} the hashes of the relayed txs
    */
   async relayTxs(txsOrMetadatas) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Describe a tx set from unsigned tx hex.
+   * 
+   * @param {string} unsignedTxHex - unsigned tx hex
+   * @return {MoneroTxSet} the tx set containing structured transactions
+   */
+  async describeUnsignedTxSet(unsignedTxHex) {
+    return this.describeTxSet(new MoneroTxSet().setUnsignedTxHex(unsignedTxHex));
+  }
+  
+  /**
+   * Describe a tx set from multisig tx hex.
+   * 
+   * @param {string} multisigTxHex - multisig tx hex
+   * @return {MoneroTxSet} the tx set containing structured transactions
+   */
+  async describeMultisigTxSet(multisigTxHex) {
+    return this.describeTxSet(new MoneroTxSet().setMultisigTxHex(multisigTxHex));
+  }
+  
+  /**
+   * Describe a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+   * 
+   * @param {MoneroTxSet} txSet - a tx set containing unsigned or multisig tx hex
+   * @return {MoneroTxSet} the tx set containing structured transactions
+   */
+  async describeTxSet(txSet) {
     throw new MoneroError("Not supported");
   }
   
