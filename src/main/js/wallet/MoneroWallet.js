@@ -1192,16 +1192,6 @@ class MoneroWallet {
   }
   
   /**
-   * Alias for exportMultisigHex().
-   * 
-   * @deprecated
-   * @return {string} this wallet's multisig info as hex for other participants
-   */
-  async getMultisigHex() {
-    return this.exportMultisigHex();
-  }
-  
-  /**
    * Import multisig info as hex from other participants.
    * 
    * @param {string[]} multisigHexes - multisig hex from each participant
