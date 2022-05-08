@@ -54,7 +54,7 @@ class WalletEqualityUtils {
     txQuery.setIncludeOutputs(true);
     await WalletEqualityUtils._testTxWalletsEqualOnChain(await w1.getTxs(txQuery), await w2.getTxs(txQuery));  // fetch and compare outputs
     await WalletEqualityUtils._testAccountsEqualOnChain(await w1.getAccounts(true), await w2.getAccounts(true));
-    assert.equal((await w2.getBalance()).toString(), (await await w1.getBalance()).toString());
+    assert.equal((await w2.getBalance()).toString(), (await w1.getBalance()).toString());
     assert.equal((await w2.getUnlockedBalance()).toString(), (await w1.getUnlockedBalance()).toString());
     let transferQuery = new MoneroTransferQuery().setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
     await WalletEqualityUtils._testTransfersEqualOnChain(await w1.getTransfers(transferQuery), await w2.getTransfers(transferQuery));

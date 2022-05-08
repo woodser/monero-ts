@@ -187,8 +187,8 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // create unconnected random wallet
         let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, serverUri: ""});
-        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.MAINNET);
+        await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.MAINNET);
         assert.equal(await wallet.getNetworkType(), MoneroNetworkType.MAINNET);
         assert.equal(await wallet.getDaemonConnection(), undefined);
         assert(!(await wallet.isConnectedToDaemon()));
@@ -213,8 +213,8 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
 
         // create random wallet with non defaults
         wallet = await that.createWallet({networkType: MoneroNetworkType.TESTNET, language: "Spanish"});
-        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
+        await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
         assert.equal(await wallet.getNetworkType(), await MoneroNetworkType.TESTNET);
         assert(await wallet.getDaemonConnection());
         assert((await that.daemon.getRpcConnection()).getConfig() !== (await wallet.getDaemonConnection()).getConfig());         // not same reference
@@ -275,7 +275,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert.equal(await wallet.getHeight(), 1); // TODO monero-project: why does height of new unsynced wallet start at 1?
         assert.equal(await wallet.getSyncHeight(), restoreHeight);
-        let path = await await wallet.getPath();
+        let path = await wallet.getPath();
         await wallet.close(true);
         wallet = await that.openWallet({path: path, serverUri: ""});
         assert(!(await wallet.isConnectedToDaemon()));
@@ -903,7 +903,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // wallets are now multisig
         for (let wallet of wallets) {
           let primaryAddress = await wallet.getAddress(0, 0);
-          MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
+          await MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
           let info = await wallet.getMultisigInfo();
           assert(info.isMultisig());
           assert(info.isReady());

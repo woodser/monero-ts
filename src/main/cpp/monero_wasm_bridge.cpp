@@ -86,7 +86,7 @@ string monero_wasm_bridge::validate_address(const string& address, int network_t
 {
   try {
     monero_utils::validate_address(address, static_cast<monero_network_type>(network_type));
-    return "";
+    return string("");
   } catch (exception& e) {
     return string(e.what());
   }

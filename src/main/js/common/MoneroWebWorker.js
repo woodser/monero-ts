@@ -11,6 +11,7 @@ const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 const MoneroRpcConnection = require("./MoneroRpcConnection");
 const MoneroTxConfig = require("../wallet/model/MoneroTxConfig");
 const MoneroTxSet = require("../wallet/model/MoneroTxSet");
+const MoneroUtils = require("../common/MoneroUtils");
 const MoneroWalletListener = require("../wallet/model/MoneroWalletListener");
 const MoneroWalletFull = require("../wallet/MoneroWalletFull");
 
@@ -32,7 +33,6 @@ onmessage = async function(e) {
   let objectId = e.data[0];
   let fnName = e.data[1];
   let callbackId = e.data[2];
-  assert(objectId, "Must provide object id to worker");
   assert(fnName, "Must provide function name to worker");
   assert(callbackId, "Must provide callback id to worker");
   if (!self[fnName]) throw new Error("Method '" + fnName + "' is not registered with worker");
@@ -50,6 +50,7 @@ self.initOneTime = async function() {
   if (!self.isInitialized) {
     self.WORKER_OBJECTS = {};
     self.isInitialized = true;
+    MoneroUtils.PROXY_TO_WORKER = false;
   }
 }
 
@@ -71,6 +72,28 @@ self.setLogLevel = async function(objectId, level) {
 
 self.getWasmMemoryUsed = async function(objectId) {
   return LibraryUtils.getWasmModule() && LibraryUtils.getWasmModule().HEAP8 ? LibraryUtils.getWasmModule().HEAP8.length : undefined;
+}
+
+// ----------------------------- MONERO UTILS ---------------------------------
+
+self.moneroUtilsGetIntegratedAddress = async function(objectId, networkType, standardAddress, paymentId) {
+  return (await MoneroUtils.getIntegratedAddress(networkType, standardAddress, paymentId)).toJson();
+}
+
+self.moneroUtilsValidateAddress = async function(objectId, address, networkType) {
+  return MoneroUtils.validateAddress(address, networkType);
+}
+
+self.moneroUtilsJsonToBinary = async function(objectId, json) {
+  return MoneroUtils.jsonToBinary(json);
+}
+
+self.moneroUtilsBinaryToJson = async function(objectId, uint8arr) {
+  return MoneroUtils.binaryToJson(uint8arr);
+}
+
+self.moneroUtilsBinaryBlocksToJson = async function(objectId, uint8arr) {
+  return MoneroUtils.binaryBlocksToJson(uint8arr);
 }
 
 // ---------------------------- DAEMON METHODS --------------------------------

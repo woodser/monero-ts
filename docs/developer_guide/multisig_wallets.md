@@ -59,7 +59,7 @@ if (M !== N) {
 // wallets are now multisig
 for (let wallet of wallets) {
   let primaryAddress = await wallet.getAddress(0, 0);
-  MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
+  await MoneroUtils.validateAddress(primaryAddress, await wallet.getNetworkType());
   let info = await wallet.getMultisigInfo();
   assert(info.isMultisig());
   assert(info.isReady());

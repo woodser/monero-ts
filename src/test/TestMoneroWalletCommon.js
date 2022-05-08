@@ -176,10 +176,10 @@ class TestMoneroWalletCommon {
           let path; try { path = await wallet.getPath(); } catch(e) { }  // TODO: factor out keys-only tests?
           let e2 = undefined;
           try {
-            MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
-            MoneroUtils.validatePrivateViewKey(await wallet.getPrivateViewKey());
-            MoneroUtils.validatePrivateSpendKey(await wallet.getPrivateSpendKey());
-            MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+            await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+            await MoneroUtils.validatePrivateViewKey(await wallet.getPrivateViewKey());
+            await MoneroUtils.validatePrivateSpendKey(await wallet.getPrivateSpendKey());
+            await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
             if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE); // TODO monero-wallet-rpc: get mnemonic language
           } catch (e) {
             e2 = e;
@@ -269,9 +269,9 @@ class TestMoneroWalletCommon {
           let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: "my secret offset!"});
           let e2 = undefined;
           try {
-            MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+            await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
             assert.notEqual(await wallet.getMnemonic(), TestUtils.MNEMONIC);
-            MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+            await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
             assert.notEqual(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
             if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);  // TODO monero-wallet-rpc: support
           } catch (e) {
@@ -437,7 +437,7 @@ class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can get the mnemonic phrase", async function() {
         let mnemonic = await that.wallet.getMnemonic();
-        MoneroUtils.validateMnemonic(mnemonic);
+        await MoneroUtils.validateMnemonic(mnemonic);
         assert.equal(mnemonic, TestUtils.MNEMONIC);
       });
       
@@ -458,31 +458,31 @@ class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can get the private view key", async function() {
         let privateViewKey = await that.wallet.getPrivateViewKey()
-        MoneroUtils.validatePrivateViewKey(privateViewKey);
+        await MoneroUtils.validatePrivateViewKey(privateViewKey);
       });
       
       if (testConfig.testNonRelays)
       it("Can get the private spend key", async function() {
         let privateSpendKey = await that.wallet.getPrivateSpendKey()
-        MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+        await MoneroUtils.validatePrivateSpendKey(privateSpendKey);
       });
       
       if (testConfig.testNonRelays)
       it("Can get the public view key", async function() {
         let publicViewKey = await that.wallet.getPublicViewKey()
-        MoneroUtils.validatePublicViewKey(publicViewKey);
+        await MoneroUtils.validatePublicViewKey(publicViewKey);
       });
       
       if (testConfig.testNonRelays)
       it("Can get the public spend key", async function() {
         let publicSpendKey = await that.wallet.getPublicSpendKey()
-        MoneroUtils.validatePublicSpendKey(publicSpendKey);
+        await MoneroUtils.validatePublicSpendKey(publicSpendKey);
       });
       
       if (testConfig.testNonRelays)
       it("Can get the primary address", async function() {
         let primaryAddress = await that.wallet.getPrimaryAddress();
-        MoneroUtils.validateAddress(primaryAddress, TestUtils.NETWORK_TYPE);
+        await MoneroUtils.validateAddress(primaryAddress, TestUtils.NETWORK_TYPE);
         assert.equal(primaryAddress, await that.wallet.getAddress(0, 0));
       });
       
@@ -666,8 +666,8 @@ class TestMoneroWalletCommon {
       it("Can get accounts without subaddresses", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
-        accounts.map(account => {
-          testAccount(account)
+        accounts.map(async (account) => {
+          await testAccount(account)
           assert(account.getSubaddresses() === undefined);
         });
       });
@@ -676,8 +676,8 @@ class TestMoneroWalletCommon {
       it("Can get accounts with subaddresses", async function() {
         let accounts = await that.wallet.getAccounts(true);
         assert(accounts.length > 0);
-        accounts.map(account => {
-          testAccount(account);
+        accounts.map(async (account) => {
+          await testAccount(account);
           assert(account.getSubaddresses().length > 0);
         });
       });
@@ -687,7 +687,7 @@ class TestMoneroWalletCommon {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         for (let account of accounts) {
-          testAccount(account);
+          await testAccount(account);
           
           // test without subaddresses
           let retrieved = await that.wallet.getAccount(account.getIndex());
@@ -703,7 +703,7 @@ class TestMoneroWalletCommon {
       it("Can create a new account without a label", async function() {
         let accountsBefore = await that.wallet.getAccounts();
         let createdAccount = await that.wallet.createAccount();
-        testAccount(createdAccount);
+        await testAccount(createdAccount);
         assert.equal((await that.wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
@@ -714,23 +714,23 @@ class TestMoneroWalletCommon {
         let accountsBefore = await that.wallet.getAccounts();
         let label = GenUtils.getUUID();
         let createdAccount = await that.wallet.createAccount(label);
-        testAccount(createdAccount);
+        await testAccount(createdAccount);
         assert.equal((await that.wallet.getAccounts()).length - 1, accountsBefore.length);
         assert.equal((await that.wallet.getSubaddress(createdAccount.getIndex(), 0)).getLabel(), label);
         
         // fetch and test account
         createdAccount = await that.wallet.getAccount(createdAccount.getIndex());
-        testAccount(createdAccount);
+        await testAccount(createdAccount);
         
         // create account with same label
         createdAccount = await that.wallet.createAccount(label);
-        testAccount(createdAccount);
+        await testAccount(createdAccount);
         assert.equal((await that.wallet.getAccounts()).length - 2, accountsBefore.length);
         assert.equal((await that.wallet.getSubaddress(createdAccount.getIndex(), 0)).getLabel(), label);
         
         // fetch and test account
         createdAccount = await that.wallet.getAccount(createdAccount.getIndex());
-        testAccount(createdAccount);
+        await testAccount(createdAccount);
       });
       
       if (testConfig.testNonRelays)
@@ -934,7 +934,7 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           assert(tx.isOutgoing());
           assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-          testTransfer(tx.getOutgoingTransfer());
+          await testTransfer(tx.getOutgoingTransfer());
         }
         
         // get transactions without an outgoing transfer
@@ -1133,7 +1133,7 @@ class TestMoneroWalletCommon {
           let txs = await that._getAndTestTxs(that.wallet, {paymentId: paymentId});
           assert.equal(txs.length, 1);
           assert(txs[0].getPaymentId());
-          MoneroUtils.validatePaymentId(txs[0].getPaymentId());
+          await MoneroUtils.validatePaymentId(txs[0].getPaymentId());
         }
         
         // get transactions by payment hashes
@@ -1452,7 +1452,7 @@ class TestMoneroWalletCommon {
         assert(inTransfers.length > 0);
         for (let transfer of inTransfers) {
           assert(transfer.isIncoming());
-          testTransfer(transfer, undefined);
+          await testTransfer(transfer, undefined);
         }
         
         // get incoming transfers with query
@@ -1462,7 +1462,7 @@ class TestMoneroWalletCommon {
           assert(transfer.isIncoming());
           assert.equal(transfer.getAccountIndex(), accountIdx);
           assert.equal(transfer.getSubaddressIndex(), subaddressIdx);
-          testTransfer(transfer, undefined);
+          await testTransfer(transfer, undefined);
         }
         
         // get incoming transfers with contradictory query
@@ -1477,7 +1477,7 @@ class TestMoneroWalletCommon {
         assert(outTransfers.length > 0);
         for (let transfer of outTransfers) {
           assert(transfer.isOutgoing());
-          testTransfer(transfer, undefined);
+          await testTransfer(transfer, undefined);
         }
         
         // get outgoing transfers with query
@@ -1487,7 +1487,7 @@ class TestMoneroWalletCommon {
           assert(transfer.isOutgoing());
           assert.equal(transfer.getAccountIndex(), accountIdx);
           assert(transfer.getSubaddressIndices().includes(subaddressIdx));
-          testTransfer(transfer, undefined);
+          await testTransfer(transfer, undefined);
         }
         
         // get outgoing transfers with contradictory query
@@ -1667,7 +1667,7 @@ class TestMoneroWalletCommon {
         let accountsBalance = new BigInteger(0);
         let accountsUnlockedBalance = new BigInteger(0);
         for (let account of accounts) {
-          testAccount(account); // test that account balance equals sum of subaddress balances
+          await testAccount(account); // test that account balance equals sum of subaddress balances
           accountsBalance = accountsBalance.add(account.getBalance());
           accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
         }
@@ -2226,7 +2226,7 @@ class TestMoneroWalletCommon {
         // initial state
         let entries = await that.wallet.getAddressBookEntries();
         let numEntriesStart = entries.length
-        for (let entry of entries) testAddressBookEntry(entry);
+        for (let entry of entries) await testAddressBookEntry(entry);
         
         // test adding standard addresses
         const NUM_ENTRIES = 5;
@@ -2241,7 +2241,7 @@ class TestMoneroWalletCommon {
           let found = false;
           for (let entry of entries) {
             if (idx === entry.getIndex()) {
-              testAddressBookEntry(entry);
+              await testAddressBookEntry(entry);
               assert.equal(entry.getAddress(), address);
               assert.equal(entry.getDescription(), "hi there!");
               found = true;
@@ -2287,7 +2287,7 @@ class TestMoneroWalletCommon {
           let found = false;
           for (let entry of entries) {
             if (idx === entry.getIndex()) {
-              testAddressBookEntry(entry);
+              await testAddressBookEntry(entry);
               assert.equal(entry.getDescription(), integratedDescriptions[idx]);
               assert.equal(entry.getAddress(), integratedAddresses[idx].toString());
               assert.equal(entry.getPaymentId(), undefined);
@@ -3209,7 +3209,7 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-              testDestination(destination);
+              await testDestination(destination);
               assert.equal(destination.getAddress(), address);
               destinationSum = destinationSum.add(destination.getAmount());
             }
@@ -3361,7 +3361,7 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
             assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-              testDestination(destination);
+              await testDestination(destination);
               assert.equal(destination.getAddress(), address);
               assert(sendAmount.compare(destination.getAmount()) === 0);
             }
@@ -3509,7 +3509,7 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-              testDestination(destination);
+              await testDestination(destination);
               assert(destinationAddresses.includes(destination.getAddress()));
               destinationSum = destinationSum.add(destination.getAmount());
             }
@@ -4261,7 +4261,7 @@ class TestMoneroWalletCommon {
     // test outgoing transfer
     if (tx.getOutgoingTransfer()) {
       assert(tx.isOutgoing());
-      testTransfer(tx.getOutgoingTransfer(), ctx);
+      await testTransfer(tx.getOutgoingTransfer(), ctx);
       if (ctx.isSweepResponse) assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
       
       // TODO: handle special cases
@@ -4285,7 +4285,7 @@ class TestMoneroWalletCommon {
       // test each transfer and collect transfer sum
       let transferSum = new BigInteger(0);
       for (let transfer of tx.getIncomingTransfers()) {
-        testTransfer(transfer, ctx);
+        await testTransfer(transfer, ctx);
         transferSum = transferSum.add(transfer.getAmount());
         if (ctx.wallet) assert.equal(transfer.getAddress(), await ctx.wallet.getAddress(transfer.getAccountIndex(), transfer.getSubaddressIndex()));
         
@@ -4318,7 +4318,7 @@ class TestMoneroWalletCommon {
       // test common attributes
       let config = ctx.config;
       assert.equal(tx.isConfirmed(), false);
-      testTransfer(tx.getOutgoingTransfer(), ctx);
+      await testTransfer(tx.getOutgoingTransfer(), ctx);
       assert.equal(tx.getRingSize(), MoneroUtils.RING_SIZE);
       assert.equal(tx.getUnlockHeight(), config.getUnlockHeight() ? config.getUnlockHeight() : 0);
       assert.equal(tx.getBlock(), undefined);
@@ -4555,7 +4555,7 @@ class TestMoneroWalletCommon {
     
     // print final multisig address
     let participant = participants[0];
-    MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+    await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
     //console.log("FINAL MULTISIG ADDRESS: " + await participant.getPrimaryAddress());
     this._testMultisigInfo(await participant.getMultisigInfo(), m, n);
     
@@ -4660,7 +4660,7 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       
       // parse multisig tx hex and test
-      testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
+      await testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       let multisigTxHex = txSet.getMultisigTxHex();
@@ -4695,7 +4695,7 @@ class TestMoneroWalletCommon {
       assert(txSet.getTxs().length > 0);
       
       // parse multisig tx hex and test
-      testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
+      await testDescribedTxSet(await participant.describeMultisigTxSet(txSet.getMultisigTxHex()));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       multisigTxHex = txSet.getMultisigTxHex();
@@ -4738,7 +4738,7 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       
       // parse multisig tx hex and test
-      testDescribedTxSet(await participant.describeTxSet(txSet));
+      await testDescribedTxSet(await participant.describeTxSet(txSet));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       multisigTxHex = txSet.getMultisigTxHex();
@@ -4847,7 +4847,7 @@ class TestMoneroWalletCommon {
     
     // parse or "describe" unsigned tx set
     let describedTxSet = await offlineWallet.describeUnsignedTxSet(unsignedTx.getTxSet().getUnsignedTxHex());
-    testDescribedTxSet(describedTxSet);
+    await testDescribedTxSet(describedTxSet);
     
     // submit signed tx using view-only wallet
     if (this.testConfig.testRelays) {
@@ -4885,12 +4885,12 @@ class TestMoneroWalletCommon {
 
 // ------------------------------ PRIVATE STATIC ------------------------------
   
-function testAccount(account) {
+async function testAccount(account) {
   
   // test account
   assert(account);
   assert(account.getIndex() >= 0);
-  MoneroUtils.validateAddress(account.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+  await MoneroUtils.validateAddress(account.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
   TestUtils.testUnsignedBigInteger(account.getBalance());
   TestUtils.testUnsignedBigInteger(account.getUnlockedBalance());
   
@@ -4945,13 +4945,13 @@ async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
   else return txs.slice(0, Math.min(maxTxs, txs.length));
 }
 
-function testTransfer(transfer, ctx) {
+async function testTransfer(transfer, ctx) {
   if (ctx === undefined) ctx = {};
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (!ctx.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
   if (transfer.isIncoming()) testIncomingTransfer(transfer);
-  else testOutgoingTransfer(transfer, ctx);
+  else await testOutgoingTransfer(transfer, ctx);
   
   // transfer and tx reference each other
   assert(transfer.getTx());
@@ -4969,7 +4969,7 @@ function testIncomingTransfer(transfer) {
   assert(transfer.getNumSuggestedConfirmations() > 0);
 }
 
-function testOutgoingTransfer(transfer, ctx) {
+async function testOutgoingTransfer(transfer, ctx) {
   assert(!transfer.isIncoming());
   assert(transfer.isOutgoing());
   if (!ctx.isSendResponse) assert(transfer.getSubaddressIndices());
@@ -4987,7 +4987,7 @@ function testOutgoingTransfer(transfer, ctx) {
     assert(transfer.getDestinations().length > 0);
     let sum = new BigInteger(0);
     for (let destination of transfer.getDestinations()) {
-      testDestination(destination);
+      await testDestination(destination);
       TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
       sum = sum.add(destination.getAmount());
     }
@@ -4996,8 +4996,8 @@ function testOutgoingTransfer(transfer, ctx) {
   }
 }
 
-function testDestination(destination) {
-  MoneroUtils.validateAddress(destination.getAddress(), TestUtils.NETWORK_TYPE);
+async function testDestination(destination) {
+  await MoneroUtils.validateAddress(destination.getAddress(), TestUtils.NETWORK_TYPE);
   TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
 }
 
@@ -5097,7 +5097,7 @@ function testCheckReserve(check) {
   }
 }
 
-function testDescribedTxSet(describedTxSet) {
+async function testDescribedTxSet(describedTxSet) {
   assert.notEqual(describedTxSet, undefined);
   assert(describedTxSet.getTxs().length > 0);
   assert.equal(describedTxSet.getSignedTxHex(), undefined);
@@ -5113,7 +5113,7 @@ function testDescribedTxSet(describedTxSet) {
     TestUtils.testUnsignedBigInteger(describedTx.getFee());
     TestUtils.testUnsignedBigInteger(describedTx.getChangeAmount());
     if (describedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(describedTx.getChangeAddress(), undefined);
-    else MoneroUtils.validateAddress(describedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
+    else await MoneroUtils.validateAddress(describedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
     assert(describedTx.getRingSize() > 1);
     assert(describedTx.getUnlockHeight() >= 0);
     assert(describedTx.getNumDummyOutputs() >= 0);
@@ -5125,14 +5125,14 @@ function testDescribedTxSet(describedTxSet) {
     assert(describedTx.getOutgoingTransfer().getDestinations().length > 0);
     assert.equal(describedTx.isIncoming(), undefined);
     for (let destination of describedTx.getOutgoingTransfer().getDestinations()) {
-      testDestination(destination);
+      await testDestination(destination);
     }
   }
 }
 
-function testAddressBookEntry(entry) {
+async function testAddressBookEntry(entry) {
   assert(entry.getIndex() >= 0);
-  MoneroUtils.validateAddress(entry.getAddress(), TestUtils.NETWORK_TYPE);
+  await MoneroUtils.validateAddress(entry.getAddress(), TestUtils.NETWORK_TYPE);
   assert.equal(typeof entry.getDescription(), "string");
 }
 

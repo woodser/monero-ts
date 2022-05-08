@@ -119,7 +119,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
       it("Can get the address of a specified account and subaddress index", async function() {
         for (let accountIdx= 0; accountIdx < 5; accountIdx++) {
           for (let subaddressIdx = 0; subaddressIdx < 5; subaddressIdx++) {
-            MoneroUtils.validateAddress(await that.wallet.getAddress(accountIdx, subaddressIdx), TestUtils.NETWORK_TYPE);
+            await MoneroUtils.validateAddress(await that.wallet.getAddress(accountIdx, subaddressIdx), TestUtils.NETWORK_TYPE);
           }
         }
       });

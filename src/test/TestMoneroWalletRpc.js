@@ -188,19 +188,19 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         let path = GenUtils.getUUID();
         let wallet = await that.createWallet({path: path});
         let mnemonic = await wallet.getMnemonic();
-        MoneroUtils.validateMnemonic(mnemonic);
+        await MoneroUtils.validateMnemonic(mnemonic);
         assert.notEqual(mnemonic, TestUtils.MNEMONIC);
-        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+        await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
         await wallet.sync();  // very quick because restore height is chain height
         await that.closeWallet(wallet);
 
         // create random wallet with non defaults
         path = GenUtils.getUUID();
         wallet = await that.createWallet({path: path, language: "Spanish"});
-        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
         assert.notEqual(await wallet.getMnemonic(), mnemonic);
         mnemonic = await wallet.getMnemonic();
-        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+        await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
         
         // attempt to create wallet which already exists
         try {
@@ -231,7 +231,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // create wallet with non-defaults
         path = GenUtils.getUUID();
         wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, language: "German", seedOffset: "my offset!", saveCurrent: false});
-        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
         assert.notEqual(await wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
         assert.notEqual(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         await that.closeWallet(wallet);

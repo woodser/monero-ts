@@ -793,16 +793,6 @@ class MoneroWallet {
   }
   
   /**
-   * Describe a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
-   * 
-   * @param {MoneroTxSet} txSet - a tx set containing unsigned or multisig tx hex
-   * @return {MoneroTxSet} - the tx set containing structured transactions
-   */
-  async describeTxSet(txSet) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
    * Sign unsigned transactions from a view-only wallet.
    * 
    * @param {string} unsignedTxHex - unsigned transaction hex from when the transactions were created

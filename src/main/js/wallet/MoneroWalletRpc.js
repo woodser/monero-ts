@@ -85,7 +85,7 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   constructor(uriOrConfig, username, password, rejectUnauthorized) {
     super();
-    if (GenUtils.isArray(uriOrConfig)) throw new Error("Array with command parameters is invalid first parameter, use `await monerojs.connectToWalletRpc(...)`");
+    if (GenUtils.isArray(uriOrConfig)) throw new MoneroError("Array with command parameters is invalid first parameter, use `await monerojs.connectToWalletRpc(...)`");
     this.config = MoneroWalletRpc._normalizeConfig(uriOrConfig, username, password, rejectUnauthorized);
     this.rpc = new MoneroRpcConnection(this.config);
     this.addressCache = {}; // avoid unecessary requests for addresses
@@ -169,12 +169,12 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // handle exit
       that.process.on("exit", function(code) {
-        if (!this.isResolved) reject(new Error("monero-wallet-rpc process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
+        if (!this.isResolved) reject(new MoneroError("monero-wallet-rpc process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
       });
       
       // handle error
       that.process.on("error", function(err) {
-        if (err.message.indexOf("ENOENT") >= 0) reject(new Error("monero-wallet-rpc does not exist at path '" + cmd[0] + "'"));
+        if (err.message.indexOf("ENOENT") >= 0) reject(new MoneroError("monero-wallet-rpc does not exist at path '" + cmd[0] + "'"));
         if (!this.isResolved) reject(err);
       });
       
@@ -483,7 +483,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async isConnectedToDaemon() {
     try {
       await this.checkReserveProof(await this.getPrimaryAddress(), "", ""); // TODO (monero-project): provide better way to know if wallet rpc is connected to daemon
-      throw new Error("check reserve expected to fail");
+      throw new MoneroError("check reserve expected to fail");
     } catch (e) {
       return e.message.indexOf("Failed to connect to daemon") < 0;
     }

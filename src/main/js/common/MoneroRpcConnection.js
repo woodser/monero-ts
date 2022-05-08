@@ -320,11 +320,8 @@ class MoneroRpcConnection {
    */
   async sendBinaryRequest(path, params, timeoutInMs) {
     
-    // load wasm module
-    await LibraryUtils.loadKeysModule();
-    
     // serialize params
-    let paramsBin = MoneroUtils.jsonToBinary(params);
+    let paramsBin = await MoneroUtils.jsonToBinary(params);
     
     try {
       
