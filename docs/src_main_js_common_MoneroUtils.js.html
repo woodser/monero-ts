@@ -35,7 +35,7 @@ const MoneroIntegratedAddress = require("../wallet/model/MoneroIntegratedAddress
 const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
 
 /**
- * Collection of Monero utilities.
+ * Collection of Monero utilities. Runs in a worker thread by default.
  * 
  * @hideconstructor
  */
@@ -47,7 +47,16 @@ class MoneroUtils {
    * @return {string} the version of this monero-javascript library
    */
   static getVersion() {
-    return "0.6.4";
+    return "0.7.0";
+  }
+  
+  /**
+   * Enable or disable proxying these utilities to a worker thread.
+   * 
+   * @param {boolean} proxyToWorker - specifies if utilities should be proxied to a worker
+   */
+  static setProxyToWorker(proxyToWorker) {
+    MoneroUtils.PROXY_TO_WORKER = proxyToWorker || false;
   }
   
   /**
@@ -57,21 +66,21 @@ class MoneroUtils {
    * 
    * @param {string} mnemonic - mnemonic to validate
    */
-  static validateMnemonic(mnemonic) {
+  static async validateMnemonic(mnemonic) {
     assert(mnemonic, "Mnemonic phrase is not initialized");
     let words = mnemonic.split(" ");
-    if (words.length !== MoneroUtils.NUM_MNEMONIC_WORDS) throw new Error("Mnemonic phrase is " + words.length + " words but must be " + MoneroUtils.NUM_MNEMONIC_WORDS);
+    if (words.length !== MoneroUtils.NUM_MNEMONIC_WORDS) throw new MoneroError("Mnemonic phrase is " + words.length + " words but must be " + MoneroUtils.NUM_MNEMONIC_WORDS);
   }
   
   /**
    * Indicates if a private view key is valid.
    * 
    * @param {string} privateViewKey is the private view key to validate
-   * @return {bool} true if the private view key is valid, false otherwise
+   * @return {Promise&lt;bool>} true if the private view key is valid, false otherwise
    */
-  static isValidPrivateViewKey(privateViewKey) {
+  static async isValidPrivateViewKey(privateViewKey) {
     try {
-      MoneroUtils.validatePrivateViewKey(privateViewKey);
+      await MoneroUtils.validatePrivateViewKey(privateViewKey);
       return true;
     } catch (e) {
       return false;
@@ -82,11 +91,11 @@ class MoneroUtils {
    * Indicates if a public view key is valid.
    * 
    * @param {string} publicViewKey is the public view key to validate
-   * @return {bool} true if the public view key is valid, false otherwise
+   * @return {Promise&lt;bool>} true if the public view key is valid, false otherwise
    */
-  static isValidPublicViewKey(publicViewKey) {
+  static async isValidPublicViewKey(publicViewKey) {
     try {
-      MoneroUtils.validatePublicViewKey(publicViewKey);
+      await MoneroUtils.validatePublicViewKey(publicViewKey);
       return true;
     } catch (e) {
       return false;
@@ -97,11 +106,11 @@ class MoneroUtils {
    * Indicates if a private spend key is valid.
    * 
    * @param {string} privateSpendKey is the private spend key to validate
-   * @return {bool} true if the private spend key is valid, false otherwise
+   * @return {Promise&lt;bool>} true if the private spend key is valid, false otherwise
    */
-  static isValidPrivateSpendKey(privateSpendKey) {
+  static async isValidPrivateSpendKey(privateSpendKey) {
     try {
-      MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+      await MoneroUtils.validatePrivateSpendKey(privateSpendKey);
       return true;
     } catch (e) {
       return false;
@@ -112,11 +121,11 @@ class MoneroUtils {
    * Indicates if a public spend key is valid.
    * 
    * @param {string} publicSpendKey is the public spend key to validate
-   * @return {bool} true if the public spend key is valid, false otherwise
+   * @return {Promise&lt;bool>} true if the public spend key is valid, false otherwise
    */
-  static isValidPublicSpendKey(publicSpendKey) {
+  static async isValidPublicSpendKey(publicSpendKey) {
     try {
-      MoneroUtils.validatePublicSpendKey(publicSpendKey);
+      await MoneroUtils.validatePublicSpendKey(publicSpendKey);
       return true;
     } catch (e) {
       return false;
@@ -128,7 +137,7 @@ class MoneroUtils {
    *
    * @param {string} privateViewKey - private view key to validate
    */
-  static validatePrivateViewKey(privateViewKey) {
+  static async validatePrivateViewKey(privateViewKey) {
     if (!MoneroUtils._isHex64(privateViewKey)) throw new MoneroError("private view key expected to be 64 hex characters");
   }
   
@@ -137,7 +146,7 @@ class MoneroUtils {
    *
    * @param {string} publicViewKey - public view key to validate
    */
-  static validatePublicViewKey(publicViewKey) {
+  static async validatePublicViewKey(publicViewKey) {
     if (!MoneroUtils._isHex64(publicViewKey)) throw new MoneroError("public view key expected to be 64 hex characters");
   }
   
@@ -146,7 +155,7 @@ class MoneroUtils {
    *
    * @param {string} privateSpendKey - private spend key to validate
    */
-  static validatePrivateSpendKey(privateSpendKey) {
+  static async validatePrivateSpendKey(privateSpendKey) {
     if (!MoneroUtils._isHex64(privateSpendKey)) throw new MoneroError("private spend key expected to be 64 hex characters");
   }
   
@@ -155,7 +164,7 @@ class MoneroUtils {
    *
    * @param {string} publicSpendKey - public spend key to validate
    */
-  static validatePublicSpendKey(publicSpendKey) {
+  static async validatePublicSpendKey(publicSpendKey) {
     if (!MoneroUtils._isHex64(publicSpendKey)) throw new MoneroError("public spend key expected to be 64 hex characters");
   }
   
@@ -165,23 +174,26 @@ class MoneroUtils {
    * @param {MoneroNetworkType} networkType - network type of the integrated address
    * @param {string} standardAddress - primary address or subaddress for the integrated address
    * @param {string} paymentId - optionally specifies the integrated address's payment id (defaults to random payment id)
-   * @return {MoneroIntegratedAddress} the integrated address
+   * @return {Promise&lt;MoneroIntegratedAddress>} the integrated address
    */
-  static getIntegratedAddress(networkType, standardAddress, paymentId) {
+  static async getIntegratedAddress(networkType, standardAddress, paymentId) {
+    if (MoneroUtils.PROXY_TO_WORKER) return new MoneroIntegratedAddress(await LibraryUtils.invokeWorker(undefined, "moneroUtilsGetIntegratedAddress", Array.from(arguments)));
   
     // validate inputs
     MoneroNetworkType.validate(networkType);
     assert(typeof standardAddress === "string", "Address is not string");
     assert(standardAddress.length > 0, "Address is empty");
     assert(GenUtils.isBase58(standardAddress), "Address is not base 58");
-  
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
     
-    // get integrated address
-    let integratedAddressJson = LibraryUtils.getWasmModule().get_integrated_address_util(networkType, standardAddress, paymentId ? paymentId : "");
-    if (integratedAddressJson.charAt(0) !== '{') throw new MoneroError(integratedAddressJson);
-    return new MoneroIntegratedAddress(JSON.parse(integratedAddressJson));
+    // load keys module by default
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
+    
+    // get integrated address in queue
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      let integratedAddressJson = LibraryUtils.getWasmModule().get_integrated_address_util(networkType, standardAddress, paymentId ? paymentId : "");
+      if (integratedAddressJson.charAt(0) !== '{') throw new MoneroError(integratedAddressJson);
+      return new MoneroIntegratedAddress(JSON.parse(integratedAddressJson));
+    });
   }
   
   /**
@@ -189,16 +201,11 @@ class MoneroUtils {
    * 
    * @param {string} address - address
    * @param {MoneroNetworkType} networkType - network type of the address to validate
-   * @return {boolean} true if the address is valid, false otherwise
+   * @return {Promise&lt;boolean>} true if the address is valid, false otherwise
    */
-  static isValidAddress(address, networkType) {
-    
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
-    
-    // validate address and catch error
+  static async isValidAddress(address, networkType) {
     try {
-      MoneroUtils.validateAddress(address, networkType);
+      await MoneroUtils.validateAddress(address, networkType);
       return true;
     } catch (err) {
       return false;
@@ -211,10 +218,8 @@ class MoneroUtils {
    * @param {string} address - address to validate
    * @param {MoneroNetworkType} networkType - network type of the address to validate
    */
-  static validateAddress(address, networkType) {
-    
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+  static async validateAddress(address, networkType) {
+    if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsValidateAddress", Array.from(arguments));
     
     // validate inputs
     assert(typeof address === "string", "Address is not string");
@@ -222,20 +227,25 @@ class MoneroUtils {
     assert(GenUtils.isBase58(address), "Address is not base 58");
     MoneroNetworkType.validate(networkType);
     
-    // validate address with wasm module
-    let errMsg = LibraryUtils.getWasmModule().validate_address(address, networkType);
-    if (errMsg) throw new Error(errMsg);
+    // load keys module by default
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
+    
+    // validate address in queue
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      let errMsg = LibraryUtils.getWasmModule().validate_address(address, networkType);
+      if (errMsg) throw new MoneroError(errMsg);
+    });
   }
   
   /**
    * Determine if the given payment id is valid.
    * 
    * @param {string} paymentId - payment id to determine if valid
-   * @return {bool} true if the payment id is valid, false otherwise
+   * @return {Promise&lt;bool>} true if the payment id is valid, false otherwise
    */
-  static isValidPaymentId(paymentId) {
+  static async isValidPaymentId(paymentId) {
     try {
-      MoneroUtils.validatePaymentId(paymentId);
+      await MoneroUtils.validatePaymentId(paymentId);
       return true;
     } catch (e) {
       return false;
@@ -249,7 +259,7 @@ class MoneroUtils {
    * 
    * @param {string} paymentId - payment id to validate 
    */
-  static validatePaymentId(paymentId) {
+  static async validatePaymentId(paymentId) {
     assert.equal(typeof paymentId, "string");
     assert(paymentId.length === 16 || paymentId.length === 64);
   }
@@ -263,7 +273,7 @@ class MoneroUtils {
    * @param [byte[]] txExtra - array of tx extra bytes
    * @return {string} the last pub key as a hexidecimal string
    */
-  static getLastTxPubKey(txExtra) {
+  static async getLastTxPubKey(txExtra) {
     let lastPubKeyIdx;
     for (let i = 0; i &lt; txExtra.length; i++) {
       let tag = txExtra[i];
@@ -272,7 +282,7 @@ class MoneroUtils {
       } else if (tag === 1) {
         lastPubKeyIdx = i + 1;
         i += 1 + 32;              // advance to next tag
-      } else throw new Error("Invalid sub-field tag: " + tag);
+      } else throw new MoneroError("Invalid sub-field tag: " + tag);
     }
     return Buffer.from(new Uint8Array(txExtra.slice(lastPubKeyIdx, lastPubKeyIdx + 32))).toString("hex");
   }
@@ -316,99 +326,114 @@ class MoneroUtils {
    * Convert the given JSON to a binary Uint8Array using Monero's portable storage format.
    * 
    * @param {object} json - json to convert to binary
-   * @return {Uint8Array} the json converted to portable storage binary
+   * @return {Promise&lt;Uint8Array>} the json converted to portable storage binary
    */
-  static jsonToBinary(json) {
+  static async jsonToBinary(json) {
+    if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsJsonToBinary", Array.from(arguments));
     
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // load keys module by default
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
     
-    // serialize json to binary which is stored in c++ heap
-    let binMemInfoStr = LibraryUtils.getWasmModule().malloc_binary_from_json(JSON.stringify(json));
-    
-    // sanitize binary memory address info
-    let binMemInfo = JSON.parse(binMemInfoStr);
-    binMemInfo.ptr = parseInt(binMemInfo.ptr);
-    binMemInfo.length = parseInt(binMemInfo.length);
-    
-    // read binary data from heap to Uint8Array
-    let view = new Uint8Array(binMemInfo.length);
-    for (let i = 0; i &lt; binMemInfo.length; i++) {
-      view[i] = LibraryUtils.getWasmModule().HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
-    }
-    
-    // free binary on heap
-    LibraryUtils.getWasmModule()._free(binMemInfo.ptr);
-    
-    // return json from binary data
-    return view;
+    // use wasm in queue
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      
+      // serialize json to binary which is stored in c++ heap
+      let binMemInfoStr = LibraryUtils.getWasmModule().malloc_binary_from_json(JSON.stringify(json));
+      
+      // sanitize binary memory address info
+      let binMemInfo = JSON.parse(binMemInfoStr);
+      binMemInfo.ptr = parseInt(binMemInfo.ptr);
+      binMemInfo.length = parseInt(binMemInfo.length);
+      
+      // read binary data from heap to Uint8Array
+      let view = new Uint8Array(binMemInfo.length);
+      for (let i = 0; i &lt; binMemInfo.length; i++) {
+        view[i] = LibraryUtils.getWasmModule().HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+      }
+      
+      // free binary on heap
+      LibraryUtils.getWasmModule()._free(binMemInfo.ptr);
+      
+      // return json from binary data
+      return view;
+    });
   }
   
   /**
    * Convert the given portable storage binary to JSON.
    * 
    * @param {Uint8Array} uint8arr - binary data in Monero's portable storage format
-   * @return {object} JSON object converted from the binary data
+   * @return {Promise&lt;object>} JSON object converted from the binary data
    */
-  static binaryToJson(uint8arr) {
+  static async binaryToJson(uint8arr) {
+    if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsBinaryToJson", Array.from(arguments));
     
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // load keys module by default
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
     
-    // allocate space in c++ heap for binary
-    let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
-    let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
-    if (ptr !== heap.byteOffset) throw new Error("Memory ptr !== heap.byteOffset"); // should be equal
-    
-    // write binary to heap
-    heap.set(new Uint8Array(uint8arr.buffer));
-    
-    // create object with binary memory address info
-    let binMemInfo = { ptr: ptr, length: uint8arr.length  }
-
-    // convert binary to json str
-    const ret_string = LibraryUtils.getWasmModule().binary_to_json(JSON.stringify(binMemInfo));
-    
-    // free binary on heap
-    LibraryUtils.getWasmModule()._free(ptr);
-    
-    // parse and return json
-    return JSON.parse(ret_string);
+    // use wasm in queue
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      
+      // allocate space in c++ heap for binary
+      let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+      let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+      if (ptr !== heap.byteOffset) throw new MoneroError("Memory ptr !== heap.byteOffset"); // should be equal
+      
+      // write binary to heap
+      heap.set(new Uint8Array(uint8arr.buffer));
+      
+      // create object with binary memory address info
+      let binMemInfo = { ptr: ptr, length: uint8arr.length };
+      
+      // convert binary to json str
+      const ret_string = LibraryUtils.getWasmModule().binary_to_json(JSON.stringify(binMemInfo));
+      
+      // free binary on heap
+      LibraryUtils.getWasmModule()._free(ptr);
+      
+      // parse and return json
+      return JSON.parse(ret_string);
+    });
   }
   
   /**
    * Convert the binary response from daemon RPC block retrieval to JSON.
    * 
    * @param {Uint8Array} uint8arr - binary response from daemon RPC when getting blocks
-   * @return {object} JSON object with the blocks data
+   * @return {Promise&lt;object>} JSON object with the blocks data
    */
-  static binaryBlocksToJson(uint8arr) {
+  static async binaryBlocksToJson(uint8arr) {
+    if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsBinaryBlocksToJson", Array.from(arguments));
     
-    // wasm module must be preloaded
-    if (LibraryUtils.getWasmModule() === undefined) throw new MoneroError("WASM module is not loaded; call 'await LibraryUtils.loadKeysModule()' to load");
+    // load keys module by default
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
     
-    // allocate space in c++ heap for binary
-    let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
-    let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
-    if (ptr !== heap.byteOffset) throw new Error("Memory ptr !== heap.byteOffset"); // should be equal
-    
-    // write binary to heap
-    heap.set(new Uint8Array(uint8arr.buffer));
-    
-    // create object with binary memory address info
-    let binMemInfo = { ptr: ptr, length: uint8arr.length  }
+    // use wasm in queue
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      
+      // allocate space in c++ heap for binary
+      let ptr = LibraryUtils.getWasmModule()._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+      let heap = new Uint8Array(LibraryUtils.getWasmModule().HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+      if (ptr !== heap.byteOffset) throw new MoneroError("Memory ptr !== heap.byteOffset"); // should be equal
+      
+      // write binary to heap
+      heap.set(new Uint8Array(uint8arr.buffer));
+      
+      // create object with binary memory address info
+      let binMemInfo = { ptr: ptr, length: uint8arr.length  }
 
-    // convert binary to json str
-    const json_str = LibraryUtils.getWasmModule().binary_blocks_to_json(JSON.stringify(binMemInfo));
-    
-    // free memory
-    LibraryUtils.getWasmModule()._free(ptr);
-    
-    // parse result to json
-    let json = JSON.parse(json_str);                                          // parsing json gives arrays of block and tx strings
-    json.blocks = json.blocks.map(blockStr => JSON.parse(blockStr));          // replace block strings with parsed blocks
-    json.txs = json.txs.map(txs => txs ? txs.map(tx => JSON.parse(tx.replace(",", "{") + "}")) : []); // modify tx string to proper json and parse // TODO: more efficient way than this json manipulation?
-    return json;
+      // convert binary to json str
+      const json_str = LibraryUtils.getWasmModule().binary_blocks_to_json(JSON.stringify(binMemInfo));
+      
+      // free memory
+      LibraryUtils.getWasmModule()._free(ptr);
+      
+      // parse result to json
+      let json = JSON.parse(json_str);                                          // parsing json gives arrays of block and tx strings
+      json.blocks = json.blocks.map(blockStr => JSON.parse(blockStr));          // replace block strings with parsed blocks
+      json.txs = json.txs.map(txs => txs ? txs.map(tx => JSON.parse(tx.replace(",", "{") + "}")) : []); // modify tx string to proper json and parse // TODO: more efficient way than this json manipulation?
+      return json;
+    });
   }
   
   /**
@@ -447,6 +472,7 @@ class MoneroUtils {
   }
 }
 
+MoneroUtils.PROXY_TO_WORKER = true;
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;
 MoneroUtils.RING_SIZE = 12;
 MoneroUtils.MAX_REQUESTS_PER_SECOND = 50;
@@ -468,7 +494,7 @@ module.exports = MoneroUtils;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri Feb 04 2022 10:01:28 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 08 2022 14:48:40 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
