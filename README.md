@@ -1,6 +1,6 @@
 # Monero JavaScript Library
 
-A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.3.0 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.3.0).
+A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.3.2 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.3.2).
 
 * Supports wallet and daemon RPC clients.
 * Supports client-side wallets in Node.js or the browser using WebAssembly.
@@ -122,7 +122,7 @@ await walletFull.close(true);
 ## Using monero-javascript in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.6.4`
+2. `npm install monero-javascript@0.7.0`
 3. Add `require("monero-javascript")` to your application code.
 4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
