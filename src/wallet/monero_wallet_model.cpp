@@ -201,9 +201,19 @@ namespace monero {
 
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       std::string key = it->first;
-      //if (key == std::string("hash")) tx->m_hash = it->second.data();
-      if (key == std::string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
-      // TODO: deserialize other fields
+      if (key == std::string("txSet")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("isIncoming")) tx_wallet->m_is_incoming = it->second.get_value<bool>();
+      else if (key == std::string("isOutgoing")) tx_wallet->m_is_outgoing = it->second.get_value<bool>();
+      else if (key == std::string("incomingTransfers")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("outgoingTransfer")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("note")) tx_wallet->m_note = it->second.data();
+      else if (key == std::string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
+      else if (key == std::string("inputSum")) tx_wallet->m_input_sum = it->second.get_value<uint64_t>();
+      else if (key == std::string("outputSum")) tx_wallet->m_output_sum = it->second.get_value<uint64_t>();
+      else if (key == std::string("changeAddress")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("changeAmount")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("numDummyOutputs")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
+      else if (key == std::string("extraHex")) throw std::runtime_error("monero_tx_wallet " + key + " deserialization not implemented");
     }
   }
 
@@ -650,7 +660,8 @@ namespace monero {
     // initialize transfer from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       std::string key = it->first;
-      if (key == std::string("accountIndex")) transfer->m_account_index = it->second.get_value<uint32_t>();
+      if (key == std::string("amount")) transfer->m_amount = it->second.get_value<uint64_t>();
+      else if (key == std::string("accountIndex")) transfer->m_account_index = it->second.get_value<uint32_t>();
     }
   }
 
@@ -827,16 +838,16 @@ namespace monero {
       std::string key = it->first;
       if (key == std::string("isIncoming")) transfer_query->m_is_incoming = it->second.get_value<bool>();
       else if (key == std::string("address")) transfer_query->m_address = it->second.data();
-      else if (key == std::string("addresses")) throw std::runtime_error("addresses not implemented");
+      else if (key == std::string("addresses")) throw std::runtime_error("monero_transfer_query " + key + " deserialization not implemented");
       else if (key == std::string("subaddressIndex")) transfer_query->m_subaddress_index = it->second.get_value<uint32_t>();
       else if (key == std::string("subaddressIndices")) {
         std::vector<uint32_t> m_subaddress_indices;
         for (const auto& child : it->second) m_subaddress_indices.push_back(child.second.get_value<uint32_t>());
         transfer_query->m_subaddress_indices = m_subaddress_indices;
       }
-      else if (key == std::string("destinations")) throw std::runtime_error("destinations not implemented");
+      else if (key == std::string("destinations")) throw std::runtime_error("monero_transfer_query " + key + " deserialization not implemented");
       else if (key == std::string("hasDestinations")) transfer_query->m_has_destinations = it->second.get_value<bool>();
-      else if (key == std::string("txQuery")) throw std::runtime_error("txQuery not implemented");
+      else if (key == std::string("txQuery")) throw std::runtime_error("monero_transfer_query " + key + " deserialization not implemented");
     }
   }
 
@@ -1070,7 +1081,7 @@ namespace monero {
 
   std::shared_ptr<monero_output_query> monero_output_query::deserialize_from_block(const std::string& output_query_json) {
 
-    // deserialize output query std::string to property rooted at block
+    // deserialize output query string to property rooted at block
     std::istringstream iss = output_query_json.empty() ? std::istringstream() : std::istringstream(output_query_json);
     boost::property_tree::ptree blockNode;
     boost::property_tree::read_json(iss, blockNode);
