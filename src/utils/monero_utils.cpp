@@ -69,6 +69,7 @@ monero_integrated_address monero_utils::get_integrated_address(monero_network_ty
   cryptonote::address_parse_info address_info;
   if (!get_account_address_from_str(address_info, static_cast<cryptonote::network_type>(network_type), standard_address)) throw std::runtime_error("Invalid address");
   if (address_info.has_payment_id) throw std::runtime_error("The given address already has a payment id");
+  if (address_info.is_subaddress) throw std::runtime_error("Cannot create integrated address from subaddress");
 
   // randomly generate payment id if not given, else validate
   crypto::hash8 payment_id_h8;
