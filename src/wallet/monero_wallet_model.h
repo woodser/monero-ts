@@ -303,7 +303,7 @@ namespace monero {
    * sign and submit the transactions.
    *
    * For example, multisig transactions created from create_txs() share a common
-   * hex std::string which is needed in order to sign and submit the multisig
+   * hex string which is needed in order to sign and submit the multisig
    * transactions.
    */
   struct monero_tx_set : public serializable_struct {

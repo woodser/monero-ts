@@ -197,7 +197,7 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
   root.put("status", resp_struct.status);
   root.put("untrusted", resp_struct.untrusted); // TODO: loss of ints and bools
 
-  // convert root to std::string // TODO: common utility with serial_bridge
+  // convert root to string // TODO: common utility with serial_bridge
   std::stringstream ss;
   boost::property_tree::write_json(ss, root, false/*pretty*/);
   json = ss.str();

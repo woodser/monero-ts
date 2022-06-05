@@ -113,7 +113,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set std::string values
+    // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_uri != boost::none) monero_utils::add_json_member("uri", m_uri.get(), allocator, root, value_str);
     if (m_username != boost::none) monero_utils::add_json_member("username", m_username.get(), allocator, root, value_str);
@@ -147,7 +147,7 @@ namespace monero {
     if (m_num_txs != boost::none) monero_utils::add_json_member("numTxs", m_num_txs.get(), allocator, root, value_num);
     if (m_reward != boost::none) monero_utils::add_json_member("reward", m_reward.get(), allocator, root, value_num);
 
-    // set std::string values
+    // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hash != boost::none) monero_utils::add_json_member("hash", m_hash.get(), allocator, root, value_str);
     if (m_prev_hash != boost::none) monero_utils::add_json_member("prevHash", m_prev_hash.get(), allocator, root, value_str);
@@ -214,7 +214,7 @@ namespace monero {
     // serialize root from superclass
     rapidjson::Value root = monero_block_header::to_rapidjson_val(allocator);
 
-    // set std::string values
+    // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hex != boost::none) monero_utils::add_json_member("hex", m_hex.get(), allocator, root, value_str);
 
@@ -309,7 +309,7 @@ namespace monero {
     if (m_last_failed_height != boost::none) monero_utils::add_json_member("lastFailedHeight", m_last_failed_height.get(), allocator, root, value_num);
     if (m_max_used_block_height != boost::none) monero_utils::add_json_member("maxUsedBlockHeight", m_max_used_block_height.get(), allocator, root, value_num);
 
-    // set std::string values
+    // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hash != boost::none) monero_utils::add_json_member("hash", m_hash.get(), allocator, root, value_str);
     if (m_payment_id != boost::none) monero_utils::add_json_member("paymentId", m_payment_id.get(), allocator, root, value_str);
@@ -559,7 +559,7 @@ namespace monero {
     // create root
     rapidjson::Value root(rapidjson::kObjectType);
 
-    // set std::string values
+    // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
     if (m_hex != boost::none) monero_utils::add_json_member("hex", m_hex.get(), allocator, root, value_str);
     if (m_signature != boost::none) monero_utils::add_json_member("signature", m_signature.get(), allocator, root, value_str);
