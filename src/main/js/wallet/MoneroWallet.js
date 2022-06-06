@@ -206,13 +206,15 @@ class MoneroWallet {
   }
   
   /**
-   * Get an integrated address based on this wallet's primary address and the
-   * given payment ID.  Generates a random payment ID if none is given.
+   * Get an integrated address based on the given standard address and payment
+   * ID. Uses the wallet's primary address if an address is not given.
+   * Generates a random payment ID if a payment ID is not given.
    * 
-   * @param {string} paymentId - payment ID to generate an integrated address from (randomly generated if undefined)
+   * @param {string} standardAddress is the standard address to generate the integrated address from (wallet's primary address if undefined)
+   * @param {string} paymentId is the payment ID to generate an integrated address from (randomly generated if undefined)
    * @return {MoneroIntegratedAddress} the integrated address
    */
-  async getIntegratedAddress(paymentId) {
+  async getIntegratedAddress(standardAddress, paymentId) {
     throw new MoneroError("Not supported");
   }
   
@@ -524,7 +526,7 @@ class MoneroWallet {
    * @return {MoneroIncomingTransfer[]} incoming transfers that meet the query
    */
   async getIncomingTransfers(query) {
-    query = new MoneroTransferQuery(query);
+    query = MoneroWallet._normalizeTransferQuery(query);
     if (query.isIncoming() === false) throw new MoneroError("Transfer query contradicts getting incoming transfers");
     query.setIsIncoming(true);
     return this.getTransfers(query);
@@ -545,7 +547,7 @@ class MoneroWallet {
    * @return {MoneroOutgoingTransfer[]} outgoing transfers that meet the query
    */
   async getOutgoingTransfers(query) {
-    query = new MoneroTransferQuery(query);
+    query = MoneroWallet._normalizeTransferQuery(query);
     if (query.isOutgoing() === false) throw new MoneroError("Transfer query contradicts getting outgoing transfers");
     query.setIsOutgoing(true);
     return this.getTransfers(query);

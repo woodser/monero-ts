@@ -339,16 +339,24 @@ string monero_wasm_bridge::get_address_index(int handle, const string& address) 
   }
 }
 
-string monero_wasm_bridge::get_integrated_address(int handle, const string& standardAddress, const string& payment_id) {
+string monero_wasm_bridge::get_integrated_address(int handle, const string& standard_address, const string& payment_id) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_integrated_address integrated_address = wallet->get_integrated_address(standardAddress, payment_id);
-  return integrated_address.serialize();
+  try {
+    monero_integrated_address integrated_address = wallet->get_integrated_address(standard_address, payment_id);
+    return integrated_address.serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::decode_integrated_address(int handle, const string& integrated_address_str) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_integrated_address integrated_address = wallet->decode_integrated_address(integrated_address_str);
-  return integrated_address.serialize();
+  try {
+    monero_integrated_address integrated_address = wallet->decode_integrated_address(integrated_address_str);
+    return integrated_address.serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 void monero_wasm_bridge::get_height(int handle, emscripten::val callback) {

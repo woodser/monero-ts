@@ -572,9 +572,9 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
   
-  async getIntegratedAddress(paymentId) {
+  async getIntegratedAddress(standardAddress, paymentId) {
     try {
-      let integratedAddressStr = (await this.rpc.sendJsonRequest("make_integrated_address", {payment_id: paymentId})).result.integrated_address;
+      let integratedAddressStr = (await this.rpc.sendJsonRequest("make_integrated_address", {standard_address: standardAddress, payment_id: paymentId})).result.integrated_address;
       return await this.decodeIntegratedAddress(integratedAddressStr);
     } catch (e) {
       if (e.message.includes("Invalid payment ID")) throw new MoneroError("Invalid payment ID: " + paymentId);

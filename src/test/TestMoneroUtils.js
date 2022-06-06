@@ -20,29 +20,39 @@ class TestMoneroUtils {
       });
       
       it("Can get integrated addresses", async function() {
-        let standardAddress = "7BkLzfgpZZXjmEpLokETw3D1WbRr6uURFQupdEDFFZGYRJy5E47T4EkXuWYU5B5kF34kr7bqX6fLP6y9mkz32VgS1PATHkt";
+        let primaryAddress = "58qRVVjZ4KxMX57TH6yWqGcH5AswvZZS494hWHcHPt6cDkP7V8AqxFhi3RKXZueVRgUnk8niQGHSpY5Bm9DjuWn16GDKXpF";
+        let subaddress = "7B9w2xieXjhDumgPX39h1CAYELpsZ7Pe8Wqtr3pVL9jJ5gGDqgxjWt55gTYUCAuhahhM85ajEp6VbQfLDPETt4oT2ZRXa6n";
         let paymentId = "03284e41c342f036";
         let networkType = MoneroNetworkType.STAGENET;
         
         // get integrated address with randomly generated payment id
-        let integratedAddress = await MoneroUtils.getIntegratedAddress(networkType, standardAddress);
-        assert.equal(standardAddress, integratedAddress.getStandardAddress());
+        let integratedAddress = await MoneroUtils.getIntegratedAddress(networkType, primaryAddress);
+        assert.equal(primaryAddress, integratedAddress.getStandardAddress());
         assert.equal(16, integratedAddress.getPaymentId().length);
         assert.equal(106, integratedAddress.getIntegratedAddress().length);
         
         // get integrated address with specific payment id
-        integratedAddress = await MoneroUtils.getIntegratedAddress(networkType, standardAddress, paymentId);
-        assert.equal(standardAddress, integratedAddress.getStandardAddress());
+        integratedAddress = await MoneroUtils.getIntegratedAddress(networkType, primaryAddress, paymentId);
+        assert.equal(primaryAddress, integratedAddress.getStandardAddress());
         assert.equal(paymentId, integratedAddress.getPaymentId());
         assert.equal(106, integratedAddress.getIntegratedAddress().length);
         
         // get integrated address with invalid payment id
         try {
-          await MoneroUtils.getIntegratedAddress(networkType, standardAddress, "123");
+          await MoneroUtils.getIntegratedAddress(networkType, primaryAddress, "123");
           throw new Error("Getting integrated address with invalid payment id should have failed");
         } catch (err) {
           assert(err instanceof MoneroError);
           assert.equal("Invalid payment id", err.message);
+        }
+        
+        // get integrated address with subaddress
+        try {
+          await MoneroUtils.getIntegratedAddress(networkType, subaddress);
+          throw new Error("Getting integrated address from subaddress should have failed");
+        } catch (err) {
+          assert(err instanceof MoneroError);
+          assert.equal("Cannot create integrated address from subaddress", err.message);
         }
       });
       

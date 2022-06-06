@@ -576,14 +576,17 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return this._path;
   }
   
-  async getIntegratedAddress(paymentId) {
+  async getIntegratedAddress(standardAddress, paymentId) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroIntegratedAddress(JSON.parse(that._module.get_integrated_address(that._cppAddress, "", paymentId ? paymentId : "")));
+        let result = that._module.get_integrated_address(that._cppAddress, standardAddress ? standardAddress : "", paymentId ? paymentId : "");
+        if (result.charAt(0) !== "{") throw new MoneroError(result);
+        return new MoneroIntegratedAddress(JSON.parse(result));
       } catch (err) {
-        throw new MoneroError("Invalid payment ID: " + paymentId);
+        if (err.message.includes("Invalid payment ID")) throw new MoneroError("Invalid payment ID: " + paymentId);
+        throw new MoneroError(err.message);
       }
     });
   }
@@ -593,9 +596,11 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroIntegratedAddress(JSON.parse(that._module.decode_integrated_address(that._cppAddress, integratedAddress)));
+        let result = that._module.decode_integrated_address(that._cppAddress, integratedAddress);
+        if (result.charAt(0) !== "{") throw new MoneroError(result);
+        return new MoneroIntegratedAddress(JSON.parse(result));
       } catch (err) {
-        throw new MoneroError("Invalid integrated address: " + integratedAddress);
+        throw new MoneroError(err.message);
       }
     });
   }
@@ -1168,7 +1173,10 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      if (txSet.getTxs() !== undefined) for (let tx of txSet.getTxs()) tx.setInputs(undefined); // avoid input deserialization which is not supported in monero-cpp
+      txSet = new MoneroTxSet()
+              .setUnsignedTxHex(txSet.getUnsignedTxHex())
+              .setSignedTxHex(txSet.getSignedTxHex())
+              .setMultisigTxHex(txSet.getMultisigTxHex());
       try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(that._module.describe_tx_set(that._cppAddress, JSON.stringify(txSet.toJson()))))); }
       catch (err) { throw new MoneroError(that._module.get_exception_message(err)); }
     });
@@ -2058,7 +2066,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return MoneroWalletFull._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
-  async getIntegratedAddress(paymentId) {
+  async getIntegratedAddress(standardAddress, paymentId) {
     return new MoneroIntegratedAddress(await this._invokeWorker("getIntegratedAddress", Array.from(arguments)));
   }
   

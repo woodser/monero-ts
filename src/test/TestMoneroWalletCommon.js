@@ -539,35 +539,58 @@ class TestMoneroWalletCommon {
       it("Can get an integrated address given a payment id", async function() {
         
         // save address for later comparison
-        let address = (await that.wallet.getSubaddress(0, 0)).getAddress();
+        let address = await that.wallet.getPrimaryAddress();
         
         // test valid payment id
         let paymentId = "03284e41c342f036";
-        let integratedAddress = await that.wallet.getIntegratedAddress(paymentId);
+        let integratedAddress = await that.wallet.getIntegratedAddress(undefined, paymentId);
         assert.equal(integratedAddress.getStandardAddress(), address);
         assert.equal(integratedAddress.getPaymentId(), paymentId);
+        
+        // test undefined payment id which generates a new one
+        integratedAddress = await that.wallet.getIntegratedAddress();
+        assert.equal(integratedAddress.getStandardAddress(), address);
+        assert(integratedAddress.getPaymentId().length);
+        
+        // test with primary address
+        let primaryAddress = "58qRVVjZ4KxMX57TH6yWqGcH5AswvZZS494hWHcHPt6cDkP7V8AqxFhi3RKXZueVRgUnk8niQGHSpY5Bm9DjuWn16GDKXpF";
+        integratedAddress = await that.wallet.getIntegratedAddress(primaryAddress, paymentId);
+        assert.equal(integratedAddress.getStandardAddress(), primaryAddress);
+        assert.equal(integratedAddress.getPaymentId(), paymentId);
+        
+        // test with subaddress
+        let subaddress = "7B9w2xieXjhDumgPX39h1CAYELpsZ7Pe8Wqtr3pVL9jJ5gGDqgxjWt55gTYUCAuhahhM85ajEp6VbQfLDPETt4oT2ZRXa6n";
+        try {
+          integratedAddress = await that.wallet.getIntegratedAddress(subaddress);
+          throw new Error("Getting integrated address from subaddress should have failed");
+        } catch (e) {
+          assert.equal(e.message, "Subaddress shouldn't be used");
+        }
         
         // test invalid payment id
         let invalidPaymentId = "invalid_payment_id_123456";
         try {
-          integratedAddress = await that.wallet.getIntegratedAddress(invalidPaymentId);
+          integratedAddress = await that.wallet.getIntegratedAddress(undefined, invalidPaymentId);
           throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
         } catch (e) {
           //assert.equal(e.getCode(), -5);  // TODO: error codes part of rpc only?
           assert.equal(e.message, "Invalid payment ID: " + invalidPaymentId);
         }
-        
-        // test undefined payment id which generates a new one
-        integratedAddress = await that.wallet.getIntegratedAddress(undefined);
-        assert.equal(integratedAddress.getStandardAddress(), address);
-        assert(integratedAddress.getPaymentId().length);
       });
       
       if (testConfig.testNonRelays)
       it("Can decode an integrated address", async function() {
-        let integratedAddress = await that.wallet.getIntegratedAddress("03284e41c342f036");
+        let integratedAddress = await that.wallet.getIntegratedAddress(undefined, "03284e41c342f036");
         let decodedAddress = await that.wallet.decodeIntegratedAddress(integratedAddress.toString());
         assert.deepEqual(decodedAddress, integratedAddress);
+        
+        // decode invalid address
+        try {
+          console.log(await that.wallet.decodeIntegratedAddress("bad address"));
+          throw new Error("Should have failed decoding bad address");
+        } catch (err) {
+          assert.equal(err.message, "Invalid address");
+        }
       });
       
       // TODO: test syncing from start height
@@ -1444,8 +1467,6 @@ class TestMoneroWalletCommon {
       
       if (testConfig.testNonRelays)
       it("Can get incoming and outgoing transfers using convenience methods", async function() {
-        let accountIdx = 1;
-        let subaddressIdx = 1;
         
         // get incoming transfers
         let inTransfers = await that.wallet.getIncomingTransfers();
@@ -1456,10 +1477,14 @@ class TestMoneroWalletCommon {
         }
         
         // get incoming transfers with query
-        inTransfers = await that.wallet.getIncomingTransfers({accountIndex: accountIdx, subaddressIndex: subaddressIdx});
+        let amount = inTransfers[0].getAmount();
+        let accountIdx = inTransfers[0].getAccountIndex();
+        let subaddressIdx = inTransfers[0].getSubaddressIndex();
+        inTransfers = await that.wallet.getIncomingTransfers({amount: amount, accountIndex: accountIdx, subaddressIndex: subaddressIdx});
         assert(inTransfers.length > 0);
         for (let transfer of inTransfers) {
           assert(transfer.isIncoming());
+          assert.equal(transfer.getAmount().toString(), amount.toString());
           assert.equal(transfer.getAccountIndex(), accountIdx);
           assert.equal(transfer.getSubaddressIndex(), subaddressIdx);
           await testTransfer(transfer, undefined);
@@ -1872,10 +1897,10 @@ class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can prove a transaction by getting its signature", async function() {
         
-        // get random txs that are confirmed and have outgoing destinations
+        // get random txs with outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(that.wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(that.wallet, {transferQuery: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
         } catch (e) {
           if (e.message.indexOf("found with") >= 0) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
@@ -2274,7 +2299,7 @@ class TestMoneroWalletCommon {
         let integratedAddresses = {};
         let integratedDescriptions = {};
         for (let i = 0; i < NUM_ENTRIES; i++) {
-          let integratedAddress = await that.wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
+          let integratedAddress = await that.wallet.getIntegratedAddress(undefined, paymentId + i); // create unique integrated address
           let uuid = GenUtils.getUUID();
           let idx = await that.wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
           indices.push(idx);
@@ -3046,7 +3071,7 @@ class TestMoneroWalletCommon {
           // send funds to self
           let tx = await that.wallet.createTx({
             accountIndex: 0,
-            address: await that.wallet.getPrimaryAddress(),
+            address: (await that.wallet.getIntegratedAddress()).getIntegratedAddress(),
             amount: amount,
             relay: true
           });

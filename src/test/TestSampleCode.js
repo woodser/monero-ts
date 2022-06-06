@@ -288,6 +288,14 @@ class TestSampleCode {
           assert(!output.getTx().isLocked());
         }
         
+        // get outputs by amount
+        let amount = outputs[0].getAmount();
+        outputs = await wallet.getOutputs({
+          amount: amount.toString()    // *** REPLACE WITH BigInteger IN .MD FILE ***
+        });
+        assert(outputs.length > 0);
+        for (let output of outputs) assert.equal(output.getAmount().toString(), amount.toString());
+        
         // get outputs received to a specific subaddress
         outputs = await wallet.getOutputs({
           accountIndex: 0,

@@ -480,8 +480,8 @@ self.getAddressIndex = async function(walletId, address) {
   return (await self.WORKER_OBJECTS[walletId].getAddressIndex(address)).toJson();
 }
 
-self.getIntegratedAddress = async function(walletId, paymentId) {
-  return (await self.WORKER_OBJECTS[walletId].getIntegratedAddress(paymentId)).toJson();
+self.getIntegratedAddress = async function(walletId, standardAddress, paymentId) {
+  return (await self.WORKER_OBJECTS[walletId].getIntegratedAddress(standardAddress, paymentId)).toJson();
 }
 
 self.decodeIntegratedAddress = async function(walletId, integratedAddress) {
