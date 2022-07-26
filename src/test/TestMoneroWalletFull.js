@@ -212,7 +212,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await wallet.close();
 
         // create random wallet with non defaults
-        wallet = await that.createWallet({networkType: MoneroNetworkType.TESTNET, language: "Spanish"});
+        wallet = await that.createWallet({networkType: MoneroNetworkType.TESTNET, language: "Spanish"}, false);
         await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
         await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
         assert.equal(await wallet.getNetworkType(), await MoneroNetworkType.TESTNET);
@@ -425,7 +425,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
       // TODO monero-project: cannot re-sync from lower block height after wallet saved
       if (testConfig.testNonRelays && !testConfig.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {
-        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.STAGENET});  // wallet must already exist
+        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.TESTNET});  // wallet must already exist
         await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
         //long startHeight = TestUtils.TEST_RESTORE_HEIGHT;
         let startHeight = 0;

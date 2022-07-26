@@ -92,11 +92,11 @@ class MoneroRpcConnection {
   }
   
   getUsername() {
-    return this._config.username;
+    return this._config.username ? this._config.username : "";
   }
   
   getPassword() {
-    return this._config.password;
+    return this._config.password ? this._config.password : "";
   }
   
   getRejectUnauthorized() {

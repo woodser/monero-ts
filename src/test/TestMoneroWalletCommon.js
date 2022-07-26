@@ -2816,7 +2816,7 @@ class TestMoneroWalletCommon {
       if (testConfig.testNotifications)
       it("Can be created and receive funds", async function() {
         
-        // create a random stagenet wallet
+        // create a random wallet
         let receiver = await that.createWallet({password: "mysupersecretpassword123"});
         let err;
         try {

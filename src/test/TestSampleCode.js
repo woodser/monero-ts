@@ -49,13 +49,13 @@ class TestSampleCode {
         const monerojs = require("../../index");	// *** CHANGE README TO "monero-javascript" ***
         
         // connect to daemon
-        let daemon = await monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");
+        let daemon = await monerojs.connectToDaemonRpc("http://localhost:28081");
         let height = await daemon.getHeight();            // 1523651
         let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
         let txsInPool = await daemon.getTxPool();         // get transactions in the pool
         
         // open wallet on monero-wallet-rpc
-        let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
+        let walletRpc = await monerojs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
         let balance = await walletRpc.getBalance();               // 533648366742
@@ -65,8 +65,8 @@ class TestSampleCode {
         let walletFull = await monerojs.createWalletFull({
           path: "./test_wallets/" + monerojs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_full"
           password: "supersecretpassword123",
-          networkType: "stagenet",
-          serverUri: "http://localhost:38081",
+          networkType: "testnet",
+          serverUri: "http://localhost:28081",
           serverUsername: "superuser",
           serverPassword: "abctesting123",
           mnemonic: TestUtils.MNEMONIC,                  // *** REPLACE README WITH MNEMONIC ***
@@ -127,7 +127,7 @@ class TestSampleCode {
         let connectionManager = new MoneroConnectionManager();
         
         // add managed connections with priorities
-        connectionManager.addConnection(new MoneroRpcConnection("http://localhost:38081").setPriority(1)); // use localhost as first priority
+        connectionManager.addConnection(new MoneroRpcConnection("http://localhost:28081").setPriority(1)); // use localhost as first priority
         connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); // default priority is prioritized last
         
         // set current connection
@@ -321,8 +321,8 @@ class TestSampleCode {
         // create in-memory test wallet with randomly generated mnemonic
         let wallet = await monerojs.createWalletFull({
           password: "abctesting123",
-          networkType: "stagenet",
-          serverUri: "http://localhost:38081",
+          networkType: "testnet",
+          serverUri: "http://localhost:28081",
           serverUsername: "superuser",
           serverPassword: "abctesting123"
         });

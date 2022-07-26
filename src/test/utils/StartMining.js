@@ -9,7 +9,7 @@ class StartMining {
     if (!numThreads) numThreads = 1;
     //TestUtils.getWalletRpc().startMining(numThreads, false, true);
     let daemon = await TestUtils.getDaemonRpc();
-    await daemon.startMining("56SWsnhejUTbgNs2EgyXdfNXUawymMMuAC9voZZSQrHzJHNxGsAvMnoUja7JcKVtPwNc1oKAkoAt1cv6EmtKRQ22U37B7cT", numThreads, false, false);  // random subaddress
+    await daemon.startMining("9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75", numThreads, false, false);  // random subaddress
   }
 }
 

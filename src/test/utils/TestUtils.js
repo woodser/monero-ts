@@ -110,12 +110,12 @@ class TestUtils {
           TestUtils.WALLET_RPC_LOCAL_PATH,
           "--" + MoneroNetworkType.toString(TestUtils.NETWORK_TYPE),
           "--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri,
-          "--daemon-login", TestUtils.DAEMON_RPC_CONFIG.username + ":" + TestUtils.DAEMON_RPC_CONFIG.password,
           "--rpc-bind-port", "" + (TestUtils.WALLET_RPC_PORT_START + portOffset),
           "--rpc-login", TestUtils.WALLET_RPC_CONFIG.username + ":" + TestUtils.WALLET_RPC_CONFIG.password,
           "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR,
           "--rpc-access-control-origins", TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS
       ];
+      if (TestUtils.DAEMON_RPC_CONFIG.username) cmd.push("--daemon-login", TestUtils.DAEMON_RPC_CONFIG.username + ":" + TestUtils.DAEMON_RPC_CONFIG.password);
       
       // TODO: include zmq params when supported and enabled
       
@@ -239,7 +239,7 @@ class TestUtils {
 // TODO: export these to key/value properties file for tests
 
 // directory with monero binaries to test (monerod and monero-wallet-rpc)
-TestUtils.MONERO_BINS_DIR = "/Applications/monero-x86_64-apple-darwin11-v0.17.3.2";
+TestUtils.MONERO_BINS_DIR = "/path/to/bins";
 
 // test wallet config
 TestUtils.WALLET_NAME = "test_wallet_1";
@@ -248,16 +248,16 @@ TestUtils.TEST_WALLETS_DIR = "./test_wallets";
 TestUtils.WALLET_FULL_PATH = TestUtils.TEST_WALLETS_DIR + "/" + TestUtils.WALLET_NAME;
 
 TestUtils.MAX_FEE = new BigInteger("7500000").multiply(new BigInteger("10000"));
-TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
+TestUtils.NETWORK_TYPE = MoneroNetworkType.TESTNET;
 
 // default keypair to test
-TestUtils.MNEMONIC = "rally adhesive language injury railway pamphlet moisture baptism strained sarcasm across edited omnibus dormant spout keyboard yeti eagle pepper pelican inkling dauntless ashtray bifocals across";
-TestUtils.ADDRESS = "54C3R6CKseodnw7NPafr5ZdCRj1Qa4SYN56cgfozAwCeMj7TZazWe1bip8A5UCPKK7RrpGaP97vsxHabwYEWUCWQTspBZGZ";
-TestUtils.FIRST_RECEIVE_HEIGHT = 2000; // NOTE: this value must be the height of the wallet's first tx for tests
+TestUtils.MNEMONIC = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
+TestUtils.ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
+TestUtils.FIRST_RECEIVE_HEIGHT = 15000; // NOTE: this value must be the height of the wallet's first tx for tests
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
-  uri: "localhost:38084",
+  uri: "localhost:28084",
   username: "rpc_user",
   password: "abc123",
   rejectUnauthorized: true // reject self-signed certificates if true
@@ -266,9 +266,9 @@ TestUtils.WALLET_RPC_CONFIG = {
 // daemon config
 TestUtils.DAEMON_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monerod";
 TestUtils.DAEMON_RPC_CONFIG = {
-  uri: "localhost:38081",
-  username: "superuser",
-  password: "abctesting123",
+  uri: "localhost:28081",
+  username: "",
+  password: "",
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 
@@ -278,7 +278,7 @@ TestUtils.PROXY_TO_WORKER = true;
 TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
 
 // monero-wallet-rpc process management
-TestUtils.WALLET_RPC_PORT_START = 38084;
+TestUtils.WALLET_RPC_PORT_START = 28084;
 TestUtils.WALLET_PORT_OFFSETS = {};
 TestUtils.WALLET_RPC_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monero-wallet-rpc";
 TestUtils.WALLET_RPC_LOCAL_WALLET_DIR = TestUtils.MONERO_BINS_DIR;

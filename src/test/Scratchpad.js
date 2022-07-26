@@ -12,7 +12,7 @@ describe("Scratchpad", function() {
     
     // initialize daemon rpc client
     let daemon = await monerojs.connectToDaemonRpc({
-      uri: "http://localhost:38081",
+      uri: "http://localhost:28081",
       username: "superuser",
       password: "abctesting123",
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
@@ -22,7 +22,7 @@ describe("Scratchpad", function() {
     
     // initialize wallet rpc client
     let walletRpc = await monerojs.connectToWalletRpc({
-      uri: "http://localhost:38084",
+      uri: "http://localhost:28084",
       username: "rpc_user",
       password: "abc123",
       rejectUnauthorized: false
@@ -34,11 +34,9 @@ describe("Scratchpad", function() {
     let walletFull = await monerojs.createWalletFull({
       //path: "./test_wallets/" + GenUtils.getUUID(), // in-memory wallet if not given
       password: "abctesting123",
-      networkType: "stagenet",
-      serverUri: "http://localhost:38081",
-      serverUsername: "superuser",
-      serverPassword: "abctesting123",
-      mnemonic: "hijack lucky rally sober hockey robot gumball amaze gave fifteen organs gecko skater wizard demonstrate upright system vegan tobacco tsunami lurk withdrawn tomorrow uphill organs",
+      networkType: "testnet",
+      serverUri: "http://localhost:28081",
+      mnemonic: "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying",
       restoreHeight: 0,
       proxyToWorker: TestUtils.PROXY_TO_WORKER,
       rejectUnauthorized: false
