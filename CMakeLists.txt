@@ -11,14 +11,14 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -F/Library/Frameworks -
 project(MoneroCppLibrary)
 
 set(BUILD_LIBRARY ON)
-set(BUILD_SAMPLE ON)
-set(BUILD_SCRATCHPAD ON)
+option(BUILD_SAMPLE "Build sample" ON)
+option(BUILD_SCRATCHPAD "Build scratchpad" ON)
 
 ###################
 # monero-project
 ###################
 
-set(MONERO_PROJECT "${CMAKE_SOURCE_DIR}/external/monero-project")
+set(MONERO_PROJECT "${CMAKE_SOURCE_DIR}/external/monero-project" CACHE STRING "Monero project source directory")
 set(MONERO_PROJECT_SRC "${MONERO_PROJECT}/src")
 
 # header includes
@@ -146,8 +146,10 @@ include_directories(${HIDAPI_INCLUDE_DIR})
 # Monero
 #############
 
-set(MONERO_PROJECT_BUILD "${MONERO_PROJECT}/build/release")
+set(MONERO_PROJECT_BUILD "${MONERO_PROJECT}/build/release" CACHE STRING "Monero project build directory")
 message(STATUS "Using monero-project build" : ${MONERO_PROJECT_BUILD})
+
+list(APPEND CMAKE_MODULE_PATH "${MONERO_PROJECT}/cmake")
 
 add_library(wallet_merged STATIC IMPORTED)
 set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
@@ -168,10 +170,18 @@ set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/contrib/epee/src/libepee.a)
-    
-add_library(unbound STATIC IMPORTED)
-set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-    ${MONERO_PROJECT_BUILD}/external/unbound/libunbound.a)
+
+find_package(Unbound)
+if ("${UNBOUND_LIBRARIES}" MATCHES "libunbound.so")
+  message(STATUS "Using libunbound: ${UNBOUND_LIBRARIES}")
+  add_library(unbound SHARED IMPORTED)
+  set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
+      ${UNBOUND_LIBRARIES})
+else()
+  add_library(unbound STATIC IMPORTED)
+  set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
+      ${MONERO_PROJECT_BUILD}/external/unbound/libunbound.a)
+endif()
     
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
@@ -295,6 +305,22 @@ if (BUILD_LIBRARY)
         ${HIDAPI_LIBRARIES}
         ${EXTRA_LIBRARIES}
     )
+
+     INSTALL(FILES src/daemon/monero_daemon.h
+                   src/daemon/monero_daemon_model.h
+             DESTINATION include/daemon)
+     INSTALL(FILES src/utils/gen_utils.h
+                   src/utils/monero_utils.h
+             DESTINATION include/utils)
+     INSTALL(FILES src/wallet/monero_wallet_full.h
+                   src/wallet/monero_wallet.h
+                   src/wallet/monero_wallet_keys.h
+                   src/wallet/monero_wallet_model.h
+             DESTINATION include/wallet)
+     INSTALL(TARGETS monero-cpp
+             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
+             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Runtime
+             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development)
 endif()
 
 ########################
@@ -333,7 +359,8 @@ if (BUILD_SAMPLE)
         multisig
         version
         randomx
-        
+        dl
+
         ${Boost_LIBRARIES}
         ${Protobuf_LIBRARY}
         ${LibUSB_LIBRARIES}
@@ -380,6 +407,7 @@ if (BUILD_SCRATCHPAD)
         multisig
         version
         randomx
+        dl
         
         ${Boost_LIBRARIES}
         ${Protobuf_LIBRARY}
