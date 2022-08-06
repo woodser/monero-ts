@@ -624,6 +624,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // update sync period for poller
     this.syncPeriodInMs = syncPeriodInSeconds * 1000;
+    if (this.walletPoller !== undefined) this.walletPoller.setPeriodInMs(syncPeriodInMs);
     
     // poll if listening
     await this._poll();
@@ -1840,15 +1841,15 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   _refreshListening() {
-    if (this.pollListener == undefined && this.listeners.length) this.pollListener = new WalletPoller(this);
-    if (this.pollListener !== undefined) this.pollListener.setIsPolling(this.listeners.length > 0);
+    if (this.walletPoller == undefined && this.listeners.length) this.walletPoller = new WalletPoller(this);
+    if (this.walletPoller !== undefined) this.walletPoller.setIsPolling(this.listeners.length > 0);
   }
   
   /**
    * Poll if listening.
    */
   async _poll() {
-    if (this.pollListener !== undefined && this.pollListener._isPolling) await this.pollListener.poll();
+    if (this.walletPoller !== undefined && this.walletPoller._isPolling) await this.walletPoller.poll();
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
@@ -2413,6 +2414,10 @@ class WalletPoller {
     this._isPolling = isPolling;
     if (isPolling) this._looper.start(this._wallet.syncPeriodInMs);
     else this._looper.stop();
+  }
+  
+  setPeriodInMs(periodInMs) {
+    this._looper.setPeriodInMs(periodInMs);
   }
   
   async poll() {

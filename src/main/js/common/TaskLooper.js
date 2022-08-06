@@ -18,9 +18,12 @@ class TaskLooper {
    * @param {int} periodInMs the loop period in milliseconds
    */
   start(periodInMs) {
+    this.periodInMs = periodInMs;
     if (this.isStarted) return;
     this.isStarted = true;
-    this._runLoop(periodInMs);
+    
+    // start looping
+    this._runLoop();
   }
   
   /**
@@ -30,12 +33,23 @@ class TaskLooper {
     this.isStarted = false;
   }
   
-  async _runLoop(periodInMs) {
+  /**
+   * Set the loop period in milliseconds.
+   * 
+   * @param {int} periodInMs the loop period in milliseconds
+   */
+  setPeriodInMs(periodInMs) {
+    this.periodInMs = periodInMs;
+  }
+  
+  async _runLoop() {
+    if (this.isLooping) return;
     this.isLooping = true;
+    let that = this;
     while (this.isStarted) {
       let startTime = Date.now();
       await this.fn();
-      if (this.isStarted) await new Promise(function(resolve) { setTimeout(resolve, periodInMs - (Date.now() - startTime)); });
+      if (this.isStarted) await new Promise(function(resolve) { setTimeout(resolve, that.periodInMs - (Date.now() - startTime)); });
     }
     this.isLooping = false;
   }
