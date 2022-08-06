@@ -253,7 +253,7 @@ TestUtils.NETWORK_TYPE = MoneroNetworkType.TESTNET;
 // default keypair to test
 TestUtils.MNEMONIC = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
 TestUtils.ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-TestUtils.FIRST_RECEIVE_HEIGHT = 15000; // NOTE: this value must be the height of the wallet's first tx for tests
+TestUtils.FIRST_RECEIVE_HEIGHT = 324; // NOTE: this value must be the height of the wallet's first tx for tests
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {

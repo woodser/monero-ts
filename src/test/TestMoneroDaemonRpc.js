@@ -1120,8 +1120,8 @@ class TestMoneroDaemonRpc {
       it("Can submit txs in hex format to the pool then relay", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         let txs = [];
-        txs.push(await getUnrelayedTx(that.wallet, 2));
-        txs.push(await getUnrelayedTx(that.wallet, 3));  // TODO: accounts cannot be re-used across send tests else isRelayed is true; wallet needs to update?
+        txs.push(await getUnrelayedTx(that.wallet, 1));
+        txs.push(await getUnrelayedTx(that.wallet, 2)); // TODO: accounts cannot be re-used across send tests else isRelayed is true; wallet needs to update?
         await testSubmitThenRelay(txs);
       });
       
@@ -1161,8 +1161,8 @@ class TestMoneroDaemonRpc {
         }
         
         // ensure txs are relayed
+        let poolTxs = await that.daemon.getTxPool();
         for (let tx of txs) {
-          let poolTxs = await that.daemon.getTxPool();
           let found = false;
           for (let aTx of poolTxs) {
             if (aTx.getHash() === tx.getHash()) {
@@ -1349,7 +1349,8 @@ function testTx(tx, ctx) {
     assert.equal(tx.inTxPool(), false);
     assert.equal(tx.getRelay(), true);
     assert.equal(tx.isDoubleSpendSeen(), false);
-    assert.equal(tx.getNumConfirmations(), undefined); // client must compute
+    if (ctx.fromBinaryBlock) assert.equal(tx.getNumConfirmations(), undefined);
+    else assert(tx.getNumConfirmations() > 0);
   } else {
     assert.equal(tx.getBlock(), undefined);
     assert.equal(tx.getNumConfirmations(), 0);

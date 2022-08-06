@@ -310,6 +310,15 @@ class MoneroDaemonInfo {
     this.state.isSynchronized = isSynchronized;
     return this;
   }
+  
+  isRestricted() {
+    return this.state.isRestricted;
+  }
+  
+  setIsRestricted(isRestricted) {
+    this.state.isRestricted = isRestricted;
+    return this;
+  }
 }
 
 module.exports = MoneroDaemonInfo;

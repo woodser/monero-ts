@@ -5,7 +5,7 @@ project(monero-javascript-wasm)
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 set(BUILD_MONERO_WALLET_FULL_WASM ON)
@@ -188,18 +188,24 @@ set(
     ${MONERO_PROJECT}/contrib/epee/src/memwipe.c
     ${MONERO_PROJECT}/contrib/epee/src/mlocker.cpp
     ${MONERO_PROJECT}/contrib/epee/src/wipeable_string.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/portable_storage.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/net_parse_helpers.cpp
+    ${MONERO_PROJECT}/contrib/epee/src/parserse_base_utils.cpp
     ${MONERO_PROJECT_SRC}/common/base58.cpp
     ${MONERO_PROJECT_SRC}/device/device.cpp
     ${MONERO_PROJECT_SRC}/device/device_default.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig_account.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig_account_kex_impl.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig_clsag_context.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig_kex_msg.cpp
+    ${MONERO_PROJECT_SRC}/multisig/multisig_tx_builder_ringct.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctOps.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctTypes.cpp
     ${MONERO_PROJECT_SRC}/ringct/rctCryptoOps.c
     ${MONERO_PROJECT_SRC}/ringct/rctSigs.cpp
     ${MONERO_PROJECT_SRC}/ringct/bulletproofs.cc
+    ${MONERO_PROJECT_SRC}/ringct/bulletproofs_plus.cc
     ${MONERO_PROJECT_SRC}/ringct/multiexp.cc
     ${MONERO_PROJECT_SRC}/mnemonics/electrum-words.cpp
     ${MONERO_PROJECT}/external/easylogging++/easylogging++.cc

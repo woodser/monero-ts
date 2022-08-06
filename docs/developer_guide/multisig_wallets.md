@@ -2,7 +2,7 @@
 
 The following is an example of creating multisig wallets.
 
-For a full example of creating and sending funds from multisig wallets, see [this test](https://github.com/monero-ecosystem/monero-javascript/blob/80d89aae145d675c61d2a7f4c4769a749b5984f7/src/test/TestMoneroWalletCommon.js#L3549).
+For a full example of creating and sending funds from multisig wallets, see "Supports multisig sample code" in [TestMoneroWalletCommon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/test/TestMoneroWalletCommon.js).
 
 ```javascript
 // create multisig wallets which require 3 out of 5 participants to send funds
@@ -27,33 +27,31 @@ for (let wallet of wallets) preparedMultisigHexes.push(await wallet.prepareMulti
 // make each wallet multsig and collect results
 let madeMultisigHexes = [];
 for (let i = 0; i < wallets.length; i++) {
-  
+
   // collect prepared multisig hexes from wallet's peers
   let peerMultisigHexes = [];
   for (let j = 0; j < wallets.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
 
   // make wallet multisig and collect result hex
-  let result = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
-  madeMultisigHexes.push(result.getMultisigHex());
+  let multisigHex = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
+  madeMultisigHexes.push(multisigHex);
 }
 
-// if wallet is not N/N, exchange multisig keys N-M times
-if (M !== N) {
-  let multisigHexes = madeMultisigHexes;
-  for (let i = 0; i < N - M; i++) {
-    
-    // exchange multisig keys among participants and collect results for next round if applicable
-    let resultMultisigHexes = [];
-    for (let wallet of wallets) {
-      
-      // import the multisig hex of other participants and collect results
-      let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
-      resultMultisigHexes.push(result.getMultisigHex());
-    }
-    
-    // use resulting multisig hex for next round of exchange if applicable
-    multisigHexes = resultMultisigHexes;
+// exchange multisig keys N - M + 1 times
+let multisigHexes = madeMultisigHexes;
+for (let i = 0; i < N - M + 1; i++) {
+
+  // exchange multisig keys among participants and collect results for next round if applicable
+  let resultMultisigHexes = [];
+  for (let wallet of wallets) {
+
+    // import the multisig hex of other participants and collect results
+    let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
+    resultMultisigHexes.push(result.getMultisigHex());
   }
+
+  // use resulting multisig hex for next round of exchange if applicable
+  multisigHexes = resultMultisigHexes;
 }
 
 // wallets are now multisig

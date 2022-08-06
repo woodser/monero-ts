@@ -903,8 +903,8 @@ self.setAccountTagLabel = async function(walletId, tag, label) {
   throw new Error("Not implemented");
 }
 
-self.createPaymentUri = async function(walletId, configJson) {
-  return self.WORKER_OBJECTS[walletId].createPaymentUri(new MoneroTxConfig(configJson));
+self.getPaymentUri = async function(walletId, configJson) {
+  return self.WORKER_OBJECTS[walletId].getPaymentUri(new MoneroTxConfig(configJson));
 }
 
 self.parsePaymentUri = async function(walletId, uri) {
@@ -944,7 +944,7 @@ self.prepareMultisig = async function(walletId) {
 }
 
 self.makeMultisig = async function(walletId, multisigHexes, threshold, password) {
-  return (await self.WORKER_OBJECTS[walletId].makeMultisig(multisigHexes, threshold, password)).toJson();
+  return await self.WORKER_OBJECTS[walletId].makeMultisig(multisigHexes, threshold, password);
 }
 
 self.exchangeMultisigKeys = async function(walletId, multisigHexes, password) {

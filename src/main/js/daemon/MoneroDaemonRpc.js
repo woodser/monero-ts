@@ -234,7 +234,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async isConnected() {
     try {
-      await this.getHeight();
+      await this.getVersion();
       return true;
     } catch (e) {
       return false;
@@ -995,6 +995,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       }
       else if (key === "last_relayed_time") GenUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
       else if (key === "receive_time" || key === "received_timestamp") GenUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
+      else if (key === "confirmations") GenUtils.safeSet(tx, tx.getNumConfirmations, tx.setNumConfirmations, val); 
       else if (key === "in_pool") {
         GenUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
         GenUtils.safeSet(tx, tx.inTxPool, tx.setInTxPool, val);
@@ -1090,7 +1091,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
         GenUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
       }
       else if (key === "amount") GenUtils.safeSet(output, output.getAmount, output.setAmount, BigInteger.parse(val));
-      else if (key === "target") GenUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, val.key);
+      else if (key === "target") {
+        let pubKey = val.key === undefined ? val.tagged_key.key : val.key; // TODO (monerod): rpc json uses {tagged_key={key=...}}, binary blocks use {key=...}
+        GenUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, pubKey);
+      }
       else console.log("WARNING: ignoring unexpected field output: " + key + ": " + val);
     }
     return output;
@@ -1168,6 +1172,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
       else if (key === "busy_syncing") info.setIsBusySyncing(val);
       else if (key === "synchronized") info.setIsSynchronized(val);
+      else if (key === "restricted") info.setIsRestricted(val);
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;

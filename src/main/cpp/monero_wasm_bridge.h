@@ -31,7 +31,7 @@ namespace monero_wasm_bridge
 
   // ------------------------- STATIC WALLET UTILS ----------------------------
 
-  void open_full_wallet(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback);
+  void open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback);
   void create_full_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, const string& language, emscripten::val callback);
   void create_full_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& seed_offset, emscripten::val callback);
   void create_full_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& language, emscripten::val callback);
@@ -129,7 +129,7 @@ namespace monero_wasm_bridge
   void untag_accounts(int handle, const string& args);
   string get_account_tags(int handle);
   void set_account_tag_label(int handle, const string& tag, const string& label);
-  string create_payment_uri(int handle, const string& config_json);
+  string get_payment_uri(int handle, const string& config_json);
   string parse_payment_uri(int handle, const string& uri);
   string get_attribute(int handle, const string& key);
   void set_attribute(int handle, const string& key, const string& val);

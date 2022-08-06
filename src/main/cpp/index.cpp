@@ -18,7 +18,7 @@ EMSCRIPTEN_BINDINGS(module)
 
   // --------------------------- WALLET CREATION ------------------------------
 
-  emscripten::function("open_full_wallet", &monero_wasm_bridge::open_full_wallet);
+  emscripten::function("open_wallet_full", &monero_wasm_bridge::open_wallet_full);
   emscripten::function("create_full_wallet_random", &monero_wasm_bridge::create_full_wallet_random);
   emscripten::function("create_full_wallet_from_mnemonic", &monero_wasm_bridge::create_full_wallet_from_mnemonic);
   emscripten::function("create_full_wallet_from_keys", &monero_wasm_bridge::create_full_wallet_from_keys);
@@ -111,7 +111,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("untag_accounts", &monero_wasm_bridge::untag_accounts);
   emscripten::function("get_account_tags", &monero_wasm_bridge::get_account_tags);
   emscripten::function("set_account_tag_label", &monero_wasm_bridge::set_account_tag_label);
-  emscripten::function("create_payment_uri", &monero_wasm_bridge::create_payment_uri);
+  emscripten::function("get_payment_uri", &monero_wasm_bridge::get_payment_uri);
   emscripten::function("parse_payment_uri", &monero_wasm_bridge::parse_payment_uri);
   emscripten::function("get_attribute", &monero_wasm_bridge::get_attribute);
   emscripten::function("set_attribute", &monero_wasm_bridge::set_attribute);

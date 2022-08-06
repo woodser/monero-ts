@@ -156,7 +156,7 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 
 // -------------------------- STATIC WALLET UTILS -----------------------------
 
-void monero_wasm_bridge::open_full_wallet(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback) {
+void monero_wasm_bridge::open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback) {
 #if defined BUILD_WALLET_FULL
   try {
     monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
@@ -1095,10 +1095,10 @@ void monero_wasm_bridge::set_account_tag_label(int handle, const string& tag, co
   throw runtime_error("Not implemented");
 }
 
-string monero_wasm_bridge::create_payment_uri(int handle, const string& config_json) {
+string monero_wasm_bridge::get_payment_uri(int handle, const string& config_json) {
   monero_wallet* wallet = (monero_wallet*) handle;
   shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
-  return wallet->create_payment_uri(*config);
+  return wallet->get_payment_uri(*config);
 }
 
 string monero_wasm_bridge::parse_payment_uri(int handle, const string& uri) {
@@ -1151,7 +1151,7 @@ string monero_wasm_bridge::make_multisig(int handle, const string& args) {
   string password = node.get_child("password").get_value<string>();
 
   // make multisig
-  return wallet->make_multisig(multisig_hexes, threshold, password).serialize();
+  return wallet->make_multisig(multisig_hexes, threshold, password);
 }
 
 string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args) {

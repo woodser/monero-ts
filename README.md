@@ -1,9 +1,9 @@
 # Monero JavaScript Library
 
-A Node.js library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.17.3.2 'Oxygen Orion'](https://github.com/monero-project/monero/tree/v0.17.3.2).
+A JavaScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.0.0 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.0.0).
 
+* Supports browser and Node.js applications using WebAssembly.
 * Supports wallet and daemon RPC clients.
-* Supports client-side wallets in Node.js or the browser using WebAssembly.
 * Supports multisig, view-only, and offline wallets.
 * Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
@@ -28,7 +28,7 @@ A Node.js library for creating Monero applications using RPC and WebAssembly bin
 
 <p align="center">
 	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
-	<i>Build Node.js or browser applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
+	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
 </p>
 
 ## Sample code
@@ -122,7 +122,7 @@ await walletFull.close(true);
 ## Using monero-javascript in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.7.1`
+2. `npm install monero-javascript@0.7.2`
 3. Add `require("monero-javascript")` to your application code.
 4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
@@ -155,7 +155,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 	2. Start monero-daemon-rpc, e.g.: `./monerod --testnet` (or use a remote daemon).
-	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:28081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./`
+	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./`
 4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.js](src/test/utils/TestUtils.js) (e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`).
 
 #### Running tests in Node.js

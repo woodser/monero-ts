@@ -1070,7 +1070,7 @@ class MoneroWallet {
    * @param {MoneroTxConfig} config - specifies configuration for a potential tx
    * @return {string} the payment uri
    */
-  async createPaymentUri(config) {
+  async getPaymentUri(config) {
     throw new MoneroError("Not supported");
   }
   
@@ -1165,7 +1165,7 @@ class MoneroWallet {
    * @param {String[]} multisigHexes - multisig hex from each participant
    * @param {int} threshold - number of signatures needed to sign transfers
    * @param {string} password - wallet password
-   * @return {MoneroMultisigInitResult} the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
+   * @return {string} this wallet's multisig hex to share with participants
    */
   async makeMultisig(multisigHexes, threshold, password) {
     throw new MoneroError("Not supported");

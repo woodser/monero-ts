@@ -877,27 +877,25 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           for (let j = 0; j < wallets.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
         
           // make wallet multisig and collect result hex
-          let result = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
-          madeMultisigHexes.push(result.getMultisigHex());
+          let multisigHex = await wallets[i].makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
+          madeMultisigHexes.push(multisigHex);
         }
         
-        // if wallet is not N/N, exchange multisig keys N-M times
-        if (M !== N) {
-          let multisigHexes = madeMultisigHexes;
-          for (let i = 0; i < N - M; i++) {
+        // exchange multisig keys N - M + 1 times
+        let multisigHexes = madeMultisigHexes;
+        for (let i = 0; i < N - M + 1; i++) {
+          
+          // exchange multisig keys among participants and collect results for next round if applicable
+          let resultMultisigHexes = [];
+          for (let wallet of wallets) {
             
-            // exchange multisig keys among participants and collect results for next round if applicable
-            let resultMultisigHexes = [];
-            for (let wallet of wallets) {
-              
-              // import the multisig hex of other participants and collect results
-              let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
-              resultMultisigHexes.push(result.getMultisigHex());
-            }
-            
-            // use resulting multisig hex for next round of exchange if applicable
-            multisigHexes = resultMultisigHexes;
+            // import the multisig hex of other participants and collect results
+            let result = await wallet.exchangeMultisigKeys(multisigHexes, TestUtils.WALLET_PASSWORD);
+            resultMultisigHexes.push(result.getMultisigHex());
           }
+          
+          // use resulting multisig hex for next round of exchange if applicable
+          multisigHexes = resultMultisigHexes;
         }
         
         // wallets are now multisig
@@ -922,10 +920,10 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // wallet does not exist
         assert(!(await MoneroWalletFull.walletExists(path, TestUtils.getDefaultFs())));
         
-        // cannot open non-existant wallet
+        // cannot open non-existent wallet
         try {
           await that.openWallet({path: path, serverUri: ""});
-          throw new Error("Cannot open non-existant wallet");
+          throw new Error("Cannot open non-existent wallet");
         } catch (e) {
           assert.equal(e.message, "Wallet does not exist at path: " + path);
         }

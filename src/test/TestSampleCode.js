@@ -322,16 +322,14 @@ class TestSampleCode {
         let wallet = await monerojs.createWalletFull({
           password: "abctesting123",
           networkType: "testnet",
-          serverUri: "http://localhost:28081",
-          serverUsername: "superuser",
-          serverPassword: "abctesting123"
+          serverUri: "http://localhost:28081"
         });
         
         try {
           // create a transaction to send funds to an address, but do not relay
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             amount: "1000000000000" // send 1 XMR (denominated in atomic units)
           });
           
@@ -348,7 +346,7 @@ class TestSampleCode {
           // send funds to a single destination
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             amount: "1000000000000", // send 1 XMR (denominated in atomic units)
             relay: true // relay the transaction to the network
           });
@@ -363,10 +361,10 @@ class TestSampleCode {
             accountIndex: 0,    // source account to send funds from
             subaddressIndex: 1, // source subaddress to send funds from
             destinations: [{
-                address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+                address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
                 amount: "500000000000", // send 0.5 XMR (denominated in atomic units)
               }, {
-                address: "52f7hei1UMrbvYUNtDMKZJMQjcfVyufYnezER8wVK271VmGbzE2kN7cMMG6qFjrb6Ub6qPkNt815a98kJmo874qG9GYZKD5",
+                address: "9y3bAgpF9iajSsNa7t4FN7Zh73MadCL4oMDTcD8SGzbxBGnkYhGyC67AD4pVkvaYw1XL97uwDYuFGf9hi1KEVgZpQtPWcZm",
                 amount: "500000000000", // send 0.5 XMR (denominated in atomic units)
               }],
             priority: monerojs.MoneroTxPriority.IMPORTANT,
@@ -379,7 +377,7 @@ class TestSampleCode {
         try {
           // sweep an output
           let tx = await wallet.sweepOutput({
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             keyImage: "b7afd6afbb1615c98b1c0350b81c98a77d6d4fc0ab92020d25fd76aca0914f1e",
             relay: true
           });
@@ -390,7 +388,7 @@ class TestSampleCode {
         try {
           // sweep all unlocked funds in a wallet
           let txs = await wallet.sweepUnlocked({
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             relay: true
           });
         } catch (err) {
@@ -401,7 +399,7 @@ class TestSampleCode {
           // sweep unlocked funds in an account
           let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             relay: true
           });
         } catch (err) {
@@ -413,7 +411,7 @@ class TestSampleCode {
           let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
             subaddressIndex: 0,
-            address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
+            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
             relay: true
           });
         } catch (err) {

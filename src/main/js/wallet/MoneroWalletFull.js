@@ -1456,13 +1456,13 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async createPaymentUri(config) {
+  async getPaymentUri(config) {
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return that._module.create_payment_uri(that._cppAddress, JSON.stringify(config.toJson()));
+        return that._module.get_payment_uri(that._cppAddress, JSON.stringify(config.toJson()));
       } catch (err) {
         throw new MoneroError("Cannot make URI from supplied parameters");
       }
@@ -1551,7 +1551,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroMultisigInitResult(JSON.parse(that._module.make_multisig(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, threshold: threshold, password: password}))));
+      return that._module.make_multisig(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, threshold: threshold, password: password}));
     });
   }
   
@@ -1742,7 +1742,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
         };
         
         // create wallet in wasm and invoke callback when done
-        module.open_full_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, callbackFn);
+        module.open_wallet_full(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, callbackFn);
       });
     });
   }
@@ -2430,9 +2430,9 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return this._invokeWorker("setAccountTagLabel", Array.from(arguments));
   }
   
-  async createPaymentUri(config) {
+  async getPaymentUri(config) {
     config = MoneroWallet._normalizeCreateTxsConfig(config);
-    return this._invokeWorker("createPaymentUri", [config.toJson()]);
+    return this._invokeWorker("getPaymentUri", [config.toJson()]);
   }
   
   async parsePaymentUri(uri) {
@@ -2472,7 +2472,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   async makeMultisig(multisigHexes, threshold, password) {
-    return new MoneroMultisigInitResult(await this._invokeWorker("makeMultisig", Array.from(arguments)));
+    return await this._invokeWorker("makeMultisig", Array.from(arguments));
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {

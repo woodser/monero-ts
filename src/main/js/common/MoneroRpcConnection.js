@@ -74,6 +74,8 @@ class MoneroRpcConnection {
   }
   
   setCredentials(username, password) {
+    if (username === "") username = undefined;
+    if (password === "") password = undefined;
     if (username || password) {
       if (!username) throw new MoneroError("username must be defined because password is defined");
       if (!password) throw new MoneroError("password must be defined because username is defined");
