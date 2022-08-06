@@ -57,6 +57,7 @@
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
 #include "string_tools.h"
+#include "byte_stream.h"
 
 using namespace cryptonote;
 using namespace monero_utils;
@@ -141,7 +142,9 @@ void monero_utils::validate_private_spend_key(const std::string& private_spend_k
 void monero_utils::json_to_binary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
   ps.load_from_json(json);
-  ps.store_to_binary(bin);
+  epee::byte_stream bs;
+  ps.store_to_binary(bs);
+  bin = std::string((char*) bs.data(), bs.size());
 }
 
 void monero_utils::binary_to_json(const std::string &bin, std::string &json) {
@@ -347,7 +350,7 @@ std::shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transacti
     output->m_tx = tx;
     tx->m_outputs.push_back(output);
     output->m_amount = cnVout.amount;
-    const crypto::public_key& cnStealthPublicKey = boost::get<txout_to_key>(cnVout.target).key;
+    const crypto::public_key& cnStealthPublicKey = boost::get<txout_to_tagged_key>(cnVout.target).key;
     output->m_stealth_public_key = epee::string_tools::pod_to_hex(cnStealthPublicKey);
   }
 

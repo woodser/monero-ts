@@ -1160,8 +1160,8 @@ namespace monero {
      * @param config specifies configuration for a potential tx
      * @return is the payment uri
      */
-    virtual std::string create_payment_uri(const monero_tx_config& config) const {
-      throw std::runtime_error("create_payment_uri() not supported");
+    virtual std::string get_payment_uri(const monero_tx_config& config) const {
+      throw std::runtime_error("get_payment_uri() not supported");
     }
 
     /**
@@ -1265,9 +1265,9 @@ namespace monero {
      * @param multisig_hexes are multisig hex from each participant
      * @param threshold is the number of signatures needed to sign transfers
      * @password is the wallet password
-     * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
+     * @return this wallet's multisig hex to share with participants
      */
-    virtual monero_multisig_init_result make_multisig(const std::vector<std::string>& multisig_hexes, int threshold, const std::string& password) {
+    virtual std::string make_multisig(const std::vector<std::string>& multisig_hexes, int threshold, const std::string& password) {
       throw std::runtime_error("make_multisig() not supported");
     }
 
@@ -1280,7 +1280,7 @@ namespace monero {
      * @param password is the wallet's password // TODO monero-project: redundant? wallet is created with password
      * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
      */
-    virtual  monero_multisig_init_result exchange_multisig_keys(const std::vector<std::string>& mutisig_hexes, const std::string& password) {
+    virtual monero_multisig_init_result exchange_multisig_keys(const std::vector<std::string>& mutisig_hexes, const std::string& password) {
       throw std::runtime_error("exchange_multisig_keys() not supported");
     }
 

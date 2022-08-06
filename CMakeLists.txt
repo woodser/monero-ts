@@ -11,8 +11,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -F/Library/Frameworks -
 project(MoneroCppLibrary)
 
 set(BUILD_LIBRARY ON)
-option(BUILD_SAMPLE "Build sample" ON)
-option(BUILD_SCRATCHPAD "Build scratchpad" ON)
+set(BUILD_SAMPLE ON)
+set(BUILD_SCRATCHPAD ON)
 
 ###################
 # monero-project
@@ -137,7 +137,6 @@ if (APPLE AND NOT IOS)
 endif()
 
 find_package(HIDAPI REQUIRED)
-
 message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
 add_definitions(-DHAVE_HIDAPI)
 include_directories(${HIDAPI_INCLUDE_DIR})
@@ -151,10 +150,6 @@ message(STATUS "Using monero-project build" : ${MONERO_PROJECT_BUILD})
 
 list(APPEND CMAKE_MODULE_PATH "${MONERO_PROJECT}/cmake")
 
-add_library(wallet_merged STATIC IMPORTED)
-set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
-    ${MONERO_PROJECT_BUILD}/lib/libwallet_merged.a)
-    
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/lib/libwallet.a)
@@ -172,16 +167,24 @@ set_target_properties(epee PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/contrib/epee/src/libepee.a)
 
 find_package(Unbound)
-if ("${UNBOUND_LIBRARIES}" MATCHES "libunbound.so")
+if ("${UNBOUND_LIBRARIES}" MATCHES "libunbound")
   message(STATUS "Using libunbound: ${UNBOUND_LIBRARIES}")
   add_library(unbound SHARED IMPORTED)
   set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
       ${UNBOUND_LIBRARIES})
-else()
-  add_library(unbound STATIC IMPORTED)
-  set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-      ${MONERO_PROJECT_BUILD}/external/unbound/libunbound.a)
 endif()
+
+add_library(rpc_base STATIC IMPORTED)
+set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
+    ${MONERO_PROJECT_BUILD}/src/rpc/librpc_base.a)
+    
+add_library(net STATIC IMPORTED)
+set_target_properties(net PROPERTIES IMPORTED_LOCATION
+    ${MONERO_PROJECT_BUILD}/src/net/libnet.a)
+    
+add_library(hardforks STATIC IMPORTED)
+set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
+    ${MONERO_PROJECT_BUILD}/src/hardforks/libhardforks.a)
     
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
@@ -270,11 +273,11 @@ if (BUILD_LIBRARY)
     add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
     
     target_link_libraries(monero-cpp
-        
-        wallet_merged
-        wallet_crypto
-        #wallet_api
         wallet
+        wallet_crypto
+        rpc_base
+        net
+        hardforks
         lmdb
         epee
         unbound
@@ -333,11 +336,11 @@ if (BUILD_SAMPLE)
     add_executable(sample_code ${LIBRARY_SRC_FILES} ${SAMPLE_CODE_SRC_FILES})
     
     target_link_libraries(sample_code
-    
-        wallet_merged
-        wallet_crypto
-        #wallet_api
         wallet
+        wallet_crypto
+        rpc_base
+        net
+        hardforks
         lmdb
         epee
         unbound
@@ -381,11 +384,11 @@ if (BUILD_SCRATCHPAD)
     add_executable(scratchpad ${LIBRARY_SRC_FILES} ${SCRATCHPAD_SRC_FILES})
     
     target_link_libraries(scratchpad
-    
-        wallet_merged
-        wallet_crypto
-        #wallet_api
         wallet
+        wallet_crypto
+        rpc_base
+        net
+        hardforks
         lmdb
         epee
         unbound

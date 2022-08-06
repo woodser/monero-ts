@@ -258,7 +258,7 @@ namespace monero {
     uint64_t add_address_book_entry(const std::string& address, const std::string& description) override;
     void edit_address_book_entry(uint64_t index, bool set_address, const std::string& address, bool set_description, const std::string& description) override;
     void delete_address_book_entry(uint64_t index) override;
-    std::string create_payment_uri(const monero_tx_config& config) const override;
+    std::string get_payment_uri(const monero_tx_config& config) const override;
     std::shared_ptr<monero_tx_config> parse_payment_uri(const std::string& uri) const override;
     bool get_attribute(const std::string& key, std::string& value) const override;
     void set_attribute(const std::string& key, const std::string& val) override;
@@ -268,7 +268,7 @@ namespace monero {
     bool is_multisig_import_needed() const override;
     monero_multisig_info get_multisig_info() const override;
     std::string prepare_multisig() override;
-    monero_multisig_init_result make_multisig(const std::vector<std::string>& multisig_hexes, int threshold, const std::string& password) override;
+    std::string make_multisig(const std::vector<std::string>& multisig_hexes, int threshold, const std::string& password) override;
     monero_multisig_init_result exchange_multisig_keys(const std::vector<std::string>& mutisig_hexes, const std::string& password) override;
     std::string export_multisig_hex() override;
     int import_multisig_hex(const std::vector<std::string>& multisig_hexes) override;
