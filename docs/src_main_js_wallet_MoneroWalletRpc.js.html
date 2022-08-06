@@ -652,6 +652,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // update sync period for poller
     this.syncPeriodInMs = syncPeriodInSeconds * 1000;
+    if (this.walletPoller !== undefined) this.walletPoller.setPeriodInMs(syncPeriodInMs);
     
     // poll if listening
     await this._poll();
@@ -1055,13 +1056,14 @@ class MoneroWalletRpc extends MoneroWallet {
       throw err;
     }
     
-    // pre-initialize txs iff present.  multisig and view-only wallets will have tx set without transactions
+    // pre-initialize txs iff present. multisig and view-only wallets will have tx set without transactions
     let txs;
     let numTxs = config.getCanSplit() ? (result.fee_list !== undefined ? result.fee_list.length : 0) : (result.fee !== undefined ? 1 : 0);
     if (numTxs > 0) txs = [];
+    let copyDestinations = numTxs === 1;
     for (let i = 0; i &lt; numTxs; i++) {
       let tx = new MoneroTxWallet();
-      MoneroWalletRpc._initSentTxWallet(config, tx);
+      MoneroWalletRpc._initSentTxWallet(config, tx, copyDestinations);
       tx.getOutgoingTransfer().setAccountIndex(accountIdx);
       if (subaddressIndices !== undefined &amp;&amp; subaddressIndices.length === 1) tx.getOutgoingTransfer().setSubaddressIndices(subaddressIndices);
       txs.push(tx);
@@ -1102,10 +1104,10 @@ class MoneroWalletRpc extends MoneroWallet {
     // notify of changes
     if (config.getRelay()) await this._poll();
     
-    // build and return tx response
-    let tx = MoneroWalletRpc._initSentTxWallet(config, null);
-    let txSet = MoneroWalletRpc._convertRpcTxToTxSet(result, tx, true);
-    tx.getOutgoingTransfer().getDestinations()[0].setAmount(tx.getOutgoingTransfer().getAmount());  // initialize destination amount
+    // build and return tx
+    let tx = MoneroWalletRpc._initSentTxWallet(config, null, true);
+    MoneroWalletRpc._convertRpcTxToTxSet(result, tx, true);
+    tx.getOutgoingTransfer().getDestinations()[0].setAmount(tx.getOutgoingTransfer().getAmount()); // initialize destination amount
     return tx;
   }
   
@@ -1431,7 +1433,7 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.rpc.sendJsonRequest("set_account_tag_description", {tag: tag, description: label});
   }
   
-  async createPaymentUri(config) {
+  async getPaymentUri(config) {
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     let resp = await this.rpc.sendJsonRequest("make_uri", {
       address: config.getDestinations()[0].getAddress(),
@@ -1500,7 +1502,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async prepareMultisig() {
-    let resp = await this.rpc.sendJsonRequest("prepare_multisig");
+    let resp = await this.rpc.sendJsonRequest("prepare_multisig", {enable_multisig_experimental: true});
     let result = resp.result;
     return result.multisig_info;
   }
@@ -1511,13 +1513,7 @@ class MoneroWalletRpc extends MoneroWallet {
       threshold: threshold,
       password: password
     });
-    let result = resp.result;
-    let msResult = new MoneroMultisigInitResult();
-    msResult.setAddress(result.address);
-    msResult.setMultisigHex(result.multisig_info);
-    if (msResult.getAddress().length === 0) msResult.setAddress(undefined);
-    if (msResult.getMultisigHex().length === 0) msResult.setMultisigHex(undefined);
-    return msResult;
+    return resp.result.multisig_info;
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {
@@ -1873,15 +1869,15 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   _refreshListening() {
-    if (this.pollListener == undefined &amp;&amp; this.listeners.length) this.pollListener = new WalletPoller(this);
-    if (this.pollListener !== undefined) this.pollListener.setIsPolling(this.listeners.length > 0);
+    if (this.walletPoller == undefined &amp;&amp; this.listeners.length) this.walletPoller = new WalletPoller(this);
+    if (this.walletPoller !== undefined) this.walletPoller.setIsPolling(this.listeners.length > 0);
   }
   
   /**
    * Poll if listening.
    */
   async _poll() {
-    if (this.pollListener !== undefined &amp;&amp; this.pollListener._isPolling) await this.pollListener.poll();
+    if (this.walletPoller !== undefined &amp;&amp; this.walletPoller._isPolling) await this.walletPoller.poll();
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
@@ -1973,9 +1969,10 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * @param {MoneroTxConfig} config - send config
    * @param {MoneroTxWallet} tx - existing transaction to initialize (optional)
+   * @param {boolean} copyDestinations - copies config destinations if true
    * @return {MoneroTxWallet} is the initialized send tx
    */
-  static _initSentTxWallet(config, tx) {
+  static _initSentTxWallet(config, tx, copyDestinations) {
     if (!tx) tx = new MoneroTxWallet();
     let relay = config.getRelay() === true;
     tx.setIsOutgoing(true);
@@ -1990,9 +1987,11 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setRingSize(MoneroUtils.RING_SIZE);
     let transfer = new MoneroOutgoingTransfer().setTx(tx);
     if (config.getSubaddressIndices() &amp;&amp; config.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(config.getSubaddressIndices().slice(0)); // we know src subaddress indices iff config specifies 1
-    let destCopies = [];
-    for (let dest of config.getDestinations()) destCopies.push(dest.copy());
-    transfer.setDestinations(destCopies);
+    if (copyDestinations) {
+      let destCopies = [];
+      for (let dest of config.getDestinations()) destCopies.push(dest.copy());
+      transfer.setDestinations(destCopies);
+    }
     tx.setOutgoingTransfer(transfer);
     tx.setPaymentId(config.getPaymentId());
     if (tx.getUnlockHeight() === undefined) tx.setUnlockHeight(config.getUnlockHeight() === undefined ? 0 : config.getUnlockHeight());
@@ -2258,7 +2257,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
       else if (key === "frozen") output.setIsFrozen(val);
-      //else if (key === "pubkey") output.setStealthPublicKey(val);
+      else if (key === "pubkey") output.setStealthPublicKey(val);
       else if (key === "subaddr_index") {
         output.setAccountIndex(val.major);
         output.setSubaddressIndex(val.minor);
@@ -2284,6 +2283,7 @@ class MoneroWalletRpc extends MoneroWallet {
           txSet.getTxs().push(tx);
         }
       }
+      else if (key === "summary") { } // TODO: support tx set summary fields?
       else console.log("WARNING: ignoring unexpected descdribe transfer field: " + key + ": " + val);
     }
     return txSet;
@@ -2444,6 +2444,10 @@ class WalletPoller {
     else this._looper.stop();
   }
   
+  setPeriodInMs(periodInMs) {
+    this._looper.setPeriodInMs(periodInMs);
+  }
+  
   async poll() {
     
     // skip if next poll is already queued
@@ -2590,7 +2594,7 @@ module.exports = MoneroWalletRpc;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Jun 06 2022 11:45:41 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Aug 06 2022 17:59:10 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

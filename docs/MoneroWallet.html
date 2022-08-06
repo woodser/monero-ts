@@ -1729,165 +1729,6 @@
     
 
     
-    <h4 class="name" id="createPaymentUri"><span class="type-signature">(async) </span>createPaymentUri<span class="signature">(config)</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Creates a payment URI from a send configuration.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="MoneroTxConfig.html">MoneroTxConfig</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">specifies configuration for a potential tx</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWallet.js.html">src/main/js/wallet/MoneroWallet.js</a>, <a href="src_main_js_wallet_MoneroWallet.js.html#line1073">line 1073</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the payment uri
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="createSubaddress"><span class="type-signature">(async) </span>createSubaddress<span class="signature">(accountIdx, label)</span><span class="type-signature"> &rarr; {<a href="MoneroSubaddress.html">MoneroSubaddress</a>}</span></h4>
     
 
@@ -8580,6 +8421,165 @@ filtering is optional and no filtering is applied when not defined.</p>
     
 
     
+    <h4 class="name" id="getPaymentUri"><span class="type-signature">(async) </span>getPaymentUri<span class="signature">(config)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creates a payment URI from a send configuration.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroTxConfig.html">MoneroTxConfig</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">specifies configuration for a potential tx</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWallet.js.html">src/main/js/wallet/MoneroWallet.js</a>, <a href="src_main_js_wallet_MoneroWallet.js.html#line1073">line 1073</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the payment uri
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getPrimaryAddress"><span class="type-signature">(async) </span>getPrimaryAddress<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
@@ -13357,7 +13357,7 @@ spend key and can therefore only observe incoming outputs.
     
 
     
-    <h4 class="name" id="makeMultisig"><span class="type-signature">(async) </span>makeMultisig<span class="signature">(multisigHexes, threshold, password)</span><span class="type-signature"> &rarr; {<a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a>}</span></h4>
+    <h4 class="name" id="makeMultisig"><span class="type-signature">(async) </span>makeMultisig<span class="signature">(multisigHexes, threshold, password)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -13533,7 +13533,7 @@ spend key and can therefore only observe incoming outputs.
 
         
 <div class="param-desc">
-    the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
+    this wallet's multisig hex to share with participants
 </div>
 
 
@@ -13544,7 +13544,7 @@ spend key and can therefore only observe incoming outputs.
     </dt>
     <dd>
         
-<span class="param-type"><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></span>
+<span class="param-type">string</span>
 
 
     </dd>
@@ -18404,7 +18404,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Jun 06 2022 11:45:43 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Aug 06 2022 17:59:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
