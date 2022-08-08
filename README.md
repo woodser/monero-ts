@@ -172,8 +172,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
     1. `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
     2. `cd ./monero-cpp && ./bin/update_submodules.sh`
 3. `export MONERO_CPP=path/to/monero-cpp`
-4. Modify $MONERO_CPP/external/monero-project/CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`
-4. Build monero-project twice to create libwallet_merged.a and other .a libraries, e.g.: `cd $MONERO_CPP/external/monero-project && make release-static -j8 && make release-static -j8`
+4. Build monero-project to create .a libraries, e.g.: `cd $MONERO_CPP/external/monero-project && make release-static -j8`
 5. Link to this library's source files in your application or build as a shared library in ./build/: `cd $MONERO_CPP && ./bin/build_libmonero_cpp.sh`
 
 ## Related projects
