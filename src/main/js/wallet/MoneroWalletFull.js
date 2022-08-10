@@ -1551,7 +1551,13 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.make_multisig(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, threshold: threshold, password: password}));
+      return new Promise(function(resolve, reject) {
+        that._module.make_multisig(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, threshold: threshold, password: password}), (resp) => {
+          let errorKey = "error: ";
+          if (resp.indexOf(errorKey) === 0) reject(new MoneroError(resp.substring(errorKey.length)));
+          else resolve(resp);
+        });
+      });
     });
   }
   
@@ -1559,7 +1565,13 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroMultisigInitResult(JSON.parse(that._module.exchange_multisig_keys(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, password: password}))));
+      return new Promise(function(resolve, reject) {
+        that._module.exchange_multisig_keys(that._cppAddress, JSON.stringify({multisigHexes: multisigHexes, password: password}), (resp) => {
+          let errorKey = "error: ";
+          if (resp.indexOf(errorKey) === 0) reject(new MoneroError(resp.substring(errorKey.length)));
+          else resolve(new MoneroMultisigInitResult(JSON.parse(resp)));
+        });
+      });
     });
   }
   

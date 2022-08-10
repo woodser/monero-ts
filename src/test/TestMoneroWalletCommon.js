@@ -4,6 +4,7 @@ const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
 const Filter = monerojs.Filter; // TODO: don't export filter
 const LibraryUtils = monerojs.LibraryUtils;
+const MoneroError = monerojs.MoneroError;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
 const MoneroWalletRpc = monerojs.MoneroWalletRpc;
 const MoneroWalletKeys = monerojs.MoneroWalletKeys;
@@ -1674,7 +1675,7 @@ class TestMoneroWalletCommon {
         // import outputs hex
         if (outputsHex !== undefined) {
           let numImported = await that.wallet.importOutputs(outputsHex);
-          assert(numImported > 0);
+          assert(numImported >= 0);
         }
       });
       
@@ -4535,6 +4536,15 @@ class TestMoneroWalletCommon {
       let peerMultisigHexes = [];
       for (let j = 0; j < participants.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
 
+      // test bad input
+      try {
+        await participant.makeMultisig(["asd", "dsa"], M, TestUtils.WALLET_PASSWORD);
+        throw new Error("Should have thrown error making wallet multisig with bad input");
+      } catch (err) {
+        if (!(err instanceof MoneroError)) throw err;
+        assert.equal(err.message, "basic_string"); // TODO (monero-project): improve error message https://github.com/monero-project/monero/issues/8493
+      }
+      
       // make the wallet multisig
       let multisigHex = await participant.makeMultisig(peerMultisigHexes, M, TestUtils.WALLET_PASSWORD);
       madeMultisigHexes.push(multisigHex);
@@ -4551,6 +4561,15 @@ class TestMoneroWalletCommon {
       let exchangeMultisigHexes = [];
       for (let j = 0; j < participants.length; j++) {
         let participant = participants[j];
+        
+        // test bad input
+        try {
+          await participant.exchangeMultisigKeys([], TestUtils.WALLET_PASSWORD);
+          throw new Error("Should have thrown error exchanging multisig keys with bad input");
+        } catch (err) {
+          if (!(err instanceof MoneroError)) throw err;
+          assert(err.message.length > 0);
+        }
         
         // collect the multisig hexes of the wallet's peers from last round
         let peerMultisigHexes = [];

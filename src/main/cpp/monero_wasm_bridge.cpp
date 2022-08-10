@@ -1133,46 +1133,53 @@ string monero_wasm_bridge::prepare_multisig(int handle) {
   return wallet->prepare_multisig();
 }
 
-string monero_wasm_bridge::make_multisig(int handle, const string& args) {
+void monero_wasm_bridge::make_multisig(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-  // get multisig hexes from args
-  vector<string> multisig_hexes;
-  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
-  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+    // get multisig hexes from args
+    vector<string> multisig_hexes;
+    boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+    for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
 
-  // get threshold and password from args
-  int threshold = node.get_child("threshold").get_value<int>();
-  string password = node.get_child("password").get_value<string>();
+    // get threshold and password from args
+    int threshold = node.get_child("threshold").get_value<int>();
+    string password = node.get_child("password").get_value<string>();
 
-  // make multisig
-  return wallet->make_multisig(multisig_hexes, threshold, password);
+    // make multisig
+    callback(wallet->make_multisig(multisig_hexes, threshold, password));
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what())); // indicate error with prefix
+  }
 }
 
-string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args) {
-
+void monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-  // get multisig hexes from args
-  vector<string> multisig_hexes;
-  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
-  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+    // get multisig hexes from args
+    vector<string> multisig_hexes;
+    boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+    for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
 
-  // get password from args
-  string password = node.get_child("password").get_value<string>();
+    // get password from args
+    string password = node.get_child("password").get_value<string>();
 
-  // exchange multisig keys
-  return wallet->exchange_multisig_keys(multisig_hexes, password).serialize();
+    // exchange multisig keys
+    callback(wallet->exchange_multisig_keys(multisig_hexes, password).serialize());
+  } catch (exception& e) {
+    callback(string("error: ") + string(e.what())); // indicate error with prefix
+  }
 }
 
 string monero_wasm_bridge::export_multisig_hex(int handle) {

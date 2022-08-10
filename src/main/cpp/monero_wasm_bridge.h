@@ -136,8 +136,8 @@ namespace monero_wasm_bridge
   bool is_multisig_import_needed(int handle);
   string get_multisig_info(int handle);
   string prepare_multisig(int handle);
-  string make_multisig(int handle, const string& args);
-  string exchange_multisig_keys(int handle, const string& args);
+  void make_multisig(int handle, const string& args, emscripten::val callback);
+  void exchange_multisig_keys(int handle, const string& args, emscripten::val callback);
   string export_multisig_hex(int handle);
   void import_multisig_hex(int handle, const string& args, emscripten::val callback);
   void sign_multisig_tx_hex(int handle, const string& multisig_tx_hex, emscripten::val callback);
