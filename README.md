@@ -167,7 +167,7 @@ This project may be compiled as part of another application or built as a shared
 For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
 
 1. Install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) for your system<br>
- Ubuntu: `sudo apt install git libboost-all-dev cmake g++ make libssl-dev libzmq3-dev libhidapi-dev libudev-dev libusb-1.0-0-dev libfox-1.6-dev`
+ Ubuntu: `sudo apt install git libboost-all-dev cmake g++ make libssl-dev libzmq3-dev libhidapi-dev libudev-dev libusb-1.0-0-dev libfox-1.6-dev protobuf-compiler`
 2. If building this library standalone instead of as a submodule in another project, clone the project repository and update its submodules:
     1. `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
     2. `cd ./monero-cpp && ./bin/update_submodules.sh`

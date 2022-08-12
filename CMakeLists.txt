@@ -30,6 +30,7 @@ include_directories("${MONERO_PROJECT}/external/rapidjson/include")
 include_directories("${MONERO_PROJECT_SRC}/")
 include_directories("${MONERO_PROJECT_SRC}/wallet")
 include_directories("${MONERO_PROJECT_SRC}/wallet/api")
+include_directories("${MONERO_PROJECT_SRC}/hardforks")
 include_directories("${MONERO_PROJECT_SRC}/crypto/crypto_ops_builder/include/")
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
@@ -140,7 +141,7 @@ find_package(HIDAPI REQUIRED)
 message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
 add_definitions(-DHAVE_HIDAPI)
 include_directories(${HIDAPI_INCLUDE_DIR})
-    
+
 #############
 # Monero
 #############
@@ -153,20 +154,26 @@ list(APPEND CMAKE_MODULE_PATH "${MONERO_PROJECT}/cmake")
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/lib/libwallet.a)
-    
-add_library(wallet_crypto STATIC IMPORTED)
-set_target_properties(wallet_crypto PROPERTIES IMPORTED_LOCATION
-    ${MONERO_PROJECT_BUILD}/src/crypto/wallet/libwallet-crypto.a)
-    
+
+# libwallet-crypto.a provides x86_64 asm for some wallet functions
+if (EXISTS ${MONERO_PROJECT_BUILD}/src/crypto/wallet/libwallet-crypto.a)
+  add_library(wallet_crypto_lib STATIC IMPORTED)
+  set_target_properties(wallet_crypto_lib PROPERTIES IMPORTED_LOCATION
+      ${MONERO_PROJECT_BUILD}/src/crypto/wallet/libwallet-crypto.a)
+  set(wallet_crypto wallet_crypto_lib)
+endif()
+
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/external/db_drivers/liblmdb/liblmdb.a)
-    
+
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/contrib/epee/src/libepee.a)
 
+# Unbound
 find_package(Unbound)
+include_directories(${UNBOUND_INCLUDE_DIR})
 if ("${UNBOUND_LIBRARIES}" MATCHES "libunbound")
   message(STATUS "Using libunbound: ${UNBOUND_LIBRARIES}")
   add_library(unbound SHARED IMPORTED)
@@ -177,7 +184,7 @@ endif()
 add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/src/rpc/librpc_base.a)
-    
+
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/src/net/libnet.a)
@@ -193,6 +200,10 @@ set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
     ${MONERO_PROJECT_BUILD}/src/cryptonote_core/libcryptonote_core.a)
+
+add_library(cryptonote_protocol STATIC IMPORTED)
+set_target_properties(cryptonote_protocol PROPERTIES IMPORTED_LOCATION
+    ${MONERO_PROJECT_BUILD}/src/cryptonote_protocol/libcryptonote_protocol.a)
 
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
@@ -274,16 +285,13 @@ if (BUILD_LIBRARY)
     
     target_link_libraries(monero-cpp
         wallet
-        wallet_crypto
         rpc_base
         net
-        hardforks
         lmdb
-        epee
         unbound
         easylogging
-        
         cryptonote_core
+        cryptonote_protocol
         cryptonote_basic
         cryptonote_format_utils_basic
         mnemonics
@@ -299,7 +307,12 @@ if (BUILD_LIBRARY)
         multisig
         version
         randomx
+        epee
+        hardforks
+        cncrypto
+        ${wallet_crypto}
         
+        ${UNBOUND_LIBRARIES}
         ${Boost_LIBRARIES}
         ${Protobuf_LIBRARY}
         ${LibUSB_LIBRARIES}
@@ -337,16 +350,12 @@ if (BUILD_SAMPLE)
     
     target_link_libraries(sample_code
         wallet
-        wallet_crypto
         rpc_base
         net
-        hardforks
         lmdb
-        epee
-        unbound
         easylogging
-        
         cryptonote_core
+        cryptonote_protocol
         cryptonote_basic
         cryptonote_format_utils_basic
         mnemonics
@@ -363,7 +372,12 @@ if (BUILD_SAMPLE)
         version
         randomx
         dl
+        epee
+        hardforks
+        cncrypto
+        ${wallet_crypto}
 
+        ${UNBOUND_LIBRARIES}
         ${Boost_LIBRARIES}
         ${Protobuf_LIBRARY}
         ${LibUSB_LIBRARIES}
@@ -385,16 +399,12 @@ if (BUILD_SCRATCHPAD)
     
     target_link_libraries(scratchpad
         wallet
-        wallet_crypto
         rpc_base
         net
-        hardforks
         lmdb
-        epee
-        unbound
         easylogging
-        
         cryptonote_core
+        cryptonote_protocol
         cryptonote_basic
         cryptonote_format_utils_basic
         mnemonics
@@ -411,7 +421,12 @@ if (BUILD_SCRATCHPAD)
         version
         randomx
         dl
+        epee
+        hardforks
+        cncrypto
+        ${wallet_crypto}
         
+        ${UNBOUND_LIBRARIES}
         ${Boost_LIBRARIES}
         ${Protobuf_LIBRARY}
         ${LibUSB_LIBRARIES}
