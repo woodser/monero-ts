@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-A C++ library for creating Monero applications using native bindings to [monero v0.18.0.0 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.0.0).
+A C++ library for creating Monero applications using native bindings to [monero v0.18.1.0 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.1.0).
 
 * Supports fully client-side wallets by wrapping [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 * Supports multisig, view-only, and offline wallets.
@@ -166,14 +166,36 @@ This project may be compiled as part of another application or built as a shared
 
 For example, [monero-java](https://github.com/monero-ecosystem/monero-java) compiles this project to a shared library to support Java JNI bindings, while [monero-javascript](https://github.com/monero-ecosystem/monero-javascript) compiles this project to WebAssembly binaries.
 
-1. Install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) for your system<br>
- Ubuntu: `sudo apt install git libboost-all-dev cmake g++ make libssl-dev libzmq3-dev libhidapi-dev libudev-dev libusb-1.0-0-dev libfox-1.6-dev protobuf-compiler`
-2. If building this library standalone instead of as a submodule in another project, clone the project repository and update its submodules:
+1. If building this library standalone instead of as a submodule in another project, clone the project repository and update its submodules:
     1. `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-cpp.git`
     2. `cd ./monero-cpp && ./bin/update_submodules.sh`
-3. `export MONERO_CPP=path/to/monero-cpp`
-4. Build monero-project to create .a libraries, e.g.: `cd $MONERO_CPP/external/monero-project && make release-static -j8`
-5. Link to this library's source files in your application or build as a shared library in ./build/: `cd $MONERO_CPP && ./bin/build_libmonero_cpp.sh`
+2. `export MONERO_CPP=path/to/monero-cpp`
+3. `cd $MONERO_CPP/external/monero-project`
+4. Install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) for your system. For example, on Ubuntu:<br>
+    1. `sudo apt update && sudo apt install build-essential cmake pkg-config libssl-dev libzmq3-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libpgm-dev qttools5-dev-tools libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev python3 ccache`
+    2. Install expat (dependency of unbound):
+
+        ```
+        wget https://github.com/libexpat/libexpat/releases/download/R_2_4_8/expat-2.4.8.tar.bz2
+        tar -xf expat-2.4.8.tar.bz2
+        rm expat-2.4.8.tar.bz2
+        cd expat-2.4.8
+        ./configure --enable-static --disable-shared
+        make
+        make install
+        ```
+    3. Install unbound:
+    
+        ```
+        wget https://www.nlnetlabs.nl/downloads/unbound/unbound-1.16.1.tar.gz
+        tar -xzf unbound-1.16.1.tar.gz
+        rm unbound-1.16.1.tar.gz
+        cd unbound-1.16.1
+        ./configure --disable-shared --enable-static --without-pyunbound --with-libevent=no --without-pythonmodule --disable-flto --with-pthreads --with-libunbound-only --with-pic
+        make
+        ```
+5. Build monero-project to create .a libraries, e.g.: `make release-static -j8`
+6. Link to this library's source files in your application or build as a shared library in ./build/: `cd $MONERO_CPP && ./bin/build_libmonero_cpp.sh`
 
 ## Related projects
 
