@@ -183,6 +183,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
         ./configure --enable-static --disable-shared
         make
         make install
+        cd ../
         ```
     3. Install unbound:
     
@@ -193,6 +194,7 @@ For example, [monero-java](https://github.com/monero-ecosystem/monero-java) comp
         cd unbound-1.16.1
         ./configure --disable-shared --enable-static --without-pyunbound --with-libevent=no --without-pythonmodule --disable-flto --with-pthreads --with-libunbound-only --with-pic
         make
+        cd ../
         ```
 5. Build monero-project to create .a libraries, e.g.: `make release-static -j8`
 6. Link to this library's source files in your application or build as a shared library in ./build/: `cd $MONERO_CPP && ./bin/build_libmonero_cpp.sh`
