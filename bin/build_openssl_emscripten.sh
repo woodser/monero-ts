@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $(dirname $0)/emsdk_inc.sh
+. $(dirname $0)/download_deps.sh
 [ -f $(dirname $0)/colors.sh ] && . $(dirname $0)/colors.sh
 
 PLATFORM="emscripten"
