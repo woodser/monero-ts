@@ -81,6 +81,22 @@ namespace monero {
 
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
 
+  std::string get_default_daemon_port(const monero_network_type network_type) {
+    if (network_type == monero_network_type::MAINNET) return "18081";
+    else if (network_type == monero_network_type::TESTNET) return "28081";
+    else if (network_type == monero_network_type::STAGENET) return "38081";
+    else throw std::runtime_error("Unhandled network type");
+  }
+
+  std::string get_default_daemon_uri(const monero_network_type network_type) {
+    return std::string("http://localhost:") + get_default_daemon_port(network_type);
+  }
+
+  void init_daemon_connection(monero_wallet_full* wallet, const monero_network_type network_type, const monero_rpc_connection& daemon_connection) {
+    if (daemon_connection.m_uri == boost::none || daemon_connection.m_uri->empty()) wallet->set_daemon_connection(get_default_daemon_uri(network_type));
+    else wallet->set_daemon_connection(daemon_connection);
+  }
+
   struct key_image_list
   {
     std::list<std::string> key_images;
@@ -1058,7 +1074,7 @@ namespace monero {
     else wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, std::move(http_client_factory)));
     wallet->m_w2->load("", password, keys_data, cache_data);
     wallet->m_w2->init("");
-    wallet->set_daemon_connection(daemon_connection);
+    init_daemon_connection(wallet, network_type, daemon_connection);
     wallet->init_common();
     return wallet;
   }
@@ -1069,7 +1085,7 @@ namespace monero {
     monero_wallet_full* wallet = new monero_wallet_full();
     if (http_client_factory == nullptr) wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, std::move(http_client_factory)));
-    wallet->set_daemon_connection(daemon_connection);
+    init_daemon_connection(wallet, network_type, daemon_connection);
     wallet->m_w2->set_seed_language(language);
     crypto::secret_key secret_key;
     wallet->m_w2->generate(path, password, secret_key, false, false);
@@ -1095,7 +1111,7 @@ namespace monero {
     // initialize wallet
     if (http_client_factory == nullptr) wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = std::unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, std::move(http_client_factory)));
-    wallet->set_daemon_connection(daemon_connection);
+    init_daemon_connection(wallet, network_type, daemon_connection);
     wallet->m_w2->set_seed_language(language);
     wallet->m_w2->generate(path, password, recovery_key, true, false);
     wallet->m_w2->set_refresh_from_block_height(restore_height);
@@ -1162,7 +1178,7 @@ namespace monero {
     if (has_spend_key && has_view_key) wallet->m_w2->generate(path, password, address_info.address, spend_key_sk, view_key_sk);
     else if (has_spend_key) wallet->m_w2->generate(path, password, spend_key_sk, true, false);
     else wallet->m_w2->generate(path, password, address_info.address, view_key_sk);
-    wallet->set_daemon_connection(daemon_connection);
+    init_daemon_connection(wallet, network_type, daemon_connection);
     wallet->m_w2->set_refresh_from_block_height(restore_height);
     wallet->m_w2->set_seed_language(language);
     wallet->init_common();
@@ -2895,15 +2911,15 @@ namespace monero {
     if (signature.empty()) throw std::runtime_error("Must provide signature to check reserve proof");
 
     // initialize check reserve using wallet2
-    std::shared_ptr<monero_check_reserve> checkReserve = std::make_shared<monero_check_reserve>();
+    std::shared_ptr<monero_check_reserve> reserve_check = std::make_shared<monero_check_reserve>();
     uint64_t total_amount;
     uint64_t unconfirmed_spent_amount;
-    checkReserve->m_is_good = m_w2->check_reserve_proof(info.address, message, signature, total_amount, unconfirmed_spent_amount);
-    if (checkReserve->m_is_good) {
-      checkReserve->m_total_amount = total_amount;
-      checkReserve->m_unconfirmed_spent_amount = unconfirmed_spent_amount;
+    reserve_check->m_is_good = m_w2->check_reserve_proof(info.address, message, signature, total_amount, unconfirmed_spent_amount);
+    if (reserve_check->m_is_good) {
+      reserve_check->m_total_amount = total_amount;
+      reserve_check->m_unconfirmed_spent_amount = unconfirmed_spent_amount;
     }
-    return checkReserve;
+    return reserve_check;
   }
 
   std::string monero_wallet_full::get_tx_note(const std::string& tx_hash) const {
