@@ -529,9 +529,10 @@ class GenUtils {
    * @returns a new array with the given array's unique elements
    */
   static toUniqueArray(arr) {
-    return arr.filter(function(value, index, self) {
-      return self.indexOf(value) === index;
-    });
+    throw new Error("Not implemented");
+    //return arr.filter(function(value, index, self) {
+      //return self.indexOf(value) === index;
+    //});
   }
 
   /**

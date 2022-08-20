@@ -274,7 +274,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
 
 const WalletTxTracker = require("./WalletTxTracker");
 TestUtils.WALLET_TX_TRACKER = new WalletTxTracker(); // used to track wallet txs for tests
-TestUtils.PROXY_TO_WORKER = true;
+TestUtils.PROXY_TO_WORKER = false;
 TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
 
 // monero-wallet-rpc process management
