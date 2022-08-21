@@ -1612,6 +1612,11 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // build params for get_transfers rpc call
     let txQuery = query.getTxQuery();
+    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnectedToDaemon()) {
+      throw new MoneroError("Cannot fetch pool transactions because wallet has no daemon connection");
+    }
+    
+    // build params for get_transfers rpc call
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
     let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;

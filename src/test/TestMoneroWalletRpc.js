@@ -58,15 +58,17 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     // assign defaults
     config = new MoneroWalletConfig(config);
     if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+    if (!config.getServer()) config.setServer(await daemon.getRpcConnection());
     
     // create client connected to internal monero-wallet-rpc executable
-    let wallet = await TestUtils.startWalletRpcProcess();
+    let offline = TestUtils.OFFLINE_SERVER_URI === config.getServerUri();
+    let wallet = await TestUtils.startWalletRpcProcess(offline);
     
     // open wallet
     try {
       await wallet.openWallet(config);
-      if (config.getServerUri() === "") wallet.setDaemonConnection(""); // serverUri "" denotes offline wallet for tests
-      else await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+      await wallet.setDaemonConnection(config.getServer(), true, undefined); // set daemon as trusted
+      if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       return wallet;
     } catch (err) {
       await TestUtils.stopWalletRpcProcess(wallet);
@@ -82,15 +84,17 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     if (!config.getPath()) config.setPath(GenUtils.getUUID());
     if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
+    if (!config.getServer()) config.setServer(await daemon.getRpcConnection());
     
     // create client connected to internal monero-wallet-rpc executable
-    let wallet = await TestUtils.startWalletRpcProcess();
+    let offline = TestUtils.OFFLINE_SERVER_URI === config.getServerUri();
+    let wallet = await TestUtils.startWalletRpcProcess(offline);
     
     // create wallet
     try {
       await wallet.createWallet(config);
-      if (config.getServerUri() === "") wallet.setDaemonConnection(""); // serverUri "" denotes offline wallet for tests
-      else await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+      await wallet.setDaemonConnection(config.getServer(), true, undefined); // set daemon as trusted
+      if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       return wallet;
     } catch (err) {
       await TestUtils.stopWalletRpcProcess(wallet);

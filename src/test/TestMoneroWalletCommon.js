@@ -389,9 +389,20 @@ class TestMoneroWalletCommon {
         let wallet;
         try {
           
-          // create unconnected random wallet
+          // create random wallet with default daemon connection
           wallet = await that.createWallet({serverUri: ""});
+          if (wallet instanceof MoneroWalletRpc) assert.equal(await wallet.getDaemonConnection(), undefined);
+          else assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri));
+          assert.equal(await wallet.isConnectedToDaemon(), true);
+          
+          // set empty server uri
+          await wallet.setDaemonConnection("");
           assert.equal(await wallet.getDaemonConnection(), undefined);
+          assert.equal(await wallet.isConnectedToDaemon(), false);
+          
+          // set offline server uri
+          await wallet.setDaemonConnection(TestUtils.OFFLINE_SERVER_URI);
+          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
           assert.equal(await wallet.isConnectedToDaemon(), false);
           
           // set daemon with wrong credentials
@@ -402,6 +413,7 @@ class TestMoneroWalletCommon {
           
           // set daemon with authentication
           await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG);
+          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password));
           assert(await wallet.isConnectedToDaemon());
           
           // nullify daemon connection
@@ -3557,7 +3569,7 @@ class TestMoneroWalletCommon {
         
         // create view-only and offline wallets
         let viewOnlyWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
-        let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: "", restoreHeight: 0});
+        let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: TestUtils.OFFLINE_SERVER_URI, restoreHeight: 0});
         await viewOnlyWallet.sync();
         
         // test tx signing with wallets
@@ -4864,7 +4876,7 @@ class TestMoneroWalletCommon {
     assert(!await offlineWallet.isConnectedToDaemon());
     assert(!await offlineWallet.isViewOnly());
     if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-project: cannot get mnemonic from offline wallet rpc
-    if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal((await offlineWallet.getTxs()).length, 0); // TODO: monero-wallet-rpc has these transactions cached on startup
+    assert.equal((await offlineWallet.getTxs()).length, 0);
     
     // import outputs to offline wallet
     let numOutputsImported = await offlineWallet.importOutputs(outputsHex);
@@ -4875,6 +4887,7 @@ class TestMoneroWalletCommon {
     assert(keyImages.length > 0);
     
     // import key images to view-only wallet
+    assert(await viewOnlyWallet.isConnectedToDaemon());
     await viewOnlyWallet.importKeyImages(keyImages);
     assert.equal((await viewOnlyWallet.getBalance()).toString(), (await this.wallet.getBalance()).toString());
     

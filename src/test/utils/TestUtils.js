@@ -89,9 +89,10 @@ class TestUtils {
   /**
    * Create a monero-wallet-rpc process bound to the next available port.
    *
+   * @param {boolean} offline - wallet is started in offline mode 
    * @return {Promise<MoneroWalletRpc>} - client connected to an internal monero-wallet-rpc instance
    */
-  static async startWalletRpcProcess() {
+  static async startWalletRpcProcess(offline) {
     
     // get next available offset of ports to bind to
     let portOffset = 1;
@@ -109,12 +110,13 @@ class TestUtils {
       let cmd = [
           TestUtils.WALLET_RPC_LOCAL_PATH,
           "--" + MoneroNetworkType.toString(TestUtils.NETWORK_TYPE),
-          "--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri,
           "--rpc-bind-port", "" + (TestUtils.WALLET_RPC_PORT_START + portOffset),
           "--rpc-login", TestUtils.WALLET_RPC_CONFIG.username + ":" + TestUtils.WALLET_RPC_CONFIG.password,
           "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR,
           "--rpc-access-control-origins", TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS
       ];
+      if (offline) cmd.push("--offline");
+      else cmd.push("--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri);
       if (TestUtils.DAEMON_RPC_CONFIG.username) cmd.push("--daemon-login", TestUtils.DAEMON_RPC_CONFIG.username + ":" + TestUtils.DAEMON_RPC_CONFIG.password);
       
       // TODO: include zmq params when supported and enabled
@@ -267,8 +269,8 @@ TestUtils.WALLET_RPC_CONFIG = {
 TestUtils.DAEMON_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monerod";
 TestUtils.DAEMON_RPC_CONFIG = {
   uri: "localhost:28081",
-  username: "",
-  password: "",
+  username: undefined,
+  password: undefined,
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 
@@ -276,6 +278,7 @@ const WalletTxTracker = require("./WalletTxTracker");
 TestUtils.WALLET_TX_TRACKER = new WalletTxTracker(); // used to track wallet txs for tests
 TestUtils.PROXY_TO_WORKER = true;
 TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
+TestUtils.OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
 
 // monero-wallet-rpc process management
 TestUtils.WALLET_RPC_PORT_START = 28084;

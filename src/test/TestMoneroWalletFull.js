@@ -17,6 +17,7 @@ const MoneroTxConfig = monerojs.MoneroTxConfig;
 const MoneroDestination = monerojs.MoneroDestination;
 const MoneroOutputQuery = monerojs.MoneroOutputQuery;
 const MoneroOutputWallet = monerojs.MoneroOutputWallet;
+const MoneroRpcConnection = monerojs.MoneroRpcConnection;
 const MoneroWalletFull = monerojs.MoneroWalletFull;
 
 /**
@@ -186,11 +187,11 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
       it("Can create a random full wallet", async function() {
         
         // create unconnected random wallet
-        let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, serverUri: ""});
+        let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, serverUri: TestUtils.OFFLINE_SERVER_URI});
         await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
         await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.MAINNET);
         assert.equal(await wallet.getNetworkType(), MoneroNetworkType.MAINNET);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert(!(await wallet.isSynced()));
@@ -234,11 +235,11 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
       it("Can create a full wallet from mnemonic", async function() {
         
         // create unconnected wallet with mnemonic
-        let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, serverUri: ""});
+        let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, serverUri: TestUtils.OFFLINE_SERVER_URI});
         assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
         assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert(!(await wallet.isSynced()));
@@ -266,18 +267,18 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // create wallet with mnemonic, no connection, and restore height
         let restoreHeight = 10000;
-        wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight, serverUri: ""});
+        wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight, serverUri: TestUtils.OFFLINE_SERVER_URI});
         assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
         assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert.equal(await wallet.getHeight(), 1); // TODO monero-project: why does height of new unsynced wallet start at 1?
         assert.equal(await wallet.getSyncHeight(), restoreHeight);
         let path = await wallet.getPath();
         await wallet.close(true);
-        wallet = await that.openWallet({path: path, serverUri: ""});
+        wallet = await that.openWallet({path: path, serverUri: TestUtils.OFFLINE_SERVER_URI});
         assert(!(await wallet.isConnectedToDaemon()));
         assert(!(await wallet.isSynced()));
         assert.equal(await wallet.getHeight(), 1);
@@ -381,7 +382,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await viewOnlyWallet.sync();
         
         // create offline full wallet
-        let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: "", restoreHeight: 0});
+        let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), serverUri: TestUtils.OFFLINE_SERVER_URI, restoreHeight: 0});
         
         // test tx signing with wallets
         let err;
@@ -425,7 +426,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
       // TODO monero-project: cannot re-sync from lower block height after wallet saved
       if (testConfig.testNonRelays && !testConfig.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {
-        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.TESTNET});  // wallet must already exist
+        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.TESTNET, serverUri: TestUtils.OFFLINE_SERVER_URI}, true);  // wallet must already exist
         await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
         //long startHeight = TestUtils.TEST_RESTORE_HEIGHT;
         let startHeight = 0;
@@ -495,7 +496,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         if (err) throw err;
         
         // attempt to sync unconnected wallet
-        wallet = await that.createWallet({serverUri: ""});
+        wallet = await that.createWallet({serverUri: TestUtils.OFFLINE_SERVER_URI});
         err = undefined;
         try {
           await wallet.sync();
@@ -703,7 +704,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // test unconnected wallet
         let err;  // used to emulate Java's try...catch...finally
         let path = TestMoneroWalletFull._getRandomWalletPath();
-        let wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, serverUri: ""});
+        let wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, serverUri: TestUtils.OFFLINE_SERVER_URI});
         try {
           assert.notEqual(await wallet.getMnemonic(), undefined);
           assert.equal(await wallet.getHeight(), 1);
@@ -723,7 +724,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // test connecting wallet
         path = TestMoneroWalletFull._getRandomWalletPath();
-        wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, serverUri: ""});
+        wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, serverUri: TestUtils.OFFLINE_SERVER_URI});
         try {
           assert.notEqual(wallet.getMnemonic(), undefined);
           assert(!await wallet.isConnectedToDaemon());
@@ -930,7 +931,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // create wallet at the path
         let restoreHeight = await that.daemon.getHeight() - 200;
-        let wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight});
+        let wallet = await that.createWallet({path: path, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight, serverUri: TestUtils.OFFLINE_SERVER_URI});
         
         // test wallet at newly created state
         let err;
@@ -938,7 +939,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert(await MoneroWalletFull.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-          assert.equal(await wallet.getDaemonConnection(), undefined);
+          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
           assert.equal(await wallet.getSyncHeight(), restoreHeight);
           assert.equal(await wallet.getMnemonicLanguage(), "English");
           assert.equal(await wallet.getHeight(), 1);
@@ -953,13 +954,13 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           await wallet.close();
           
           // re-open the wallet
-          wallet = await that.openWallet({path: path});
+          wallet = await that.openWallet({path: path, serverUri: TestUtils.OFFLINE_SERVER_URI});
           
           // test wallet is at newly created state
           assert(await MoneroWalletFull.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-          assert.equal(await wallet.getDaemonConnection(), undefined);
+          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
           assert(!(await wallet.isConnectedToDaemon()));
           assert.equal(await wallet.getMnemonicLanguage(), "English");
           assert(!(await wallet.isSynced()));
@@ -980,7 +981,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           await wallet.close();
           
           // re-open the wallet
-          wallet = await that.openWallet({path: path, serverUri: ""});
+          wallet = await that.openWallet({path: path, serverUri: TestUtils.OFFLINE_SERVER_URI});
           
           // test wallet state is saved
           assert(!(await wallet.isConnectedToDaemon()));
