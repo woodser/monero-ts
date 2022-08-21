@@ -1492,6 +1492,24 @@ namespace monero {
     m_w2->stop();
   }
 
+  void monero_wallet_full::scan_txs(const std::vector<std::string>& tx_ids) {
+    MTRACE("scan_txs()");
+    if (!m_is_connected) throw std::runtime_error("Wallet is not connected to daemon");
+
+    // convert string ids to crypto hashes
+    std::vector<crypto::hash> tx_hashes;
+    std::vector<std::string>::const_iterator i = tx_ids.begin();
+    while (i != tx_ids.end()) {
+      cryptonote::blobdata tx_hash_blob;
+      if (!epee::string_tools::parse_hexstr_to_binbuff(*i++, tx_hash_blob) || tx_hash_blob.size() != sizeof(crypto::hash)) throw std::runtime_error("TX ID has invalid format");
+      crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_hash_blob.data());
+      tx_hashes.push_back(tx_hash);
+    }
+
+    // scan txs
+    m_w2->scan_tx(tx_hashes);
+  }
+
   void monero_wallet_full::rescan_spent() {
     MTRACE("rescan_spent()");
     if (!m_is_connected) throw std::runtime_error("Wallet is not connected to daemon");

@@ -476,6 +476,15 @@ namespace monero {
     }
 
     /**
+     * Scan transactions by their hash/id.
+     *
+     * @param txHashes - tx hashes to scan
+     */
+    virtual void scan_txs(const std::vector<std::string>& tx_hashes) {
+      throw std::runtime_error("scan_txs() not supported");
+    }
+
+    /**
      * Rescan the blockchain for spent outputs.
      *
      * Note: this can only be called with a trusted daemon.

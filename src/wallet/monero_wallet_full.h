@@ -206,6 +206,7 @@ namespace monero {
     monero_sync_result sync(uint64_t start_height, monero_wallet_listener& listener) override;
     void start_syncing(uint64_t sync_period_in_ms) override;
     void stop_syncing() override;
+    void scan_txs(const std::vector<std::string>& tx_hashes) override;
     void rescan_spent() override;
     void rescan_blockchain() override;
     uint64_t get_balance() const override;
