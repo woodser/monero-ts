@@ -634,6 +634,12 @@ class MoneroWalletRpc extends MoneroWallet {
     return this.rpc.sendJsonRequest("auto_refresh", { enable: false });
   }
   
+  async scanTxs(txHashes) {
+    if (!txHashes || !txHashes.length) throw new MoneroError("No tx hashes given to scan");
+    await this.rpc.sendJsonRequest("scan_tx", {txids: txHashes});
+    await this._poll();
+  }
+  
   async rescanSpent() {
     await this.rpc.sendJsonRequest("rescan_spent");
   }

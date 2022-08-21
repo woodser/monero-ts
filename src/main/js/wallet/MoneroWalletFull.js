@@ -734,6 +734,20 @@ class MoneroWalletFull extends MoneroWalletKeys {
     this._module.stop_syncing(this._cppAddress); // task is not queued so wallet stops immediately
   }
   
+  async scanTxs(txHashes) {
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function(err) {
+          if (err) reject(new MoneroError(msg));
+          else resolve();
+        } 
+        that._module.scan_txs(that._cppAddress, JSON.stringify({txHashes: txHashes}), callbackFn);
+      });
+    });
+  }
+  
   async rescanSpent() {
     let that = this;
     return that._module.queueTask(async function() {
@@ -2204,6 +2218,11 @@ class MoneroWalletFullProxy extends MoneroWallet {
     
   async stopSyncing() {
     return this._invokeWorker("stopSyncing");
+  }
+  
+  async scanTxs(txHashes) {
+    assert(Array.isArray(txHashes), "Must provide an array of txs hashes to scan");
+    return this._invokeWorker("scanTxs", [txHashes]);
   }
   
   async rescanSpent() {

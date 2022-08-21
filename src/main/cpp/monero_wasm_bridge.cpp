@@ -441,6 +441,28 @@ void monero_wasm_bridge::rescan_spent(int handle, emscripten::val callback) {
   callback();
 }
 
+void monero_wasm_bridge::scan_txs(int handle, const string& args, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
+
+    // get tx hashes from args
+    vector<string> tx_hashes;
+    boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
+    for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
+
+    // scan txs
+    wallet->scan_txs(tx_hashes);
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::rescan_blockchain(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   wallet->rescan_blockchain();

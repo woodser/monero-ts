@@ -608,6 +608,10 @@ self.stopSyncing = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].stopSyncing();
 }
 
+self.scanTxs = async function(walletId, txHashes) {
+  return self.WORKER_OBJECTS[walletId].scanTxs(txHashes);
+}
+
 self.rescanSpent = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].rescanSpent();
 }

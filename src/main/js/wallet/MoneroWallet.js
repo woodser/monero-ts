@@ -285,6 +285,15 @@ class MoneroWallet {
   }
   
   /**
+   * Scan transactions by their hash/id.
+   * 
+   * @param {string[]} txHashes - tx hashes to scan
+   */
+  async scanTxs(txHashes) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
    * <p>Rescan the blockchain for spent outputs.</p>
    * 
    * <p>Note: this can only be called with a trusted daemon.</p>

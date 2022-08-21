@@ -3890,6 +3890,36 @@ class TestMoneroWalletCommon {
         }
       }
       
+      it("Can scan transactions by id", async function() {
+        
+        // get a few tx hashes
+        let txHashes = [];
+        let txs = await that.wallet.getTxs();
+        if (txs.length < 3) throw new Error("Not enough txs to scan");
+        for (let i = 0; i < 3; i++) txHashes.push(txs[i].getHash());
+        
+        // start wallet without scanning
+        let scanWallet = await that.createWallet(new MoneroWalletConfig().setMnemonic(await that.wallet.getMnemonic()).setRestoreHeight(0));
+        await scanWallet.stopSyncing(); // TODO: create wallet without daemon connection (offline does not reconnect, default connects to localhost, offline then online causes confirmed txs to disappear)
+        assert(await scanWallet.isConnectedToDaemon());
+        
+        // scan txs
+        await scanWallet.scanTxs(txHashes);
+        
+        // TODO: scanning txs causes merge problems reconciling 0 fee, isMinerTx with test txs
+        
+    //    // txs are scanned
+    //    assertEquals(txHashes.size(), scanWallet.getTxs().size());
+    //    for (int i = 0; i < txHashes.size(); i++) {
+    //      assertEquals(wallet.getTx(txHashes.get(i)), scanWallet.getTx(txHashes.get(i)));
+    //    }
+    //    List<MoneroTxWallet> scannedTxs = scanWallet.getTxs(txHashes);
+    //    assertEquals(txHashes.size(), scannedTxs.size());
+        
+        // close wallet
+        await that.closeWallet(scanWallet, false);
+      });
+      
       // disabled so tests don't delete local cache
       if (testConfig.testResets)
       it("Can rescan the blockchain", async function() {
