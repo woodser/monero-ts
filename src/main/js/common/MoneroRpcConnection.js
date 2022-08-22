@@ -49,6 +49,7 @@ class MoneroRpcConnection {
       if (username !== undefined || password !== undefined || rejectUnauthorized !== undefined || proxyToWorker !== undefined) throw new MoneroError("Can provide config object or params but not both");
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this._config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else this._config = Object.assign({}, uriOrConfigOrConnection);
+      this.setCredentials(this._config.username, this._config.password);
     } else if (uriOrConfigOrConnection !== undefined) {
       throw new MoneroError("Invalid configuration to MoneroRpcConnection; must be string or MoneroRpcConnection or equivalent JS object");
     }
@@ -80,6 +81,8 @@ class MoneroRpcConnection {
       if (!username) throw new MoneroError("username must be defined because password is defined");
       if (!password) throw new MoneroError("password must be defined because username is defined");
     }
+    if (this._config.username === "") this._config.username = undefined;
+    if (this._config.password === "") this._config.password = undefined;
     if (this._config.username !== username || this._config.password !== password) {
       this._isOnline = undefined;
       this._isAuthenticated = undefined;

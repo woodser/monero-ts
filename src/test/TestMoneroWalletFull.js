@@ -308,7 +308,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // recreate test wallet from keys
         let wallet = that.wallet;
-        let walletKeys = await that.createWallet({serverUri: "", networkType: await wallet.getNetworkType(), primaryAddress: await wallet.getPrimaryAddress(), privateViewKey: await wallet.getPrivateViewKey(), privateSpendKey: await wallet.getPrivateSpendKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
+        let walletKeys = await that.createWallet({serverUri: TestUtils.OFFLINE_SERVER_URI, networkType: await wallet.getNetworkType(), primaryAddress: await wallet.getPrimaryAddress(), privateViewKey: await wallet.getPrivateViewKey(), privateSpendKey: await wallet.getPrivateSpendKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
         let err;
         try {
           assert.equal(await walletKeys.getMnemonic(), await wallet.getMnemonic());
