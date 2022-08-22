@@ -146,7 +146,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 3. `cd monero-javascript`
 4. `./bin/update_submodules.sh`
 5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
-6. Build [unbound](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) for your system.
+6. Build [unbound](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) for your system. On Linux, depending on your installed dependencies, you might need to change CMakeLists.txt `include_directories("/usr/include")` to `include_directories("/your/unbound/location")`.
 7. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
