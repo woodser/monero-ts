@@ -391,8 +391,13 @@ class TestMoneroWalletCommon {
           
           // create random wallet with default daemon connection
           wallet = await that.createWallet({serverUri: ""});
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG));
-          assert.equal(await wallet.isConnectedToDaemon(), true);
+          if (wallet instanceof MoneroWalletRpc) {
+            assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG));
+            assert.equal(await wallet.isConnectedToDaemon(), true);
+          } else {
+            assert.equal(await wallet.getDaemonConnection(), undefined);
+            assert(!await wallet.isConnectedToDaemon());
+          }
           
           // set empty server uri
           await wallet.setDaemonConnection("");
