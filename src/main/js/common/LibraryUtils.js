@@ -108,14 +108,6 @@ class LibraryUtils {
   }
   
   /**
-   * Private helper to initialize the wasm module with data structures to synchronize access.
-   */
-  static _initWasmModule(wasmModule) {
-    wasmModule.taskQueue = new ThreadPool(1);
-    wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
-  }
-  
-  /**
    * Register a function by id which informs if unauthorized requests (e.g.
    * self-signed certificates) should be rejected.
    * 
@@ -145,7 +137,7 @@ class LibraryUtils {
    * @param {string} workerDistPath - path to load the worker
    */
   static setWorkerDistPath(workerDistPath) {
-    let path = workerDistPath ? workerDistPath : LibraryUtils.WORKER_DIST_PATH_DEFAULT;
+    let path = LibraryUtils._prefixWindowsPath(workerDistPath ? workerDistPath : LibraryUtils.WORKER_DIST_PATH_DEFAULT);
     if (path !== LibraryUtils.WORKER_DIST_PATH) delete LibraryUtils.WORKER;
     LibraryUtils.WORKER_DIST_PATH = path;
   }
@@ -214,12 +206,24 @@ class LibraryUtils {
       worker.postMessage([objectId, fnName, callbackId].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
   }
+  
+  // ------------------------------ PRIVATE HELPERS ---------------------------
+  
+  static _initWasmModule(wasmModule) {
+    wasmModule.taskQueue = new ThreadPool(1);
+    wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
+  }
+  
+  static _prefixWindowsPath(path) {
+    if (path.indexOf("C:") == 0 && path.indexOf("file://") == -1) path = "file://" + path; // prepend C: paths with file://
+    return path;
+  }
 }
 
 LibraryUtils.LOG_LEVEL = 0;
 LibraryUtils.WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
     const path = require("path");
-    return path.join(__dirname, "./MoneroWebWorker.js");
+    return LibraryUtils._prefixWindowsPath(path.join(__dirname, "./MoneroWebWorker.js"));
 }();
 LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
 
