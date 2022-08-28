@@ -353,6 +353,38 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (testConfig.testRelays)
+      it("Can create wallets with subaddress lookahead", async function() {
+        let err;
+        let receiver;
+        try {
+          
+         // create wallet with high subaddress lookahead
+         receiver = await that.createWallet({
+            accountLookahead: 1,
+            subaddressLookahead: 100000
+         });
+         
+         // transfer funds to subaddress with high index
+         await that.wallet.createTx(new MoneroTxConfig()
+                 .setAccountIndex(0)
+                 .addDestination((await receiver.getSubaddress(0, 85000)).getAddress(), TestUtils.MAX_FEE)
+                 .setRelay(true));
+         
+         // observe unconfirmed funds
+         await GenUtils.waitFor(1000);
+         await receiver.sync();
+         assert((await receiver.getBalance()).compare(new BigInteger("0")) > 0);
+        } catch (e) {
+          err = e;
+        }
+        
+        // close wallet and throw if error occurred
+        if (receiver) await that.closeWallet(receiver);
+        if (err) throw err;
+      });
+      
+      
       if (testConfig.testNonRelays)
       it("Can get the wallet's version", async function() {
         let version = await that.wallet.getVersion();

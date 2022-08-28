@@ -170,6 +170,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {number} config.accountLookahead -  number of accounts to scan (optional)
+   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    * @return {MoneroWalletFull} the created wallet
    */
   static async createWallet(config) {
@@ -181,36 +183,111 @@ class MoneroWalletFull extends MoneroWalletKeys {
       throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
     } // TODO: factor this much out to common
     if (config.getNetworkType() === undefined) throw new MoneroError("Must provide a networkType: 'mainnet', 'testnet' or 'stagenet'");
+    MoneroNetworkType.validate(config.getNetworkType());
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating full WASM wallet");
+    if (config.getPath() === undefined) config.setPath("");
+    if (config.getPath() && MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
+    if (!config.getPassword()) throw new MoneroError("Must provide a password to create the wallet with");
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
       if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
-      return MoneroWalletFull._createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getNetworkType(), config.getMnemonic(), config.getServer(), config.getRestoreHeight(), config.getSeedOffset(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletFull._createWalletFromMnemonic(config);
     } else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return MoneroWalletFull._createWalletFromKeys(config.getPath(), config.getPassword(), config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getServer(), config.getRestoreHeight(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletFull._createWalletFromKeys(config);
     } else {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      return MoneroWalletFull._createWalletRandom(config.getPath(), config.getPassword(), config.getNetworkType(), config.getServer(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
+      return MoneroWalletFull._createWalletRandom(config);
     }
   }
   
-  static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = true;
-    if (proxyToWorker) return MoneroWalletFullProxy._createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
+  static async _createWalletFromMnemonic(config) {
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
+    if (config.getProxyToWorker()) return MoneroWalletFullProxy._createWallet(config);
     
     // validate and normalize params
-    if (path === undefined) path = "";
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
-    assert(password, "Must provide a password to create the wallet with");
-    MoneroNetworkType.validate(networkType);
-    if (language === undefined) language = "English";
-    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
-    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
+    let daemonConnection = config.getServer();
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
+    if (config.getRestoreHeight() === undefined) config.setRestoreHeight(0);
+    if (config.getSeedOffset() === undefined) config.setSeedOffset("");
+    
+    // load full wasm module
+    let module = await LibraryUtils.loadFullModule();
+    
+    // create wallet in queue
+    let wallet = await module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletFull(cppAddress, config.getPath(), config.getPassword(), config.getFs(), config.getRejectUnauthorized(), rejectUnauthorizedFnId));
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_full_wallet(JSON.stringify(config.toJson()), rejectUnauthorizedFnId, callbackFn);
+      });
+    });
+    
+    // save wallet
+    if (config.getPath()) await wallet.save();
+    return wallet;
+  }
+  
+  static async _createWalletFromKeys(config) {
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
+    if (config.getProxyToWorker()) return MoneroWalletFullProxy._createWallet(config);
+    
+    // validate and normalize params
+    MoneroNetworkType.validate(config.getNetworkType());
+    if (config.getPrimaryAddress() === undefined) config.setPrimaryAddress("");
+    if (config.getPrivateViewKey() === undefined) config.setPrivateViewKey("");
+    if (config.getPrivateSpendKey() === undefined) config.setPrivateSpendKey("");
+    let daemonConnection = config.getServer();
+    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
+    if (config.getRestoreHeight() === undefined) config.setRestoreHeight(0);
+    if (config.getLanguage() === undefined) config.setLanguage("English");
+    
+    // load full wasm module
+    let module = await LibraryUtils.loadFullModule();
+    
+    // create wallet in queue
+    let wallet = await module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // register fn informing if unauthorized reqs should be rejected
+        let rejectUnauthorizedFnId = GenUtils.getUUID();
+        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
+        
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
+          else resolve(new MoneroWalletFull(cppAddress, config.getPath(), config.getPassword(), config.getFs(), config.getRejectUnauthorized(), rejectUnauthorizedFnId));
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_full_wallet(JSON.stringify(config.toJson()), rejectUnauthorizedFnId, callbackFn);
+      });
+    });
+    
+    // save wallet
+    if (config.getPath()) await wallet.save();
+    return wallet;
+  }
+  
+  static async _createWalletRandom(config) {
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
+    if (config.getProxyToWorker()) return MoneroWalletFullProxy._createWallet(config);
+    
+    // validate and normalize params
+    if (config.getLanguage() === undefined) config.setLanguage("English");
+    let daemonConnection = config.getServer();
     let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
@@ -227,107 +304,16 @@ class MoneroWalletFull extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
           if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
-          else resolve(new MoneroWalletFull(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
+          else resolve(new MoneroWalletFull(cppAddress, config.getPath(), config.getPassword(), config.getFs(), config.getRejectUnauthorized(), rejectUnauthorizedFnId));
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_full_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, language, callbackFn);
+        module.create_full_wallet(JSON.stringify(config.toJson()), rejectUnauthorizedFnId, callbackFn);
       });
     });
     
     // save wallet
-    if (path) await wallet.save();
-    return wallet;
-  }
-  
-  static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = true;
-    if (proxyToWorker) return MoneroWalletFullProxy._createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs);
-    
-    // validate and normalize params
-    if (path === undefined) path = "";
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
-    assert(password, "Must provide a password to create the wallet with");
-    MoneroNetworkType.validate(networkType);
-    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
-    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
-    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
-    if (restoreHeight === undefined) restoreHeight = 0;
-    if (seedOffset === undefined) seedOffset = "";
-    
-    // load full wasm module
-    let module = await LibraryUtils.loadFullModule();
-    
-    // create wallet in queue
-    let wallet = await module.queueTask(async function() {
-      return new Promise(function(resolve, reject) {
-        
-        // register fn informing if unauthorized reqs should be rejected
-        let rejectUnauthorizedFnId = GenUtils.getUUID();
-        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
-      
-        // define callback for wasm
-        let callbackFn = async function(cppAddress) {
-          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
-          else resolve(new MoneroWalletFull(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
-        };
-        
-        // create wallet in wasm and invoke callback when done
-        module.create_full_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, restoreHeight, seedOffset, callbackFn);
-      });
-    });
-    
-    // save wallet
-    if (path) await wallet.save();
-    return wallet;
-  }
-  
-  static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
-    if (proxyToWorker === undefined) proxyToWorker = true;
-    if (proxyToWorker) return MoneroWalletFullProxy._createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs);
-    
-    // validate and normalize params
-    if (path === undefined) path = "";
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
-    assert(password, "Must provide a password to create the wallet with");
-    MoneroNetworkType.validate(networkType);
-    if (address === undefined) address = "";
-    if (viewKey === undefined) viewKey = "";
-    if (spendKey === undefined) spendKey = "";
-    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
-    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
-    let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
-    if (restoreHeight === undefined) restoreHeight = 0;
-    if (language === undefined) language = "English";
-    
-    // load full wasm module
-    let module = await LibraryUtils.loadFullModule();
-    
-    // create wallet in queue
-    let wallet = await module.queueTask(async function() {
-      return new Promise(function(resolve, reject) {
-        
-        // register fn informing if unauthorized reqs should be rejected
-        let rejectUnauthorizedFnId = GenUtils.getUUID();
-        LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, function() { return rejectUnauthorized });
-      
-        // define callback for wasm
-        let callbackFn = async function(cppAddress) {
-          if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
-          else resolve(new MoneroWalletFull(cppAddress, path, password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
-        };
-        
-        // create wallet in wasm and invoke callback when done
-        module.create_full_wallet_from_keys(password, networkType, address, viewKey, spendKey, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, restoreHeight, language, callbackFn);
-      });
-    });
-    
-    // save wallet
-    if (path) await wallet.save();
+    if (config.getPath()) await wallet.save();
     return wallet;
   }
   
@@ -1995,33 +1981,12 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return wallet;
   }
   
-  static async _createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
+  static async _createWallet(config) {
+    if (config.getPath() && MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
-    let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "_createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
-    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
-    if (path) await wallet.save();
-    return wallet;
-  }
-  
-  static async _createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
-    let walletId = GenUtils.getUUID();
-    let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "_createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
-    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
-    if (path) await wallet.save();
-    return wallet;
-  }
-  
-  static async _createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
-    if (path && MoneroWalletFull.walletExists(path, fs)) throw new MoneroError("Wallet already exists: " + path);
-    let walletId = GenUtils.getUUID();
-    let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await LibraryUtils.invokeWorker(walletId, "_createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
-    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
-    if (path) await wallet.save();
+    await LibraryUtils.invokeWorker(walletId, "_createWallet", [config.toJson()]);
+    let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), config.getPath(), config.getFs());
+    if (config.getPath()) await wallet.save();
     return wallet;
   }
   

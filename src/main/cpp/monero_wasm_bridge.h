@@ -32,9 +32,7 @@ namespace monero_wasm_bridge
   // ------------------------- STATIC WALLET UTILS ----------------------------
 
   void open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback);
-  void create_full_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, const string& language, emscripten::val callback);
-  void create_full_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& seed_offset, emscripten::val callback);
-  void create_full_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, long restore_height, const string& language, emscripten::val callback);
+  void create_full_wallet(const string& config_json, const string& reject_unauthorized_fn_id, emscripten::val callback);
   string get_full_wallet_mnemonic_languages();
 
   void create_keys_wallet_random(int network_type, const string& language, emscripten::val callback);

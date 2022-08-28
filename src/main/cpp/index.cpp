@@ -19,9 +19,7 @@ EMSCRIPTEN_BINDINGS(module)
   // --------------------------- WALLET CREATION ------------------------------
 
   emscripten::function("open_wallet_full", &monero_wasm_bridge::open_wallet_full);
-  emscripten::function("create_full_wallet_random", &monero_wasm_bridge::create_full_wallet_random);
-  emscripten::function("create_full_wallet_from_mnemonic", &monero_wasm_bridge::create_full_wallet_from_mnemonic);
-  emscripten::function("create_full_wallet_from_keys", &monero_wasm_bridge::create_full_wallet_from_keys);
+  emscripten::function("create_full_wallet", &monero_wasm_bridge::create_full_wallet);
   emscripten::function("get_full_wallet_mnemonic_languages", &monero_wasm_bridge::get_full_wallet_mnemonic_languages);
 
   emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);

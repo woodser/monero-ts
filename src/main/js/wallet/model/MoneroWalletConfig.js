@@ -25,6 +25,8 @@ class MoneroWalletConfig {
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed
+   * @param {number} config.accountLookahead - number of accounts to scan (optional)
+   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    */
   constructor(config) {
     
@@ -49,7 +51,9 @@ class MoneroWalletConfig {
   }
   
   toJson() {
-    return Object.assign({}, this.config);
+    let json = Object.assign({}, this.config);
+    json.fs = undefined; // remove filesystem
+    return json;
   }
   
   getPath() {
@@ -235,8 +239,26 @@ class MoneroWalletConfig {
     this.config.cacheData = cacheData;
     return this;
   }
+  
+  getAccountLookahead() {
+    return this.state.accountLookahead;
+  }
+  
+  setAccountLookahead(accountLookahead) {
+    this.state.accountLookahead = accountLookahead;
+    return this;
+  }
+  
+  getSubaddressLookahead() {
+    return this.state.subaddressLookahead;
+  }
+  
+  setSubaddressLookahead(subaddressLookahead) {
+    this.state.subaddressLookahead = subaddressLookahead;
+    return this;
+  }
 }
 
-MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData"];
+MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
 
 module.exports = MoneroWalletConfig;
