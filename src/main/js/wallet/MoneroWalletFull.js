@@ -1785,18 +1785,24 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let that = this;
     if (that._fullListenerHandle === 0 && !isEnabled || that._fullListenerHandle > 0 && isEnabled) return; // no difference
     return that._module.queueTask(async function() {
-      if (isEnabled) {
-        that._fullListenerHandle = that._module.set_listener(
+      return new Promise(function(resolve, reject) {
+        that._module.set_listener(
             that._cppAddress,
             that._fullListenerHandle,
-            async function(height, startHeight, endHeight, percentDone, message) { await that._fullListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
-            async function(height) { await that._fullListener.onNewBlock(height); },
-            async function(newBalanceStr, newUnlockedBalanceStr) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); },
-            async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); },
-            async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked); });
-      } else {
-        that._fullListenerHandle = that._module.set_listener(that._cppAddress, that._fullListenerHandle, undefined, undefined, undefined, undefined, undefined);
-      }
+            newListenerHandle => {
+              if (typeof newListenerHandle === "string") reject(new MoneroError(newListenerHandle));
+              else {
+                that._fullListenerHandle = newListenerHandle;
+                resolve();
+              }
+            },
+            isEnabled ? async function(height, startHeight, endHeight, percentDone, message) { await that._fullListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); } : undefined,
+            isEnabled ? async function(height) { await that._fullListener.onNewBlock(height); } : undefined,
+            isEnabled ? async function(newBalanceStr, newUnlockedBalanceStr) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); } : undefined,
+            isEnabled ? async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); } : undefined,
+            isEnabled ? async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked); } : undefined,
+        );
+      });
     });
   }
   

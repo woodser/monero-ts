@@ -2565,7 +2565,7 @@ class TestMoneroWalletCommon {
         let senderNotificationCollector = new WalletNotificationCollector();
         let receiverNotificationCollector = new WalletNotificationCollector();
         await sender.addListener(senderNotificationCollector);
-        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS / 2);
+        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS / 2); // TODO: remove this, should be unnecessary
         await receiver.addListener(receiverNotificationCollector);
         
         // send funds
@@ -2820,12 +2820,13 @@ class TestMoneroWalletCommon {
       
       it("Can stop listening", async function() {
         
-        // create wallet and start background synchronizing
-        let wallet = await that.createWallet(new MoneroWalletConfig());
+        // create offline wallet
+        let wallet = await that.createWallet(new MoneroWalletConfig().setServerUri(TestUtils.OFFLINE_SERVER_URI));
         
         // add listener
         let listener = new WalletNotificationCollector();
         await wallet.addListener(listener);
+        await wallet.setDaemonConnection(await that.daemon.getRpcConnection());
         await new Promise(function(resolve) { setTimeout(resolve, 1000); });
         
         // remove listener and close

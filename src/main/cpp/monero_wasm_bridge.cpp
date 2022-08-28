@@ -403,21 +403,30 @@ void monero_wasm_bridge::set_sync_height(int handle, long sync_height) {
   wallet->set_sync_height(sync_height);
 }
 
-int monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, emscripten::val on_sync_progress, emscripten::val on_new_block, emscripten::val on_balances_changed, emscripten::val on_output_received, emscripten::val on_output_spent) {
+void monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, emscripten::val callback, emscripten::val on_sync_progress, emscripten::val on_new_block, emscripten::val on_balances_changed, emscripten::val on_output_received, emscripten::val on_output_spent) {
   monero_wallet* wallet = (monero_wallet*) wallet_handle;
+  try {
 
-  // remove old listener
-  wallet_wasm_listener* old_listener = (wallet_wasm_listener*) old_listener_handle;
-  if (old_listener != nullptr) {
-    wallet->remove_listener(*old_listener);
-    delete old_listener;
+    // remove old listener
+    wallet_wasm_listener* old_listener = (wallet_wasm_listener*) old_listener_handle;
+    if (old_listener != nullptr) {
+      wallet->remove_listener(*old_listener);
+      delete old_listener;
+    }
+
+    // done if listeners not given
+    if (on_sync_progress == emscripten::val::undefined()) {
+      callback(0);
+      return;
+    }
+
+    // add new listener
+    wallet_wasm_listener* listener = new wallet_wasm_listener(on_sync_progress, on_new_block, on_balances_changed, on_output_received, on_output_spent);
+    wallet->add_listener(*listener);
+    callback((int) listener);
+  } catch (exception& e) {
+    callback(string(e.what()));
   }
-
-  // add new listener
-  if (on_sync_progress == emscripten::val::undefined()) return 0;
-  wallet_wasm_listener* listener = new wallet_wasm_listener(on_sync_progress, on_new_block, on_balances_changed, on_output_received, on_output_spent);
-  wallet->add_listener(*listener);
-  return (int) listener;
 }
 
 void monero_wasm_bridge::sync(int handle, long start_height, emscripten::val callback) {
