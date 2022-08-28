@@ -122,7 +122,7 @@ await walletFull.close(true);
 ## Using monero-javascript in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.7.3`
+2. `npm install monero-javascript@0.7.4`
 3. Add `require("monero-javascript")` to your application code.
 4. If building a browser application, copy assets from ./dist to your web app's build directory as needed.
 
