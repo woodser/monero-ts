@@ -163,6 +163,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
    * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
    * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {number} config.accountLookahead -  number of accounts to scan (optional)
+   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    * @param {string} config.serverUri - uri of the wallet's daemon (optional)
    * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
@@ -170,8 +172,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
-   * @param {number} config.accountLookahead -  number of accounts to scan (optional)
-   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    * @return {MoneroWalletFull} the created wallet
    */
   static async createWallet(config) {

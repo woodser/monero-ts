@@ -200,6 +200,8 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
  * @param {number} config.restoreHeight - block height to start scanning frsom (defaults to 0 unless generating random wallet)
  * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+ * @param {number} config.accountLookahead -  number of accounts to scan (optional)
+ * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
  * @param {string} config.serverUri - uri of the wallet's daemon (optional)
  * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
  * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
