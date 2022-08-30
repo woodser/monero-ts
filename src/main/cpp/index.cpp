@@ -4,6 +4,8 @@
 
 #include "monero_wasm_bridge.h"
 
+int main() { return 0; }
+
 // register bindings from JS to C++ using emscripten
 EMSCRIPTEN_BINDINGS(module)
 {
