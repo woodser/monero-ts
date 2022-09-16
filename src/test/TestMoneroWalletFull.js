@@ -965,7 +965,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert.equal(await wallet.getMnemonicLanguage(), "English");
           assert(!(await wallet.isSynced()));
           assert.equal(await wallet.getHeight(), 1);
-          assert.equal(await wallet.getSyncHeight(), 0); // TODO monero-project: restoreHeight is reset to 0 after closing
+          assert(await wallet.getSyncHeight() > 0);
           
           // set the wallet's connection and sync
           await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
@@ -986,10 +986,10 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           // test wallet state is saved
           assert(!(await wallet.isConnectedToDaemon()));
           await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());  // TODO monero-project: daemon connection not stored in wallet files so must be explicitly set each time
-          assert.equal(await wallet.getDaemonConnection(), TestUtils.getDaemonRpcConnection());
+          assert.deepEqual(await wallet.getDaemonConnection(), TestUtils.getDaemonRpcConnection());
           assert(await wallet.isConnectedToDaemon());
           assert.equal(await wallet.getHeight(), prevHeight);
-          assert.equal(await wallet.getSyncHeight(), 0); // TODO monero-project: restoreHeight is reset to 0 after closing
+          assert(await wallet.getSyncHeight() > 0);
           assert(await MoneroWalletFull.walletExists(path, TestUtils.getDefaultFs()));
           assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
@@ -998,11 +998,48 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           // sync
           await wallet.sync();
         } catch (e) {
-          let err = e;
+          err = e;
         }
         
         // finally
         await wallet.close();
+        if (err) throw err;
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can export and import wallet files", async function() {
+        let err;
+        let wallet
+        try {
+          
+          // create random wallet
+          wallet = await monerojs.createWalletFull({
+            networkType: "mainnet",
+            password: "password123"
+          });
+          
+          // export wallet files
+          let walletData = await wallet.getData();
+          let keysData = walletData[0];
+          let cacheData = walletData[1];
+          
+          // import wallet files
+          let wallet2 = await monerojs.openWalletFull({
+            networkType: "mainnet",
+            password: "password123",
+            keysData: keysData,
+            cacheData: cacheData
+          });
+          
+          // test that wallets are equal
+          assert.equal(await wallet.getMnemonic(), await wallet2.getMnemonic());
+          await TestMoneroWalletFull._testWalletEqualityOnChain(wallet, wallet2);
+        } catch (e) {
+          err = e;
+        }
+        
+        // finally
+        if (wallet) await wallet.close();
         if (err) throw err;
       });
       
@@ -1115,10 +1152,8 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
   static async _testWalletEqualityOnChain(wallet1, wallet2) {
     await WalletEqualityUtils.testWalletEqualityOnChain(wallet1, wallet2);
     assert.equal(await wallet2.getNetworkType(), await wallet1.getNetworkType());
-    //assert.equal(await wallet2.getSyncHeight(), await wallet1.getSyncHeight()); // TODO monero-project: sync height is lost after close
-    assert.equal((await wallet2.getDaemonConnection()).getUri(), (await wallet1.getDaemonConnection()).getUri());
-    assert.equal((await wallet2.getDaemonConnection()).getUsername(), (await wallet1.getDaemonConnection()).getUsername());
-    assert.equal((await wallet2.getDaemonConnection()).getPassword(), (await wallet1.getDaemonConnection()).getPassword());
+    assert.equal(await wallet2.getSyncHeight(), await wallet1.getSyncHeight()); // TODO monero-project: sync height is lost after close
+    assert.deepEqual(await wallet1.getDaemonConnection(), await wallet2.getDaemonConnection());
     assert.equal(await wallet2.getMnemonicLanguage(), await wallet1.getMnemonicLanguage());
     // TODO: more wasm-specific extensions
   }
