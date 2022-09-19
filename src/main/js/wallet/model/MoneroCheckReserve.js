@@ -1,5 +1,4 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
-const MoneroCheck = require("./MoneroCheck");
+import MoneroCheck from "./MoneroCheck";
 
 /**
  * Results from checking a reserve proof.
@@ -10,14 +9,14 @@ class MoneroCheckReserve extends MoneroCheck {
   
   constructor(state) {
     super(state);
-    if (this.state.totalAmount !== undefined && !(this.state.totalAmount instanceof BigInteger)) this.state.totalAmount = BigInteger.parse(this.state.totalAmount);
-    if (this.state.unconfirmedSpentAmount !== undefined && !(this.state.unconfirmedSpentAmount instanceof BigInteger)) this.state.unconfirmedSpentAmount = BigInteger.parse(this.state.unconfirmedSpentAmount);
+    if (this.state.totalAmount !== undefined && !(this.state.totalAmount instanceof BigInt)) this.state.totalAmount = BigInt(this.state.totalAmount);
+    if (this.state.unconfirmedSpentAmount !== undefined && !(this.state.unconfirmedSpentAmount instanceof BigInt)) this.state.unconfirmedSpentAmount = BigInt(this.state.unconfirmedSpentAmount);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getTotalAmount()) json.totalAmount = this.getTotalAmount().toString();
-    if (this.getUnconfirmedSpentAmount()) json.unconfirmedSpentAmount = this.getUnconfirmedSpentAmount().toString();
+    if (this.getTotalAmount() !== undefined) json.totalAmount = this.getTotalAmount().toString();
+    if (this.getUnconfirmedSpentAmount() !== undefined) json.unconfirmedSpentAmount = this.getUnconfirmedSpentAmount().toString();
     return json;
   }
   
@@ -40,4 +39,4 @@ class MoneroCheckReserve extends MoneroCheck {
   }
 }
 
-module.exports = MoneroCheckReserve;
+export default MoneroCheckReserve;

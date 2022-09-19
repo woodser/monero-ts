@@ -22,4 +22,4 @@ class MoneroDaemonListener {
   }
 }
 
-module.exports = MoneroDaemonListener;
+export default MoneroDaemonListener;

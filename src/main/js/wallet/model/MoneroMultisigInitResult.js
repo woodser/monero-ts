@@ -32,4 +32,4 @@ class MoneroMultisigInitResult {
   }
 }
 
-module.exports = MoneroMultisigInitResult;
+export default MoneroMultisigInitResult;

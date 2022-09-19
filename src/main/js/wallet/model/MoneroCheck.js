@@ -19,4 +19,4 @@ class MoneroCheck {
   }
 }
 
-module.exports = MoneroCheck;
+export default MoneroCheck;

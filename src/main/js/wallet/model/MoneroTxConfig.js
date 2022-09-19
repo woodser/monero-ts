@@ -1,7 +1,6 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const MoneroDestination = require("./MoneroDestination");
-const MoneroError = require("../../common/MoneroError");
+import assert from "assert";
+import MoneroDestination from "./MoneroDestination";
+import MoneroError from "../../common/MoneroError";
 
 /**
  * Configures a transaction to send, sweep, or create a payment URI.
@@ -17,27 +16,27 @@ class MoneroTxConfig {
    * let config1 = new MoneroTxConfig({<br>
    * &nbsp;&nbsp; accountIndex: 0,<br>
    * &nbsp;&nbsp; address: "59aZULsUF3YN...",<br>
-   * &nbsp;&nbsp; amount: new BigInteger("500000"),<br>
+   * &nbsp;&nbsp; amount: BigInt("500000"),<br>
    * &nbsp;&nbsp; priority: MoneroTxPriority.NORMAL,<br>
    * &nbsp;&nbsp; relay: true<br>
    * });<br><br>
    * </code>
    * 
-   * @param {MoneroTxConfig|object} config - configures the transaction to create (optional)
+   * @param {MoneroTxConfig|object} [config] - configures the transaction to create (optional)
    * @param {string} config.address - single destination address
-   * @param {BigInteger} config.amount - single destination amount
-   * @param {int} config.accountIndex - source account index to transfer funds from
-   * @param {int} config.subaddressIndex - source subaddress index to transfer funds from
+   * @param {BigInt} config.amount - single destination amount
+   * @param {number} config.accountIndex - source account index to transfer funds from
+   * @param {number} config.subaddressIndex - source subaddress index to transfer funds from
    * @param {int[]} config.subaddressIndices - source subaddress indices to transfer funds from
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain
-   * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
+   * @param {MoneroTxPriority} [config.priority] - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
    * @param {string} config.paymentId - transaction payment ID
-   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
+   * @param {number} [config.unlockHeight] - minimum height for the transaction to unlock (default 0)
    * @param {string} config.note - transaction note saved locally with the wallet
    * @param {string} config.recipientName - recipient name saved locally with the wallet
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions
-   * @param {BigInteger} config.belowAmount - for sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds 
+   * @param {BigInt} config.belowAmount - for sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds 
    * @param {boolean} config.sweepEachSubaddress - for sweep requests, sweep each subaddress individually instead of together if true
    * @param {string} config.keyImage - key image to sweep (ignored except in sweepOutput() requests)
    */
@@ -49,7 +48,7 @@ class MoneroTxConfig {
     else if (config instanceof MoneroTxConfig) this.state = config.toJson();
     else if (typeof config === "object") {
       this.state = Object.assign({}, config);
-      if (relaxValidation && typeof this.state.amount === "number") this.state.amount = BigInteger.parse(this.state.amount);
+      if (relaxValidation && typeof this.state.amount === "number") this.state.amount = BigInt(this.state.amount);
     }
     else throw new MoneroError("Invalid argument given to MoneroTxConfig: " + typeof config);
     
@@ -81,12 +80,12 @@ class MoneroTxConfig {
   
   toJson() {
     let json = Object.assign({}, this.state); // copy state
-    if (this.getDestinations()) {
+    if (this.getDestinations() !== undefined) {
       json.destinations = [];
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
-    if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getBelowAmount()) json.belowAmount = this.getBelowAmount().toString();
+    if (this.getFee() !== undefined) json.fee = this.getFee().toString();
+    if (this.getBelowAmount() !== undefined) json.belowAmount = this.getBelowAmount().toString();
     return json;
   }
   
@@ -116,13 +115,13 @@ class MoneroTxConfig {
   /**
    * Set the amount of a single-destination configuration.
    * 
-   * @param {BigInteger|string} amount - the amount to set for the single destination
+   * @param {BigInt|string} amount - the amount to set for the single destination
    * @return {MoneroTxConfig} this configuration for chaining
    */
   setAmount(amount) {
-    if (amount !== undefined && !(this.state.amount instanceof BigInteger)) {
-      if (typeof amount === "number") throw new MoneroError("Destination amount must be BigInteger or string");
-      try { amount = BigInteger.parse(amount); }
+    if (amount !== undefined && !(this.state.amount instanceof BigInt)) {
+      if (typeof amount === "number") throw new MoneroError("Destination amount must be BigInt or string");
+      try { amount = BigInt(amount); }
       catch (err) { throw new MoneroError("Invalid destination amount: " + amount); }
     }
     if (this.state.destinations !== undefined && this.state.destinations.length > 1) throw new MoneroError("Cannot set amount because MoneroTxConfig already has multiple destinations");
@@ -134,7 +133,7 @@ class MoneroTxConfig {
   /**
    * Get the amount of a single-destination configuration.
    * 
-   * @return {BigInteger} the amount of the single destination
+   * @return {BigInt} the amount of the single destination
    */
   getAmount() {
     if (this.state.destinations === undefined || this.state.destinations.length !== 1) throw new MoneroError("Cannot get amount because MoneroTxConfig does not have exactly one destination");
@@ -299,4 +298,4 @@ class MoneroTxConfig {
   }
 }
 
-module.exports = MoneroTxConfig
+export default MoneroTxConfig

@@ -1,13 +1,12 @@
 // import test types
-const monerojs = require("../../index");
-const LibraryUtils = monerojs.LibraryUtils;
-const TestSampleCode = require("./TestSampleCode");
-const TestMoneroUtils = require("./TestMoneroUtils");
-const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
-const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
-const TestMoneroWalletFull = require("./TestMoneroWalletFull");
-const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
-const TestMoneroConnectionManager = require("./TestMoneroConnectionManager");
+import {LibraryUtils} from "../../index";
+import TestSampleCode from "./TestSampleCode";
+import TestMoneroUtils from "./TestMoneroUtils";
+import TestMoneroDaemonRpc from "./TestMoneroDaemonRpc";
+import TestMoneroWalletKeys from "./TestMoneroWalletKeys";
+import TestMoneroWalletFull from "./TestMoneroWalletFull";
+import TestMoneroWalletRpc from "./TestMoneroWalletRpc";
+import TestMoneroConnectionManager from "./TestMoneroConnectionManager";
 
 // set log level
 LibraryUtils.setLogLevel(1); // no need for await before worker used

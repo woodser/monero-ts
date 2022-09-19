@@ -1,9 +1,11 @@
-const GenUtils = require("../common/GenUtils");
-const LibraryUtils = require("./LibraryUtils");
-const MoneroUtils = require("./MoneroUtils");
-const ThreadPool = require("./ThreadPool");
-const PromiseThrottle = require("promise-throttle");
-const Request = require("request-promise");
+import GenUtils from "../common/GenUtils";
+import LibraryUtils from "./LibraryUtils";
+import MoneroUtils from "./MoneroUtils";
+import ThreadPool from "./ThreadPool";
+import PromiseThrottle from "promise-throttle";
+import Request from "request-promise";
+import http from "http";
+import https from "https";
 
 /**
  * Handle HTTP requests with a uniform interface.
@@ -19,12 +21,12 @@ class HttpClient {
    * @param {string} request.method - HTTP method ("GET", "PUT", "POST", "DELETE", etc)
    * @param {string} request.uri - uri to request
    * @param {string|object|Uint8Array} request.body - request body
-   * @param {string} request.username - username to authenticate the request (optional)
-   * @param {string} request.password - password to authenticate the request (optional)
-   * @param {object} request.headers - headers to add to the request (optional)
-   * @param {string} request.requestApi - one of "fetch" or "xhr" (default "fetch")
-   * @param {boolean} request.resolveWithFullResponse - return full response if true, else body only (default false)
-   * @param {boolean} request.rejectUnauthorized - whether or not to reject self-signed certificates (default true)
+   * @param {string} [request.username] - username to authenticate the request (optional)
+   * @param {string} [request.password] - password to authenticate the request (optional)
+   * @param {object} [request.headers] - headers to add to the request (optional)
+   * @param {string} [request.requestApi] - one of "fetch" or "xhr" (default "fetch")
+   * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
+   * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
    * @param {number} request.timeout - maximum time allowed in milliseconds
    * @param {number} request.proxyToWorker - proxy request to worker thread
    * @returns {object} response - the response object
@@ -169,8 +171,7 @@ class HttpClient {
    */
   static _getHttpAgent() {
     if (!HttpClient.HTTP_AGENT) {
-      let http = require('http');
-      HttpClient.HTTP_AGENT = new http.Agent({keepAlive: true});
+            HttpClient.HTTP_AGENT = new http.Agent({keepAlive: true});
     }
     return HttpClient.HTTP_AGENT;
   }
@@ -182,8 +183,7 @@ class HttpClient {
    */
   static _getHttpsAgent() {
     if (!HttpClient.HTTPS_AGENT) {
-      let https = require('https');
-      HttpClient.HTTPS_AGENT = new https.Agent({keepAlive: true});
+            HttpClient.HTTPS_AGENT = new https.Agent({keepAlive: true});
     }
     return HttpClient.HTTPS_AGENT;
   }
@@ -492,4 +492,4 @@ HttpClient._PROMISE_THROTTLES = [];
 HttpClient._TASK_QUEUES = [];
 HttpClient._DEFAULT_TIMEOUT = 30000;
 
-module.exports = HttpClient;
+export default HttpClient;

@@ -15,7 +15,7 @@ class TaskLooper {
   /**
    * Start the task loop.
    * 
-   * @param {int} periodInMs the loop period in milliseconds
+   * @param {number} periodInMs the loop period in milliseconds
    */
   start(periodInMs) {
     this.periodInMs = periodInMs;
@@ -55,4 +55,4 @@ class TaskLooper {
   }
 }
 
-module.exports = TaskLooper;
+export default TaskLooper;

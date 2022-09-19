@@ -1,13 +1,12 @@
-const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
-const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const TestMoneroWalletFull = require("./TestMoneroWalletFull");
-const monerojs = require("../../index");
-const MoneroError = monerojs.MoneroError;
-const GenUtils = monerojs.GenUtils;
-const MoneroWalletConfig = monerojs.MoneroWalletConfig;
-const MoneroUtils = monerojs.MoneroUtils;
-const MoneroAccountTag = monerojs.MoneroAccountTag;
+import assert from "assert";
+import TestUtils from "./utils/TestUtils";
+import TestMoneroWalletCommon from "./TestMoneroWalletCommon";
+import TestMoneroWalletFull from "./TestMoneroWalletFull";
+import {MoneroError} from "../../index";
+import {GenUtils} from "../../index";
+import {MoneroWalletConfig} from "../../index";
+import {MoneroUtils} from "../../index";
+import {MoneroAccountTag} from "../../index";
 
 /**
  * Tests the Monero Wallet RPC client and server.
@@ -429,7 +428,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     }
 }
 
-module.exports = TestMoneroWalletRpc;
+export default TestMoneroWalletRpc;
 
 function testAddressBookEntry(entry) {
     assert(entry.getIndex() >= 0);

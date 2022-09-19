@@ -1,8 +1,8 @@
-const MoneroIncomingTransfer = require("./MoneroIncomingTransfer");
-const MoneroOutgoingTransfer = require("./MoneroOutgoingTransfer");
-const MoneroTransfer = require("./MoneroTransfer");
-const MoneroError = require("../../common/MoneroError")
-
+import MoneroIncomingTransfer from "./MoneroIncomingTransfer";
+import MoneroOutgoingTransfer from "./MoneroOutgoingTransfer";
+import MoneroTransfer from "./MoneroTransfer";
+import MoneroTxQuery from "./MoneroTxQuery";
+import MoneroError from "../../common/MoneroError";
 /**
  * Configuration to query wallet transfers.
  * 
@@ -25,10 +25,10 @@ class MoneroTransferQuery extends MoneroTransfer {
    * 
    * <p>All configuration is optional.  All transfers are returned except those that don't meet criteria defined in this query.</p>
    * 
-   * @param {object} config - transfer query configuration (optional)
-   * @param {BigInteger} config.amount - get transfers with this amount
-   * @param {int} config.accountIndex - get transfers to/from this account index
-   * @param {int} config.subaddressIndex - get transfers to/from this subaddress index
+   * @param {object} [config] - transfer query configuration (optional)
+   * @param {BigInt} config.amount - get transfers with this amount
+   * @param {number} config.accountIndex - get transfers to/from this account index
+   * @param {number} config.subaddressIndex - get transfers to/from this subaddress index
    * @param {int[]} config.subaddressIndices - get transfers to/from these subaddress indices
    * @param {string} config.address - get transfers to/from this wallet address
    * @param {string[]} config.addresses - get transfers to/from these wallet addresses
@@ -41,7 +41,7 @@ class MoneroTransferQuery extends MoneroTransfer {
     super(config);
     
     // deserialize if necessary
-    const MoneroTxQuery = require("./MoneroTxQuery");
+    //import MoneroTxQuery from "./MoneroTxQuery";
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
     if (this.state.txQuery) this.state.txQuery.setTransferQuery(this);
     
@@ -165,12 +165,12 @@ class MoneroTransferQuery extends MoneroTransfer {
     // filter on common fields
     if (this.isIncoming() !== undefined && this.isIncoming() !== transfer.isIncoming()) return false;
     if (this.isOutgoing() !== undefined && this.isOutgoing() !== transfer.isOutgoing()) return false;
-    if (this.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0) return false;
+    if (this.getAmount() !== undefined && GenUtils.compareBigInt(this.getAmount(), transfer.getAmount()) !== 0) return false;
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== transfer.getAccountIndex()) return false;
     
     // filter on incoming fields
     if (transfer instanceof MoneroIncomingTransfer) {
-      if (this.hasDestinations()) return false;
+      if (this.hasDestinations() !== undefined) return false;
       if (this.getAddress() !== undefined && this.getAddress() !== transfer.getAddress()) return false;
       if (this.getAddresses() !== undefined && !this.getAddresses().includes(transfer.getAddress())) return false;
       if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false;
@@ -218,4 +218,4 @@ class MoneroTransferQuery extends MoneroTransfer {
   }
 }
 
-module.exports = MoneroTransferQuery;
+export default MoneroTransferQuery;

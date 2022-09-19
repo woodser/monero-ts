@@ -1,6 +1,5 @@
-const TestUtils = require("./utils/TestUtils");
-const WalletSyncPrinter = require("./utils/WalletSyncPrinter");
-const monerojs = require("../../index");
+import TestUtils from "./utils/TestUtils";
+import WalletSyncPrinter from "./utils/WalletSyncPrinter";
 
 describe("Scratchpad", function() {
   
@@ -11,7 +10,7 @@ describe("Scratchpad", function() {
 //    let walletFull = await TestUtils.getWalletFull();
     
     // initialize daemon rpc client
-    let daemon = await monerojs.connectToDaemonRpc({
+    let daemon = await connectToDaemonRpc({
       uri: "http://localhost:28081",
       username: "superuser",
       password: "abctesting123",
@@ -21,7 +20,7 @@ describe("Scratchpad", function() {
     console.log("Daemon height: " + await daemon.getHeight());
     
     // initialize wallet rpc client
-    let walletRpc = await monerojs.connectToWalletRpc({
+    let walletRpc = await connectToWalletRpc({
       uri: "http://localhost:28084",
       username: "rpc_user",
       password: "abc123",
@@ -31,20 +30,22 @@ describe("Scratchpad", function() {
     console.log("RPC wallet mnemonic: " + await walletRpc.getMnemonic());
     
     // create in-memory wallet with mnemonic
-    let walletFull = await monerojs.createWalletFull({
+    let walletFull = await createWalletFull({
       //path: "./test_wallets/" + GenUtils.getUUID(), // in-memory wallet if not given
-      password: "abctesting123",
+      password: "supersecretpassword123",
+      serverUsername: "superuser",
+      serverPassword: "abctesting123",
       networkType: "testnet",
       serverUri: "http://localhost:28081",
       mnemonic: "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying",
       restoreHeight: 0,
-      proxyToWorker: TestUtils.PROXY_TO_WORKER,
+      proxyToWorker: TestUtils.PROXY_TO_WORKER, 
       rejectUnauthorized: false
     });
     await walletFull.sync(new WalletSyncPrinter());
     console.log("Full wallet daemon height: " + await walletFull.getDaemonHeight());
     console.log("Full wallet mnemonic: " + await walletFull.getMnemonic());
-    
+    console.log("Wallet balance: " + (await walletFull.getUnlockedBalance()).toString()) 
     await walletFull.close();
   });
 });

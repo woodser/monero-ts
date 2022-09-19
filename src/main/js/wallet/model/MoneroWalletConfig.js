@@ -1,7 +1,7 @@
-const GenUtils = require("../../common/GenUtils");
-const MoneroError = require("../../common/MoneroError");
-const MoneroNetworkType = require("../../daemon/model/MoneroNetworkType");
-const MoneroRpcConnection = require("../../common/MoneroRpcConnection");
+import GenUtils from "../../common/GenUtils";
+import MoneroError from "../../common/MoneroError";
+import MoneroNetworkType from "../../daemon/model/MoneroNetworkType";
+import MoneroRpcConnection from "../../common/MoneroRpcConnection";
 
 /**
  * Configuration to create a Monero wallet.
@@ -15,15 +15,15 @@ class MoneroWalletConfig {
    * @param {string} config.path - path of the wallet to open or create
    * @param {string} config.password - password of the wallet to open
    * @param {string|number} config.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-   * @param {string} config.serverUri - uri of the wallet's server (optional)
-   * @param {string} config.serverUsername - username of the wallet's server (optional)
-   * @param {string} config.serverPassword - password of the wallet's server (optional)
-   * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (default true)
-   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object configuring the server connection (optional)
-   * @param {Uint8Array} config.keysData - wallet keys data to open (optional)
-   * @param {Uint8Array} config.cacheData - wallet cache data to open (optional)
-   * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
-   * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {string} [config.serverUri] - uri of the wallet's server (optional)
+   * @param {string} [config.serverUsername] - username of the wallet's server (optional)
+   * @param {string} [config.serverPassword] - password of the wallet's server (optional)
+   * @param {boolean} [config.rejectUnauthorized] - reject self-signed server certificates if true (default true)
+   * @param {MoneroRpcConnection|object} [config.server] - MoneroRpcConnection or equivalent JS object configuring the server connection (optional)
+   * @param {Uint8Array} [config.keysData] - wallet keys data to open (optional)
+   * @param {Uint8Array} [config.cacheData] - wallet cache data to open (optional)
+   * @param {boolean} [config.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
+   * @param {fs} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed
    * @param {number} config.accountLookahead - number of accounts to scan (optional)
    * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
@@ -261,4 +261,4 @@ class MoneroWalletConfig {
 
 MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
 
-module.exports = MoneroWalletConfig;
+export default MoneroWalletConfig;

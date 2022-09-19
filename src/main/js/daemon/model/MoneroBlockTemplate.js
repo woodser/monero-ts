@@ -1,4 +1,3 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
  * Monero block template to mine.
@@ -9,22 +8,15 @@ class MoneroBlockTemplate {
     state = Object.assign({}, state);
     this.state = state;
     
-    // deserialize BigIntegers
-    if (state.expectedReward !== undefined && !(state.expectedReward instanceof BigInteger)) state.expectedReward = BigInteger.parse(state.expectedReward);
-    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+    // deserialize BigInts
+    if (state.expectedReward !== undefined && !(state.expectedReward instanceof BigInt)) state.expectedReward = BigInt(state.expectedReward);
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInt)) state.difficulty = BigInt(state.difficulty);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getExpectedReward()) json.expectedReward = this.getExpectedReward().toString();
-    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
-    return json;
-  }
-  
-  toJson() {
-    let json = Object.assign({}, this.state);
-    if (json.expectedReward) json.expectedReward = json.expectedReward.toString();
-    if (json.difficulty) json.difficulty = json.difficulty.toString();
+    if (this.getExpectedReward() !== undefined) json.expectedReward = this.getExpectedReward().toString();
+    if (this.getDifficulty() !== undefined) json.difficulty = this.getDifficulty().toString();
     return json;
   }
   
@@ -119,4 +111,4 @@ class MoneroBlockTemplate {
   }
 }
 
-module.exports = MoneroBlockTemplate;
+export default MoneroBlockTemplate;

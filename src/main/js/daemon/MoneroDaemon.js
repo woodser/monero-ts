@@ -1,4 +1,6 @@
-const MoneroError = require("../common/MoneroError");
+import MoneroError from "../common/MoneroError";
+import MoneroNetworkType from "./model/MoneroNetworkType";
+import assert from "assert";
 
 /**
  * Copyright (c) woodser
@@ -95,7 +97,7 @@ class MoneroDaemon {
   /**
    * Get a block's hash by its height.
    * 
-   * @param {int} height - height of the block hash to get
+   * @param {number} height - height of the block hash to get
    * @return {string} the block's hash at the given height
    */
   async getBlockHash(height) {
@@ -106,7 +108,7 @@ class MoneroDaemon {
    * Get a block template for mining a new block.
    * 
    * @param {string} walletAddress - address of the wallet to receive miner transactions if block is successfully mined
-   * @param {int} reserveSize - reserve size (optional)
+   * @param {number} [reserveSize] - reserve size (optional)
    * @return {MoneroBlockTemplate} is a block template for mining a new block
    */
   async getBlockTemplate(walletAddress, reserveSize) {
@@ -135,7 +137,7 @@ class MoneroDaemon {
   /**
    * Get a block header by its height.
    * 
-   * @param {int} height - height of the block to get the header of
+   * @param {number} height - height of the block to get the header of
    * @return {MoneroBlockHeader} block's header
    */
   async getBlockHeaderByHeight(height) {
@@ -145,8 +147,8 @@ class MoneroDaemon {
   /**
    * Get block headers for the given range.
    * 
-   * @param {int} startHeight - start height lower bound inclusive (optional)
-   * @param {int} endHeight - end height upper bound inclusive (optional)
+   * @param {number} [startHeight] - start height lower bound inclusive (optional)
+   * @param {number} [endHeight] - end height upper bound inclusive (optional)
    * @return {MoneroBlockHeader[]} for the given range
    */
   async getBlockHeadersByRange(startHeight, endHeight) {
@@ -169,8 +171,8 @@ class MoneroDaemon {
    * @param {string[]} blockHashes - array of hashes; first 10 blocks hashes goes sequential,
    *        next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64 and so on,
    *        and the last one is always genesis block
-   * @param {int} startHeight - start height to get blocks by hash
-   * @param {boolean} prune - specifies if returned blocks should be pruned (defaults to false)  // TODO: test default
+   * @param {number} startHeight - start height to get blocks by hash
+   * @param {boolean} [prune] - specifies if returned blocks should be pruned (defaults to false)  // TODO: test default
    * @return {MoneroBlock[]} retrieved blocks
    */
   async getBlocksByHash(blockHashes, startHeight, prune) {
@@ -180,7 +182,7 @@ class MoneroDaemon {
   /**
    * Get a block by height.
    * 
-   * @param {int} height - height of the block to get
+   * @param {number} height - height of the block to get
    * @return {MoneroBlock} with the given height
    */
   async getBlockByHeight(height) {
@@ -200,8 +202,8 @@ class MoneroDaemon {
   /**
    * Get blocks in the given height range.
    * 
-   * @param {int} startHeight - start height lower bound inclusive (optional)
-   * @param {int} endHeight - end height upper bound inclusive (optional)
+   * @param {number} [startHeight] - start height lower bound inclusive (optional)
+   * @param {number} [endHeight] - end height upper bound inclusive (optional)
    * @return {MoneroBlock[]} are blocks in the given height range
    */
   async getBlocksByRange(startHeight, endHeight) {
@@ -212,9 +214,9 @@ class MoneroDaemon {
    * Get blocks in the given height range as chunked requests so that each request is
    * not too big.
    * 
-   * @param {int} startHeight - start height lower bound inclusive (optional)
-   * @param {int} endHeight - end height upper bound inclusive (optional)
-   * @param {int} maxChunkSize - maximum chunk size in any one request (default 3,000,000 bytes)
+   * @param {number} [startHeight] - start height lower bound inclusive (optional)
+   * @param {number} [endHeight] - end height upper bound inclusive (optional)
+   * @param {number} [maxChunkSize] - maximum chunk size in any one request (default 3,000,000 bytes)
    * @return {MoneroBlock[]} blocks in the given height range
    */
   async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
@@ -227,7 +229,7 @@ class MoneroDaemon {
    * @param {string[]} blockHashes - specify block hashes to fetch; first 10 blocks hash goes
    *        sequential, next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64
    *        and so on, and the last one is always genesis block
-   * @param {int} startHeight - starting height of block hashes to return
+   * @param {number} startHeight - starting height of block hashes to return
    * @return {string[]} requested block hashes     
    */
   async getBlockHashes(blockHashes, startHeight) {
@@ -238,7 +240,7 @@ class MoneroDaemon {
    * Get a transaction by hash.
    * 
    * @param {string} txHash - hash of the transaction to get
-   * @param {boolean} prune - specifies if the returned tx should be pruned (defaults to false)
+   * @param {boolean} [prune] - specifies if the returned tx should be pruned (defaults to false)
    * @return {MoneroTx} transaction with the given hash
    */
   async getTx(txHash, prune = false) {
@@ -249,7 +251,7 @@ class MoneroDaemon {
    * Get transactions by hashes.
    * 
    * @param {string[]} txHashes - hashes of transactions to get
-   * @param {boolean} prune - specifies if the returned txs should be pruned (defaults to false)
+   * @param {boolean} [prune] - specifies if the returned txs should be pruned (defaults to false)
    * @return {MoneroTx[]} transactions with the given hashes
    */
   async getTxs(txHashes, prune = false) {
@@ -260,7 +262,7 @@ class MoneroDaemon {
    * Get a transaction hex by hash.
    * 
    * @param {string} txHash - hash of the transaction to get hex from
-   * @param {boolean} prune - specifies if the returned tx hex should be pruned (defaults to false)
+   * @param {boolean} [prune] - specifies if the returned tx hex should be pruned (defaults to false)
    * @return {string} tx hex with the given hash
    */
   async getTxHex(txHash, prune = false) {
@@ -271,7 +273,7 @@ class MoneroDaemon {
    * Get transaction hexes by hashes.
    * 
    * @param {string[]} txHashes - hashes of transactions to get hexes from
-   * @param {boolean} prune - specifies if the returned tx hexes should be pruned (defaults to false)
+   * @param {boolean} [prune] - specifies if the returned tx hexes should be pruned (defaults to false)
    * @return {string[]} tx hexes
    */
   async getTxHexes(txHashes, prune = false) {
@@ -281,8 +283,8 @@ class MoneroDaemon {
   /**
    * Gets the total emissions and fees from the genesis block to the current height.
    * 
-   * @param {int} height - height to start computing the miner sum
-   * @param {int} numBlocks - number of blocks to include in the sum
+   * @param {number} height - height to start computing the miner sum
+   * @param {number} numBlocks - number of blocks to include in the sum
    * @return {MoneroMinerTxSum} encapsulates the total emissions and fees since the genesis block
    */
   async getMinerTxSum(height, numBlocks) {
@@ -292,8 +294,8 @@ class MoneroDaemon {
   /**
    * Get the fee estimate per kB.
    * 
-   * @param {int} graceBlocks TODO
-   * @return {BigInteger} fee estimate per kB.
+   * @param {number} graceBlocks TODO
+   * @return {BigInt} fee estimate per kB.
    */
   async getFeeEstimate(graceBlocks) {
     throw new MoneroError("Subclass must implement");
@@ -316,7 +318,7 @@ class MoneroDaemon {
    * @param {string} txHash - hash of the transaction to relay
    */
   async relayTxByHash(txHash) {
-    const assert = require("assert");
+    //import assert from "assert";
     assert.equal(typeof txHash, "string", "Must provide a transaction hash");
     await this.relayTxsByHash([txHash]);
   }
@@ -370,7 +372,7 @@ class MoneroDaemon {
   /**
    * Flush transactions from the tx pool.
    * 
-   * @param {(string|string[])} hashes - specific transactions to flush (defaults to all)
+   * @param {(string|string[])} [hashes] - specific transactions to flush (defaults to all)
    */
   async flushTxPool(hashes) {
     throw new MoneroError("Subclass must implement");
@@ -412,11 +414,11 @@ class MoneroDaemon {
    * parameters), gives the number of outputs on the chain for that amount.
    * RingCT outputs counts as 0 amount.
    * 
-   * @param {BigInteger[]} amounts - amounts of outputs to make the histogram with
-   * @param {int} minCount - TODO
-   * @param {int} maxCount - TODO
+   * @param {BigInt[]} amounts - amounts of outputs to make the histogram with
+   * @param {number} minCount - TODO
+   * @param {number} maxCount - TODO
    * @param {boolean} isUnlocked - makes a histogram with outputs with the specified lock state
-   * @param {int} recentCutoff - TODO
+   * @param {number} recentCutoff - TODO
    * @return {MoneroOutputHistogramEntry[]} are entries meeting the parameters
    */
   async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
@@ -426,10 +428,10 @@ class MoneroDaemon {
   /**
    * Creates an output distribution.
    * 
-   * @param {BigInteger[]} amounts - amounts of outputs to make the distribution with
-   * @param {boolean} cumulative - specifies if the results should be cumulative (defaults to TODO)
-   * @param {int} startHeight - start height lower bound inclusive (optional)
-   * @param {int} endHeight - end height upper bound inclusive (optional)
+   * @param {BigInt[]} amounts - amounts of outputs to make the distribution with
+   * @param {boolean} [cumulative] - specifies if the results should be cumulative (defaults to TODO)
+   * @param {number} [startHeight] - start height lower bound inclusive (optional)
+   * @param {number} [endHeight] - end height upper bound inclusive (optional)
    * @return {MoneroOutputDistributionEntry[]} are entries meeting the parameters
    */
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
@@ -493,7 +495,7 @@ class MoneroDaemon {
   /**
    * Set the download bandwidth limit.
    * 
-   * @param {int} limit - download limit to set (-1 to reset to default)
+   * @param {number} limit - download limit to set (-1 to reset to default)
    * @return {int} new download limit after setting
    */
   async setDownloadLimit(limit) {
@@ -558,7 +560,7 @@ class MoneroDaemon {
   /**
    * Limit number of outgoing peers.
    * 
-   * @param {int} limit - maximum number of outgoing peers
+   * @param {number} limit - maximum number of outgoing peers
    */
   async setOutgoingPeerLimit(limit) {
     throw new MoneroError("Subclass must implement");
@@ -567,7 +569,7 @@ class MoneroDaemon {
   /**
    * Limit number of incoming peers.
    * 
-   * @param {int} limit - maximum number of incoming peers
+   * @param {number} limit - maximum number of incoming peers
    */
   async setIncomingPeerLimit(limit) {
     throw new MoneroError("Subclass must implement");
@@ -658,7 +660,7 @@ class MoneroDaemon {
   /**
    * Download an update.
    * 
-   * @param {string} path - path to download the update (optional)
+   * @param {string} [path] - path to download the update (optional)
    * @return {MoneroDaemonUpdateDownloadResult} the result
    */
   async downloadUpdate(path) {
@@ -690,7 +692,7 @@ class MoneroDaemon {
    * @return {MoneroNetworkType} enumerated network type
    */
   static parseNetworkType(network) {
-    const MoneroNetworkType = require("./model/MoneroNetworkType");
+    //import MoneroNetworkType from "./model/MoneroNetworkType";
     if (network === "mainnet") return MoneroNetworkType.MAINNET;
     if (network === "testnet") return MoneroNetworkType.TESTNET;
     if (network === "stagenet") return MoneroNetworkType.STAGENET;
@@ -698,4 +700,4 @@ class MoneroDaemon {
   }
 }
 
-module.exports = MoneroDaemon;
+export default MoneroDaemon;

@@ -1,6 +1,8 @@
-const monerojs = require("../../../index");
-const GenUtils = monerojs.GenUtils;
-const MoneroUtils = monerojs.MoneroUtils;
+import TestUtils from "./TestUtils"; // to avoid circular reference
+import StartMining from "./StartMining";
+
+import {GenUtils} from "../../../index";
+import {MoneroUtils} from "../../../index";
 
 /**
  * Tracks wallets which are in sync with the tx pool and therefore whose txs in the pool
@@ -40,7 +42,6 @@ class WalletTxTracker {
    */
   async waitForWalletTxsToClearPool(wallets) {
     wallets = GenUtils.listify(wallets);
-    
     // get wallet tx hashes
     let txHashesWallet = new Set();
     for (let wallet of wallets) {
@@ -55,7 +56,7 @@ class WalletTxTracker {
     // loop until all wallet txs clear from pool
     let isFirst = true;
     let miningStarted = false;
-    const TestUtils = require("./TestUtils"); // to avoid circular reference
+    //import TestUtils from "./TestUtils"; // to avoid circular reference
     let daemon = await TestUtils.getDaemonRpc();
     while (true) {
       
@@ -84,7 +85,7 @@ class WalletTxTracker {
         let miningStatus = await daemon.getMiningStatus();
         if (!miningStatus.isActive()) {
           try {
-            const StartMining = require("./StartMining");
+            //import StartMining from "./StartMining";
             await StartMining.startMining();
             miningStarted = true;
           } catch (e) {
@@ -109,23 +110,23 @@ class WalletTxTracker {
   }
   
   async waitForUnlockedBalance(wallet, accountIndex, subaddressIndex, minAmount) {
-    if (!minAmount) minAmount = new BigInteger("0");
+    if (!minAmount) minAmount = BigInt("0");
     
     // check if wallet has balance
-    if ((await wallet.getBalance(accountIndex, subaddressIndex)).compare(minAmount) < 0) throw new Error("Wallet does not have enough balance to wait for");
+    if ((await wallet.getBalance(accountIndex, GenUtils.compareBigInt(subaddressIndex)), minAmount) < 0) throw new Error("Wallet does not have enough balance to wait for");
     
     // check if wallet has unlocked balance
     let unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
-    if (unlockedBalance.compare(minAmount) > 0) return unlockedBalance;
+    if (GenUtils.compareBigInt(unlockedBalance, minAmount) > 0) return unlockedBalance;
    
     // start mining
-    const TestUtils = require("./TestUtils"); // to avoid circular reference
+    //import TestUtils from "./TestUtils"; // to avoid circular reference
     let daemon = await TestUtils.getDaemonRpc();
     let miningStarted = false;
     if (!(await daemon.getMiningStatus()).isActive()) {
       try {
         console.log("Starting mining!");
-        const StartMining = require("./StartMining"); // to avoid circular reference
+        //import StartMining from "./StartMining"; // to avoid circular reference
         await StartMining.startMining();
         miningStarted = true;
       } catch (err) {
@@ -136,7 +137,7 @@ class WalletTxTracker {
     
     // wait for unlocked balance // TODO: promote to MoneroWallet interface?
     console.log("Waiting for unlocked balance");
-    while (unlockedBalance.compare(minAmount) < 0) {
+    while (GenUtils.compareBigInt(unlockedBalance, minAmount) < 0) {
       unlockedBalance = await wallet.getUnlockedBalance(accountIndex, subaddressIndex);
       await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS); });
     }
@@ -147,4 +148,4 @@ class WalletTxTracker {
   }
 }
 
-module.exports = WalletTxTracker;
+export default WalletTxTracker;

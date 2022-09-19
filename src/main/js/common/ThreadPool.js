@@ -1,4 +1,5 @@
-const GenUtils = require("./GenUtils");
+import GenUtils from "./GenUtils";
+import async from "async";
 
 /**
  * Simple thread pool using the async library.
@@ -8,14 +9,14 @@ class ThreadPool {
   /**
    * Construct the thread pool.
    * 
-   * @param {int} maxConcurrency - maximum number of threads in the pool (default 1)
+   * @param {number} [maxConcurrency] - maximum number of threads in the pool (default 1)
    */
   constructor(maxConcurrency) {
     if (maxConcurrency === undefined) maxConcurrency = 1;
     if (maxConcurrency < 1) throw new Error("Max concurrency must be greater than or equal to 1");
     
     // manager concurrency with async queue
-    const async = require("async");
+    //import async from "async";
     this.taskQueue = async.queue(function(asyncFn, callback) {
       if (asyncFn.then) asyncFn.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
       else asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
@@ -62,4 +63,4 @@ class ThreadPool {
   }
 }
 
-module.exports = ThreadPool;
+export default ThreadPool;

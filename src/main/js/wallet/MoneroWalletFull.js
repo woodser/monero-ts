@@ -1,35 +1,35 @@
-const assert = require("assert");
-const BigInteger = require("../common/biginteger").BigInteger;
-const GenUtils = require("../common/GenUtils");
-const LibraryUtils = require("../common/LibraryUtils");
-const TaskLooper = require("../common/TaskLooper");
-const MoneroAccount = require("./model/MoneroAccount");
-const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
-const MoneroBlock = require("../daemon/model/MoneroBlock");
-const MoneroCheckTx = require("./model/MoneroCheckTx");
-const MoneroCheckReserve = require("./model/MoneroCheckReserve");
-const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
-const MoneroError = require("../common/MoneroError");
-const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
-const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
-const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
-const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
-const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
-const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
-const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
-const MoneroOutputWallet = require("./model/MoneroOutputWallet");
-const MoneroRpcConnection = require("../common/MoneroRpcConnection");
-const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroSyncResult = require("./model/MoneroSyncResult");
-const MoneroTxConfig = require("./model/MoneroTxConfig");
-const MoneroTxSet = require("./model/MoneroTxSet");
-const MoneroTxWallet = require("./model/MoneroTxWallet");
-const MoneroWallet = require("./MoneroWallet");
-const MoneroWalletConfig = require("./model/MoneroWalletConfig");
-const MoneroWalletKeys = require("./MoneroWalletKeys");
-const MoneroWalletListener = require("./model/MoneroWalletListener");
-const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
-const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
+import assert from "assert";
+import Path from "path";
+import GenUtils from "../common/GenUtils";
+import LibraryUtils from "../common/LibraryUtils";
+import TaskLooper from "../common/TaskLooper";
+import MoneroAccount from "./model/MoneroAccount";
+import MoneroAddressBookEntry from "./model/MoneroAddressBookEntry";
+import MoneroBlock from "../daemon/model/MoneroBlock";
+import MoneroCheckTx from "./model/MoneroCheckTx";
+import MoneroCheckReserve from "./model/MoneroCheckReserve";
+import MoneroDaemonRpc from "../daemon/MoneroDaemonRpc";
+import MoneroError from "../common/MoneroError";
+import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
+import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
+import MoneroMultisigInfo from "./model/MoneroMultisigInfo";
+import MoneroMultisigInitResult from "./model/MoneroMultisigInitResult";
+import MoneroMultisigSignResult from "./model/MoneroMultisigSignResult";
+import MoneroNetworkType from "../daemon/model/MoneroNetworkType";
+import MoneroOutputWallet from "./model/MoneroOutputWallet";
+import MoneroRpcConnection from "../common/MoneroRpcConnection";
+import MoneroSubaddress from "./model/MoneroSubaddress";
+import MoneroSyncResult from "./model/MoneroSyncResult";
+import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxSet from "./model/MoneroTxSet";
+import MoneroTxWallet from "./model/MoneroTxWallet";
+import MoneroWallet from "./MoneroWallet";
+import MoneroWalletConfig from "./model/MoneroWalletConfig";
+import MoneroWalletKeys from "./MoneroWalletKeys";
+import MoneroWalletListener from "./model/MoneroWalletListener";
+import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
+import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 
 /**
  * Implements a Monero wallet using fully client-side WebAssembly bindings to monero-project's wallet2 in C++.
@@ -86,19 +86,19 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} configOrPath.password - password of the wallet to open
    * @param {string|number} configOrPath.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
    * @param {Uint8Array} configOrPath.keysData - wallet keys data to open (optional if path provided)
-   * @param {Uint8Array} configOrPath.cacheData - wallet cache data to open (optional)
-   * @param {string} configOrPath.serverUri - uri of the wallet's daemon (optional)
-   * @param {string} configOrPath.serverUsername - username to authenticate with the daemon (optional)
-   * @param {string} configOrPath.serverPassword - password to authenticate with the daemon (optional)
-   * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (default true)
-   * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
-   * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
-   * @param {fs} configOrPath.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {Uint8Array} [configOrPath.cacheData] - wallet cache data to open (optional)
+   * @param {string} [configOrPath.serverUri] - uri of the wallet's daemon (optional)
+   * @param {string} [configOrPath.serverUsername] - username to authenticate with the daemon (optional)
+   * @param {string} [configOrPath.serverPassword] - password to authenticate with the daemon (optional)
+   * @param {boolean} [configOrPath.rejectUnauthorized] - reject self-signed server certificates if true (default true)
+   * @param {MoneroRpcConnection|object} [configOrPath.server] - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
+   * @param {boolean} [configOrPath.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
+   * @param {fs} [configOrPath.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @param {string} password - password of the wallet to open
    * @param {string|number} networkType - network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
-   * @param {boolean} proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
-   * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {boolean} [proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
+   * @param {fs} [fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @return {MoneroWalletFull} the opened wallet
    */
   static async openWallet(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
@@ -159,23 +159,20 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
-   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
-   * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
-   * @param {number} config.accountLookahead -  number of accounts to scan (optional)
-   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
-   * @param {string} config.serverUri - uri of the wallet's daemon (optional)
-   * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
-   * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
-   * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-   * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
-   * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * @param {string} [config.privateViewKey] - private view key of the wallet to create (optional)
+   * @param {string} [config.privateSpendKey] - private spend key of the wallet to create (optional)
+   * @param {number} [config.restoreHeight] - block height to start scanning from (defaults to 0 unless generating random wallet)
+   * @param {string} [config.language] - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} [config.serverUri] - uri of the wallet's daemon (optional)
+   * @param {string} [config.serverUsername] - username to authenticate with the daemon (optional)
+   * @param {string} [config.serverPassword] - password to authenticate with the daemon (optional)
+   * @param {boolean} [config.rejectUnauthorized] - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcConnection|object} [config.server] - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {boolean} [config.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
+   * @param {fs} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
    * @return {MoneroWalletFull} the created wallet
    */
   static async createWallet(config) {
-    
     // normalize and validate config
     if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
@@ -333,7 +330,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * This method should not be called externally but should be called through
    * static wallet creation utilities in this class.
    * 
-   * @param {int} cppAddress - address of the wallet instance in C++
+   * @param {number} cppAddress - address of the wallet instance in C++
    * @param {string} path - path of the wallet instance
    * @param {string} password - password of the wallet instance
    * @param {FileSystem} fs - node.js-compatible file system to read/write wallet files
@@ -654,9 +651,9 @@ class MoneroWalletFull extends MoneroWalletKeys {
   /**
    * Synchronize the wallet with the daemon as a one-time synchronous process.
    * 
-   * @param {MoneroWalletListener|number} listenerOrStartHeight - listener xor start height (defaults to no sync listener, the last synced block)
-   * @param {number} startHeight - startHeight if not given in first arg (defaults to last synced block)
-   * @param {bool} allowConcurrentCalls - allow other wallet methods to be processed simultaneously during sync (default false)<br><br><b>WARNING</b>: enabling this option will crash wallet execution if another call makes a simultaneous network request. TODO: possible to sync wasm network requests in http_client_wasm.cpp? 
+   * @param {MoneroWalletListener|number} [listenerOrStartHeight] - listener xor start height (defaults to no sync listener, the last synced block)
+   * @param {number} [startHeight] - startHeight if not given in first arg (defaults to last synced block)
+   * @param {boolean} [allowConcurrentCalls] - allow other wallet methods to be processed simultaneously during sync (default false)<br><br><b>WARNING</b>: enabling this option will crash wallet execution if another call makes a simultaneous network request. TODO: possible to sync wasm network requests in http_client_wasm.cpp? 
    */
   async sync(listenerOrStartHeight, startHeight, allowConcurrentCalls) {
     this._assertNotClosed();
@@ -772,8 +769,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
         balanceStr = that._module.get_balance_subaddress(that._cppAddress, accountIdx, subaddressIdx);
       }
       
-      // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(GenUtils.stringifyBIs(balanceStr)).balance);
+      // parse json string to BigInt
+      return BigInt(JSON.parse(GenUtils.stringifyBIs(balanceStr)).balance);
     });
   }
   
@@ -793,8 +790,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
         unlockedBalanceStr = that._module.get_unlocked_balance_subaddress(that._cppAddress, accountIdx, subaddressIdx);
       }
       
-      // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(GenUtils.stringifyBIs(unlockedBalanceStr)).unlockedBalance);
+      // parse json string to BigInt
+      return BigInt(JSON.parse(GenUtils.stringifyBIs(unlockedBalanceStr)).unlockedBalance);
     });
   }
   
@@ -1908,7 +1905,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (!path) throw new MoneroError("Must provide path of destination wallet");
     
     // save and return if same path
-    const Path = require("path");
+    //import Path from "path";
     if (Path.normalize(wallet._path) === Path.normalize(path)) {
       await wallet.save();
       return;
@@ -2205,12 +2202,12 @@ class MoneroWalletFullProxy extends MoneroWallet {
   }
   
   async getBalance(accountIdx, subaddressIdx) {
-    return BigInteger.parse(await this._invokeWorker("getBalance", Array.from(arguments)));
+    return BigInt(await this._invokeWorker("getBalance", Array.from(arguments)));
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     let unlockedBalanceStr = await this._invokeWorker("getUnlockedBalance", Array.from(arguments));
-    return BigInteger.parse(unlockedBalanceStr);
+    return BigInt(unlockedBalanceStr);
   }
   
   async getAccounts(includeSubaddresses, tag) {
@@ -2554,14 +2551,14 @@ class WalletFullListener {
   }
   
   async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
-    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
+    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInt(newBalanceStr), BigInt(newUnlockedBalanceStr));
   }
   
   async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
     
     // build received output
     let output = new MoneroOutputWallet();
-    output.setAmount(BigInteger.parse(amountStr));
+    output.setAmount(BigInt(amountStr));
     output.setAccountIndex(accountIdx);
     output.setSubaddressIndex(subaddressIdx);
     let tx = new MoneroTxWallet();
@@ -2592,7 +2589,7 @@ class WalletFullListener {
     
     // build spent output
     let output = new MoneroOutputWallet();
-    output.setAmount(BigInteger.parse(amountStr));
+    output.setAmount(BigInt(amountStr));
     if (accountIdxStr) output.setAccountIndex(parseInt(accountIdxStr));
     if (subaddressIdxStr) output.setSubaddressIndex(parseInt(subaddressIdxStr));
     let tx = new MoneroTxWallet();
@@ -2648,7 +2645,7 @@ class WalletWorkerListener {
   }
   
   async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
-    await this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
+    await this._listener.onBalancesChanged(BigInt(newBalanceStr), BigInt(newUnlockedBalanceStr));
   }
 
   async onOutputReceived(blockJson) {
@@ -2664,4 +2661,4 @@ class WalletWorkerListener {
 
 MoneroWalletFull.DEFAULT_SYNC_PERIOD_IN_MS = 10000; // 10 second sync period by default
 
-module.exports = MoneroWalletFull;
+export default MoneroWalletFull;

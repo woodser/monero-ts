@@ -1,7 +1,8 @@
-const assert = require("assert");
-const GenUtils = require("./GenUtils");
-const MoneroError = require("./MoneroError");
-const ThreadPool = require("./ThreadPool");
+import assert from "assert";
+import GenUtils from "./GenUtils";
+import MoneroError from "./MoneroError";
+import ThreadPool from "./ThreadPool";
+import path from "path";
 
 /**
  * Collection of helper utilities for the library.
@@ -13,7 +14,7 @@ class LibraryUtils {
   /**
    * Log a message.
    *
-   * @param {int} level - log level of the message
+   * @param {number} level - log level of the message
    * @param {string} msg - message to log
    */
   static log(level, msg) {
@@ -24,7 +25,7 @@ class LibraryUtils {
   /**
    * Set the library's log level with 0 being least verbose.
    *
-   * @param {int} level - the library's log level
+   * @param {number} level - the library's log level
    */
   static async setLogLevel(level) {
     assert(level === parseInt(level, 10) && level >= 0, "Log level must be an integer >= 0");
@@ -148,13 +149,13 @@ class LibraryUtils {
    * @return {Worker} a worker to share among wallet instances
    */
   static async getWorker() {
-    
     // one time initialization
     if (!LibraryUtils.WORKER) {
-      if (GenUtils.isBrowser()) LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
-      else { 
-       const Worker = require("web-worker"); // import web worker if nodejs
-       LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      if (GenUtils.isBrowser()) {
+        LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      } else {
+        const Worker = require("web-worker"); // import web worker if nodejs
+        LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
       }
       LibraryUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
@@ -196,7 +197,8 @@ class LibraryUtils {
    */
   static async invokeWorker(objectId, fnName, args) {
     assert(fnName.length >= 2);
-    let worker = await LibraryUtils.getWorker();
+    let worker;
+    worker = await LibraryUtils.getWorker();
     if (!LibraryUtils.WORKER_OBJECTS[objectId]) LibraryUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
       let callbackId = GenUtils.getUUID();
@@ -222,9 +224,8 @@ class LibraryUtils {
 
 LibraryUtils.LOG_LEVEL = 0;
 LibraryUtils.WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
-    const path = require("path");
     return LibraryUtils._prefixWindowsPath(path.join(__dirname, "./MoneroWebWorker.js"));
 }();
 LibraryUtils.WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
 
-module.exports = LibraryUtils;
+export default LibraryUtils;

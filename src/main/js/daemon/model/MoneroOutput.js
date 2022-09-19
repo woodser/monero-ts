@@ -1,7 +1,6 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
-const MoneroKeyImage = require("./MoneroKeyImage");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroKeyImage from "./MoneroKeyImage";
 
 /**
  * Models a Monero transaction output.
@@ -25,7 +24,7 @@ class MoneroOutput {
     this.state = state;
     
     // deserialize fields if necessary
-    if (state.amount !== undefined && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
+    if (state.amount !== undefined && !(state.amount instanceof BigInt)) state.amount = BigInt(state.amount);
     if (state.keyImage && !(state.keyImage instanceof MoneroKeyImage)) state.keyImage = new MoneroKeyImage(state.keyImage);
   }
   
@@ -90,8 +89,8 @@ class MoneroOutput {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getAmount()) json.amount = this.getAmount() ? this.getAmount().toString() : undefined;
-    if (this.getKeyImage()) json.keyImage = this.getKeyImage() ? this.getKeyImage().toJson() : undefined;
+    if (this.getAmount() !== undefined) json.amount = this.getAmount() ? this.getAmount().toString() : undefined;
+    if (this.getKeyImage() !== undefined) json.keyImage = this.getKeyImage() ? this.getKeyImage().toJson() : undefined;
     delete json.tx;
     return json;
   }
@@ -116,7 +115,7 @@ class MoneroOutput {
   
   toString(indent = 0) {
     let str = "";
-    if (this.getKeyImage()) {
+    if (this.getKeyImage() !== undefined) {
       str += GenUtils.kvLine("Key image", "", indent);
       str += this.getKeyImage().toString(indent + 1) + "\n";
     }
@@ -128,4 +127,4 @@ class MoneroOutput {
   }
 }
 
-module.exports = MoneroOutput;
+export default MoneroOutput;

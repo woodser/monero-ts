@@ -1,7 +1,7 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroTxWallet = require("./MoneroTxWallet");
-const MoneroUtils = require("../../common/MoneroUtils");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroTxWallet from "./MoneroTxWallet";
+import MoneroUtils from "../../common/MoneroUtils";
 
 /**
  * Groups transactions who share common hex data which is needed in order to
@@ -32,7 +32,7 @@ class MoneroTxSet {
   
   toJson() {
     let json = Object.assign({}, this.state); // copy state
-    if (this.getTxs()) {
+    if (this.getTxs() !== undefined) {
       json.txs = [];
       for (let tx of this.getTxs()) json.txs.push(tx.toJson());
     }
@@ -110,4 +110,4 @@ class MoneroTxSet {
   }
 }
 
-module.exports = MoneroTxSet;
+export default MoneroTxSet;

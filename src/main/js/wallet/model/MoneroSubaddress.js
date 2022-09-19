@@ -1,6 +1,5 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
-const assert = require("assert");
+import GenUtils from "../../common/GenUtils";
+import assert from "assert";
 
 /**
  * Monero subaddress model.
@@ -16,15 +15,15 @@ class MoneroSubaddress {
     } else {
       this.state = stateOrAddress;
       assert(accountIndex === undefined && index === undefined, "Can construct MoneroSubaddress with object or params but not both");
-      if (this.state.balance !== undefined && !(this.state.balance instanceof BigInteger)) this.state.balance = BigInteger.parse(this.state.balance);
-      if (this.state.unlockedBalance !== undefined && !(this.state.unlockedBalance instanceof BigInteger)) this.state.unlockedBalance = BigInteger.parse(this.state.unlockedBalance);
+      if (this.state.balance !== undefined && !(this.state.balance instanceof BigInt)) this.state.balance = BigInt(this.state.balance);
+      if (this.state.unlockedBalance !== undefined && !(this.state.unlockedBalance instanceof BigInt)) this.state.unlockedBalance = BigInt(this.state.unlockedBalance);
     }
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (json.balance) json.balance = json.balance.toString();
-    if (json.unlockedBalance) json.unlockedBalance = json.unlockedBalance.toString();
+    if (json.balance !== undefined) json.balance = json.balance.toString();
+    if (json.unlockedBalance !== undefined) json.unlockedBalance = json.unlockedBalance.toString();
     return json;
   }
   
@@ -124,4 +123,4 @@ class MoneroSubaddress {
   }
 }
 
-module.exports = MoneroSubaddress;
+export default MoneroSubaddress;

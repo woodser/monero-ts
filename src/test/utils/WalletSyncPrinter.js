@@ -1,4 +1,4 @@
-const MoneroWalletListener = require("../../main/js/wallet/model/MoneroWalletListener");
+import MoneroWalletListener from "../../main/js/wallet/model/MoneroWalletListener";
 
 /**
  * Print sync progress every X blocks.
@@ -19,4 +19,4 @@ class WalletSyncPrinter extends MoneroWalletListener {
   }
 }
 
-module.exports = WalletSyncPrinter;
+export default WalletSyncPrinter;

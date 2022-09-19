@@ -28,4 +28,4 @@ class MoneroMultisigSignResult {
   }
 }
 
-module.exports = MoneroMultisigSignResult;
+export default MoneroMultisigSignResult;

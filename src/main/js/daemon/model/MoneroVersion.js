@@ -42,4 +42,4 @@ class MoneroVersion {
   }
 }
 
-module.exports = MoneroVersion;
+export default MoneroVersion;

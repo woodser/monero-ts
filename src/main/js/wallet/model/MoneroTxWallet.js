@@ -1,10 +1,10 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
-const MoneroIncomingTransfer = require("./MoneroIncomingTransfer");
-const MoneroOutgoingTransfer = require("./MoneroOutgoingTransfer");
-const MoneroOutputWallet = require("./MoneroOutputWallet");
-const MoneroTx = require("../../daemon/model/MoneroTx");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroIncomingTransfer from "./MoneroIncomingTransfer";
+import MoneroOutgoingTransfer from "./MoneroOutgoingTransfer";
+import MoneroOutputWallet from "./MoneroOutputWallet";
+import MoneroTx from "../../daemon/model/MoneroTx";
+import MoneroTxSet from "./MoneroTxSet";
 
 /**
  * Models a Monero transaction with wallet extensions.
@@ -56,22 +56,22 @@ class MoneroTxWallet extends MoneroTx {
       }
     }
     
-    // deserialize BigIntegers
-    if (state.inputSum !== undefined && !(state.inputSum instanceof BigInteger)) state.inputSum = BigInteger.parse(state.inputSum);
-    if (state.outputSum !== undefined && !(state.outputSum instanceof BigInteger)) state.outputSum = BigInteger.parse(state.outputSum);
-    if (state.changeAmount !== undefined && !(state.changeAmount instanceof BigInteger)) state.changeAmount = BigInteger.parse(state.changeAmount);
+    // deserialize BigInts
+    if (state.inputSum !== undefined && !(state.inputSum instanceof BigInt)) state.inputSum = BigInt(state.inputSum);
+    if (state.outputSum !== undefined && !(state.outputSum instanceof BigInt)) state.outputSum = BigInt(state.outputSum);
+    if (state.changeAmount !== undefined && !(state.changeAmount instanceof BigInt)) state.changeAmount = BigInt(state.changeAmount);
   }
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
-    if (this.getIncomingTransfers()) {
+    if (this.getIncomingTransfers() !== undefined) {
       json.incomingTransfers = [];
       for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
     }
-    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
-    if (this.getInputSum()) json.inputSum = this.getInputSum().toString();
-    if (this.getOutputSum()) json.outputSum = this.getOutputSum().toString();
-    if (this.getChangeAmount()) json.changeAmount = this.getChangeAmount().toString();
+    if (this.getOutgoingTransfer() !== undefined) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
+    if (this.getInputSum() !== undefined) json.inputSum = this.getInputSum().toString();
+    if (this.getOutputSum() !== undefined) json.outputSum = this.getOutputSum().toString();
+    if (this.getChangeAmount() !== undefined) json.changeAmount = this.getChangeAmount().toString();
     delete json.block;  // do not serialize parent block
     delete json.txSet;  // do not serialize parent tx set
     return json;
@@ -106,8 +106,8 @@ class MoneroTxWallet extends MoneroTx {
   
   getIncomingAmount() {
     if (this.getIncomingTransfers() === undefined) return undefined;
-    let incomingAmt = BigInteger.parse("0");
-    for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt.add(transfer.getAmount());
+    let incomingAmt = BigInt("0");
+    for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt + transfer.getAmount();
     return incomingAmt;
   }
   
@@ -118,7 +118,7 @@ class MoneroTxWallet extends MoneroTx {
   getTransfers(transferQuery) {
     let transfers = [];
     if (this.getOutgoingTransfer() && (!transferQuery || transferQuery.meetsCriteria(this.getOutgoingTransfer()))) transfers.push(this.getOutgoingTransfer());
-    if (this.getIncomingTransfers()) {
+    if (this.getIncomingTransfers() !== undefined) {
       for (let transfer of this.getIncomingTransfers()) {
         if (!transferQuery || transferQuery.meetsCriteria(transfer)) transfers.push(transfer);
       }
@@ -134,7 +134,7 @@ class MoneroTxWallet extends MoneroTx {
     else this.setOutgoingTransfer(undefined);
     
     // collect incoming transfers or erase if filtered
-    if (this.getIncomingTransfers()) {
+    if (this.getIncomingTransfers() !== undefined) {
       let toRemoves = [];
       for (let transfer of this.getIncomingTransfers()) {
         if (transferQuery.meetsCriteria(transfer)) transfers.push(transfer);
@@ -314,7 +314,7 @@ class MoneroTxWallet extends MoneroTx {
     super.merge(tx);
     
     // merge tx set if they're different which comes back to merging txs
-    const MoneroTxSet = require("./MoneroTxSet");
+    //import MoneroTxSet from "./MoneroTxSet";
     if (this.getTxSet() !== tx.getTxSet()) {
       if (this.getTxSet() == undefined) {
         this.setTxSet(new MoneroTxSet().setTxs([this]));
@@ -375,7 +375,7 @@ class MoneroTxWallet extends MoneroTx {
     str += super.toString(indent) + "\n";
     str += GenUtils.kvLine("Is incoming", this.isIncoming(), indent);
     str += GenUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
-    if (this.getIncomingTransfers()) {
+    if (this.getIncomingTransfers() !== undefined) {
       str += GenUtils.kvLine("Incoming transfers", "", indent);
       for (let i = 0; i < this.getIncomingTransfers().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
@@ -384,7 +384,7 @@ class MoneroTxWallet extends MoneroTx {
     }
     str += GenUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
     str += GenUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
-    if (this.getOutgoingTransfer()) {
+    if (this.getOutgoingTransfer() !== undefined) {
       str += GenUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
@@ -411,4 +411,4 @@ class MoneroTxWallet extends MoneroTx {
   }
 }
 
-module.exports = MoneroTxWallet;
+export default MoneroTxWallet;

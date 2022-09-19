@@ -1,8 +1,8 @@
-const GenUtils = require("./GenUtils");
-const MoneroError = require("./MoneroError");
-const MoneroRpcConnection = require("./MoneroRpcConnection");
-const TaskLooper = require("./TaskLooper");
-const ThreadPool = require("./ThreadPool");
+import GenUtils from "./GenUtils";
+import MoneroError from "./MoneroError";
+import MoneroRpcConnection from "./MoneroRpcConnection";
+import TaskLooper from "./TaskLooper";
+import ThreadPool from "./ThreadPool";
 
 /**
  * <p>Manages a collection of prioritized connections to daemon or wallet RPC endpoints.</p>
@@ -11,10 +11,9 @@ const ThreadPool = require("./ThreadPool");
  * 
  * <code>
  * // imports<br>
- * const monerojs = require("monero-javascript");<br>
- * const MoneroRpcConnection = monerojs.MoneroRpcConnection;<br>
- * const MoneroConnectionManager = monerojs.MoneroConnectionManager;<br>
- * const MoneroConnectionManagerListener = monerojs.MoneroConnectionManagerListener;<br><br>
+ *  * const MoneroRpcConnection = MoneroRpcConnection;<br>
+ * const MoneroConnectionManager = MoneroConnectionManager;<br>
+ * const MoneroConnectionManagerListener = MoneroConnectionManagerListener;<br><br>
  * 
  * // create connection manager<br>
  * let connectionManager = new MoneroConnectionManager();<br><br>
@@ -63,7 +62,7 @@ class MoneroConnectionManager {
   /**
    * Construct a connection manager.
    * 
-   * @param {boolean} proxyToWorker - configure all connections to proxy to worker (default true)
+   * @param {boolean} [proxyToWorker] - configure all connections to proxy to worker (default true)
    */
   constructor(proxyToWorker) {
     this._proxyToWorker = proxyToWorker !== false;
@@ -179,7 +178,7 @@ class MoneroConnectionManager {
   /**
    * Get the best available connection in order of priority then response time.
    * 
-   * @param {MoneroRpcConnection[]} excludedConnections - connections to be excluded from consideration (optional)
+   * @param {MoneroRpcConnection[]} [excludedConnections] - connections to be excluded from consideration (optional)
    * @return {Promise<MoneroRpcConnection>} the best available connection in order of priority then response time, undefined if no connections available
    */
   async getBestAvailableConnection(excludedConnections) {
@@ -217,7 +216,7 @@ class MoneroConnectionManager {
    * Notify if current connection changes.
    * Does not check the connection.
    * 
-   * @param {string|MoneroRpcConnection} uriOrConnection - is the uri of the connection or the connection to make current (default undefined for no current connection)
+   * @param {string|MoneroRpcConnection} [uriOrConnection] - is the uri of the connection or the connection to make current (default undefined for no current connection)
    * @return {MoneroConnectionManager} this connection manager for chaining
    */
   setConnection(uriOrConnection) {
@@ -394,7 +393,7 @@ class MoneroConnectionManager {
   /**
    * Set the maximum request time before its connection is considered offline.
    * 
-   * @param {int} timeoutInMs - the timeout before the connection is considered offline
+   * @param {number} timeoutInMs - the timeout before the connection is considered offline
    * @return {MoneroConnectionManager} this connection manager for chaining
    */
   setTimeout(timeoutInMs) {
@@ -501,4 +500,4 @@ class MoneroConnectionManager {
 MoneroConnectionManager.DEFAULT_TIMEOUT = 5000;
 MoneroConnectionManager.DEFAULT_CHECK_CONNECTION_PERIOD = 15000;
 
-module.exports = MoneroConnectionManager;
+export default MoneroConnectionManager;

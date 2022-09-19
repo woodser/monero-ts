@@ -1,6 +1,6 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroOutput = require("../../daemon/model/MoneroOutput");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroOutput from "../../daemon/model/MoneroOutput";
 
 /**
  * Models a Monero output with wallet extensions.
@@ -106,4 +106,4 @@ class MoneroOutputWallet extends MoneroOutput {
   }
 }
 
-module.exports = MoneroOutputWallet;
+export default MoneroOutputWallet;

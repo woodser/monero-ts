@@ -1,5 +1,4 @@
-const MoneroCheck = require("./MoneroCheck");
-const BigInteger = require("../../common/biginteger").BigInteger;
+import MoneroCheck from "./MoneroCheck";
 
 /**
  * Results from checking a transaction key.
@@ -10,12 +9,12 @@ class MoneroCheckTx extends MoneroCheck {
   
   constructor(state) {
     super(state);
-    if (this.state.receivedAmount !== undefined && !(this.state.receivedAmount instanceof BigInteger)) this.state.receivedAmount = BigInteger.parse(this.state.receivedAmount);
+    if (this.state.receivedAmount !== undefined && !(this.state.receivedAmount instanceof BigInt)) this.state.receivedAmount = BigInt(this.state.receivedAmount);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getReceivedAmount()) json.receivedAmount = this.getReceivedAmount().toString();
+    if (this.getReceivedAmount() !== undefined) json.receivedAmount = this.getReceivedAmount().toString();
     return json;
   }
 
@@ -47,4 +46,4 @@ class MoneroCheckTx extends MoneroCheck {
   }
 }
 
-module.exports = MoneroCheckTx;
+export default MoneroCheckTx;

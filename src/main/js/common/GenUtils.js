@@ -1,5 +1,4 @@
-const assert = require("assert");
-const BigInteger = require("./biginteger").BigInteger;
+import assert from "assert";
 
 /**
  * MIT License
@@ -1408,10 +1407,10 @@ class GenUtils {
     // check for equality
     if (val1 === val2) return val1;
     
-    // check for BigInteger equality
+    // check for BigInt equality
     let comparison; // save comparison for later if applicable
-    if (val1 instanceof BigInteger && val2 instanceof BigInteger) {
-      comparison = val1.compare(val2);  
+    if (val1 instanceof BigInt && val2 instanceof BigInt) {
+      comparison = compareBigInt(val1, val2);  
       if (comparison === 0) return val1;
     }
     
@@ -1436,8 +1435,8 @@ class GenUtils {
         return config.resolveMax ? Math.max(val1, val2) : Math.min(val1, val2);
       }
       
-      // resolve BigIntegers
-      if (val1 instanceof BigInteger && val2 instanceof BigInteger) {
+      // resolve BigInts
+      if (val1 instanceof BigInt && val2 instanceof BigInt) {
         return config.resolveMax ? (comparison < 0 ? val2 : val1) : (comparison < 0 ? val1 : val2);
       }
     }
@@ -1496,7 +1495,7 @@ class GenUtils {
    * Kill the given nodejs child process.
    * 
    * @param {process} process - the nodejs child process to kill
-   * @param {string} signal - the kill signal, e.g. SIGTERM, SIGKILL, SIGINT (default)
+   * @param {string} [signal] - the kill signal, e.g. SIGTERM, SIGKILL, SIGINT (default)
    */
   static async killProcess(process, signal) {
     return new Promise(function(resolve, reject) {
@@ -1505,6 +1504,19 @@ class GenUtils {
       process.kill(signal ? signal : "SIGINT");
     });
   }
+  
+  /**
+   * Compare two BigInt values (replaces BigInteger.compare()).
+   *
+   * @param{BigInt} bigint1 - the first BigInt Value in the comparison
+   * @parma{BigInt} bigint2 - the second BigInt value in the comparison
+   */
+  static compareBigInt = function(bigint1, bigint2){
+    if(bigint1 === bigint2) return 0;
+    if(bigint1 > bigint2) return 1;
+    return -1;
+  }
+
 }
 
-module.exports = GenUtils;
+export default GenUtils;

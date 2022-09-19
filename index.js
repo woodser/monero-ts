@@ -5,90 +5,160 @@
  * 
  * See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
  */
-module.exports = {};
 
 // export common models
-module.exports.GenUtils = require("./src/main/js/common/GenUtils");
-module.exports.BigInteger = require("./src/main/js/common/biginteger").BigInteger;
-module.exports.Filter = require("./src/main/js/common/Filter");
-module.exports.MoneroError = require("./src/main/js/common/MoneroError");
-module.exports.HttpClient = require("./src/main/js/common/HttpClient");
-module.exports.LibraryUtils = require("./src/main/js/common/LibraryUtils");
-module.exports.MoneroRpcConnection = require("./src/main/js/common/MoneroRpcConnection");
-module.exports.MoneroRpcError = require("./src/main/js/common/MoneroRpcError");
-module.exports.SslOptions = require("./src/main/js/common/SslOptions");
-module.exports.TaskLooper = require("./src/main/js/common/TaskLooper");
+import GenUtils from "./src/main/js/common/GenUtils";
+export {GenUtils};
+import Filter from "./src/main/js/common/Filter";
+export {Filter};
+import MoneroError from "./src/main/js/common/MoneroError";
+export {MoneroError};
+import HttpClient from "./src/main/js/common/HttpClient";
+export {HttpClient};
+import LibraryUtils from "./src/main/js/common/LibraryUtils";
+export {LibraryUtils};
+import MoneroRpcConnection from "./src/main/js/common/MoneroRpcConnection";
+export {MoneroRpcConnection};
+import MoneroRpcError from "./src/main/js/common/MoneroRpcError";
+export {MoneroRpcError};
+import SslOptions from "./src/main/js/common/SslOptions";
+export {SslOptions};
+import TaskLooper from "./src/main/js/common/TaskLooper";
+export {TaskLooper};
 
 // export daemon models
-module.exports.ConnectionType = require("./src/main/js/daemon/model/ConnectionType");
-module.exports.MoneroAltChain = require("./src/main/js/daemon/model/MoneroAltChain");
-module.exports.MoneroBan = require("./src/main/js/daemon/model/MoneroBan");
-module.exports.MoneroBlockHeader = require("./src/main/js/daemon/model/MoneroBlockHeader");
-module.exports.MoneroBlock = require("./src/main/js/daemon/model/MoneroBlock");
-module.exports.MoneroBlockTemplate = require("./src/main/js/daemon/model/MoneroBlockTemplate");
-module.exports.MoneroConnectionSpan = require("./src/main/js/daemon/model/MoneroConnectionSpan");
-module.exports.MoneroDaemonInfo = require("./src/main/js/daemon/model/MoneroDaemonInfo");
-module.exports.MoneroDaemonListener = require("./src/main/js/daemon/model/MoneroDaemonListener");
-module.exports.MoneroDaemonSyncInfo = require("./src/main/js/daemon/model/MoneroDaemonSyncInfo");
-module.exports.MoneroDaemonUpdateCheckResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateCheckResult");
-module.exports.MoneroDaemonUpdateDownloadResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateDownloadResult");
-module.exports.MoneroHardForkInfo = require("./src/main/js/daemon/model/MoneroHardForkInfo");
-module.exports.MoneroKeyImage = require("./src/main/js/daemon/model/MoneroKeyImage");
-module.exports.MoneroKeyImageSpentStatus = require("./src/main/js/daemon/model/MoneroKeyImageSpentStatus");
-module.exports.MoneroMinerTxSum = require("./src/main/js/daemon/model/MoneroMinerTxSum");
-module.exports.MoneroMiningStatus = require("./src/main/js/daemon/model/MoneroMiningStatus");
-module.exports.MoneroNetworkType = require("./src/main/js/daemon/model/MoneroNetworkType");
-module.exports.MoneroOutput = require("./src/main/js/daemon/model/MoneroOutput");
-module.exports.MoneroOutputHistogramEntry = require("./src/main/js/daemon/model/MoneroOutputHistogramEntry");
-module.exports.MoneroSubmitTxResult = require("./src/main/js/daemon/model/MoneroSubmitTxResult");
-module.exports.MoneroTx = require("./src/main/js/daemon/model/MoneroTx");
-module.exports.MoneroTxPoolStats = require("./src/main/js/daemon/model/MoneroTxPoolStats");
-module.exports.MoneroVersion = require("./src/main/js/daemon/model/MoneroVersion");
-module.exports.MoneroPeer = require("./src/main/js/daemon/model/MoneroPeer");
+import ConnectionType from "./src/main/js/daemon/model/ConnectionType";
+export {ConnectionType};
+import MoneroAltChain from "./src/main/js/daemon/model/MoneroAltChain";
+export {MoneroAltChain};
+import MoneroBan from "./src/main/js/daemon/model/MoneroBan";
+export {MoneroBan};
+import MoneroBlockHeader from "./src/main/js/daemon/model/MoneroBlockHeader";
+export {MoneroBlockHeader};
+import MoneroBlock from "./src/main/js/daemon/model/MoneroBlock";
+export {MoneroBlock};
+import MoneroBlockTemplate from "./src/main/js/daemon/model/MoneroBlockTemplate";
+export {MoneroBlockTemplate};
+import MoneroConnectionSpan from "./src/main/js/daemon/model/MoneroConnectionSpan";
+export {MoneroConnectionSpan};
+import MoneroDaemonInfo from "./src/main/js/daemon/model/MoneroDaemonInfo";
+export {MoneroDaemonInfo};
+import MoneroDaemonListener from "./src/main/js/daemon/model/MoneroDaemonListener";
+export {MoneroDaemonListener};
+import MoneroDaemonSyncInfo from "./src/main/js/daemon/model/MoneroDaemonSyncInfo";
+export {MoneroDaemonSyncInfo};
+import MoneroDaemonUpdateCheckResult from "./src/main/js/daemon/model/MoneroDaemonUpdateCheckResult";
+export {MoneroDaemonUpdateCheckResult};
+import MoneroDaemonUpdateDownloadResult from "./src/main/js/daemon/model/MoneroDaemonUpdateDownloadResult";
+export {MoneroDaemonUpdateDownloadResult};
+import MoneroHardForkInfo from "./src/main/js/daemon/model/MoneroHardForkInfo";
+export {MoneroHardForkInfo};
+import MoneroKeyImage from "./src/main/js/daemon/model/MoneroKeyImage";
+export {MoneroKeyImage};
+import MoneroKeyImageSpentStatus from "./src/main/js/daemon/model/MoneroKeyImageSpentStatus";
+export {MoneroKeyImageSpentStatus};
+import MoneroMinerTxSum from "./src/main/js/daemon/model/MoneroMinerTxSum";
+export {MoneroMinerTxSum};
+import MoneroMiningStatus from "./src/main/js/daemon/model/MoneroMiningStatus";
+export {MoneroMiningStatus};
+import MoneroNetworkType from "./src/main/js/daemon/model/MoneroNetworkType";
+export {MoneroNetworkType};
+import MoneroOutput from "./src/main/js/daemon/model/MoneroOutput";
+export {MoneroOutput};
+import MoneroOutputHistogramEntry from "./src/main/js/daemon/model/MoneroOutputHistogramEntry";
+export {MoneroOutputHistogramEntry};
+import MoneroSubmitTxResult from "./src/main/js/daemon/model/MoneroSubmitTxResult";
+export {MoneroSubmitTxResult};
+import MoneroTx from "./src/main/js/daemon/model/MoneroTx";
+export {MoneroTx};
+import MoneroTxPoolStats from "./src/main/js/daemon/model/MoneroTxPoolStats";
+export {MoneroTxPoolStats};
+import MoneroVersion from "./src/main/js/daemon/model/MoneroVersion";
+export {MoneroVersion};
+import MoneroPeer from "./src/main/js/daemon/model/MoneroPeer";
+export {MoneroPeer};
 
 // export wallet models
-module.exports.MoneroAccount = require("./src/main/js/wallet/model/MoneroAccount");
-module.exports.MoneroAccountTag = require("./src/main/js/wallet/model/MoneroAccountTag");
-module.exports.MoneroAddressBookEntry = require("./src/main/js/wallet/model/MoneroAddressBookEntry");
-module.exports.MoneroCheck = require("./src/main/js/wallet/model/MoneroCheck");
-module.exports.MoneroCheckReserve = require("./src/main/js/wallet/model/MoneroCheckReserve");
-module.exports.MoneroCheckTx = require("./src/main/js/wallet/model/MoneroCheckTx");
-module.exports.MoneroDestination = require("./src/main/js/wallet/model/MoneroDestination");
-module.exports.MoneroIntegratedAddress = require("./src/main/js/wallet/model/MoneroIntegratedAddress");
-module.exports.MoneroKeyImageImportResult = require("./src/main/js/wallet/model/MoneroKeyImageImportResult");
-module.exports.MoneroMultisigInfo = require("./src/main/js/wallet/model/MoneroMultisigInfo");
-module.exports.MoneroMultisigInitResult = require("./src/main/js/wallet/model/MoneroMultisigInitResult");
-module.exports.MoneroMultisigSignResult = require("./src/main/js/wallet/model/MoneroMultisigSignResult");
-module.exports.MoneroOutputWallet = require("./src/main/js/wallet/model/MoneroOutputWallet");
-module.exports.MoneroOutputQuery = require("./src/main/js/wallet/model/MoneroOutputQuery");
-module.exports.MoneroTxPriority = require("./src/main/js/wallet/model/MoneroTxPriority");
-module.exports.MoneroTxConfig = require("./src/main/js/wallet/model/MoneroTxConfig");
-module.exports.MoneroSubaddress = require("./src/main/js/wallet/model/MoneroSubaddress");
-module.exports.MoneroSyncResult = require("./src/main/js/wallet/model/MoneroSyncResult");
-module.exports.MoneroTransfer = require("./src/main/js/wallet/model/MoneroTransfer");
-module.exports.MoneroIncomingTransfer = require("./src/main/js/wallet/model/MoneroIncomingTransfer");
-module.exports.MoneroOutgoingTransfer = require("./src/main/js/wallet/model/MoneroOutgoingTransfer");
-module.exports.MoneroTransferQuery = require("./src/main/js/wallet/model/MoneroTransferQuery");
-module.exports.MoneroTxSet = require("./src/main/js/wallet/model/MoneroTxSet");
-module.exports.MoneroTxWallet = require("./src/main/js/wallet/model/MoneroTxWallet");
-module.exports.MoneroTxQuery = require("./src/main/js/wallet/model/MoneroTxQuery");
-module.exports.MoneroWalletListener = require("./src/main/js/wallet/model/MoneroWalletListener");
-module.exports.MoneroWalletConfig = require("./src/main/js/wallet/model/MoneroWalletConfig");
-module.exports.MoneroMessageSignatureType = require("./src/main/js/wallet/model/MoneroMessageSignatureType");
-module.exports.MoneroMessageSignatureResult = require("./src/main/js/wallet/model/MoneroMessageSignatureResult");
+import MoneroAccount from "./src/main/js/wallet/model/MoneroAccount";
+export {MoneroAccount};
+import MoneroAccountTag from "./src/main/js/wallet/model/MoneroAccountTag";
+export {MoneroAccountTag};
+import MoneroAddressBookEntry from "./src/main/js/wallet/model/MoneroAddressBookEntry";
+export {MoneroAddressBookEntry};
+import MoneroCheck from "./src/main/js/wallet/model/MoneroCheck";
+export {MoneroCheck};
+import MoneroCheckReserve from "./src/main/js/wallet/model/MoneroCheckReserve";
+export {MoneroCheckReserve};
+import MoneroCheckTx from "./src/main/js/wallet/model/MoneroCheckTx";
+export {MoneroCheckTx};
+import MoneroDestination from "./src/main/js/wallet/model/MoneroDestination";
+export {MoneroDestination};
+import MoneroIntegratedAddress from "./src/main/js/wallet/model/MoneroIntegratedAddress";
+export {MoneroIntegratedAddress};
+import MoneroKeyImageImportResult from "./src/main/js/wallet/model/MoneroKeyImageImportResult";
+export {MoneroKeyImageImportResult};
+import MoneroMultisigInfo from "./src/main/js/wallet/model/MoneroMultisigInfo";
+export {MoneroMultisigInfo};
+import MoneroMultisigInitResult from "./src/main/js/wallet/model/MoneroMultisigInitResult";
+export {MoneroMultisigInitResult};
+import MoneroMultisigSignResult from "./src/main/js/wallet/model/MoneroMultisigSignResult";
+export {MoneroMultisigSignResult};
+import MoneroOutputWallet from "./src/main/js/wallet/model/MoneroOutputWallet";
+export {MoneroOutputWallet};
+import MoneroOutputQuery from "./src/main/js/wallet/model/MoneroOutputQuery";
+export {MoneroOutputQuery};
+import MoneroTxPriority from "./src/main/js/wallet/model/MoneroTxPriority";
+export {MoneroTxPriority};
+import MoneroTxConfig from "./src/main/js/wallet/model/MoneroTxConfig";
+export {MoneroTxConfig};
+import MoneroSubaddress from "./src/main/js/wallet/model/MoneroSubaddress";
+export {MoneroSubaddress};
+import MoneroSyncResult from "./src/main/js/wallet/model/MoneroSyncResult";
+export {MoneroSyncResult};
+import MoneroTransfer from "./src/main/js/wallet/model/MoneroTransfer";
+export {MoneroTransfer};
+import MoneroIncomingTransfer from "./src/main/js/wallet/model/MoneroIncomingTransfer";
+export {MoneroIncomingTransfer};
+import MoneroOutgoingTransfer from "./src/main/js/wallet/model/MoneroOutgoingTransfer";
+export {MoneroOutgoingTransfer};
+import MoneroTransferQuery from "./src/main/js/wallet/model/MoneroTransferQuery";
+export {MoneroTransferQuery};
+import MoneroTxSet from "./src/main/js/wallet/model/MoneroTxSet";
+export {MoneroTxSet};
+import MoneroTxWallet from "./src/main/js/wallet/model/MoneroTxWallet";
+export {MoneroTxWallet};
+import MoneroTxQuery from "./src/main/js/wallet/model/MoneroTxQuery";
+export {MoneroTxQuery};
+import MoneroWalletListener from "./src/main/js/wallet/model/MoneroWalletListener";
+export {MoneroWalletListener};
+import MoneroWalletConfig from "./src/main/js/wallet/model/MoneroWalletConfig";
+export {MoneroWalletConfig};
+import MoneroMessageSignatureType from "./src/main/js/wallet/model/MoneroMessageSignatureType";
+export {MoneroMessageSignatureType};
+import MoneroMessageSignatureResult from "./src/main/js/wallet/model/MoneroMessageSignatureResult";
+export {MoneroMessageSignatureResult};
 
 // export connection manager
-module.exports.MoneroConnectionManager = require("./src/main/js/common/MoneroConnectionManager");
-module.exports.MoneroConnectionManagerListener = require("./src/main/js/common/MoneroConnectionManagerListener");
+import MoneroConnectionManager from "./src/main/js/common/MoneroConnectionManager";
+export {MoneroConnectionManager};
+import MoneroConnectionManagerListener from "./src/main/js/common/MoneroConnectionManagerListener";
+export {MoneroConnectionManagerListener};
 
 // export daemon, wallet, and utils classes
-module.exports.MoneroUtils = require("./src/main/js/common/MoneroUtils");
-module.exports.MoneroDaemon = require("./src/main/js/daemon/MoneroDaemon");
-module.exports.MoneroWallet = require("./src/main/js/wallet/MoneroWallet");
-module.exports.MoneroDaemonRpc = require("./src/main/js/daemon/MoneroDaemonRpc");
-module.exports.MoneroWalletRpc = require("./src/main/js/wallet/MoneroWalletRpc");
-module.exports.MoneroWalletKeys = require("./src/main/js/wallet/MoneroWalletKeys");
-module.exports.MoneroWalletFull = require("./src/main/js/wallet/MoneroWalletFull");
+import MoneroUtils from "./src/main/js/common/MoneroUtils";
+export {MoneroUtils};
+import MoneroDaemon from "./src/main/js/daemon/MoneroDaemon";
+export {MoneroDaemon};
+import MoneroWallet from "./src/main/js/wallet/MoneroWallet";
+export {MoneroWallet};
+import MoneroDaemonRpc from "./src/main/js/daemon/MoneroDaemonRpc";
+export {MoneroDaemonRpc};
+import MoneroWalletRpc from "./src/main/js/wallet/MoneroWalletRpc";
+export {MoneroWalletRpc};
+import MoneroWalletKeys from "./src/main/js/wallet/MoneroWalletKeys";
+export {MoneroWalletKeys};
+import MoneroWalletFull from "./src/main/js/wallet/MoneroWalletFull";
+export {MoneroWalletFull};
 
 // ---------------------------- GLOBAL FUNCTIONS ------------------------------
 
@@ -97,8 +167,8 @@ module.exports.MoneroWalletFull = require("./src/main/js/wallet/MoneroWalletFull
  * 
  * @return {string} the version of this monero-javascript library
  */
-module.exports.getVersion = function() {
-    return module.exports.MoneroUtils.getVersion();
+export function getVersion() {
+    return MoneroUtils.getVersion();
 }
 
 /**
@@ -130,7 +200,7 @@ module.exports.getVersion = function() {
  * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true)
  * @return {MoneroDaemonRpc} the daemon RPC client
  */
-module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDaemonRpc._connectToDaemonRpc(...arguments); }
+export function connectToDaemonRpc() { return MoneroDaemonRpc._connectToDaemonRpc(...arguments); }
 
 /**
  * <p>Create a client connected to monero-wallet-rpc.</p>
@@ -171,7 +241,7 @@ module.exports.connectToDaemonRpc = function() { return module.exports.MoneroDae
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @return {MoneroWalletRpc} the wallet RPC client
  */
-module.exports.connectToWalletRpc = function() { return module.exports.MoneroWalletRpc._connectToWalletRpc(...arguments); }
+export function connectToWalletRpc() { return MoneroWalletRpc._connectToWalletRpc(...arguments); }
 
 /**
  * <p>Create a Monero wallet using fully client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
@@ -209,9 +279,9 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
  * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the main thread (default true)
  * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
- * @return {MoneroWalletFull} the created wallet
+ * @return {Promise<MoneroWalletFull>} the created wallet
  */
-module.exports.createWalletFull = function() { return module.exports.MoneroWalletFull.createWallet(...arguments); }
+export function createWalletFull() { return MoneroWalletFull.createWallet(...arguments); }
 
 /**
  * <p>Open an existing Monero wallet using fully client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
@@ -256,7 +326,7 @@ module.exports.createWalletFull = function() { return module.exports.MoneroWalle
  * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
  * @return {MoneroWalletFull} the opened wallet
  */
-module.exports.openWalletFull = function() { return module.exports.MoneroWalletFull.openWallet(...arguments); }
+export function openWalletFull() { return MoneroWalletFull.openWallet(...arguments); }
 
 /**
  * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
@@ -281,4 +351,4 @@ module.exports.openWalletFull = function() { return module.exports.MoneroWalletF
  * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
  * @return {MoneroWalletKeys} the created wallet
  */
-module.exports.createWalletKeys = function() { return module.exports.MoneroWalletKeys.createWallet(...arguments); }
+export function createWalletKeys() { return MoneroWalletKeys.createWallet(...arguments); }

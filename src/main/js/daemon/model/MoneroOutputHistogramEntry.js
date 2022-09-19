@@ -1,4 +1,3 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
  * Entry in a Monero output histogram (see get_output_histogram of Daemon RPC documentation).
@@ -7,12 +6,12 @@ class MoneroOutputHistogramEntry {
   
   constructor(state) {
     this.state = Object.assign({}, state);
-    if (this.state.amount !== undefined && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
+    if (this.state.amount !== undefined && !(this.state.amount instanceof BigInt)) this.state.amount = BigInt(this.state.amount);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (json.amount) json.amount = json.amount.toString();
+    if (json.amount !== undefined) json.amount = json.amount.toString();
     return json;
   }
   
@@ -53,4 +52,4 @@ class MoneroOutputHistogramEntry {
   }
 }
 
-module.exports = MoneroOutputHistogramEntry;
+export default MoneroOutputHistogramEntry;

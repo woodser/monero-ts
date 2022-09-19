@@ -1,4 +1,4 @@
-const TestUtils = require("./TestUtils");
+import TestUtils from "./TestUtils";
 
 /**
  * Utility class to run monero-wallet-rpc test servers until terminated.
@@ -30,4 +30,4 @@ class RunWalletRpcTestServers {
 // run until termination
 RunWalletRpcTestServers.run();
 
-module.exports = RunWalletRpcTestServers;
+export default RunWalletRpcTestServers;

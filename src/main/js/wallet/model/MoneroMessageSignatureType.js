@@ -15,4 +15,4 @@ MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY = 0;
  */
 MoneroMessageSignatureType.SIGN_WITH_VIEW_KEY = 1;
 
-module.exports = MoneroMessageSignatureType;
+export default MoneroMessageSignatureType;

@@ -1,6 +1,5 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
-const MoneroConnectionSpan = require("./MoneroConnectionSpan");
-const MoneroPeer = require("./MoneroPeer");
+import MoneroConnectionSpan from "./MoneroConnectionSpan";
+import MoneroPeer from "./MoneroPeer";
 
 /**
  * Models daemon synchronization information.
@@ -27,7 +26,7 @@ class MoneroDaemonSyncInfo {
         }
       }
     }
-    if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
+    if (state.credits !== undefined && !(state.credits instanceof BigInt)) state.credits = BigInt(state.credits);
     
     // assign internal state
     this.state = state;
@@ -35,17 +34,17 @@ class MoneroDaemonSyncInfo {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (json.peers) {
+    if (json.peers !== undefined) {
       for (let i = 0; i < json.peers.length; i++) {
         json.peers[i] = json.peers[i].toJson();
       }
     }
-    if (json.spans) {
+    if (json.spans !== undefined) {
       for (let i = 0; i < json.spans.length; i++) {
         json.spans[i] = json.spans[i].toJson();
       }
     }
-    if (json.credits) json.credits = json.credits.toString();
+    if (json.credits !== undefined) json.credits = json.credits.toString();
     return json;
   }
   
@@ -122,4 +121,4 @@ class MoneroDaemonSyncInfo {
   }
 }
 
-module.exports = MoneroDaemonSyncInfo;
+export default MoneroDaemonSyncInfo;

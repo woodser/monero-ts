@@ -8,6 +8,11 @@ let configBase = {
     module: {
       rules: [
         {
+          test: /\.ts?$/,
+          loader: 'ts-loader',
+          exclude: /node_modules/
+        },
+        {
           test: /\.js$/,
           exclude: path.join(__dirname, 'node_modules'),
           type: "javascript/auto",
@@ -31,12 +36,15 @@ let configBase = {
       }),
     ],
     resolve: {
+      extensions: ['.js', '.ts'],
       alias: {
-        "fs": "html5-fs"
+        "fs": "html5-fs",
+        ['~']: path.resolve(__dirname + '/app')
       },
-      extensions: ['.js', '.jsx', '.css', '.json', 'otf', 'ttf', 'eot', 'svg'],
+      extensions: ['.js', '.jsx', '.css', '.json', 'otf', 'ttf', 'eot', 'svg', '.ts', '.tsx'],
       modules: [
-        'node_modules'
+        'node_modules',
+        path.resolve(__dirname + '/src')
       ],
       fallback: { // browser polyfills
         assert: require.resolve('assert'),

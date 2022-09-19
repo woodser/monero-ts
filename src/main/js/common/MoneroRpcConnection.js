@@ -1,9 +1,9 @@
-const GenUtils = require("./GenUtils");
-const HttpClient = require("./HttpClient");
-const LibraryUtils = require("./LibraryUtils");
-const MoneroError = require("../common/MoneroError");
-const MoneroRpcError = require("../common/MoneroRpcError");
-const MoneroUtils = require("./MoneroUtils");
+import GenUtils from "./GenUtils";
+import HttpClient from "./HttpClient";
+import LibraryUtils from "./LibraryUtils";
+import MoneroError from "../common/MoneroError";
+import MoneroRpcError from "../common/MoneroRpcError";
+import MoneroUtils from "./MoneroUtils";
 
 /**
  * Maintains a connection and sends requests to a Monero RPC API.
@@ -29,16 +29,17 @@ class MoneroRpcConnection {
    * 
    * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - RPC endpoint URI, MoneroRpcConnection, or equivalent JS object
    * @param {string} uriOrConfigOrConnection.uri - URI of the RPC endpoint
-   * @param {string} uriOrConfigOrConnection.username - username to authenticate with the RPC endpoint (optional)
-   * @param {string} uriOrConfigOrConnection.password - password to authenticate with the RPC endpoint (optional)
-   * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string} [uriOrConfigOrConnection.username] - username to authenticate with the RPC endpoint (optional)
+   * @param {string} [uriOrConfigOrConnection.password] - password to authenticate with the RPC endpoint (optional)
+   * @param {boolean} [uriOrConfigOrConnection.rejectUnauthorized] - rejects self-signed certificates if true (default true)
    * @param {boolean} uriOrConfigOrConnection.proxyToWorker - proxy requests to worker
-   * @param {string} username - username to authenticate with the RPC endpoint (optional)
-   * @param {string} password - password to authenticate with the RPC endpoint (optional)
-   * @param {boolean} rejectUnauthorized - reject self-signed certificates if true (default true)
+   * @param {string} [username] - username to authenticate with the RPC endpoint (optional)
+   * @param {string} [password] - password to authenticate with the RPC endpoint (optional)
+   * @param {boolean} [rejectUnauthorized] - reject self-signed certificates if true (default true)
+   * @param {boolean} [proxyToWorker] - use web worker (default true);
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized, proxyToWorker) {
-    
+    console.log("Creating new rpc connection")
     // validate and normalize config
     if (typeof uriOrConfigOrConnection === "string") {
       this._config = {uri: uriOrConfigOrConnection};
@@ -56,7 +57,7 @@ class MoneroRpcConnection {
     
     // merge default config
     this._config = Object.assign({}, MoneroRpcConnection.DEFAULT_CONFIG, this._config);
-    
+    console.log(JSON.stringify(this._config));
     // normalize uri
     if (this._config.uri) {
       this._config.uri = this._config.uri.replace(/\/$/, ""); // strip trailing slash
@@ -72,6 +73,7 @@ class MoneroRpcConnection {
         throw new MoneroError("RPC connection includes unsupported field: '" + key + "'");
       }
     }
+    console.log("Created new rpc connection")
   }
   
   setCredentials(username, password) {
@@ -129,7 +131,7 @@ class MoneroRpcConnection {
    * Set the connection's priority relative to other connections. Priority 1 is highest,
    * then priority 2, etc. The default priority of 0 is lowest priority.
    * 
-   * @param {int} priority - the connection priority (default 0)
+   * @param {number} [priority] - the connection priority (default 0)
    * @return {MoneroRpcConnection} this connection
    */
   setPriority(priority) {
@@ -151,7 +153,7 @@ class MoneroRpcConnection {
   /**
    * Check the connection status to update isOnline, isAuthenticated, and response time.
    * 
-   * @param {int} timeoutInMs - maximum response time before considered offline
+   * @param {number} timeoutInMs - maximum response time before considered offline
    * @return {Promise<boolean>} true if there is a change in status, false otherwise
    */
   async checkConnection(timeoutInMs) {
@@ -219,14 +221,14 @@ class MoneroRpcConnection {
    * 
    * @param {string} method - JSON RPC method to invoke
    * @param {object} params - request parameters
-   * @param {int} timeoutInMs - request timeout in milliseconds
+   * @param {number} timeoutInMs - request timeout in milliseconds
    * @return {object} is the response map
    */
   async sendJsonRequest(method, params, timeoutInMs) {
     try {
       
       // build request body
-      let body = JSON.stringify({  // body is stringified so text/plain is returned so BigIntegers are preserved
+      let body = JSON.stringify({  // body is stringified so text/plain is returned so BigInts are preserved
         id: "0",
         jsonrpc: "2.0",
         method: method,
@@ -274,7 +276,7 @@ class MoneroRpcConnection {
    * 
    * @param {string} path - JSON RPC path to invoke
    * @param {object} params - request parameters
-   * @param {int} timeoutInMs - request timeout in milliseconds
+   * @param {number} timeoutInMs - request timeout in milliseconds
    * @return {object} is the response map
    */
   async sendPathRequest(path, params, timeoutInMs) {
@@ -287,7 +289,7 @@ class MoneroRpcConnection {
         uri: this.getUri() + '/' + path,
         username: this.getUsername(),
         password: this.getPassword(),
-        body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigIntegers are preserved
+        body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigInts are preserved
         timeout: timeoutInMs,
         rejectUnauthorized: this._config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
@@ -320,7 +322,7 @@ class MoneroRpcConnection {
    * 
    * @param {string} path - path of the binary RPC method to invoke
    * @param {object} params - request parameters
-   * @param {int} timeoutInMs - request timeout in milliseconds
+   * @param {number} timeoutInMs - request timeout in milliseconds
    * @return {Uint8Array} the binary response
    */
   async sendBinaryRequest(path, params, timeoutInMs) {
@@ -399,4 +401,4 @@ MoneroRpcConnection.DEFAULT_CONFIG = {
 
 MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized", "priority", "proxyToWorker"];
 
-module.exports = MoneroRpcConnection;
+export default MoneroRpcConnection;

@@ -1,4 +1,3 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
  * Models results from importing key images.
@@ -7,15 +6,15 @@ class MoneroKeyImageImportResult {
   
   constructor(state) {
     state = Object.assign({}, state);
-    if (state.spentAmount !== undefined && !(state.spentAmount instanceof BigInteger)) state.spentAmount = BigInteger.parse(state.spentAmount);
-    if (state.unspentAmount !== undefined && !(state.unspentAmount instanceof BigInteger)) state.unspentAmount = BigInteger.parse(state.unspentAmount);
+    if (state.spentAmount !== undefined && !(state.spentAmount instanceof BigInt)) state.spentAmount = BigInt(state.spentAmount);
+    if (state.unspentAmount !== undefined && !(state.unspentAmount instanceof BigInt)) state.unspentAmount = BigInt(state.unspentAmount);
     this.state = state;
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getSpentAmount()) json.spentAmount = this.getSpentAmount().toString();
-    if (this.getUnspentAmount()) json.unspentAmount = this.getUnspentAmount().toString();
+    if (this.getSpentAmount() !== undefined) json.spentAmount = this.getSpentAmount().toString();
+    if (this.getUnspentAmount() !== undefined) json.unspentAmount = this.getUnspentAmount().toString();
     return json;
   }
   
@@ -47,4 +46,4 @@ class MoneroKeyImageImportResult {
   }
 }
 
-module.exports = MoneroKeyImageImportResult;
+export default MoneroKeyImageImportResult;

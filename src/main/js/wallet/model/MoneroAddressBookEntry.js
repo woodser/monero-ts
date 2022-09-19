@@ -48,4 +48,4 @@ class MoneroAddressBookEntry {
   }
 }
 
-module.exports = MoneroAddressBookEntry;
+export default MoneroAddressBookEntry;

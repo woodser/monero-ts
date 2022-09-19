@@ -61,4 +61,4 @@ class MoneroMiningStatus {
   }
 }
 
-module.exports = MoneroMiningStatus;
+export default MoneroMiningStatus;

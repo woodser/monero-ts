@@ -53,4 +53,4 @@ class SslOptions {
   }
 }
 
-module.exports = SslOptions;
+export default SslOptions;

@@ -1,19 +1,17 @@
-const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
-const monerojs = require("../../index");
-const BigInteger = monerojs.BigInteger;
-const ConnectionType = monerojs.ConnectionType;
-const GenUtils = monerojs.GenUtils;
-const MoneroOutput = monerojs.MoneroOutput;
-const MoneroTxConfig = monerojs.MoneroTxConfig;
-const MoneroBan = monerojs.MoneroBan;
-const MoneroKeyImage = monerojs.MoneroKeyImage;
-const MoneroTx = monerojs.MoneroTx;
-const MoneroAltChain = monerojs.MoneroAltChain;
-const MoneroDaemonListener = monerojs.MoneroDaemonListener;
-const MoneroDaemonSyncInfo = monerojs.MoneroDaemonSyncInfo;
-const MoneroPeer = monerojs.MoneroPeer;
-const MoneroKeyImageSpentStatus = monerojs.MoneroKeyImageSpentStatus;
+import assert from "assert";
+import TestUtils from "./utils/TestUtils";
+import {ConnectionType} from "../../index";
+import {GenUtils} from "../../index";
+import {MoneroOutput} from "../../index";
+import {MoneroTxConfig} from "../../index";
+import {MoneroBan} from "../../index";
+import {MoneroKeyImage} from "../../index";
+import {MoneroTx} from "../../index";
+import {MoneroAltChain} from "../../index";
+import {MoneroDaemonListener} from "../../index";
+import {MoneroDaemonSyncInfo} from "../../index";
+import {MoneroPeer} from "../../index";
+import {MoneroKeyImageSpentStatus} from "../../index";
 
 // context for testing binary blocks
 // TODO: binary blocks have inconsistent client-side pruning
@@ -59,7 +57,7 @@ class TestMoneroDaemonRpc {
         // create command to start monerod process
         let cmd = [
             TestUtils.DAEMON_LOCAL_PATH,
-            "--" + monerojs.MoneroNetworkType.toString(TestUtils.NETWORK_TYPE).toLowerCase(),
+            "--" + MoneroNetworkType.toString(TestUtils.NETWORK_TYPE).toLowerCase(),
             "--no-igd",
             "--hide-my-port",
             "--data-dir", TestUtils.MONERO_BINS_DIR + "/node1",
@@ -70,7 +68,7 @@ class TestMoneroDaemonRpc {
         ];
         
         // start monerod process from command
-        let daemon = await monerojs.connectToDaemonRpc(cmd);
+        let daemon = await connectToDaemonRpc(cmd);
         
         // query daemon
         let connection = await daemon.getRpcConnection();
@@ -486,7 +484,7 @@ class TestMoneroDaemonRpc {
       if (testConfig.testNonRelays)
       it("Can get a fee estimate", async function() {
         let fee = await that.daemon.getFeeEstimate();
-        TestUtils.testUnsignedBigInteger(fee, true);
+        TestUtils.testUnsignedBigInt(fee, true);
       });
       
       if (testConfig.testNonRelays)
@@ -720,14 +718,14 @@ class TestMoneroDaemonRpc {
       if (testConfig.testNonRelays)
       it("Can get an output distribution (binary)", async function() {
         let amounts = [];
-        amounts.push(new BigInteger(0));
-        amounts.push(new BigInteger(1));
-        amounts.push(new BigInteger(10));
-        amounts.push(new BigInteger(100));
-        amounts.push(new BigInteger(1000));
-        amounts.push(new BigInteger(10000));
-        amounts.push(new BigInteger(100000));
-        amounts.push(new BigInteger(1000000));
+        amounts.push(BigInt(0));
+        amounts.push(BigInt(1));
+        amounts.push(BigInt(10));
+        amounts.push(BigInt(100));
+        amounts.push(BigInt(1000));
+        amounts.push(BigInt(10000));
+        amounts.push(BigInt(100000));
+        amounts.push(BigInt(1000000));
         let entries = await that.daemon.getOutputDistribution(amounts);
         for (let entry of entries) {
           testOutputDistributionEntry(entry);
@@ -1379,7 +1377,7 @@ function testTx(tx, ctx) {
   
   // test miner tx
   if (tx.isMinerTx()) {
-    assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
+    assert.equal(GenUtils.compareBigInt(tx.getFee(), BigInt(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getInputs(), undefined);
     assert.equal(tx.getSignatures(), undefined);
@@ -1465,7 +1463,7 @@ function testBlockTemplate(template) {
   assert(template.getBlockTemplateBlob());
   assert(template.getBlockHashingBlob());
   assert(template.getDifficulty());
-  assert(template.getDifficulty() instanceof BigInteger);
+  assert(template.getDifficulty() instanceof BigInt);
   assert(template.getExpectedReward());
   assert(template.getHeight());
   assert(template.getPrevHash());
@@ -1484,7 +1482,7 @@ function testInfo(info) {
   assert(info.getBlockSizeMedian());
   assert(info.getBootstrapDaemonAddress() === undefined || (typeof info.getBootstrapDaemonAddress() === "string" && info.getBootstrapDaemonAddress().length > 0));
   assert(info.getCumulativeDifficulty());
-  assert(info.getCumulativeDifficulty() instanceof BigInteger)
+  assert(info.getCumulativeDifficulty() instanceof BigInt)
   assert(info.getFreeSpace());
   assert(info.getNumOfflinePeers() >= 0);
   assert(info.getNumOnlinePeers() >= 0);
@@ -1506,7 +1504,7 @@ function testInfo(info) {
   assert(info.getBlockWeightMedian());
   assert(info.getDatabaseSize() > 0);
   assert(typeof info.getUpdateAvailable() === "boolean");
-  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
+  TestUtils.testUnsignedBigInt(info.getCredits(), false);
   assert.equal(typeof info.getTopBlockHash(), "string");
   assert(info.getTopBlockHash());
   assert.equal("boolean", typeof info.isBusySyncing());
@@ -1530,7 +1528,7 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
   }
   assert(syncInfo.getNextNeededPruningSeed() >= 0);
   assert.equal(syncInfo.getOverview(), undefined);
-  TestUtils.testUnsignedBigInteger(syncInfo.getCredits(), false);
+  TestUtils.testUnsignedBigInt(syncInfo.getCredits(), false);
   assert.equal(syncInfo.getTopBlockHash(), undefined);
 }
 
@@ -1555,7 +1553,7 @@ function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getNumVotes(), undefined);
   assert.notEqual(hardForkInfo.getVoting(), undefined);
   assert.notEqual(hardForkInfo.getWindow(), undefined);
-  TestUtils.testUnsignedBigInteger(hardForkInfo.getCredits(), false);
+  TestUtils.testUnsignedBigInt(hardForkInfo.getCredits(), false);
   assert.equal(hardForkInfo.getTopBlockHash(), undefined);
 }
 
@@ -1566,19 +1564,19 @@ function testMoneroBan(ban) {
 }
 
 function testMinerTxSum(txSum) {
-  TestUtils.testUnsignedBigInteger(txSum.getEmissionSum(), true);
-  TestUtils.testUnsignedBigInteger(txSum.getFeeSum(), true);
+  TestUtils.testUnsignedBigInt(txSum.getEmissionSum(), true);
+  TestUtils.testUnsignedBigInt(txSum.getFeeSum(), true);
 }
 
 function testOutputHistogramEntry(entry) {
-  TestUtils.testUnsignedBigInteger(entry.getAmount());
+  TestUtils.testUnsignedBigInt(entry.getAmount());
   assert(entry.getNumInstances() >= 0);
   assert(entry.getNumUnlockedInstances() >= 0);
   assert(entry.getNumRecentInstances() >= 0);
 }
 
 function testOutputDistributionEntry(entry) {
-  TestUtils.testUnsignedBigInteger(entry.getAmount());
+  TestUtils.testUnsignedBigInt(entry.getAmount());
   assert(entry.getBase() >= 0);
   assert(Array.isArray(entry.getDistribution()) && entry.getDistribution().length > 0);
   assert(entry.getStartHeight() >= 0);
@@ -1596,7 +1594,7 @@ function testSubmitTxResultGood(result) {
     assert.equal(result.isOverspend(), false);
     assert.equal(result.isTooBig(), false);
     assert.equal(result.getSanityCheckFailed(), false);
-    TestUtils.testUnsignedBigInteger(result.getCredits(), false); // 0 credits
+    TestUtils.testUnsignedBigInt(result.getCredits(), false); // 0 credits
     assert.equal(result.getTopBlockHash(), undefined);
     assert.equal(result.isGood(), true);
   } catch (e) {
@@ -1695,7 +1693,7 @@ function testKeyImage(image, ctx) {
 
 function testOutput(output, ctx) { 
   assert(output instanceof MoneroOutput);
-  TestUtils.testUnsignedBigInteger(output.getAmount());
+  TestUtils.testUnsignedBigInt(output.getAmount());
   if (ctx) {
     if (output.getTx().inTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(output.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
     else assert(output.getIndex() >= 0);
@@ -1722,7 +1720,7 @@ async function getConfirmedTxs(daemon, numTxs) {
 function testAltChain(altChain) {
   assert(altChain instanceof MoneroAltChain);
   assert(Array.isArray(altChain.getBlockHashes()) && altChain.getBlockHashes().length > 0);
-  TestUtils.testUnsignedBigInteger(altChain.getDifficulty(), true);
+  TestUtils.testUnsignedBigInt(altChain.getDifficulty(), true);
   assert(altChain.getHeight() > 0);
   assert(altChain.getLength() > 0);
   assert(altChain.getMainChainParentBlockHash().length === 64);
@@ -1757,7 +1755,7 @@ function testKnownPeer(peer, fromConnection) {
   assert(peer.getPort() > 0);
   assert(peer.getRpcPort() === undefined || (typeof peer.getRpcPort() === "number" && peer.getRpcPort() >= 0));
   assert.equal(typeof peer.isOnline(), "boolean");
-  if (peer.getRpcCreditsPerHash() !== undefined) TestUtils.testUnsignedBigInteger(peer.getRpcCreditsPerHash());
+  if (peer.getRpcCreditsPerHash() !== undefined) TestUtils.testUnsignedBigInt(peer.getRpcCreditsPerHash());
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else {
     if (peer.getLastSeenTimestamp() < 0) console("Last seen timestamp is invalid: " + peer.getLastSeenTimestamp());
@@ -1818,7 +1816,7 @@ function testTxCopy(tx, ctx) {
   else {
     assert(copy.getInputs() !== tx.getInputs());
     for (let i = 0; i < copy.getInputs().length; i++) {
-      assert.equal(0, tx.getInputs()[i].getAmount().compare(copy.getInputs()[i].getAmount()));
+      assert.equal(0, GenUtils.compareBigInt(tx.getInputs()[i].getAmount(), copy.getInputs()[i].getAmount()));
     }
   }
   
@@ -1827,7 +1825,7 @@ function testTxCopy(tx, ctx) {
   else {
     assert(copy.getOutputs() !== tx.getOutputs());
     for (let i = 0; i < copy.getOutputs().length; i++) {
-      assert.equal(0, tx.getOutputs()[i].getAmount().compare(copy.getOutputs()[i].getAmount()));
+      assert.equal(0, GenUtils.compareBigInt(tx.getOutputs()[i].getAmount(), copy.getOutputs()[i].getAmount()));
     }
   }
   
@@ -1842,4 +1840,4 @@ function testTxCopy(tx, ctx) {
   assert.equal(merged.toString(), tx.toString());
 }
 
-module.exports = TestMoneroDaemonRpc;
+export default TestMoneroDaemonRpc;

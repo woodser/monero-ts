@@ -1,45 +1,44 @@
-const assert = require("assert");
-const BigInteger = require("../common/biginteger").BigInteger;
-const GenUtils = require("../common/GenUtils");
-const LibraryUtils = require("../common/LibraryUtils");
-const TaskLooper = require("../common/TaskLooper");
-const MoneroAccount = require("./model/MoneroAccount");
-const MoneroAccountTag = require("./model/MoneroAccountTag");
-const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
-const MoneroBlock = require("../daemon/model/MoneroBlock");
-const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
-const MoneroCheckReserve = require("./model/MoneroCheckReserve");
-const MoneroCheckTx = require("./model/MoneroCheckTx");
-const MoneroDestination = require("./model/MoneroDestination");
-const MoneroError = require("../common/MoneroError");
-const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
-const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
-const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
-const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
-const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
-const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
-const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
-const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
-const MoneroOutputQuery = require("./model/MoneroOutputQuery");
-const MoneroOutputWallet = require("./model/MoneroOutputWallet");
-const MoneroRpcConnection = require("../common/MoneroRpcConnection");
-const MoneroRpcError = require("../common/MoneroRpcError");
-const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroSyncResult = require("./model/MoneroSyncResult");
-const MoneroTransferQuery = require("./model/MoneroTransferQuery");
-const MoneroTxConfig = require("./model/MoneroTxConfig");
-const MoneroTxQuery = require("./model/MoneroTxQuery");
-const MoneroTxSet = require("./model/MoneroTxSet");
-const MoneroTxWallet = require("./model/MoneroTxWallet");
-const MoneroUtils = require("../common/MoneroUtils");
-const MoneroVersion = require("../daemon/model/MoneroVersion");
-const MoneroWallet = require("./MoneroWallet");
-const MoneroWalletConfig = require("./model/MoneroWalletConfig");
-const MoneroWalletListener = require("./model/MoneroWalletListener");
-const MoneroMessageSignatureType = require("./model/MoneroMessageSignatureType");
-const MoneroMessageSignatureResult = require("./model/MoneroMessageSignatureResult");
-const ThreadPool = require("../common/ThreadPool");
-const SslOptions = require("../common/SslOptions");
+import assert from "assert";
+import GenUtils from "../common/GenUtils";
+import LibraryUtils from "../common/LibraryUtils";
+import TaskLooper from "../common/TaskLooper";
+import MoneroAccount from "./model/MoneroAccount";
+import MoneroAccountTag from "./model/MoneroAccountTag";
+import MoneroAddressBookEntry from "./model/MoneroAddressBookEntry";
+import MoneroBlock from "../daemon/model/MoneroBlock";
+import MoneroBlockHeader from "../daemon/model/MoneroBlockHeader";
+import MoneroCheckReserve from "./model/MoneroCheckReserve";
+import MoneroCheckTx from "./model/MoneroCheckTx";
+import MoneroDestination from "./model/MoneroDestination";
+import MoneroError from "../common/MoneroError";
+import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
+import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
+import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
+import MoneroMultisigInfo from "./model/MoneroMultisigInfo";
+import MoneroMultisigInitResult from "./model/MoneroMultisigInitResult";
+import MoneroMultisigSignResult from "./model/MoneroMultisigSignResult";
+import MoneroOutgoingTransfer from "./model/MoneroOutgoingTransfer";
+import MoneroOutputQuery from "./model/MoneroOutputQuery";
+import MoneroOutputWallet from "./model/MoneroOutputWallet";
+import MoneroRpcConnection from "../common/MoneroRpcConnection";
+import MoneroRpcError from "../common/MoneroRpcError";
+import MoneroSubaddress from "./model/MoneroSubaddress";
+import MoneroSyncResult from "./model/MoneroSyncResult";
+import MoneroTransferQuery from "./model/MoneroTransferQuery";
+import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxQuery from "./model/MoneroTxQuery";
+import MoneroTxSet from "./model/MoneroTxSet";
+import MoneroTxWallet from "./model/MoneroTxWallet";
+import MoneroUtils from "../common/MoneroUtils";
+import MoneroVersion from "../daemon/model/MoneroVersion";
+import MoneroWallet from "./MoneroWallet";
+import MoneroWalletConfig from "./model/MoneroWalletConfig";
+import MoneroWalletListener from "./model/MoneroWalletListener";
+import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
+import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
+import ThreadPool from "../common/ThreadPool";
+import SslOptions from "../common/SslOptions";
 
 /**
  * Copyright (c) woodser
@@ -74,18 +73,18 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * <p>Construct a wallet RPC client (for internal use).</p>
    * 
-   * @param {string|object|MoneroRpcConnection|string[]} uriOrConfig - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection or command line parameters to run a monero-wallet-rpc process internally
-   * @param {string} uriOrConfig.uri - uri of monero-wallet-rpc
-   * @param {string} uriOrConfig.username - username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} uriOrConfig.password - password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
-   * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string|object|MoneroRpcConnection|string[]} [uriOrConfig] - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection or command line parameters to run a monero-wallet-rpc process internally
+   * @param {string} [uriOrConfig.uri] - uri of monero-wallet-rpc
+   * @param {string} [uriOrConfig.username] - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} [uriOrConfig.password] - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} [uriOrConfig.rejectUnauthorized] - rejects self-signed certificates if true (default true)
+   * @param {string} [username] - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} [password] - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} [rejectUnauthorized] - rejects self-signed certificates if true (default true)
    */
   constructor(uriOrConfig, username, password, rejectUnauthorized) {
     super();
-    if (GenUtils.isArray(uriOrConfig)) throw new MoneroError("Array with command parameters is invalid first parameter, use `await monerojs.connectToWalletRpc(...)`");
+    if (GenUtils.isArray(uriOrConfig)) throw new MoneroError("Array with command parameters is invalid first parameter, use `await connectToWalletRpc(...)`");
     this.config = MoneroWalletRpc._normalizeConfig(uriOrConfig, username, password, rejectUnauthorized);
     this.rpc = new MoneroRpcConnection(this.config);
     this.addressCache = {}; // avoid unecessary requests for addresses
@@ -98,12 +97,12 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * @param {string|string[]|object|MoneroRpcConnection} uriOrConfig - uri of monero-wallet-rpc or terminal parameters or JS config object or MoneroRpcConnection
    * @param {string} uriOrConfig.uri - uri of monero-wallet-rpc
-   * @param {string} uriOrConfig.username - username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} uriOrConfig.password - password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
-   * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string} [uriOrConfig.username] - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} [uriOrConfig.password] - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} [uriOrConfig.rejectUnauthorized] - rejects self-signed certificates if true (default true)
+   * @param {string} [username] - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} [password] - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} [rejectUnauthorized] - rejects self-signed certificates if true (default true)
    * @return {MoneroWalletRpc} the wallet RPC client
    */
   static async _connectToWalletRpc(uriOrConfig, username, password, rejectUnauthorized) {
@@ -237,10 +236,10 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} pathOrConfig.path - path of the wallet to create (optional, in-memory wallet if not given)
    * @param {string} pathOrConfig.password - password of the wallet to create
    * @param {string} pathOrConfig.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
-   * @param {string} pathOrConfig.serverUsername - username to authenticate with the daemon (optional)
-   * @param {string} pathOrConfig.serverPassword - password to authenticate with the daemon (optional)
-   * @param {boolean} pathOrConfig.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcConnection|object} pathOrConfig.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {string} [pathOrConfig.serverUsername] - username to authenticate with the daemon (optional)
+   * @param {string} [pathOrConfig.serverPassword] - password to authenticate with the daemon (optional)
+   * @param {boolean} [pathOrConfig.rejectUnauthorized] - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcConnection|object} [pathOrConfig.server] - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {string} password is the wallet's password
    * @return {MoneroWalletRpc} this wallet client
    */
@@ -286,16 +285,16 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
-   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
-   * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} [config.privateViewKey] - private view key of the wallet to create (optional)
+   * @param {string} [config.privateSpendKey] - private spend key of the wallet to create (optional)
+   * @param {number} [config.restoreHeight] - block height to start scanning from (defaults to 0 unless generating random wallet)
+   * @param {string} [config.language] - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
    * @param {string} config.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
-   * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
-   * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
-   * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-   * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed (default true)
+   * @param {string} [config.serverUsername] - username to authenticate with the daemon (optional)
+   * @param {string} [config.serverPassword] - password to authenticate with the daemon (optional)
+   * @param {boolean} [config.rejectUnauthorized] - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcConnection|object} [config.server] - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {boolean} [config.saveCurrent] - specifies if the current RPC wallet should be saved before being closed (default true)
    * @return {MoneroWalletRpc} this wallet client
    */
   async createWallet(config) {
@@ -356,7 +355,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} name - name of the wallet to create on the RPC server
    * @param {string} password - wallet's password
    * @param {string} mnemonic - mnemonic of the wallet to construct
-   * @param {int} restoreHeight - block height to restore from (default = 0)
+   * @param {number} [restoreHeight] - block height to restore from (default = 0)
    * @param {string} language - language of the mnemonic in case the old language is invalid
    * @param {string} seedOffset - offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
    * @param {boolean} saveCurrent - specifies if the current RPC wallet should be saved before being closed
@@ -435,7 +434,7 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Set the wallet's daemon connection.
    * 
-   * @param {string|MoneroRpcConnection} uriOrConnection - the daemon's URI or connection (defaults to offline)
+   * @param {string|MoneroRpcConnection} [uriOrConnection] - the daemon's URI or connection (defaults to offline)
    * @param {boolean} isTrusted - indicates if the daemon in trusted
    * @param {SslOptions} sslOptions - custom SSL configuration
    */
@@ -676,8 +675,8 @@ class MoneroWalletRpc extends MoneroWallet {
       // these fields are not initialized if subaddress is unused and therefore not returned from `get_balance`
       for (let account of accounts) {
         for (let subaddress of account.getSubaddresses()) {
-          subaddress.setBalance(new BigInteger(0));
-          subaddress.setUnlockedBalance(new BigInteger(0));
+          subaddress.setBalance(BigInt(0));
+          subaddress.setUnlockedBalance(BigInt(0));
           subaddress.setNumUnspentOutputs(0);
           subaddress.setNumBlocksToUnlock(0);
         }
@@ -720,7 +719,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async createAccount(label) {
     label = label ? label : undefined;
     let resp = await this.rpc.sendJsonRequest("create_account", {label: label});
-    return new MoneroAccount(resp.result.account_index, resp.result.address, new BigInteger(0), new BigInteger(0));
+    return new MoneroAccount(resp.result.account_index, resp.result.address, BigInt(0), BigInt(0));
   }
 
   async getSubaddresses(accountIdx, subaddressIndices, skipBalances) {
@@ -744,8 +743,8 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // these fields are not initialized if subaddress is unused and therefore not returned from `get_balance`
       for (let subaddress of subaddresses) {
-        subaddress.setBalance(new BigInteger(0));
-        subaddress.setUnlockedBalance(new BigInteger(0));
+        subaddress.setBalance(BigInt(0));
+        subaddress.setUnlockedBalance(BigInt(0));
         subaddress.setNumUnspentOutputs(0);
         subaddress.setNumBlocksToUnlock(0);
       }
@@ -799,8 +798,8 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setIndex(resp.result.address_index);
     subaddress.setAddress(resp.result.address);
     subaddress.setLabel(label ? label : undefined);
-    subaddress.setBalance(new BigInteger(0));
-    subaddress.setUnlockedBalance(new BigInteger(0));
+    subaddress.setBalance(BigInt(0));
+    subaddress.setUnlockedBalance(BigInt(0));
     subaddress.setNumUnspentOutputs(0);
     subaddress.setIsUsed(false);
     subaddress.setNumBlocksToUnlock(0);
@@ -970,8 +969,8 @@ class MoneroWalletRpc extends MoneroWallet {
     // build and return result
     let importResult = new MoneroKeyImageImportResult();
     importResult.setHeight(resp.result.height);
-    importResult.setSpentAmount(new BigInteger(resp.result.spent));
-    importResult.setUnspentAmount(new BigInteger(resp.result.unspent));
+    importResult.setSpentAmount(BigInt(resp.result.spent));
+    importResult.setUnspentAmount(BigInt(resp.result.unspent));
     return importResult;
   }
   
@@ -1103,17 +1102,17 @@ class MoneroWalletRpc extends MoneroWallet {
         let subaddressIndices = [];
         indices.set(config.getAccountIndex(), subaddressIndices);
         for (let subaddress of await this.getSubaddresses(config.getAccountIndex())) {
-          if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) subaddressIndices.push(subaddress.getIndex());
+          if (GenUtils.compareBigInt(subaddress.getUnlockedBalance(), BigInt(0)) > 0) subaddressIndices.push(subaddress.getIndex());
         }
       }
     } else {
       let accounts = await this.getAccounts(true);
       for (let account of accounts) {
-        if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
+        if (GenUtils.compareBigInt(account.getUnlockedBalance(), BigInt(0)) > 0) {
           let subaddressIndices = [];
           indices.set(account.getIndex(), subaddressIndices);
           for (let subaddress of account.getSubaddresses()) {
-            if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) subaddressIndices.push(subaddress.getIndex());
+            if (GenUtils.compareBigInt(subaddress.getUnlockedBalance(), BigInt(0)) > 0) subaddressIndices.push(subaddress.getIndex());
           }
         }
       }
@@ -1244,7 +1243,7 @@ class MoneroWalletRpc extends MoneroWallet {
       check.setIsGood(true);
       check.setNumConfirmations(resp.result.confirmations);
       check.setInTxPool(resp.result.in_pool);
-      check.setReceivedAmount(new BigInteger(resp.result.received));
+      check.setReceivedAmount(BigInt(resp.result.received));
       return check;
     } catch (e) {
       if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
@@ -1280,7 +1279,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (isGood) {
         check.setNumConfirmations(resp.result.confirmations);
         check.setInTxPool(resp.result.in_pool);
-        check.setReceivedAmount(new BigInteger(resp.result.received));
+        check.setReceivedAmount(BigInt(resp.result.received));
       }
       return check;
     } catch (e) {
@@ -1345,8 +1344,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckReserve();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setUnconfirmedSpentAmount(new BigInteger(resp.result.spent));
-      check.setTotalAmount(new BigInteger(resp.result.total));
+      check.setUnconfirmedSpentAmount(BigInt(resp.result.spent));
+      check.setTotalAmount(BigInt(resp.result.total));
     }
     return check;
   }
@@ -1426,7 +1425,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async parsePaymentUri(uri) {
     assert(uri, "Must provide URI to parse");
     let resp = await this.rpc.sendJsonRequest("parse_uri", {uri: uri});
-    let config = new MoneroTxConfig({address: resp.result.uri.address, amount: new BigInteger(resp.result.uri.amount)});
+    let config = new MoneroTxConfig({address: resp.result.uri.address, amount: BigInt(resp.result.uri.amount)});
     config.setPaymentId(resp.result.uri.payment_id);
     config.setRecipientName(resp.result.uri.recipient_name);
     config.setNote(resp.result.uri.tx_description);
@@ -1584,18 +1583,18 @@ class MoneroWalletRpc extends MoneroWallet {
   async _getBalances(accountIdx, subaddressIdx) {
     if (accountIdx === undefined) {
       assert.equal(subaddressIdx, undefined, "Must provide account index with subaddress index");
-      let balance = new BigInteger(0);
-      let unlockedBalance = new BigInteger(0);
+      let balance = BigInt(0);
+      let unlockedBalance = BigInt(0);
       for (let account of await this.getAccounts()) {
-        balance = balance.add(account.getBalance());
-        unlockedBalance = unlockedBalance.add(account.getUnlockedBalance());
+        balance = balance + account.getBalance();
+        unlockedBalance = unlockedBalance + account.getUnlockedBalance();
       }
       return [balance, unlockedBalance];
     } else {
       let params = {account_index: accountIdx, address_indices: subaddressIdx === undefined ? undefined : [subaddressIdx]};
       let resp = await this.rpc.sendJsonRequest("get_balance", params);
-      if (subaddressIdx === undefined) return [new BigInteger(resp.result.balance), new BigInteger(resp.result.unlocked_balance)];
-      else return [new BigInteger(resp.result.per_subaddress[0].balance), new BigInteger(resp.result.per_subaddress[0].unlocked_balance)];
+      if (subaddressIdx === undefined) return [BigInt(resp.result.balance), BigInt(resp.result.unlocked_balance)];
+      else return [BigInt(resp.result.per_subaddress[0].balance), BigInt(resp.result.per_subaddress[0].unlocked_balance)];
     }
   }
   
@@ -1668,10 +1667,10 @@ class MoneroWalletRpc extends MoneroWallet {
         // replace transfer amount with destination sum
         // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
         if (tx.getOutgoingTransfer() !== undefined && tx.isRelayed() && !tx.isFailed() &&
-            tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+            tx.getOutgoingTransfer().getDestinations() && GenUtils.compareBigInt(tx.getOutgoingAmount(), BigInt(0)) === 0) {
           let outgoingTransfer = tx.getOutgoingTransfer();
-          let transferTotal = new BigInteger(0);
-          for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
+          let transferTotal = BigInt(0);
+          for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal + destination.getAmount();
           tx.getOutgoingTransfer().setAmount(transferTotal);
         }
         
@@ -1839,7 +1838,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let transfer = tx.getOutgoingTransfer();
       transfer.setAccountIndex(config.getAccountIndex());
       if (config.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(config.getSubaddressIndices());
-      let destination = new MoneroDestination(config.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
+      let destination = new MoneroDestination(config.getDestinations()[0].getAddress(), BigInt(transfer.getAmount()));
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(config.getPaymentId());
@@ -1918,8 +1917,8 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let key of Object.keys(rpcAccount)) {
       let val = rpcAccount[key];
       if (key === "account_index") account.setIndex(val);
-      else if (key === "balance") account.setBalance(new BigInteger(val));
-      else if (key === "unlocked_balance") account.setUnlockedBalance(new BigInteger(val));
+      else if (key === "balance") account.setBalance(BigInt(val));
+      else if (key === "unlocked_balance") account.setUnlockedBalance(BigInt(val));
       else if (key === "base_address") account.setPrimaryAddress(val);
       else if (key === "tag") account.setTag(val);
       else if (key === "label") { } // label belongs to first subaddress
@@ -1936,8 +1935,8 @@ class MoneroWalletRpc extends MoneroWallet {
       if (key === "account_index") subaddress.setAccountIndex(val);
       else if (key === "address_index") subaddress.setIndex(val);
       else if (key === "address") subaddress.setAddress(val);
-      else if (key === "balance") subaddress.setBalance(new BigInteger(val));
-      else if (key === "unlocked_balance") subaddress.setUnlockedBalance(new BigInteger(val));
+      else if (key === "balance") subaddress.setBalance(BigInt(val));
+      else if (key === "unlocked_balance") subaddress.setUnlockedBalance(BigInt(val));
       else if (key === "num_unspent_outputs") subaddress.setNumUnspentOutputs(val);
       else if (key === "label") { if (val) subaddress.setLabel(val); }
       else if (key === "used") subaddress.setIsUsed(val);
@@ -1952,7 +1951,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Initializes a sent transaction.
    * 
    * @param {MoneroTxConfig} config - send config
-   * @param {MoneroTxWallet} tx - existing transaction to initialize (optional)
+   * @param {MoneroTxWallet} [tx] - existing transaction to initialize (optional)
    * @param {boolean} copyDestinations - copies config destinations if true
    * @return {MoneroTxWallet} is the initialized send tx
    */
@@ -2044,12 +2043,12 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_key_list") for (let i = 0; i < val.length; i++) txs[i].setKey(val[i]);
       else if (key === "tx_blob_list") for (let i = 0; i < val.length; i++) txs[i].setFullHex(val[i]);
       else if (key === "tx_metadata_list") for (let i = 0; i < val.length; i++) txs[i].setMetadata(val[i]);
-      else if (key === "fee_list") for (let i = 0; i < val.length; i++) txs[i].setFee(new BigInteger(val[i]));
+      else if (key === "fee_list") for (let i = 0; i < val.length; i++) txs[i].setFee(BigInt(val[i]));
       else if (key === "weight_list") for (let i = 0; i < val.length; i++) txs[i].setWeight(val[i]);
       else if (key === "amount_list") {
         for (let i = 0; i < val.length; i++) {
-          if (txs[i].getOutgoingTransfer() !== undefined) txs[i].getOutgoingTransfer().setAmount(new BigInteger(val[i]));
-          else txs[i].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[i]).setAmount(new BigInteger(val[i])));
+          if (txs[i].getOutgoingTransfer() !== undefined) txs[i].getOutgoingTransfer().setAmount(BigInt(val[i]));
+          else txs[i].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[i]).setAmount(BigInt(val[i])));
         }
       }
       else if (key === "multisig_txset" || key === "unsigned_txset" || key === "signed_txset") {} // handled elsewhere
@@ -2108,7 +2107,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcTx[key];
       if (key === "txid") tx.setHash(val);
       else if (key === "tx_hash") tx.setHash(val);
-      else if (key === "fee") tx.setFee(new BigInteger(val));
+      else if (key === "fee") tx.setFee(BigInt(val));
       else if (key === "note") { if (val) tx.setNote(val); }
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
@@ -2140,7 +2139,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);
-        transfer.setAmount(new BigInteger(val));
+        transfer.setAmount(BigInt(val));
       }
       else if (key === "amounts") {}  // ignoring, amounts sum to amount
       else if (key === "address") {
@@ -2174,7 +2173,7 @@ class MoneroWalletRpc extends MoneroWallet {
           destinations.push(destination);
           for (let destinationKey of Object.keys(rpcDestination)) {
             if (destinationKey === "address") destination.setAddress(rpcDestination[destinationKey]);
-            else if (destinationKey === "amount") destination.setAmount(new BigInteger(rpcDestination[destinationKey]));
+            else if (destinationKey === "amount") destination.setAmount(BigInt(rpcDestination[destinationKey]));
             else throw new MoneroError("Unrecognized transaction destination field: " + destinationKey);
           }
         }
@@ -2183,10 +2182,10 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "multisig_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
-      else if (key === "amount_in") tx.setInputSum(new BigInteger(val));
-      else if (key === "amount_out") tx.setOutputSum(new BigInteger(val));
+      else if (key === "amount_in") tx.setInputSum(BigInt(val));
+      else if (key === "amount_out") tx.setOutputSum(BigInt(val));
       else if (key === "change_address") tx.setChangeAddress(val === "" ? undefined : val);
-      else if (key === "change_amount") tx.setChangeAmount(new BigInteger(val));
+      else if (key === "change_amount") tx.setChangeAmount(BigInt(val));
       else if (key === "dummy_outputs") tx.setNumDummyOutputs(val);
       else if (key === "extra") tx.setExtraHex(val);
       else if (key === "ring_size") tx.setRingSize(val);
@@ -2234,7 +2233,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let output = new MoneroOutputWallet({tx: tx});
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "amount") output.setAmount(new BigInteger(val));
+      if (key === "amount") output.setAmount(BigInt(val));
       else if (key === "spent") output.setIsSpent(val);
       else if (key === "key_image") { if ("" !== val) output.setKeyImage(new MoneroKeyImage(val)); }
       else if (key === "global_index") output.setIndex(val);
@@ -2516,7 +2515,7 @@ class WalletPoller {
     if (tx.getOutgoingTransfer() !== undefined) {
       assert(tx.getInputs() === undefined);
       let output = new MoneroOutputWallet()
-          .setAmount(tx.getOutgoingTransfer().getAmount().add(tx.getFee()))
+          .setAmount(tx.getOutgoingTransfer().getAmount() + tx.getFee())
           .setAccountIndex(tx.getOutgoingTransfer().getAccountIndex())
           .setSubaddressIndex(tx.getOutgoingTransfer().getSubaddressIndices().length === 1 ? tx.getOutgoingTransfer().getSubaddressIndices()[0] : undefined) // initialize if transfer sourced from single subaddress
           .setTx(tx);
@@ -2554,7 +2553,7 @@ class WalletPoller {
   
   async _checkForChangedBalances() {
     let balances = await this._wallet._getBalances();
-    if (balances[0].compare(this._prevBalances[0]) !== 0 || balances[1].compare(this._prevBalances[1]) !== 0) {
+    if (GenUtils.compareBigInt(balances[0], this._prevBalances[0]) !== 0 || GenUtils.compareBigInt(balances[1], this._prevBalances[1]) !== 0) {
       this._prevBalances = balances;
       for (let listener of await this._wallet.getListeners()) await listener.onBalancesChanged(balances[0], balances[1]);
       return true;
@@ -2565,4 +2564,4 @@ class WalletPoller {
 
 MoneroWalletRpc.DEFAULT_SYNC_PERIOD_IN_MS = 20000; // default period between syncs in ms (defined by DEFAULT_AUTO_REFRESH_PERIOD in wallet_rpc_server.cpp)
 
-module.exports = MoneroWalletRpc;
+export default MoneroWalletRpc;

@@ -58,4 +58,4 @@ class MoneroMessageSignatureResult {
   }
 }
 
-module.exports = MoneroMessageSignatureResult;
+export default MoneroMessageSignatureResult;

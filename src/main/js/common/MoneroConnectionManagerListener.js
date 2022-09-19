@@ -7,8 +7,9 @@ class MoneroConnectionManagerListener {
    * Notified on connection change events.
    * 
    * @param {MoneroRpcConnection} connection - the connection manager's current connection
+   * @returns {promise<void>}
    */
   async onConnectionChanged(connection) { }
 }
 
-module.exports = MoneroConnectionManagerListener;
+export default MoneroConnectionManagerListener;

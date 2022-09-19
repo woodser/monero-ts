@@ -91,4 +91,4 @@ class MoneroDaemonUpdateCheckResult {
   }
 }
 
-module.exports = MoneroDaemonUpdateCheckResult;
+export default MoneroDaemonUpdateCheckResult;

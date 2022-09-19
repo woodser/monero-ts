@@ -1,20 +1,20 @@
-const assert = require("assert");
-const GenUtils = require("./GenUtils");
-const HttpClient = require("./HttpClient");
-const LibraryUtils = require("./LibraryUtils");
-const MoneroBan = require("../daemon/model/MoneroBan");
-const MoneroBlock = require("../daemon/model/MoneroBlock");
-const MoneroDaemonListener = require("../daemon/model/MoneroDaemonListener");
-const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
-const MoneroError = require("./MoneroError");
-const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
-const MoneroRpcConnection = require("./MoneroRpcConnection");
-const MoneroTxConfig = require("../wallet/model/MoneroTxConfig");
-const MoneroTxSet = require("../wallet/model/MoneroTxSet");
-const MoneroUtils = require("../common/MoneroUtils");
-const MoneroWalletConfig = require("../wallet/model/MoneroWalletConfig");
-const MoneroWalletListener = require("../wallet/model/MoneroWalletListener");
-const MoneroWalletFull = require("../wallet/MoneroWalletFull");
+import assert from "assert";
+import GenUtils from "./GenUtils";
+import HttpClient from "./HttpClient";
+import LibraryUtils from "./LibraryUtils";
+import MoneroBan from "../daemon/model/MoneroBan";
+import MoneroBlock from "../daemon/model/MoneroBlock";
+import MoneroDaemonListener from "../daemon/model/MoneroDaemonListener";
+import MoneroDaemonRpc from "../daemon/MoneroDaemonRpc";
+import MoneroError from "./MoneroError";
+import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroRpcConnection from "./MoneroRpcConnection";
+import MoneroTxConfig from "../wallet/model/MoneroTxConfig";
+import MoneroTxSet from "../wallet/model/MoneroTxSet";
+import MoneroUtils from "../common/MoneroUtils";
+import MoneroWalletConfig from "../wallet/model/MoneroWalletConfig"
+import MoneroWalletListener from "../wallet/model/MoneroWalletListener";
+import MoneroWalletFull from "../wallet/MoneroWalletFull";
 
 /**
  * Worker to manage a daemon and wasm wallet off the main thread using messages.
@@ -25,7 +25,7 @@ const MoneroWalletFull = require("../wallet/MoneroWalletFull");
  * 
  * @private
  */
-onmessage = async function(e) {
+self.onmessage = async function(e) {
   
   // initialize one time
   await self.initOneTime();

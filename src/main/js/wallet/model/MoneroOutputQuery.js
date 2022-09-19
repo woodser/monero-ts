@@ -1,6 +1,6 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
-const MoneroError = require("../../common/MoneroError");
-const MoneroOutputWallet = require("./MoneroOutputWallet");
+import MoneroError from "../../common/MoneroError";
+import MoneroOutputWallet from "./MoneroOutputWallet";
+import MoneroTxQuery from "./MoneroTxQuery";
 
 /**
  * Configuration to query wallet outputs.
@@ -20,19 +20,19 @@ class MoneroOutputQuery extends MoneroOutputWallet {
    * &nbsp;&nbsp; isSpent: false,<br>
    * &nbsp;&nbsp; isLocked: false,<br>
    * &nbsp;&nbsp; accountIndex: 0,<br>
-   * &nbsp;&nbsp; minAmount: new BigInteger("750000")<br>
+   * &nbsp;&nbsp; minAmount: BigInt("750000")<br>
    * });
    * </code>
    * 
    * <p>All configuration is optional.  All outputs are returned except those that don't meet criteria defined in this query.</p>
    * 
-   * @param {object} config - output query configuration (optional)
-   * @param {int} config.accountIndex - get outputs in this account index
-   * @param {int} config.subaddressIndex - get outputs in this subaddress index
+   * @param {object} [config] - output query configuration (optional)
+   * @param {number} config.accountIndex - get outputs in this account index
+   * @param {number} config.subaddressIndex - get outputs in this subaddress index
    * @param {int[]} config.subaddressIndices - get outputs in these subaddress indices
-   * @param {BigInteger} config.amount - get outputs with this amount
-   * @param {BigInteger} config.minAmount - get outputs with amount greater than or equal to this amount
-   * @param {BigInteger} config.maxAmount - get outputs with amount less than or equal to this amount
+   * @param {BigInt} config.amount - get outputs with this amount
+   * @param {BigInt} config.minAmount - get outputs with amount greater than or equal to this amount
+   * @param {BigInt} config.maxAmount - get outputs with amount less than or equal to this amount
    * @param {boolean} config.isSpent - get spent xor unspent outputs
    * @param {boolean} config.isFrozen - get frozen xor thawed outputs
    * @param {object|MoneroKeyImage} config.keyImage - get outputs with a key image matching fields defined in this key image
@@ -44,9 +44,9 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     super(config);
     
     // deserialize if necessary
-    const MoneroTxQuery = require("./MoneroTxQuery");
-    if (this.state.minAmount !== undefined && !(this.state.minAmount instanceof BigInteger)) this.state.minAmount = BigInteger.parse(this.state.minAmount);
-    if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInteger)) this.state.maxAmount = BigInteger.parse(this.state.maxAmount);
+    //import MoneroTxQuery from "./MoneroTxQuery";
+    if (this.state.minAmount !== undefined && !(this.state.minAmount instanceof BigInt)) this.state.minAmount = BigInt(this.state.minAmount);
+    if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInt)) this.state.maxAmount = BigInt(this.state.maxAmount);
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.txQuery);
     if (this.state.txQuery) this.state.txQuery.setOutputQuery(this);
     if (this.state.isLocked !== undefined) throw new MoneroError("isLocked must be part of tx query, not output query");
@@ -58,8 +58,8 @@ class MoneroOutputQuery extends MoneroOutputWallet {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson());
-    if (this.getMinAmount()) json.minAmount = this.getMinAmount().toString();
-    if (this.getMaxAmount()) json.maxAmount = this.getMaxAmount().toString();
+    if (this.getMinAmount() !== undefined) json.minAmount = this.getMinAmount().toString();
+    if (this.getMaxAmount() !== undefined) json.maxAmount = this.getMaxAmount().toString();
     delete json.txQuery;
     return json;
   }
@@ -108,7 +108,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     // filter on output
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== output.getAccountIndex()) return false;
     if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== output.getSubaddressIndex()) return false;
-    if (this.getAmount() !== undefined && this.getAmount().compare(output.getAmount()) !== 0) return false;
+    if (this.getAmount() !== undefined && GenUtils.compareBigInt(this.getAmount(), output.getAmount()) !== 0) return false;
     if (this.isSpent() !== undefined && this.isSpent() !== output.isSpent()) return false;
     if (this.isFrozen() !== undefined && this.isFrozen() !== output.isFrozen()) return false;
     
@@ -126,8 +126,8 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.getTxQuery() && !this.getTxQuery().meetsCriteria(output.getTx(), false)) return false;
     
     // filter on remaining fields
-    if (this.getMinAmount() !== undefined && (output.getAmount() === undefined || output.getAmount().compare(this.getMinAmount()) < 0)) return false;
-    if (this.getMaxAmount() !== undefined && (output.getAmount() === undefined || output.getAmount().compare(this.getMaxAmount()) > 0)) return false;
+    if (this.getMinAmount() !== undefined && (output.getAmount() === undefined || GenUtils.compareBigInt(output.getAmount(), this.getMinAmount()) < 0)) return false;
+    if (this.getMaxAmount() !== undefined && (output.getAmount() === undefined || GenUtils.compareBigInt(output.getAmount(), this.getMaxAmount()) > 0)) return false;
     
     // output meets query
     return true;
@@ -136,4 +136,4 @@ class MoneroOutputQuery extends MoneroOutputWallet {
 
 MoneroOutputQuery._EMPTY_OUTPUT = new MoneroOutputWallet();
 
-module.exports = MoneroOutputQuery;
+export default MoneroOutputQuery;

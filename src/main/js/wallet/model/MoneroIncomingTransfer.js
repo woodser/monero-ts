@@ -1,6 +1,6 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroTransfer = require("./MoneroTransfer");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroTransfer from "./MoneroTransfer";
 
 /**
  * Models an incoming transfer of funds to the wallet.
@@ -93,4 +93,4 @@ class MoneroIncomingTransfer extends MoneroTransfer {
   }
 }
 
-module.exports = MoneroIncomingTransfer;
+export default MoneroIncomingTransfer;

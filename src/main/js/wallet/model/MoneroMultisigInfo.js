@@ -45,4 +45,4 @@ class MoneroMultisigInfo {
   }
 }
 
-module.exports = MoneroMultisigInfo;
+export default MoneroMultisigInfo;

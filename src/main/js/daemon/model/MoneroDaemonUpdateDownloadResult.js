@@ -1,4 +1,4 @@
-const MoneroDaemonUpdateCheckResult = require("./MoneroDaemonUpdateCheckResult");
+import MoneroDaemonUpdateCheckResult from "./MoneroDaemonUpdateCheckResult";
 
 /**
  * Models the result of downloading an update.
@@ -29,4 +29,4 @@ class MoneroDaemonUpdateDownloadResult extends MoneroDaemonUpdateCheckResult {
   }
 }
 
-module.exports = MoneroDaemonUpdateDownloadResult;
+export default MoneroDaemonUpdateDownloadResult;

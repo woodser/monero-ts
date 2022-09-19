@@ -37,4 +37,4 @@ class MoneroAccountTag {
   }
 }
 
-module.exports = MoneroAccountTag;
+export default MoneroAccountTag;

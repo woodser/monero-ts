@@ -1,7 +1,6 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
-const MoneroOutput = require("./MoneroOutput");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroOutput from "./MoneroOutput";
 
 /**
  * Represents a transaction on the Monero network.
@@ -25,7 +24,7 @@ class MoneroTx {
     this.state = state;
     
     // deserialize fee
-    if (state.fee !== undefined && !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    if (state.fee !== undefined && !(state.fee instanceof BigInt)) state.fee = BigInt(state.fee);
     
     // deserialize inputs
     if (state.inputs) {
@@ -405,16 +404,16 @@ class MoneroTx {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getInputs()) {
+    if (this.getFee() !== undefined) json.fee = this.getFee().toString();
+    if (this.getInputs() !== undefined) {
       json.inputs = [];
       for (let input of this.getInputs()) json.inputs.push(input.toJson());
     }
-    if (this.getOutputs()) {
+    if (this.getOutputs() !== undefined) {
       json.outputs = [];
       for (let output of this.getOutputs()) json.outputs.push(output.toJson());
     }
-    if (this.getExtra()) json.extra = this.getExtra().slice();
+    if (this.getExtra() !== undefined) json.extra = this.getExtra().slice();
     delete json.block;  // do not serialize parent block
     return json;
   }
@@ -515,7 +514,7 @@ class MoneroTx {
     }
     
     // handle unrelayed -> relayed -> confirmed
-    if (this.isConfirmed()) {
+    if (this.isConfirmed() !== undefined) {
       this.setInTxPool(false);
       this.setReceivedTimestamp(undefined);
       this.setLastRelayedTimestamp(undefined);
@@ -566,7 +565,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += GenUtils.kvLine("Max used block hash", this.getMaxUsedBlockHash(), indent);
     str += GenUtils.kvLine("Signatures", this.getSignatures(), indent);
-    if (this.getInputs()) {
+    if (this.getInputs() !== undefined) {
       str += GenUtils.kvLine("Inputs", "", indent);
       for (let i = 0; i < this.getInputs().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
@@ -574,7 +573,7 @@ class MoneroTx {
         str += '\n'
       }
     }
-    if (this.getOutputs()) {
+    if (this.getOutputs() !== undefined) {
       str += GenUtils.kvLine("Outputs", "", indent);
       for (let i = 0; i < this.getOutputs().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
@@ -589,4 +588,4 @@ class MoneroTx {
 // default payment id
 MoneroTx.DEFAULT_PAYMENT_ID = "0000000000000000";
 
-module.exports = MoneroTx;
+export default MoneroTx;

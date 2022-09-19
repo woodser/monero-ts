@@ -43,4 +43,4 @@ class MoneroIntegratedAddress {
   }
 }
 
-module.exports = MoneroIntegratedAddress;
+export default MoneroIntegratedAddress;

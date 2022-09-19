@@ -1,5 +1,5 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
 
 /**
  * Models a Monero key image.
@@ -67,4 +67,4 @@ class MoneroKeyImage {
   }
 }
 
-module.exports = MoneroKeyImage;
+export default MoneroKeyImage;

@@ -1,7 +1,5 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
-
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
 /**
  * Models a base transfer of funds to or from the wallet.
  * 
@@ -24,7 +22,7 @@ class MoneroTransfer {
     this.state = state;
     
     // deserialize fields if necessary
-    if (state.amount !== undefined && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
+    if (state.amount !== undefined && !(state.amount instanceof BigInt)) state.amount = BigInt(state.amount);
     
     // validate state
     this._validate();
@@ -36,7 +34,7 @@ class MoneroTransfer {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getAmount()) json.amount = this.getAmount().toString()
+    if (this.getAmount() !== undefined) json.amount = this.getAmount().toString()
     delete json.tx; // parent tx is not serialized
     return json;
   }
@@ -103,7 +101,7 @@ class MoneroTransfer {
     this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
     
     // TODO monero-project: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount of 0
-    if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(BigInteger.parse("0")) === 0 || transfer.getAmount().compare(BigInteger.parse("0")) === 0)) {
+        if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && GenUtils.compareBigInt(this.getAmount(), transfer.getAmount()) !== 0 && (GenUtils.compareBigInt(this.getAmount(), BigInt("0")) === 0 || GenUtils.compareBigInt(transfer.getAmount(), BigInt("0")) === 0)) {
       console.warn("monero-project returning transfers with 0 amount/numSuggestedConfirmations");
     } else {
       this.setAmount(GenUtils.reconcile(this.getAmount(), transfer.getAmount()));
@@ -125,4 +123,4 @@ class MoneroTransfer {
   }
 }
 
-module.exports = MoneroTransfer;
+export default MoneroTransfer;

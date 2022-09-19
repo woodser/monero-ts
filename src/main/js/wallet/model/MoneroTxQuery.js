@@ -1,7 +1,7 @@
-const assert = require("assert");
-const MoneroOutputQuery = require("./MoneroOutputQuery");
-const MoneroTransferQuery = require("./MoneroTransferQuery");
-const MoneroTxWallet = require("./MoneroTxWallet");
+import assert from "assert";
+import MoneroOutputQuery from "./MoneroOutputQuery";
+import MoneroTransferQuery from "./MoneroTransferQuery";
+import MoneroTxWallet from "./MoneroTxWallet";
 
 /**
  * <p>Configuration to query transactions.</p>
@@ -32,9 +32,9 @@ class MoneroTxQuery extends MoneroTxWallet {
    * @param {object} config - tx query configuration
    * @param {string} config.hash - get a tx with this hash
    * @param {string[]} config.txHashes - get txs with these hashes
-   * @param {int} config.height - get txs with this height
-   * @param {int} config.minHeight - get txs with height greater than or equal to this height
-   * @param {int} config.maxHeight - get txs with height less than or equal to this height
+   * @param {number} config.height - get txs with this height
+   * @param {number} config.minHeight - get txs with height greater than or equal to this height
+   * @param {number} config.maxHeight - get txs with height less than or equal to this height
    * @param {boolean} config.isConfirmed - get confirmed or unconfirmed txs
    * @param {boolean} config.inTxPool - get txs in or out of the tx pool
    * @param {boolean} config.relay - get txs with the same relay status
@@ -77,9 +77,9 @@ class MoneroTxQuery extends MoneroTxWallet {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
-    if (this.getTransferQuery()) json.transferQuery = this.getTransferQuery().toJson();
-    if (this.getInputQuery()) json.inputQuery = this.getInputQuery().toJson();
-    if (this.getOutputQuery()) json.outputQuery = this.getOutputQuery().toJson();
+    if (this.getTransferQuery() !== undefined) json.transferQuery = this.getTransferQuery().toJson();
+    if (this.getInputQuery() !== undefined) json.inputQuery = this.getInputQuery().toJson();
+    if (this.getOutputQuery() !== undefined) json.outputQuery = this.getOutputQuery().toJson();
     delete json.block;  // do not serialize parent block
     return json;
   }
@@ -253,7 +253,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (!queryChildren) return true;
     
     // at least one transfer must meet transfer filter if defined
-    if (this.getTransferQuery()) {
+    if (this.getTransferQuery() !== undefined) {
       let matchFound = false;
       if (tx.getOutgoingTransfer() && this.getTransferQuery().meetsCriteria(tx.getOutgoingTransfer(), false)) matchFound = true;
       else if (tx.getIncomingTransfers()) {
@@ -297,4 +297,4 @@ class MoneroTxQuery extends MoneroTxWallet {
   }
 }
 
-module.exports = MoneroTxQuery;
+export default MoneroTxQuery;

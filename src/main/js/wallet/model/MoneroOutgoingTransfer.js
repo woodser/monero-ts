@@ -1,7 +1,7 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroDestination = require("./MoneroDestination");
-const MoneroTransfer = require("./MoneroTransfer");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroDestination from "./MoneroDestination";
+import MoneroTransfer from "./MoneroTransfer";
 
 /**
  * Models an outgoing transfer of funds from the wallet.
@@ -64,7 +64,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
-    if (this.getDestinations()) {
+    if (this.getDestinations() !== undefined) {
       json.destinations = [];
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
@@ -95,7 +95,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     let str = super.toString(indent) + "\n";
     str += GenUtils.kvLine("Subaddress indices", this.getSubaddressIndices(), indent);
     str += GenUtils.kvLine("Addresses", this.getAddresses(), indent);
-    if (this.getDestinations()) {
+    if (this.getDestinations() !== undefined) {
       str += GenUtils.kvLine("Destinations", "", indent);
       for (let i = 0; i < this.getDestinations().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
@@ -106,4 +106,4 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
   }
 }
 
-module.exports = MoneroOutgoingTransfer;
+export default MoneroOutgoingTransfer;

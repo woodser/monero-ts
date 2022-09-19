@@ -1,10 +1,9 @@
-const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
-const monerojs = require("../../index");
-const GenUtils = monerojs.GenUtils;
-const MoneroRpcConnection = monerojs.MoneroRpcConnection;
-const MoneroConnectionManager = monerojs.MoneroConnectionManager;
-const MoneroConnectionManagerListener = monerojs.MoneroConnectionManagerListener;
+import assert from "assert";
+import TestUtils from "./utils/TestUtils";
+import {GenUtils} from "../../index";
+import {MoneroRpcConnection} from "../../index";
+import {MoneroConnectionManager} from "../../index";
+import {MoneroConnectionManagerListener} from "../../index";
 
 /**
  * Test the Monero RPC connection manager.
@@ -238,4 +237,4 @@ class ConnectionChangeCollector extends MoneroConnectionManagerListener {
   }
 }
 
-module.exports = TestMoneroConnectionManager;
+export default TestMoneroConnectionManager;

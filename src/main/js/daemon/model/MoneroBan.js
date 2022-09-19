@@ -48,4 +48,4 @@ class MoneroBan {
   }
 }
 
-module.exports = MoneroBan;
+export default MoneroBan;

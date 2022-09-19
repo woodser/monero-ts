@@ -7,7 +7,7 @@ class MoneroError extends Error {
    * Constructs the error.
    * 
    * @param {string} message is a human-readable message of the error
-   * @param {int} code is the error code (optional)
+   * @param {number} code is the error code (optional)
    */
   constructor(message, code) {
     super(message);
@@ -27,4 +27,4 @@ class MoneroError extends Error {
   }
 }
 
-module.exports = MoneroError;
+export default MoneroError;

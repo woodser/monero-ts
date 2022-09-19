@@ -75,4 +75,4 @@ class MoneroConnectionSpan {
   }
 }
 
-module.exports = MoneroConnectionSpan;
+export default MoneroConnectionSpan;

@@ -1,11 +1,8 @@
-const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
-const WalletEqualityUtils = require("./utils/WalletEqualityUtils");
-const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const monerojs = require("../../index");
-const MoneroWalletConfig = monerojs.MoneroWalletConfig;
-const GenUtils = monerojs.GenUtils;
-const MoneroUtils = monerojs.MoneroUtils;
+import assert from "assert";
+import TestUtils from "./utils/TestUtils";
+import WalletEqualityUtils from "./utils/WalletEqualityUtils";
+import TestMoneroWalletCommon from "./TestMoneroWalletCommon";
+import {MoneroWalletConfig, GenUtils, MoneroUtils} from "../../index";
 
 /**
  * Tests the implementation of MoneroWallet which only manages keys using WebAssembly.
@@ -54,7 +51,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     if (config.getServer()) throw new Error("Cannot initialize keys wallet with connection");
     
     // create wallet
-    return await monerojs.createWalletKeys(config);
+    return await createWalletKeys(config);
   }
   
   async closeWallet(wallet, save) {
@@ -62,7 +59,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   }
 
   async getMnemonicLanguages() {
-    return await monerojs.MoneroWalletKeys.getMnemonicLanguages();
+    return await MoneroWalletKeys.getMnemonicLanguages();
   }
   
   runTests() {
@@ -106,7 +103,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         await walletRpc.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, mnemonic: await walletRpc.getMnemonic(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: seedOffset});
         
         // create keys-only wallet with offset
-        let walletKeys = await monerojs.createWalletKeys({
+        let walletKeys = await createWalletKeys({
             networkType: TestUtils.NETWORK_TYPE,
             mnemonic: TestUtils.MNEMONIC,
             seedOffset: seedOffset
@@ -127,4 +124,4 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   }
 }
 
-module.exports = TestMoneroWalletKeys
+export default TestMoneroWalletKeys

@@ -1,9 +1,9 @@
-const assert = require("assert");
-const GenUtils = require("../../common/GenUtils");
-const MoneroBlockHeader = require("./MoneroBlockHeader");
-const MoneroTx = require("./MoneroTx");
-const MoneroTxQuery = require("../../wallet/model/MoneroTxQuery");
-const MoneroTxWallet = require("../../wallet/model/MoneroTxWallet");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
+import MoneroBlockHeader from "./MoneroBlockHeader";
+import MoneroTx from "./MoneroTx";
+import MoneroTxQuery from "../../wallet/model/MoneroTxQuery";
+import MoneroTxWallet from "../../wallet/model/MoneroTxWallet";
 
 /**
  * Models a Monero block in the blockchain.
@@ -83,8 +83,8 @@ class MoneroBlock extends MoneroBlockHeader {
   
   toJson() {
     let json = super.toJson();
-    if (this.getMinerTx()) json.minerTx = this.getMinerTx().toJson();
-    if (this.getTxs()) {
+    if (this.getMinerTx() !== undefined) json.minerTx = this.getMinerTx().toJson();
+    if (this.getTxs() !== undefined) {
       json.txs = [];
       for (let tx of this.getTxs()) json.txs.push(tx.toJson());
     }
@@ -123,13 +123,13 @@ class MoneroBlock extends MoneroBlockHeader {
   toString(indent = 0) {
     let str = super.toString(indent) + "\n";
     str += GenUtils.kvLine("Hex", this.getHex(), indent);
-    if (this.getTxs()) {
+    if (this.getTxs() !== undefined) {
       str += GenUtils.kvLine("Txs", "", indent);
       for (let tx of this.getTxs()) {
         str += tx.toString(indent + 1) + "\n";
       }
     }
-    if (this.getMinerTx()) {
+    if (this.getMinerTx() !== undefined) {
       str += GenUtils.kvLine("Miner tx", "", indent);
       str += this.getMinerTx().toString(indent + 1) + "\n";
     }
@@ -155,4 +155,4 @@ MoneroBlock.DeserializationType = {
     TX_QUERY: 2
 }
 
-module.exports = MoneroBlock;
+export default MoneroBlock;

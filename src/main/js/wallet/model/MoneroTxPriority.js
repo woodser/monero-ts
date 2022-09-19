@@ -25,4 +25,4 @@ MoneroTxPriority.NORMAL = 2;
  */
 MoneroTxPriority.ELEVATED = 3;
 
-module.exports = MoneroTxPriority;
+export default MoneroTxPriority;

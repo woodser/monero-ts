@@ -1,12 +1,12 @@
-const assert = require("assert");
-const LibraryUtils = require("../common/LibraryUtils");
-const MoneroError = require("../common/MoneroError");
-const MoneroNetworkType = require("../daemon/model/MoneroNetworkType");
-const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroUtils = require("../common/MoneroUtils");
-const MoneroVersion = require("../daemon/model/MoneroVersion");
-const MoneroWallet = require("./MoneroWallet");
-const MoneroWalletConfig = require("./model/MoneroWalletConfig");
+import assert from "assert";
+import LibraryUtils from "../common/LibraryUtils";
+import MoneroError from "../common/MoneroError";
+import MoneroNetworkType from "../daemon/model/MoneroNetworkType";
+import MoneroSubaddress from "./model/MoneroSubaddress";
+import MoneroUtils from "../common/MoneroUtils";
+import MoneroVersion from "../daemon/model/MoneroVersion";
+import MoneroWallet from "./MoneroWallet";
+import MoneroWalletConfig from "./model/MoneroWalletConfig";
 
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
@@ -36,9 +36,9 @@ class MoneroWalletKeys extends MoneroWallet {
    * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
-   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} [config.privateViewKey] - private view key of the wallet to create (optional)
+   * @param {string} [config.privateSpendKey] - private spend key of the wallet to create (optional)
+   * @param {string} [config.language] - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
    * @return {MoneroWalletKeys} the created wallet
    */
   static async createWallet(config) {
@@ -161,7 +161,7 @@ class MoneroWalletKeys extends MoneroWallet {
    * This method should not be called externally but should be called through
    * static wallet creation utilities in this class.
    * 
-   * @param {int} cppAddress - address of the wallet instance in C++
+   * @param {number} cppAddress - address of the wallet instance in C++
    */
   constructor(cppAddress) {
     super();
@@ -332,4 +332,4 @@ class MoneroWalletKeys extends MoneroWallet {
   }
 }
 
-module.exports = MoneroWalletKeys;
+export default MoneroWalletKeys;

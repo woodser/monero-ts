@@ -1,4 +1,4 @@
-const TestUtils = require("./TestUtils");
+import TestUtils from "./TestUtils";
 
 /**
  * Utility class to start mining.
@@ -13,4 +13,4 @@ class StartMining {
   }
 }
 
-module.exports = StartMining;
+export default StartMining;

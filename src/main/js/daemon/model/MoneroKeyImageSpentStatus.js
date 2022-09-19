@@ -20,4 +20,4 @@ MoneroKeyImageSpentStatus.CONFIRMED = 1;
  */
 MoneroKeyImageSpentStatus.TX_POOL = 2;
 
-module.exports = MoneroKeyImageSpentStatus;
+export default MoneroKeyImageSpentStatus;

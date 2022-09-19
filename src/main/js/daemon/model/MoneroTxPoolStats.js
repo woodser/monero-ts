@@ -1,4 +1,3 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
  * Models transaction pool statistics.
@@ -7,12 +6,12 @@ class MoneroTxPoolStats {
   
   constructor(state) {
     this.state = Object.assign({}, state);
-    if (this.state.feeTotal !== undefined && !(this.state.feeTotal instanceof BigInteger)) this.state.feeTotal = BigInteger.parse(this.state.feeTotal);
+    if (this.state.feeTotal !== undefined && !(this.state.feeTotal instanceof BigInt)) this.state.feeTotal = BigInt(this.state.feeTotal);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (json.feeTotal) json.feeTotal = json.feeTotal.toString();
+    if (json.feeTotal !== undefined) json.feeTotal = json.feeTotal.toString();
     return json;
   }
   
@@ -135,4 +134,4 @@ class MoneroTxPoolStats {
   }
 }
 
-module.exports = MoneroTxPoolStats;
+export default MoneroTxPoolStats;

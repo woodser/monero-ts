@@ -1,4 +1,4 @@
-const assert = require("assert");
+import assert from "assert";
 
 /**
  * Enumerates connection types.
@@ -49,4 +49,4 @@ ConnectionType.TOR = 3;
  */
 ConnectionType.I2P = 4;
 
-module.exports = ConnectionType;
+export default ConnectionType;

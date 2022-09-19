@@ -27,4 +27,4 @@ class MoneroSyncResult {
   }
 }
 
-module.exports = MoneroSyncResult;
+export default MoneroSyncResult;

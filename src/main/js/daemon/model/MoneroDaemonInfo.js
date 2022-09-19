@@ -1,4 +1,3 @@
-const BigInteger = require("../../common/biginteger").BigInteger;
 
 /**
  * Monero daemon info.
@@ -9,17 +8,17 @@ class MoneroDaemonInfo {
     state = Object.assign({}, state);
     this.state = state;
     
-    // deserialize BigIntegers
-    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
-    if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInteger)) state.cumulativeDifficulty = BigInteger.parse(state.cumulativeDifficulty);
-    if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
+    // deserialize BigInts
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInt)) state.difficulty = BigInt(state.difficulty);
+    if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInt)) state.cumulativeDifficulty = BigInt(state.cumulativeDifficulty);
+    if (state.credits !== undefined && !(state.credits instanceof BigInt)) state.credits = BigInt(state.credits);
   }
   
   toJson() {
     let json = Object.assign([], this.state);
-    if (json.difficulty) json.difficulty = json.difficulty.toString();
-    if (json.cumulativeDifficulty) json.cumulativeDifficulty = json.cumulativeDifficulty.toString();
-    if (json.credits) json.credits = json.credits.toString();
+    if (json.difficulty !== undefined) json.difficulty = json.difficulty.toString();
+    if (json.cumulativeDifficulty !== undefined) json.cumulativeDifficulty = json.cumulativeDifficulty.toString();
+    if (json.credits !== undefined) json.credits = json.credits.toString();
     return json;
   }
   
@@ -321,4 +320,4 @@ class MoneroDaemonInfo {
   }
 }
 
-module.exports = MoneroDaemonInfo;
+export default MoneroDaemonInfo;

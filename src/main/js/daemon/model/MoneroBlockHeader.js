@@ -1,6 +1,5 @@
-const assert = require("assert");
-const BigInteger = require("../../common/biginteger").BigInteger;
-const GenUtils = require("../../common/GenUtils");
+import assert from "assert";
+import GenUtils from "../../common/GenUtils";
 
 /**
  * Models a Monero block header which contains information about the block.
@@ -23,10 +22,10 @@ class MoneroBlockHeader {
     else throw new MoneroError("state must be a MoneroBlockHeader or JavaScript object");
     this.state = state;
     
-    // deserialize BigIntegers
-    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
-    if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInteger)) state.cumulativeDifficulty = BigInteger.parse(state.cumulativeDifficulty);
-    if (state.reward !== undefined && !(state.reward instanceof BigInteger)) state.reward = BigInteger.parse(state.reward);
+    // deserialize BigInts
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInt)) state.difficulty = BigInt(state.difficulty);
+    if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInt)) state.cumulativeDifficulty = BigInt(state.cumulativeDifficulty);
+    if (state.reward !== undefined && !(state.reward instanceof BigInt)) state.reward = BigInt(state.reward);
   }
   
   copy() {
@@ -35,9 +34,9 @@ class MoneroBlockHeader {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
-    if (this.getCumulativeDifficulty()) json.cumulativeDifficulty = this.getCumulativeDifficulty().toString();
-    if (this.getReward()) json.reward = this.getReward().toString();
+    if (this.getDifficulty() !== undefined) json.difficulty = this.getDifficulty().toString();
+    if (this.getCumulativeDifficulty() !== undefined) json.cumulativeDifficulty = this.getCumulativeDifficulty().toString();
+    if (this.getReward() !== undefined) json.reward = this.getReward().toString();
     return json;
   }
   
@@ -260,4 +259,4 @@ class MoneroBlockHeader {
   }
 }
 
-module.exports = MoneroBlockHeader;
+export default MoneroBlockHeader;
