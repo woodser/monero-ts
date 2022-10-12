@@ -13,7 +13,8 @@
     "test": "node --experimental-wasm-threads node_modules/mocha/bin/_mocha 'dist/commonjs/src/test/TestAll' --timeout 900000000 --exit",
     "jsdoc": "jsdoc -r -c ./configs/jsdoc_config.js -d ./docs",
     "build_commonjs": "rm -rf ./dist/commonjs && mkdir ./dist/commonjs && babel ./src --out-dir ./dist/commonjs/src && babel ./src/test/TestSampleCode.ts --extensions '.ts' --out-dir ./dist/commonjs/src/test --extensions ts && babel ./index.js --out-dir ./dist/commonjs && mkdir -p dist/commonjs/dist && cp dist/*.js dist/commonjs/dist && cp dist/*.js.map dist/commonjs/dist && cp dist/*.wasm dist/commonjs/dist",
-    "emit_typedefs": "./bin/emit_typedefs.sh",
+    "emit_typedefs_linux": "./bin/emit_typedefs_linux.sh",
+    "emit_typedefs_mac": "./bin/emit_typedefs_mac.sh",
     "check_babel_version": "babel -V"
   },
   "types": "types/index.d.ts",
