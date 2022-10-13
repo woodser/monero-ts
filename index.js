@@ -198,7 +198,7 @@ export function getVersion() {
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
  * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true)
- * @return {MoneroDaemonRpc} the daemon RPC client
+ * @return {Promise<MoneroDaemonRpc>} the daemon RPC client
  */
 export function connectToDaemonRpc() { return MoneroDaemonRpc._connectToDaemonRpc(...arguments); }
 
@@ -239,7 +239,7 @@ export function connectToDaemonRpc() { return MoneroDaemonRpc._connectToDaemonRp
  * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
  * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
- * @return {MoneroWalletRpc} the wallet RPC client
+ * @return {Promise<MoneroWalletRpc>} the wallet RPC client
  */
 export function connectToWalletRpc() { return MoneroWalletRpc._connectToWalletRpc(...arguments); }
 
@@ -324,7 +324,7 @@ export function createWalletFull() { return MoneroWalletFull.createWallet(...arg
  * @param {string|MoneroRpcConnection} daemonUriOrConnection - daemon URI or MoneroRpcConnection
  * @param {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the main thread (default true)
  * @param {fs} fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
- * @return {MoneroWalletFull} the opened wallet
+ * @return {Promise<MoneroWalletFull>} the opened wallet
  */
 export function openWalletFull() { return MoneroWalletFull.openWallet(...arguments); }
 
@@ -349,6 +349,6 @@ export function openWalletFull() { return MoneroWalletFull.openWallet(...argumen
  * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
  * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
  * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
- * @return {MoneroWalletKeys} the created wallet
+ * @return {Promise<MoneroWalletKeys>} the created wallet
  */
 export function createWalletKeys() { return MoneroWalletKeys.createWallet(...arguments); }

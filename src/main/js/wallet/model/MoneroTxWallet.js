@@ -17,7 +17,7 @@ class MoneroTxWallet extends MoneroTx {
   /**
    * Construct the model.
    * 
-   * @param {MoneroTxWallet|object} state is existing state to initialize from (optional)
+   * @param {MoneroTxWallet|object} [state] is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);
@@ -62,6 +62,9 @@ class MoneroTxWallet extends MoneroTx {
     if (state.changeAmount !== undefined && !(state.changeAmount instanceof BigInt)) state.changeAmount = BigInt(state.changeAmount);
   }
   
+  /**
+   * @return {object} json representation of this tx
+   */
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
     if (this.getIncomingTransfers() !== undefined) {
@@ -77,33 +80,57 @@ class MoneroTxWallet extends MoneroTx {
     return json;
   }
   
+  /**
+   @return {MoneroTxSet} tx set containing txs
+   */
   getTxSet() {
     return this.state.txSet;
   }
   
+  /**
+   * @param {MoneroTxSet} txSet - tx set containing txs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setTxSet(txSet) {
     this.state.txSet = txSet;
     return this;
   }
   
+  /**
+   * @return {boolean} true if the tx has incoming funds, false otherwise
+   */
   isIncoming() {
     return this.state.isIncoming;
   }
   
+  /**
+   * @param {boolean} isIncoming - true if the tx has incoming funds, false otherwise
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setIsIncoming(isIncoming) {
     this.state.isIncoming = isIncoming;
     return this;
   }
   
+  /**
+   * @return {boolean} true if the tx has outgoing funds, false otherwise
+   */
   isOutgoing() {
     return this.state.isOutgoing;
   }
   
+  /**
+   * @param {boolean} isOutgoing - true if the tx has outgoing funds, false otherwise
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setIsOutgoing(isOutgoing) {
     this.state.isOutgoing = isOutgoing;
     return this;
   }
   
+  /**
+   * @return {BigInt} amount received in the tx
+   */
   getIncomingAmount() {
     if (this.getIncomingTransfers() === undefined) return undefined;
     let incomingAmt = BigInt("0");
@@ -111,10 +138,17 @@ class MoneroTxWallet extends MoneroTx {
     return incomingAmt;
   }
   
+  /**
+   * @return {BigInt} amount spent in the tx
+   */
   getOutgoingAmount() {
     return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
   }
   
+  /**
+   * @param {MoneroTransferQuery} [transferQuery] - query to get specific transfers
+   * @return {MoneroTransfer[]} transfers matching the query
+   */
   getTransfers(transferQuery) {
     let transfers = [];
     if (this.getOutgoingTransfer() && (!transferQuery || transferQuery.meetsCriteria(this.getOutgoingTransfer()))) transfers.push(this.getOutgoingTransfer());
@@ -126,6 +160,10 @@ class MoneroTxWallet extends MoneroTx {
     return transfers;
   }
   
+  /**
+   * @param {MoneroTransferQuery} transferQuery - query to keep only specific transfers
+   * @return {MoneroTransfer[]} remaining transfers matching the query
+   */
   filterTransfers(transferQuery) {
     let transfers = [];
     
@@ -149,24 +187,42 @@ class MoneroTxWallet extends MoneroTx {
     return transfers;
   }
   
+  /**
+   * @return {MoneroIncomingTransfer[]} incoming transfers
+   */
   getIncomingTransfers() {
     return this.state.incomingTransfers;
   }
   
+  /**
+   * @param {MoneroIncomingTransfer[]} incomingTransfers - incoming transfers
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setIncomingTransfers(incomingTransfers) {
     this.state.incomingTransfers = incomingTransfers;
     return this;
   }
   
+  /**
+   * @return {MoneroOutgoingTransfer[]} outgoing transfers
+   */
   getOutgoingTransfer() {
     return this.state.outgoingTransfer;
   }
   
+  /**
+   * @param {MoneroOutgoingTransfer[]} outgoingTransfer - outgoing transfers
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setOutgoingTransfer(outgoingTransfer) {
     this.state.outgoingTransfer = outgoingTransfer;
     return this;
   }
   
+  /**
+   * @param {MoneroOutputWallet[]} outputQuery - query to get specific inputs
+   * @return {MoneroOutputWallet[]} inputs matching the query
+   */
   getInputs(outputQuery) {
     if (!outputQuery || !super.getInputs()) return super.getInputs();
     let inputs = [];
@@ -174,6 +230,10 @@ class MoneroTxWallet extends MoneroTx {
     return inputs;
   }
   
+  /**
+   * @param {MoneroOutputWallet[]} inputs - tx inputs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setInputs(inputs) {
     
     // validate that all inputs are wallet inputs
@@ -186,6 +246,10 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
+  /**
+   * @param {MoneroOutputQuery} [outputQuery] - query to get specific outputs
+   * @return {MoneroOutputWallet[]} outputs matching the query
+   */
   getOutputs(outputQuery) {
     if (!outputQuery || !super.getOutputs()) return super.getOutputs();
     let outputs = [];
@@ -193,6 +257,10 @@ class MoneroTxWallet extends MoneroTx {
     return outputs;
   }
   
+  /**
+   * @param {MoneroOutputWallet[]} outputs - tx outputs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setOutputs(outputs) {
     
     // validate that all outputs are wallet outputs
@@ -205,6 +273,10 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
+  /**
+   * @param {MoneroOutputQuery} outputQuery - query to keep only specific outputs
+   * @return {MoneroTransfer[]} remaining outputs matching the query
+   */
   filterOutputs(outputQuery) {
     let outputs = [];
     if (super.getOutputs()) {
@@ -221,78 +293,137 @@ class MoneroTxWallet extends MoneroTx {
     return outputs;
   }
   
+  /**
+   * @return {string} tx note
+   */
   getNote() {
     return this.state.note;
   }
   
+  /**
+   * @param {string} note - tx note
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setNote(note) {
     this.state.note = note;
     return this;
   }
   
+  /**
+   * @return {boolean} true if the tx is locked, false otherwise
+   */
   isLocked() {
     return this.state.isLocked;
   }
   
+  /**
+   * @param {boolean} isLocked - true if the tx is locked, false otherwise
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setIsLocked(isLocked) {
     this.state.isLocked = isLocked;
     return this;
   }
   
+  /**
+   * @return {BigInt} sum of tx inputs
+   */
   getInputSum() {
     return this.state.inputSum;
   }
   
+  /**
+   * @param {BigInt} inputSum - sum of tx inputs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setInputSum(inputSum) {
     this.state.inputSum = inputSum;
     return this;
   }
   
+  /**
+   * @return {BigInt} sum of tx outputs
+   */
   getOutputSum() {
     return this.state.outputSum;
   }
   
+  /**
+   * @param {BigInt} outputSum - sum of tx outputs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setOutputSum(outputSum) {
     this.state.outputSum = outputSum;
     return this;
   }
   
+  /**
+   * @return {string} change address
+   */
   getChangeAddress() {
     return this.state.changeAddress;
   }
   
+  /**
+   * @param {string} changeAddress - change address
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setChangeAddress(changeAddress) {
     this.state.changeAddress = changeAddress;
     return this;
   }
   
+  /**
+   * @return {BigInt} change amount
+   */
   getChangeAmount() {
     return this.state.changeAmount;
   }
   
+  /**
+   * @param {BigInt} changeAmount - change amount
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setChangeAmount(changeAmount) {
     this.state.changeAmount = changeAmount;
     return this;
   }
   
+  /**
+   * @return {number} number of dummy outputs
+   */
   getNumDummyOutputs() {
     return this.state.numDummyOutputs;
   }
   
+  /**
+   * @param {number} numDummyOutputs - number of dummy outputs
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setNumDummyOutputs(numDummyOutputs) {
     this.state.numDummyOutputs = numDummyOutputs;
     return this;
   }
   
+  /**
+   * @return {string} tx extra as hex
+   */
   getExtraHex() {
     return this.state.extraHex;
   }
   
+  /**
+   * @param {string} extraHex - tx extra as hex
+   * @return {MoneroTxWallet} this tx for chaining
+   */
   setExtraHex(extraHex) {
     this.state.extraHex = extraHex;
     return this;
   }
   
+  /**
+   * @return {MoneroTxWallet} a copy of this tx
+   */
   copy() {
     return new MoneroTxWallet(this);
   }
@@ -304,7 +435,7 @@ class MoneroTxWallet extends MoneroTx {
    * Merging can modify or build references to the transaction given so it
    * should not be re-used or it should be copied before calling this method.
    * 
-   * @param tx is the transaction to merge into this transaction
+   * @param {MoneroTxWallet} tx - the transaction to merge into this transaction
    */
   merge(tx) {
     assert(tx instanceof MoneroTxWallet);
@@ -357,7 +488,12 @@ class MoneroTxWallet extends MoneroTx {
     return this;  // for chaining
   }
   
-  toString(indent = 0, oneLine) {
+  /**
+   * @param {number} [indent] - starting indentation
+   * @param {boolean} [oneLine] - string is one line if true, multiple lines if false
+   * @return {string} string representation of this tx
+   */
+  toString(indent = 0, oneLine = false) {
     let str = "";
     
     // represent tx with one line string
