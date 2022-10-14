@@ -8,3 +8,5 @@ test_products
 /test_wallets/
 /build
 /browser_build/
+/types
+/dist/commonjs
