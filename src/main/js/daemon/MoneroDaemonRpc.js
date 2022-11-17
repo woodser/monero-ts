@@ -13,6 +13,7 @@ const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonListener = require("./model/MoneroDaemonListener");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroError = require("../common/MoneroError");
+const MoneroFeeEstimate = require("./model/MoneroFeeEstimate");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
 const MoneroMinerTxSum = require("./model/MoneroMinerTxSum");
@@ -447,7 +448,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getFeeEstimate(graceBlocks) {
     let resp = await this.rpc.sendJsonRequest("get_fee_estimate", {grace_blocks: graceBlocks});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return new BigInteger(resp.result.fee);
+    let feeEstimate = new MoneroFeeEstimate();
+    feeEstimate.setFee(new BigInteger(resp.result.fee));
+    let fees = [];
+    for (let i = 0; i < resp.result.fees.length; i++) fees.push(new BigInteger(resp.result.fees[i]));
+    feeEstimate.setFees(fees);
+    feeEstimate.setQuantizationMask(new BigInteger(resp.result.quantization_mask));
+    return feeEstimate;
   }
   
   async submitTxHex(txHex, doNotRelay) {
@@ -1637,7 +1644,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getFeeEstimate(graceBlocks) {
-    return BigInteger.parse(await this._invokeWorker("daemonGetFeeEstimate", Array.from(arguments)));
+    return new MoneroFeeEstimate(await this._invokeWorker("daemonGetFeeEstimate", Array.from(arguments)));
   }
   
   async submitTxHex(txHex, doNotRelay) {

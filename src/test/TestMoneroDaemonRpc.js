@@ -485,8 +485,11 @@ class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get a fee estimate", async function() {
-        let fee = await that.daemon.getFeeEstimate();
-        TestUtils.testUnsignedBigInteger(fee, true);
+        let feeEstimate = await that.daemon.getFeeEstimate();
+        TestUtils.testUnsignedBigInteger(feeEstimate.getFee(), true);
+        assert(feeEstimate.getFees().length === 4); // slow, normal, fast, fastest
+        for (let i = 0; i < 4; i++) TestUtils.testUnsignedBigInteger(feeEstimate.getFees()[i], true);
+        TestUtils.testUnsignedBigInteger(feeEstimate.getQuantizationMask(), true);
       });
       
       if (testConfig.testNonRelays)

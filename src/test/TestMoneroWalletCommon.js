@@ -3473,7 +3473,7 @@ class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can send dust to multiple addresses in split transactions", async function() {
-        let dustAmt = (await that.daemon.getFeeEstimate()).divide(new BigInteger(2));
+        let dustAmt = (await that.daemon.getFeeEstimate()).getFee().divide(new BigInteger(2));
         await testSendToMultiple(5, 3, true, dustAmt);
       });
       

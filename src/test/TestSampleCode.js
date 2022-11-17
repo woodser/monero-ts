@@ -51,7 +51,6 @@ class TestSampleCode {
         // connect to daemon
         let daemon = await monerojs.connectToDaemonRpc("http://localhost:28081");
         let height = await daemon.getHeight();            // 1523651
-        let feeEstimate = await daemon.getFeeEstimate();  // 1014313512
         let txsInPool = await daemon.getTxPool();         // get transactions in the pool
         
         // open wallet on monero-wallet-rpc
