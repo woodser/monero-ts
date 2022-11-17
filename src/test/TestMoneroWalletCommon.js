@@ -1191,12 +1191,11 @@ class TestMoneroWalletCommon {
         }
       });
       
-      // NOTE: payment hashes are deprecated so this test will require an old wallet to pass
       if (testConfig.testNonRelays)
       it("Can get transactions by payment ids", async function() {
         
         // get random transactions with payment hashes for testing
-        let randomTxs = await getRandomTransactions(that.wallet, {hasPaymentId: true}, 3, 5);
+        let randomTxs = await getRandomTransactions(that.wallet, {hasPaymentId: true}, 2, 5);
         for (let randomTx of randomTxs) {
           assert(randomTx.getPaymentId());
         }
@@ -2219,7 +2218,7 @@ class TestMoneroWalletCommon {
         // import outputs hex
         if (outputsHex !== undefined) {
           let numImported = await that.wallet.importOutputs(outputsHex);
-          assert(numImported > 0);
+          assert(numImported >= 0);
         }
         
         // get and test new key images from last import
@@ -3365,13 +3364,13 @@ class TestMoneroWalletCommon {
         // init tx config
         let sendAmount = unlockedBalanceBefore.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
         let address = await that.wallet.getPrimaryAddress();
-        let txs = []
         config.setDestinations([new MoneroDestination(address, sendAmount)]);
         config.setAccountIndex(fromAccount.getIndex());
         config.setSubaddressIndices([fromSubaddress.getIndex()]);
         let reqCopy = config.copy();
         
         // send to self
+        let txs = []
         if (config.getCanSplit() !== false) {
           for (let tx of await that.wallet.createTxs(config)) txs.push(tx);
         } else {
