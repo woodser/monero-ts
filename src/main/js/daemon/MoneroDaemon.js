@@ -290,10 +290,10 @@ class MoneroDaemon {
   }
   
   /**
-   * Get the fee estimate per kB.
+   * Get mining fee estimates per kB.
    * 
-   * @param {int} graceBlocks TODO
-   * @return {BigInteger} fee estimate per kB.
+   * @param {number} graceBlocks TODO
+   * @return {MoneroFeeEstimate} mining fee estimates per kB
    */
   async getFeeEstimate(graceBlocks) {
     throw new MoneroError("Subclass must implement");

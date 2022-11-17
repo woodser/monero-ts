@@ -239,7 +239,7 @@ self.daemonGetMinerTxSum = async function(daemonId, height, numBlocks) {
 }
 
 self.daemonGetFeeEstimate = async function(daemonId, graceBlocks) {
-  return (await self.WORKER_OBJECTS[daemonId].getFeeEstimate(graceBlocks)).toString();
+  return (await self.WORKER_OBJECTS[daemonId].getFeeEstimate(graceBlocks)).toJson();
 }
 
 self.daemonSubmitTxHex = async function(daemonId, txHex, doNotRelay) {
