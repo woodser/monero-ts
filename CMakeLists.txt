@@ -201,6 +201,7 @@ set(
     ${MONERO_PROJECT_SRC}/common/base58.cpp
     ${MONERO_PROJECT_SRC}/device/device.cpp
     ${MONERO_PROJECT_SRC}/device/device_default.cpp
+    ${MONERO_PROJECT_SRC}/hardforks/hardforks.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig_account.cpp
     ${MONERO_PROJECT_SRC}/multisig/multisig_account_kex_impl.cpp
