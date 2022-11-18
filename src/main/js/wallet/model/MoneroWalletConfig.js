@@ -241,20 +241,20 @@ class MoneroWalletConfig {
   }
   
   getAccountLookahead() {
-    return this.state.accountLookahead;
+    return this.config.accountLookahead;
   }
   
   setAccountLookahead(accountLookahead) {
-    this.state.accountLookahead = accountLookahead;
+    this.config.accountLookahead = accountLookahead;
     return this;
   }
   
   getSubaddressLookahead() {
-    return this.state.subaddressLookahead;
+    return this.config.subaddressLookahead;
   }
   
   setSubaddressLookahead(subaddressLookahead) {
-    this.state.subaddressLookahead = subaddressLookahead;
+    this.config.subaddressLookahead = subaddressLookahead;
     return this;
   }
 }
