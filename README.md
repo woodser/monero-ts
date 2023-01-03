@@ -139,9 +139,9 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 1. Install and activate emscripten.
 	1. Clone emscripten repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
-	3. `git pull && ./emsdk install latest-upstream && ./emsdk activate latest-upstream && source ./emsdk_env.sh`
+	3. `git pull && ./emsdk install 3.1.10 && ./emsdk activate 3.1.10 && source ./emsdk_env.sh`
 	4. `export EMSCRIPTEN=path/to/emsdk/upstream/emscripten` (change for your system)
-2. Clone monero-javascript repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
+2. Clone monero-javascript repository: `git clone --recursive https://github.com/monero-ecosystem/monero-javascript.git`
 3. `cd monero-javascript`
 4. `./bin/update_submodules.sh`
 5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
