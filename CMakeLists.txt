@@ -69,8 +69,7 @@ include_directories("${MONERO_PROJECT}/build/release/generated_include")
 # Unbound
 #############
 
-include_directories("/usr/include") # linux
-include_directories("/usr/local/opt/unbound/include") # mac
+include_directories("~/unbound-1.17.0/libunbound")
 
 #############
 # OpenSSL
