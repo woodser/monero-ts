@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: src/main/js/daemon/model/MoneroBlockTemplate.js</title>
+    <title>JSDoc: Source: src/main/js/daemon/model/MoneroFeeEstimate.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroBlockTemplate.js</h1>
+    <h1 class="page-title">Source: src/main/js/daemon/model/MoneroFeeEstimate.js</h1>
 
     
 
@@ -27,127 +27,84 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>const BigInteger = require("../../common/biginteger").BigInteger;
+const GenUtils = require("../../common/GenUtils");
 
 /**
- * Monero block template to mine.
+ * Models a Monero fee estimate.
  */
-class MoneroBlockTemplate {
+class MoneroFeeEstimate {
   
+  /**
+   * Construct the model.
+   * 
+   * @param {MoneroFeeEstimate|object} state - MoneroFeeEstimate or JS object
+   */
   constructor(state) {
-    state = Object.assign({}, state);
-    this.state = state;
+    if (!state) this.state = {};
+    else if (state instanceof MoneroFeeEstimate) this.state = state.toJson();
+    else if (typeof state === "object") this.state = Object.assign({}, state);
+    else throw new MoneroError("state must be a MoneroFeeEstimate or JavaScript object");
     
-    // deserialize BigIntegers
-    if (state.expectedReward !== undefined &amp;&amp; !(state.expectedReward instanceof BigInteger)) state.expectedReward = BigInteger.parse(state.expectedReward);
-    if (state.difficulty !== undefined &amp;&amp; !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+    // deserialize
+    if (this.state.fee !== undefined &amp;&amp; !(this.state.fee instanceof BigInteger)) this.state.fee = BigInteger.parse(this.state.fee);
+    if (this.state.fees !== undefined) {
+      for (let i = 0; i &lt; this.state.fees.length; i++) {
+        if (!(this.state.fees[i] instanceof BigInteger)) this.state.fees[i] = BigInteger.parse(this.state.fees[i]);
+      }
+    }
+    if (this.state.quantizationMask !== undefined &amp;&amp; !(this.state.quantizationMask instanceof BigInteger)) this.state.quantizationMask = BigInteger.parse(this.state.quantizationMask);
+  }
+
+  getFee() {
+    return this.state.fee;
+  }
+
+  setFee(fee) {
+    this.state.fee = fee;
+    return this;
+  }
+
+  getFees() {
+    return this.state.fees;
+  }
+
+  setFees(fees) {
+    this.state.fees = fees;
+    return this;
+  }
+  
+  getQuantizationMask() {
+    return this.state.quantizationMask;
+  }
+
+  setQuantizationMask(quantizationMask) {
+    this.state.quantizationMask = quantizationMask;
+    return this;
+  }
+  
+  copy() {
+    return new MoneroFeeEstimate(this);
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getExpectedReward()) json.expectedReward = this.getExpectedReward().toString();
-    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
+    if (this.getFee()) json.fee = this.getFee().toString();
+    if (this.getFees()) for (let i = 0; i &lt; this.getFees().length; i++) json.fees[i] = this.getFees()[i].toString();
+    if (this.getQuantizationMask()) json.quantizationMask = this.getQuantizationMask().toString();
     return json;
   }
   
-  toJson() {
-    let json = Object.assign({}, this.state);
-    if (json.expectedReward) json.expectedReward = json.expectedReward.toString();
-    if (json.difficulty) json.difficulty = json.difficulty.toString();
-    return json;
-  }
-  
-  getBlockTemplateBlob() {
-    return this.state.blockTemplateBlob;
-  }
-  
-  setBlockTemplateBlob(blockTemplateBlob) {
-    this.state.blockTemplateBlob = blockTemplateBlob;
-    return this;
-  }
-  
-  getBlockHashingBlob() {
-    return this.state.blockHashingBlob;
-  }
-  
-  setBlockHashingBlob(blockHashingBlob) {
-    this.state.blockHashingBlob = blockHashingBlob;
-    return this;
-  }
-  
-  getDifficulty() {
-    return this.state.difficulty;
-  }
-  
-  setDifficulty(difficulty) {
-    this.state.difficulty = difficulty;
-    return this;
-  }
-  
-  getExpectedReward() {
-    return this.state.expectedReward;
-  }
-  
-  setExpectedReward(expectedReward) {
-    this.state.expectedReward = expectedReward;
-    return this;
-  }
-  
-  getHeight() {
-    return this.state.height;
-  }
-  
-  setHeight(height) {
-    this.state.height = height;
-    return this;
-  }
-  
-  getPrevHash() {
-    return this.state.prevId;
-  }
-  
-  setPrevHash(prevId) {
-    this.state.prevId = prevId;
-    return this;
-  }
-  
-  getReservedOffset() {
-    return this.state.reservedOffset;
-  }
-  
-  setReservedOffset(reservedOffset) {
-    this.state.reservedOffset = reservedOffset;
-    return this;
-  }
-  
-  getSeedHeight() {
-    return this.state.height;
-  }
-  
-  setSeedHeight(seedHeight) {
-    this.state.seedHeight = seedHeight;
-    return this;
-  }
-  
-  getSeedHash() {
-    return this.state.seedHash;
-  }
-  
-  setSeedHash(seedHash) {
-    this.state.seedHash = seedHash;
-    return this;
-  }
-  
-  getNextSeedHash() {
-    return this.state.nextSeedHash
-  }
-  
-  setNextSeedHash(nextSeedHash) {
-    this.state.nextSeedHash = nextSeedHash;
-    return this;
+  toString(indent = 0) {
+    let str = "";
+    let json = this.toJson();
+    str += GenUtils.kvLine("Fee", json.fee, indent);
+    str += GenUtils.kvLine("Fees", json.fees, indent);
+    str += GenUtils.kvLine("Quantization mask", json.quantizationMask, indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 
-module.exports = MoneroBlockTemplate;</code></pre>
+module.exports = MoneroFeeEstimate;</code></pre>
         </article>
     </section>
 
