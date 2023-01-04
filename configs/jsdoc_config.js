@@ -15,6 +15,9 @@ module.exports = {
     },
     "templates": {
         "cleverLinks": false,
-        "monospaceLinks": false
+        "monospaceLinks": false,
+        "default": {
+          "includeDate": false
+        }
     }
 };
