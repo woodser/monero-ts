@@ -1332,6 +1332,7 @@ function testTx(tx, ctx) {
   assert(tx.getInputs());
   assert(tx.getOutputs());
   assert(tx.getExtra().length > 0);
+  TestUtils.testUnsignedBigInteger(tx.getFee(), true);
   
   // test presence of output indices
   // TODO: change this over to outputs only

@@ -1019,7 +1019,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       }
       else if (key === "vout") tx.setOutputs(val.map(rpcOutput => MoneroDaemonRpc._convertRpcOutput(rpcOutput, tx)));
-      else if (key === "rct_signatures") GenUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
+      else if (key === "rct_signatures") {
+        GenUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
+        if (val.txnFee) GenUtils.safeSet(tx, tx.getFee, tx.setFee, BigInteger.parse(val.txnFee));
+      } 
       else if (key === "rctsig_prunable") GenUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") GenUtils.safeSet(tx, tx.getUnlockHeight, tx.setUnlockHeight, val);
       else if (key === "as_json" || key === "tx_json") { }  // handled last so tx is as initialized as possible
