@@ -239,7 +239,7 @@ class MoneroDaemon {
    * 
    * @param {string} txHash - hash of the transaction to get
    * @param {boolean} prune - specifies if the returned tx should be pruned (defaults to false)
-   * @return {MoneroTx} transaction with the given hash
+   * @return {MoneroTx} transaction with the given hash or undefined if not found
    */
   async getTx(txHash, prune = false) {
     return (await this.getTxs([txHash], prune))[0];
@@ -250,7 +250,7 @@ class MoneroDaemon {
    * 
    * @param {string[]} txHashes - hashes of transactions to get
    * @param {boolean} prune - specifies if the returned txs should be pruned (defaults to false)
-   * @return {MoneroTx[]} transactions with the given hashes
+   * @return {MoneroTx[]} found transactions with the given hashes
    */
   async getTxs(txHashes, prune = false) {
     throw new MoneroError("Subclass must implement");

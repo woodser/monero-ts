@@ -455,6 +455,7 @@ class MoneroWallet {
    * 
    * @param {string} txHash - hash of a transaction to get
    * @return {MoneroTxWallet} the identified transactions
+   * @throws {MoneroError} if the transaction is not found
    */
   async getTx(txHash) {
     let txs = await this.getTxs([txHash]);
