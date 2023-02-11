@@ -127,7 +127,7 @@ await walletFull.close(true);
 
 #### If using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
-2. Start monero-daemon-rpc, e.g.: `./monerod --stagenet` (or use a remote daemon).
+2. Start monerod, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
 
 ## Building WebAssembly binaries from source
@@ -154,7 +154,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 2. `cd monero-javascript`
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
-	2. Start monero-daemon-rpc, e.g.: `./monerod --testnet` (or use a remote daemon).
+	2. Start monerod, e.g.: `./monerod --testnet` (or use a remote daemon).
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./`
 4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.js](src/test/utils/TestUtils.js) (e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`).
 

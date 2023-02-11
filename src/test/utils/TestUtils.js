@@ -37,7 +37,7 @@ class TestUtils {
   }
   
   /**
-   * Get a singleton instance of a monero-daemon-rpc client.
+   * Get a singleton instance of a monerod client.
    */
   static getDaemonRpcConnection() {
     return new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG);

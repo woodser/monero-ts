@@ -1031,7 +1031,7 @@ class TestMoneroDaemonRpc {
             throw new Error("Should have thrown error");
           } catch(e) {
             assert.notEqual("Should have thrown error", e.message);
-            assert.equal(e.statusCode, 500);  // TODO monero-daemon-rpc: this causes a 500 in that.daemon rpc
+            assert.equal(e.statusCode, 500);  // TODO monerod: this causes a 500 in that.daemon rpc
           }
         }
       });
@@ -1321,7 +1321,7 @@ function testTx(tx, ctx) {
   
   // standard across all txs
   assert(tx.getHash().length === 64);
-  if (tx.isRelayed() === undefined) assert(tx.inTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
+  if (tx.isRelayed() === undefined) assert(tx.inTxPool());  // TODO monerod: add relayed to get_transactions
   else assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.inTxPool(), "boolean");
@@ -1396,7 +1396,7 @@ function testTx(tx, ctx) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer); // TODO: MoneroTx does not have getOutgoingTransfer() but this doesn't fail?
     assert(tx.getReceivedTimestamp() > 0)
   } else {
-    if (tx.isRelayed() === undefined) assert.equal(tx.getRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
+    if (tx.isRelayed() === undefined) assert.equal(tx.getRelay(), undefined); // TODO monerod: add relayed to get_transactions
     else if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
     else {
       assert.equal(tx.isRelayed(), false);
@@ -1427,7 +1427,7 @@ function testTx(tx, ctx) {
   }
   
   // test pruned vs not pruned
-  if (ctx.fromGetTxPool || ctx.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
+  if (ctx.fromGetTxPool || ctx.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monerod: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
   else assert(tx.getPrunableHash());
   if (ctx.isPruned) {
     assert.equal(tx.getRctSigPrunable(), undefined);

@@ -103,7 +103,7 @@ module.exports.getVersion = function() {
 }
 
 /**
- * <p>Create a client connected to monero-daemon-rpc.<p>
+ * <p>Create a client connected to monerod.<p>
  * 
  * <p>Examples:<p>
  * 
@@ -117,15 +117,15 @@ module.exports.getVersion = function() {
  * });
  * </code>
  * 
- * @param {string|object|MoneroRpcConnection} uriOrConfig - uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
- * @param {string} uriOrConfig.uri - uri of monero-daemon-rpc
- * @param {string} uriOrConfig.username - username to authenticate with monero-daemon-rpc (optional)
- * @param {string} uriOrConfig.password - password to authenticate with monero-daemon-rpc (optional)
+ * @param {string|object|MoneroRpcConnection} uriOrConfig - uri of monerod or JS config object or MoneroRpcConnection
+ * @param {string} uriOrConfig.uri - uri of monerod
+ * @param {string} uriOrConfig.username - username to authenticate with monerod (optional)
+ * @param {string} uriOrConfig.password - password to authenticate with monerod (optional)
  * @param {boolean} uriOrConfig.rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @param {number} uriOrConfig.pollInterval - poll interval to query for updates in ms (default 5000)
  * @param {boolean} uriOrConfig.proxyToWorker - run the daemon client in a web worker if true (default true)
- * @param {string} username - username to authenticate with monero-daemon-rpc (optional)
- * @param {string} password - password to authenticate with monero-daemon-rpc (optional)
+ * @param {string} username - username to authenticate with monerod (optional)
+ * @param {string} password - password to authenticate with monerod (optional)
  * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
  * @param {number} pollInterval - poll interval to query for updates in ms (default 5000)
  * @param {boolean} proxyToWorker - runs the daemon client in a web worker if true (default true)
