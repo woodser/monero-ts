@@ -1486,10 +1486,10 @@ class GenUtils {
   /**
    * Wait for the duration.
    * 
-   * @param {number} duration - the duration to wait for in ms
+   * @param {number} durationMs - the duration to wait for in milliseconds
    */
-  static async waitFor(duration) {
-    return new Promise(function(resolve) { setTimeout(resolve, duration); });
+  static async waitFor(durationMs) {
+    return new Promise(function(resolve) { setTimeout(resolve, durationMs); });
   }
   
   /**
