@@ -368,14 +368,14 @@ int monero_wasm_bridge::get_network_type(int handle) {
   return (int) wallet->get_network_type();
 }
 
-long monero_wasm_bridge::get_sync_height(int handle) {
+long monero_wasm_bridge::get_restore_height(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return (long) wallet->get_sync_height();
+  return (long) wallet->get_restore_height();
 }
 
-void monero_wasm_bridge::set_sync_height(int handle, long sync_height) {
+void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_sync_height(sync_height);
+  wallet->set_restore_height(restore_height);
 }
 
 void monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, emscripten::val callback, emscripten::val on_sync_progress, emscripten::val on_new_block, emscripten::val on_balances_changed, emscripten::val on_output_received, emscripten::val on_output_spent) {
@@ -575,6 +575,11 @@ string monero_wasm_bridge::create_subaddress(int handle, const uint32_t account_
   monero_wallet* wallet = (monero_wallet*) handle;
   monero_subaddress subaddress = wallet->create_subaddress(account_idx, label);
   return subaddress.serialize();
+}
+
+void monero_wasm_bridge::set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->set_subaddress_label(account_idx, subaddress_idx, label);
 }
 
 void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscripten::val callback) {

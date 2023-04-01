@@ -442,24 +442,24 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * 
    * @return {number} the height of the first block that the wallet scans
    */
-  async getSyncHeight() {
+  async getRestoreHeight() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_sync_height(that._cppAddress);
+      return that._module.get_restore_height(that._cppAddress);
     });
   }
   
   /**
    * Set the height of the first block that the wallet scans.
    * 
-   * @param {number} syncHeight - height of the first block that the wallet scans
+   * @param {number} restoreHeight - height of the first block that the wallet scans
    */
-  async setSyncHeight(syncHeight) {
+  async setRestoreHeight(restoreHeight) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.set_sync_height(that._cppAddress, syncHeight);
+      return that._module.set_restore_height(that._cppAddress, restoreHeight);
     });
   }
   
@@ -665,7 +665,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     // normalize params
     startHeight = listenerOrStartHeight === undefined || listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroWalletListener ? listenerOrStartHeight : undefined;
-    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
+    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
     
     // register listener if given
     if (listener) await this.addListener(listener);
@@ -855,6 +855,15 @@ class MoneroWalletFull extends MoneroWalletKeys {
       return MoneroWalletFull._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
     });
   }
+
+  async setSubaddressLabel(accountIdx, subaddressIdx, label) {
+    if (label === undefined) label = "";
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      that._module.set_subaddress_label(that._cppAddress, accountIdx, subaddressIdx, label);
+    });
+  }
   
   async getTxs(query, missingTxHashes) {
     this._assertNotClosed();
@@ -987,6 +996,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
         let callback = function(keyImagesStr) {
+          if (keyImagesStr.charAt(0) !== '{') reject(new MoneroError(keyImagesStr)); // json expected, else error
           let keyImages = [];
           for (let keyImageJson of JSON.parse(GenUtils.stringifyBIs(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
           resolve(keyImages);
@@ -1626,7 +1636,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   /**
    * Get the wallet's keys and cache data.
    * 
-   * @return {DataView[]} is the keys and cache data respectively
+   * @return {DataView[]} is the keys and cache data, respectively
    */
   async getData() {
     this._assertNotClosed();
@@ -2062,6 +2072,10 @@ class MoneroWalletFullProxy extends MoneroWallet {
     let subaddressJson = await this._invokeWorker("getAddressIndex", Array.from(arguments));
     return MoneroWalletFull._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
+
+  async setSubaddressLabel(accountIdx, subaddressIdx, label) {
+    return this._invokeWorker("setSubaddressLabel", Array.from(arguments));
+  }
   
   async getIntegratedAddress(standardAddress, paymentId) {
     return new MoneroIntegratedAddress(await this._invokeWorker("getIntegratedAddress", Array.from(arguments)));
@@ -2088,12 +2102,12 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return this._invokeWorker("isConnectedToDaemon");
   }
   
-  async getSyncHeight() {
-    return this._invokeWorker("getSyncHeight");
+  async getRestoreHeight() {
+    return this._invokeWorker("getRestoreHeight");
   }
   
-  async setSyncHeight(syncHeight) {
-    return this._invokeWorker("setSyncHeight", [syncHeight]);
+  async setRestoreHeight(restoreHeight) {
+    return this._invokeWorker("setRestoreHeight", [restoreHeight]);
   }
   
   async getDaemonHeight() {
@@ -2160,7 +2174,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
     // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroWalletListener ? listenerOrStartHeight : undefined;
-    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getSyncHeight());
+    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
     
     // register listener if given
     if (listener) await this.addListener(listener);

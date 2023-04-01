@@ -807,6 +807,10 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setNumBlocksToUnlock(0);
     return subaddress;
   }
+
+  async setSubaddressLabel(accountIdx, subaddressIdx, label) {
+    await this.rpc.sendJsonRequest("label_address", {index: {major: accountIdx, minor: subaddressIdx}, label: label});
+  }
   
   async getTxs(query, missingTxHashes) {
     
@@ -1482,6 +1486,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async prepareMultisig() {
     let resp = await this.rpc.sendJsonRequest("prepare_multisig", {enable_multisig_experimental: true});
+    this.addressCache = {};
     let result = resp.result;
     return result.multisig_info;
   }
@@ -1492,11 +1497,13 @@ class MoneroWalletRpc extends MoneroWallet {
       threshold: threshold,
       password: password
     });
+    this.addressCache = {};
     return resp.result.multisig_info;
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {
     let resp = await this.rpc.sendJsonRequest("exchange_multisig_keys", {multisig_info: multisigHexes, password: password});
+    this.addressCache = {};
     let msResult = new MoneroMultisigInitResult();
     msResult.setAddress(resp.result.address);
     msResult.setMultisigHex(resp.result.multisig_info);

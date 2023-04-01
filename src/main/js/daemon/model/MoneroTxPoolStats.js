@@ -8,11 +8,13 @@ class MoneroTxPoolStats {
   constructor(state) {
     this.state = Object.assign({}, state);
     if (this.state.feeTotal !== undefined && !(this.state.feeTotal instanceof BigInteger)) this.state.feeTotal = BigInteger.parse(this.state.feeTotal);
+    if (this.state.histo !== undefined && !(this.state.histo instanceof Map)) this.state.histo = new Map(JSON.parse(this.state.histo));
   }
   
   toJson() {
     let json = Object.assign({}, this.state);
     if (json.feeTotal) json.feeTotal = json.feeTotal.toString();
+    if (json.histo) json.histo = JSON.stringify([...json.histo]); // convert map to array of key-value pairs then stringify
     return json;
   }
   

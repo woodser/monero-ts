@@ -807,6 +807,18 @@ class TestMoneroWalletCommon {
         createdAccount = await that.wallet.getAccount(createdAccount.getIndex());
         await testAccount(createdAccount);
       });
+
+      if (testConfig.testNonRelays)
+      it("Can set account labels", async function() {
+
+        // create account
+        if ((await that.wallet.getAccounts()).length < 2) await that.wallet.createAccount();
+
+        // set account label
+        const label = GenUtils.getUUID();
+        await that.wallet.setAccountLabel(1, label);
+        assert.equal((await that.wallet.getSubaddress(1, 0)).getLabel(), label);
+      });
       
       if (testConfig.testNonRelays)
       it("Can get subaddresses at a specified account index", async function() {
@@ -890,6 +902,20 @@ class TestMoneroWalletCommon {
           subaddressesNew = await that.wallet.getSubaddresses(accountIdx);
           assert.equal(subaddressesNew.length - 1, subaddresses.length);
           assert.deepEqual(subaddressesNew[subaddressesNew.length - 1].toString(), subaddress.toString());
+        }
+      });
+
+      if (testConfig.testNonRelays)
+      it("Can set subaddress labels", async function() {
+
+        // create subaddresses
+        while ((await that.wallet.getSubaddresses(0)).length < 3) await that.wallet.createSubaddress(0);
+
+        // set subaddress labels
+        for (const subaddressIdx = 0; subaddressIdx < (that.wallet.getSubaddresses(0)).length; subaddressIdx++) {
+          const label = GenUtils.getUUID();
+          await that.wallet.setSubaddressLabel(0, subaddressIdx, label);
+          assert.equal((await that.wallet.getSubaddress(0, subaddressIdx)).getLabel(), label);
         }
       });
       
@@ -4682,15 +4708,16 @@ class TestMoneroWalletCommon {
     // test sending a multisig transaction if configured
     if (testTx) {
       
-      // create an account in the first multisig wallet to receive funds to
-      await participant.createAccount();
+      // create accounts in the first multisig wallet to receive funds
+      let accountIdx = 0;
+      for (let i = 0; i < accountIdx; i++) await participant.createAccount();
       
       // get destinations to subaddresses within the account of the multisig wallet
-      let accountIdx = 1;
+      let numSubaddresses = 3;
       let destinations = [];
-      for (let i = 0; i < 3; i++) {
-        await participant.createSubaddress(accountIdx);
+      for (let i = 0; i < numSubaddresses; i++) {
         destinations.push(new MoneroDestination(await participant.getAddress(accountIdx, i), TestUtils.MAX_FEE.multiply(new BigInteger(2))));
+        if (i + 1 < numSubaddresses) participant.createSubaddress(accountIdx);
       }
       
       // wait for txs to confirm and for sufficient unlocked balance
@@ -4737,11 +4764,11 @@ class TestMoneroWalletCommon {
       // stop mining
       await this.daemon.stopMining();
       
-      // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
-      for (let i = 0; i < 3; i++) {
-        assert((await participant.getUnlockedBalance(1, i)).compare(BigInteger.parse("0")) > 0);
+      // multisig wallet should have unlocked balance in subaddresses 0-3
+      for (let i = 0; i < numSubaddresses; i++) {
+        assert((await participant.getUnlockedBalance(accountIdx, i)).compare(new BigInteger(0)) > 0);
       }
-      let outputs = await participant.getOutputs({accountIndex: 1});
+      let outputs = await participant.getOutputs({accountIndex: accountIdx});
       assert(outputs.length > 0);
       if (outputs.length < 3) console.log("WARNING: not one output per subaddress?");
       //assert(outputs.length >= 3);  // TODO
@@ -4752,7 +4779,7 @@ class TestMoneroWalletCommon {
       
       // attempt creating and relaying transaction without synchronizing with participants
       try {
-        await participant.createTx({accountIndex: 1, address: returnAddress, amount: TestUtils.MAX_FEE.multiply(new BigInteger(3))});
+        await participant.createTx({accountIndex: accountIdx, address: returnAddress, amount: TestUtils.MAX_FEE.multiply(new BigInteger(3))});
         throw new Error("Should have failed sending funds without synchronizing with peers");
       } catch (e) {
         assert.equal(e.message, "No transaction created");
@@ -4761,10 +4788,17 @@ class TestMoneroWalletCommon {
       // synchronize the multisig participants since receiving outputs
       console.log("Synchronizing participants");
       await this._synchronizeMultisigParticipants(participants);
+
+      // expect error exporting key images
+      try {
+        await participant.exportKeyImages(true);
+      } catch (e) {
+        assert(e.message.indexOf("key_image generated not matched with cached key image") >= 0, "Unexpected error: " + e.message);
+      }
       
       // attempt relaying created transactions without co-signing
       try {
-        await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: 1, subaddressIndex: 0, relay: true});
+        await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: accountIdx, subaddressIndex: 0, relay: true});
         throw new Error("Should have failed");
       } catch (e) {
         assert.equal(e.message, "Cannot relay multisig transaction until co-signed");
@@ -4772,7 +4806,7 @@ class TestMoneroWalletCommon {
       
       // send funds from a subaddress in the multisig wallet
       console.log("Sending");
-      let txs = await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: 1, subaddressIndex: 0});
+      let txs = await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: accountIdx, subaddressIndex: 0});
       assert(txs.length > 0);
       let txSet = txs[0].getTxSet();
       assert.notEqual(txSet.getMultisigTxHex(), undefined);
@@ -4804,8 +4838,8 @@ class TestMoneroWalletCommon {
       let multisigTxs = await participant.getTxs({hashes: txHashes});
       assert.equal(txHashes.length, multisigTxs.length);
       
-      // sweep an output from subaddress [1,1]
-      outputs = await participant.getOutputs({accountIndex: 1, subaddressIndex: 1});
+      // sweep an output from subaddress [accountIdx,1]
+      outputs = await participant.getOutputs({accountIndex: accountIdx, subaddressIndex: 1});
       assert(outputs.length > 0);
       assert(outputs[0].isSpent() === false);
       txSet = (await participant.sweepOutput({address: returnAddress, keyImage: outputs[0].getKeyImage().getHex(), relay: true})).getTxSet();
@@ -4839,7 +4873,7 @@ class TestMoneroWalletCommon {
       
       // sweep remaining balance
       console.log("Sweeping");
-      txs = await participant.sweepUnlocked({address: returnAddress, accountIndex: 1, relay: true}); // TODO: test multisig with sweepEachSubaddress which will generate multiple tx sets without synchronizing participants
+      txs = await participant.sweepUnlocked({address: returnAddress, accountIndex: accountIdx, relay: true}); // TODO: test multisig with sweepEachSubaddress which will generate multiple tx sets without synchronizing participants
       assert(txs.length > 0, "No txs created on sweepUnlocked");
       txSet = txs[0].getTxSet();
       for (let tx of txs) {
