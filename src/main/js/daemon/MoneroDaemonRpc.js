@@ -22,6 +22,7 @@ const MoneroNetworkType = require("./model/MoneroNetworkType");
 const MoneroOutput = require("./model/MoneroOutput");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
 const MoneroPeer = require("./model/MoneroPeer");
+const MoneroPruneResult = require("./model/MoneroPruneResult");
 const MoneroRpcConnection = require("../common/MoneroRpcConnection");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTx = require("./model/MoneroTx");
@@ -508,22 +509,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
 
   async getTxPoolStats() {
-    throw new MoneroError("Response contains field 'histo' which is binary'");
     let resp = await this.rpc.sendPathRequest("get_transaction_pool_stats");
     MoneroDaemonRpc._checkResponseStatus(resp);
-    let stats = MoneroDaemonRpc._convertRpcTxPoolStats(resp.pool_stats);
-    
-    // uninitialize some stats if not applicable
-    if (stats.getHisto98pc() === 0) stats.setHisto98pc(undefined);
-    if (stats.getNumTxs() === 0) {
-      stats.setBytesMin(undefined);
-      stats.setBytesMed(undefined);
-      stats.setBytesMax(undefined);
-      stats.setHisto98pc(undefined);
-      stats.setOldestTimestamp(undefined);
-    }
-    
-    return stats;
+    return MoneroDaemonRpc._convertRpcTxPoolStats(resp.pool_stats);
   }
   
   async flushTxPool(hashes) {
@@ -775,6 +763,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     assert(Array.isArray(blockBlobs) && blockBlobs.length > 0, "Must provide an array of mined block blobs to submit");
     let resp = await this.rpc.sendJsonRequest("submit_block", blockBlobs);
     MoneroDaemonRpc._checkResponseStatus(resp.result);
+  }
+
+  async pruneBlockchain(check) {
+    let resp = await this.rpc.sendJsonRequest("prune_blockchain", {check: check});
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    let result = new MoneroPruneResult();
+    result.setIsPruned(resp.result.pruned);
+    result.setPruningSeed(resp.result.pruning_seed);
+    return result;
   }
   
   async checkForUpdate() {
@@ -1323,9 +1320,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "oldest") stats.setOldestTimestamp(val);
       else if (key === "txs_total") stats.setNumTxs(val);
       else if (key === "fee_total") stats.setFeeTotal(BigInteger.parse(val));
-      else if (key === "histo") throw new MoneroError("Not implemented");
+      else if (key === "histo") {
+        stats.setHisto(new Map());
+        for (let elem of val) stats.getHisto().set(elem.bytes, elem.txs);
+      }
       else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
     }
+
+    // uninitialize some stats if not applicable
+    if (stats.getHisto98pc() === 0) stats.setHisto98pc(undefined);
+    if (stats.getNumTxs() === 0) {
+      stats.setBytesMin(undefined);
+      stats.setBytesMed(undefined);
+      stats.setBytesMax(undefined);
+      stats.setHisto98pc(undefined);
+      stats.setOldestTimestamp(undefined);
+    }
+
     return stats;
   }
   
@@ -1793,6 +1804,10 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async submitBlocks(blockBlobs) {
     throw new MoneroError("Not implemented");
+  }
+
+  async pruneBlockchain(check) {
+    return new MoneroPruneResult(await this._invokeWorker("daemonPruneBlockchain"));
   }
   
   async checkForUpdate() {

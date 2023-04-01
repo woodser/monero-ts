@@ -31,7 +31,7 @@ real daemon listener instead of registering function to receive block headers
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 rpc supports view-only request failed: 0, or error after previously called
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
-getSyncHeight() top level?
+getRestoreHeight() top level?
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_full::get_txs()

@@ -636,6 +636,16 @@ class MoneroDaemon {
   async submitBlock(blockBlob) {
     await this.submitBlocks([blockBlob]);
   }
+
+  /**
+   * Prune the blockchain.
+   * 
+   * @param {boolean} check specifies to check the pruning (default false)
+   * @return {MoneroPruneResult} the prune result
+   */
+  async pruneBlockchain(check) {
+    throw new MoneroError("Subclass must implement");
+  }
   
   /**
    * Submit mined blocks to the network.

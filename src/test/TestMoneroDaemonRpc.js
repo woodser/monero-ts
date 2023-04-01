@@ -530,27 +530,32 @@ class TestMoneroDaemonRpc {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get transaction pool statistics (binary)", async function() {
+      it("Can get transaction pool statistics", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-        
-        // submit txs to the pool but don't relay (multiple txs result in binary `histo` field)
-        for (let i = 0; i < 2; i++) {
-          
-          // submit tx hex
-          let tx = await getUnrelayedTx(that.wallet, i);
-          let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isGood(), true, "Bad tx submit result: " + result.toJson());
-          
-          // test stats
-          try {
-            stats = await that.daemon.getTxPoolStats();
-            assert(stats.getNumTxs() > i);
+        let err;
+        let txIds = [];
+        try {
+
+          // submit txs to the pool but don't relay
+          for (let i = 1; i < 3; i++) {
+            
+            // submit tx hex
+            let tx = await getUnrelayedTx(that.wallet, i);
+            let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
+            assert.equal(result.isGood(), true, "Bad tx submit result: " + result.toJson());
+            
+            // get tx pool stats
+            let stats = await that.daemon.getTxPoolStats();
+            assert(stats.getNumTxs() > i - 1);
             testTxPoolStats(stats);
-          } finally {
-            await that.daemon.flushTxPool(tx.getHash());
-            await that.wallet.sync();
           }
+        } catch (e) {
+          err = e;
         }
+
+        // flush txs
+        await that.daemon.flushTxPool(txIds);
+        if (err) throw err;
       });
       
       if (testConfig.testNonRelays)
@@ -1004,6 +1009,13 @@ class TestMoneroDaemonRpc {
           assert.equal(e.getCode(), -7);
           assert.equal(e.message, "Block not accepted");
         }
+      });
+
+      if (testConfig.testNonRelays)
+      it("Can prune the blockchain", async function() {
+        let result = await that.daemon.pruneBlockchain(true);
+        assert(result.isPruned());
+        assert(result.getPruningSeed() > 0);
       });
       
       if (testConfig.testNonRelays)
@@ -1642,8 +1654,10 @@ function testTxPoolStats(stats) {
     if (stats.getNumTxs() === 1) assert.equal(stats.getHisto(), undefined);
     else {
       assert(stats.getHisto());
-      console.log(stats.getHisto());
-      throw new Error("Ready to test histogram");
+      assert(stats.getHisto().size > 0);
+      for (let key of stats.getHisto().keys()) {
+        assert(stats.getHisto().get(key) >= 0);
+      }
     }
     assert(stats.getBytesMax() > 0);
     assert(stats.getBytesMed() > 0);

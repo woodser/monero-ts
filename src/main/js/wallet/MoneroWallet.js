@@ -414,6 +414,16 @@ class MoneroWallet {
   async createAccount(label) {
     throw new MoneroError("Not supported");
   }
+
+  /**
+   * Set an account label.
+   * 
+   * @param {number} accountIdx - index of the account to set the label for
+   * @param {string} label - the label to set
+   */
+  async setAccountLabel(accountIdx, label) {
+    await this.setSubaddressLabel(accountIdx, 0, label);
+  }
   
   /**
    * Get subaddresses in an account.
@@ -447,6 +457,17 @@ class MoneroWallet {
    * @return {MoneroSubaddress} the created subaddress
    */
   async createSubaddress(accountIdx, label) {
+    throw new MoneroError("Not supported");
+  }
+
+  /**
+   * Set a subaddress label.
+   * 
+   * @param {number} accountIdx - index of the account to set the label for
+   * @param {number} subaddressIdx - index of the subaddress to set the label for
+   * @param {string} label - the label to set
+   */
+  async setSubaddressLabel(accountIdx, subaddressIdx, label) {
     throw new MoneroError("Not supported");
   }
   

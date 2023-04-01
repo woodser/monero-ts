@@ -64,8 +64,8 @@ namespace monero_wasm_bridge
   void is_daemon_synced(int handle, emscripten::val callback);
   void is_synced(int handle, emscripten::val callback);
   int get_network_type(int handle);
-  long get_sync_height(int handle);
-  void set_sync_height(int handle, long sync_height);
+  long get_restore_height(int handle);
+  void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle);
 //  long get_daemon_max_peer_height(int handle);
   //void add_listener(int handle, monero_wallet_listener& listener);
@@ -88,6 +88,7 @@ namespace monero_wasm_bridge
   string create_account(int handle, const string& label);
   string get_subaddresses(int handle, const string& args);
   string create_subaddress(int handle, const uint32_t account_idx, const string& label);
+  void set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label);
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
   void get_transfers(int handle, const string& transfer_query_json, emscripten::val callback);
   void get_outputs(int handle, const string& output_query_json, emscripten::val callback);

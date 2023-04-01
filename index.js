@@ -41,6 +41,7 @@ module.exports.MoneroMiningStatus = require("./src/main/js/daemon/model/MoneroMi
 module.exports.MoneroNetworkType = require("./src/main/js/daemon/model/MoneroNetworkType");
 module.exports.MoneroOutput = require("./src/main/js/daemon/model/MoneroOutput");
 module.exports.MoneroOutputHistogramEntry = require("./src/main/js/daemon/model/MoneroOutputHistogramEntry");
+module.exports.MoneroPruneResult = require("./src/main/js/daemon/model/MoneroPruneResult");
 module.exports.MoneroSubmitTxResult = require("./src/main/js/daemon/model/MoneroSubmitTxResult");
 module.exports.MoneroTx = require("./src/main/js/daemon/model/MoneroTx");
 module.exports.MoneroTxPoolStats = require("./src/main/js/daemon/model/MoneroTxPoolStats");

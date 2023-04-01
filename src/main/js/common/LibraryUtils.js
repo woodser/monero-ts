@@ -201,10 +201,23 @@ class LibraryUtils {
     return new Promise(function(resolve, reject) {
       let callbackId = GenUtils.getUUID();
       LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId] = function(resp) {  // TODO: this defines function once per callback
-        resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
+        resp ? (resp.error ? reject(LibraryUtils.deserializeError(resp.error)) : resolve(resp.result)) : resolve();
       };
       worker.postMessage([objectId, fnName, callbackId].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
+  }
+
+  static serializeError(err) {
+    const serializedErr = { name: err.name, message: err.message, stack: err.stack };
+    if (err instanceof MoneroError) serializedErr.type = "MoneroError";
+    return serializedErr;
+  }
+
+  static deserializeError(serializedErr) {
+    const err = serializedErr.type === "MoneroError" ? new MoneroError(serializedErr.message) : new Error(serializedErr.message);
+    err.name = serializedErr.name;
+    err.stack = serializedErr.stack;
+    return err;
   }
   
   // ------------------------------ PRIVATE HELPERS ---------------------------
