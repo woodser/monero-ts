@@ -2,7 +2,7 @@
 
 A JavaScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.2.0 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.2.0).
 
-* Supports browser and Node.js applications using WebAssembly.
+* Supports client-side wallets in Node.js and the browser using WebAssembly.
 * Supports wallet and daemon RPC clients.
 * Supports multisig, view-only, and offline wallets.
 * Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
@@ -10,7 +10,7 @@ A JavaScript library for creating Monero applications using RPC and WebAssembly 
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
-* Over 280 passing Mocha tests.
+* Over 300 passing Mocha tests.
 
 ## Table of contents
 
