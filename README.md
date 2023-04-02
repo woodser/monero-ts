@@ -1,6 +1,6 @@
 # Monero JavaScript Library
 
-A JavaScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.1.2 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.1.2).
+A JavaScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.2.0 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.2.0).
 
 * Supports browser and Node.js applications using WebAssembly.
 * Supports wallet and daemon RPC clients.
