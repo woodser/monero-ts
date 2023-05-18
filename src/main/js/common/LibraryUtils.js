@@ -192,16 +192,17 @@ class LibraryUtils {
    * @param {objectId} identifies the worker object to invoke
    * @param {string} fnName is the name of the function to invoke
    * @param {Object[]} args are function arguments to invoke with
-   * @return {Promise} resolves with response payload from the worker or an error
+   * @return {any} resolves with response payload from the worker or an error
    */
   static async invokeWorker(objectId, fnName, args) {
     assert(fnName.length >= 2);
     let worker = await LibraryUtils.getWorker();
     if (!LibraryUtils.WORKER_OBJECTS[objectId]) LibraryUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
-    return new Promise(function(resolve, reject) {
+    return await new Promise(function(resolve, reject) {
       let callbackId = GenUtils.getUUID();
       LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId] = function(resp) {  // TODO: this defines function once per callback
         resp ? (resp.error ? reject(LibraryUtils.deserializeError(resp.error)) : resolve(resp.result)) : resolve();
+        delete LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId];
       };
       worker.postMessage([objectId, fnName, callbackId].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
