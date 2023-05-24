@@ -606,7 +606,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     try {
-      let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+      let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight}, 0);
       await this._poll();
       return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
     } catch (err) {
@@ -645,11 +645,11 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent() {
-    await this.rpc.sendJsonRequest("rescan_spent");
+    await this.rpc.sendJsonRequest("rescan_spent", undefined, 0);
   }
   
   async rescanBlockchain() {
-    await this.rpc.sendJsonRequest("rescan_blockchain");
+    await this.rpc.sendJsonRequest("rescan_blockchain", undefined, 0);
   }
   
   async getBalance(accountIdx, subaddressIdx) {
