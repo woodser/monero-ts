@@ -761,7 +761,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
 
   async pruneBlockchain(check) {
-    let resp = await this.rpc.sendJsonRequest("prune_blockchain", {check: check});
+    let resp = await this.rpc.sendJsonRequest("prune_blockchain", {check: check}, 0);
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     let result = new MoneroPruneResult();
     result.setIsPruned(resp.result.pruned);
