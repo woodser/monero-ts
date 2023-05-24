@@ -144,6 +144,15 @@ class MoneroSubmitTxResult {
     this.state.topBlockHash = topBlockHash;
     return this;
   }
+
+  isTxExtraTooBig() {
+    return this.state.isTxExtraTooBig;
+  }
+  
+  setIsTxExtraTooBig(isTxExtraTooBig) {
+    this.state.isTxExtraTooBig = isTxExtraTooBig;
+    return this;
+  }
 }
 
 module.exports = MoneroSubmitTxResult;
