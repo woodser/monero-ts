@@ -1627,18 +1627,18 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async _getTransfersAux(query) {
     
-    // check if pool txs explicitly requested without daemon connection
-    let isConnectedToDaemon = await this.isConnectedToDaemon();
-    let txQuery = query.getTxQuery();
-    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !isConnectedToDaemon) {
-      throw new MoneroError("Cannot fetch pool transactions because wallet has no daemon connection");
-    }
-    
     // build params for get_transfers rpc call
+    let txQuery = query.getTxQuery();
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = isConnectedToDaemon && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
+    let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.getHeight() === undefined && txQuery.getMaxHeight() === undefined && txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
+
+    // check if fetching pool txs contradicted by configuration
+    if (txQuery.inTxPool() === true && !canBeInTxPool) {
+      throw new MoneroError("Cannot fetch pool transactions because it contradicts configuration");
+    }
+
     let params = {};
     params.in = canBeIncoming && canBeConfirmed;
     params.out = canBeOutgoing && canBeConfirmed;
@@ -2512,7 +2512,6 @@ class WalletPoller {
       } catch (err) {
         that._numPolling--;
         console.error("Failed to background poll " + await that._wallet.getPath());
-        console.error(err);
       }
     });
   }
