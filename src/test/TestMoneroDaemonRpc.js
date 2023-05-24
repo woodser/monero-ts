@@ -1618,6 +1618,7 @@ function testSubmitTxResultGood(result) {
     assert.equal(result.getSanityCheckFailed(), false);
     TestUtils.testUnsignedBigInteger(result.getCredits(), false); // 0 credits
     assert.equal(result.getTopBlockHash(), undefined);
+    assert.equal(result.isTxExtraTooBig(), false);
     assert.equal(result.isGood(), true);
   } catch (e) {
     console.log("Submit result is not good: " + JSON.stringify(result));
