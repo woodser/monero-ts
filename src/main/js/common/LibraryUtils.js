@@ -187,6 +187,17 @@ class LibraryUtils {
   }
   
   /**
+   * Terminate monero-javascript's singleton worker.
+   */
+  static async terminateWorker() {
+    if (LibraryUtils.WORKER) {
+      LibraryUtils.WORKER.terminate();
+      delete LibraryUtils.WORKER;
+      LibraryUtils.WORKER = undefined;
+    }
+  }
+  
+  /**
    * Invoke a worker function and get the result with error handling.
    * 
    * @param {objectId} identifies the worker object to invoke
