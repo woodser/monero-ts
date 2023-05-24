@@ -1382,13 +1382,15 @@ function testTx(tx, ctx) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedHash(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
-    assert(tx.getSize() > 0);
-    assert(tx.getWeight() > 0);
-    assert.equal(typeof tx.isKeptByBlock(), "boolean");
+    if (ctx.fromGetTxPool) {
+      assert(tx.getSize() > 0);
+      assert(tx.getWeight() > 0);
+      assert.equal(typeof tx.isKeptByBlock(), "boolean");
+      assert(tx.getMaxUsedBlockHeight() >= 0);
+      assert(tx.getMaxUsedBlockHash());
+    }
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedHash(), undefined);
-    assert(tx.getMaxUsedBlockHeight() >= 0);
-    assert(tx.getMaxUsedBlockHash());
   } else {
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
@@ -1412,8 +1414,10 @@ function testTx(tx, ctx) {
     else if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
     else {
       assert.equal(tx.isRelayed(), false);
-      assert.equal(tx.getRelay(), false);
-      assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
+      if (ctx.fromGetTxPool) {
+        assert.equal(tx.getRelay(), false);
+        assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
+      }
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);

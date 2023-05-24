@@ -419,14 +419,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
       }
     }
     
-    // fetch unconfirmed txs from pool and merge additional fields  // TODO monerod: merge rpc calls so this isn't necessary?
-    let poolTxs = await this.getTxPool();
-    for (let tx of txs) {
-      for (let poolTx of poolTxs) {
-        if (tx.getHash() === poolTx.getHash()) tx.merge(poolTx);
-      }
-    }
-    
     return txs;
   }
   
