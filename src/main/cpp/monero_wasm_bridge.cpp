@@ -270,8 +270,12 @@ string monero_wasm_bridge::get_version(int handle) {
 }
 
 string monero_wasm_bridge::get_mnemonic(int handle) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_mnemonic();
+  try {
+    monero_wallet* wallet = (monero_wallet*) handle;
+    return wallet->get_mnemonic();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_mnemonic_language(int handle) {
