@@ -227,12 +227,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   /**
    * Stop the internal process running monerod, if applicable.
+   * 
+   * @param {boolean} force specifies if the process should be destroyed forcibly
+   * @return {Promise&lt;number|undefined>} the exit code from stopping the process
    */
-  async stopProcess() {
+  async stopProcess(force) {
     if (this.process === undefined) throw new MoneroError("MoneroDaemonRpc instance not created from new process");
     let listenersCopy = GenUtils.copyArray(this.getListeners());
     for (let listener of listenersCopy) await this.removeListener(listener);
-    return GenUtils.killProcess(this.process);
+    return GenUtils.killProcess(this.process, force ? "sigkill" : undefined);
   }
   
   async addListener(listener) {
@@ -441,14 +444,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let tx = new MoneroTx();
         tx.setIsMinerTx(false);
         txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
-      }
-    }
-    
-    // fetch unconfirmed txs from pool and merge additional fields  // TODO monerod: merge rpc calls so this isn't necessary?
-    let poolTxs = await this.getTxPool();
-    for (let tx of txs) {
-      for (let poolTx of poolTxs) {
-        if (tx.getHash() === poolTx.getHash()) tx.merge(poolTx);
       }
     }
     
@@ -794,7 +789,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
 
   async pruneBlockchain(check) {
-    let resp = await this.rpc.sendJsonRequest("prune_blockchain", {check: check});
+    let resp = await this.rpc.sendJsonRequest("prune_blockchain", {check: check}, 0);
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     let result = new MoneroPruneResult();
     result.setIsPruned(resp.result.pruned);
@@ -1326,6 +1321,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "credits") result.setCredits(BigInteger.parse(val))
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else if (key === "top_hash") result.setTopBlockHash("" === val ? undefined : val);
+      else if (key === "tx_extra_too_big") result.setIsTxExtraTooBig(val);
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;
@@ -1535,11 +1531,11 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     return undefined; // proxy does not have access to process
   }
   
-  async stopProcess() {
+  async stopProcess(force) {
     if (this.process === undefined) throw new MoneroError("MoneroDaemonRpcProxy instance not created from new process");
     let listenersCopy = GenUtils.copyArray(this.getListeners());
     for (let listener of listenersCopy) await this.removeListener(listener);
-    this.process.kill();
+    return GenUtils.killProcess(this.process, force ? "sigkill" : undefined);
   }
   
   async addListener(listener) {

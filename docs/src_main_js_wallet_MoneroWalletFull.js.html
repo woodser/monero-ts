@@ -2570,7 +2570,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   async _invokeWorker(fnName, args) {
-    return LibraryUtils.invokeWorker(this._walletId, fnName, args);
+    return await LibraryUtils.invokeWorker(this._walletId, fnName, args);
   }
 }
 

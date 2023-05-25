@@ -228,12 +228,15 @@ class MoneroWalletRpc extends MoneroWallet {
   
   /**
    * Stop the internal process running monero-wallet-rpc, if applicable.
+   * 
+   * @param {boolean} force specifies if the process should be destroyed forcibly
+   * @return {Promise&lt;number|undefined>} the exit code from stopping the process
    */
-  async stopProcess() {
+  async stopProcess(force) {
     if (this.process === undefined) throw new MoneroError("MoneroWalletRpc instance not created from new process");
     let listenersCopy = GenUtils.copyArray(this.getListeners());
     for (let listener of listenersCopy) await this.removeListener(listener);
-    return GenUtils.killProcess(this.process);
+    return GenUtils.killProcess(this.process, force ? "sigkill" : undefined);
   }
   
   /**
@@ -631,7 +634,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     try {
-      let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+      let resp = await this.rpc.sendJsonRequest("refresh", {start_height: startHeight}, 0);
       await this._poll();
       return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
     } catch (err) {
@@ -670,11 +673,11 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent() {
-    await this.rpc.sendJsonRequest("rescan_spent");
+    await this.rpc.sendJsonRequest("rescan_spent", undefined, 0);
   }
   
   async rescanBlockchain() {
-    await this.rpc.sendJsonRequest("rescan_blockchain");
+    await this.rpc.sendJsonRequest("rescan_blockchain", undefined, 0);
   }
   
   async getBalance(accountIdx, subaddressIdx) {
@@ -1652,18 +1655,18 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async _getTransfersAux(query) {
     
-    // check if pool txs explicitly requested without daemon connection
-    let isConnectedToDaemon = await this.isConnectedToDaemon();
-    let txQuery = query.getTxQuery();
-    if (txQuery.inTxPool() !== undefined &amp;&amp; txQuery.inTxPool() &amp;&amp; !isConnectedToDaemon) {
-      throw new MoneroError("Cannot fetch pool transactions because wallet has no daemon connection");
-    }
-    
     // build params for get_transfers rpc call
+    let txQuery = query.getTxQuery();
     let canBeConfirmed = txQuery.isConfirmed() !== false &amp;&amp; txQuery.inTxPool() !== true &amp;&amp; txQuery.isFailed() !== true &amp;&amp; txQuery.isRelayed() !== false;
-    let canBeInTxPool = isConnectedToDaemon &amp;&amp; txQuery.isConfirmed() !== true &amp;&amp; txQuery.inTxPool() !== false &amp;&amp; txQuery.isFailed() !== true &amp;&amp; txQuery.isRelayed() !== false &amp;&amp; txQuery.getHeight() === undefined &amp;&amp; txQuery.getMaxHeight() === undefined &amp;&amp; txQuery.isLocked() !== false;
+    let canBeInTxPool = txQuery.isConfirmed() !== true &amp;&amp; txQuery.inTxPool() !== false &amp;&amp; txQuery.isFailed() !== true &amp;&amp; txQuery.getHeight() === undefined &amp;&amp; txQuery.getMaxHeight() === undefined &amp;&amp; txQuery.isLocked() !== false;
     let canBeIncoming = query.isIncoming() !== false &amp;&amp; query.isOutgoing() !== true &amp;&amp; query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false &amp;&amp; query.isIncoming() !== true;
+
+    // check if fetching pool txs contradicted by configuration
+    if (txQuery.inTxPool() === true &amp;&amp; !canBeInTxPool) {
+      throw new MoneroError("Cannot fetch pool transactions because it contradicts configuration");
+    }
+
     let params = {};
     params.in = canBeIncoming &amp;&amp; canBeConfirmed;
     params.out = canBeOutgoing &amp;&amp; canBeConfirmed;
@@ -2537,7 +2540,6 @@ class WalletPoller {
       } catch (err) {
         that._numPolling--;
         console.error("Failed to background poll " + await that._wallet.getPath());
-        console.error(err);
       }
     });
   }

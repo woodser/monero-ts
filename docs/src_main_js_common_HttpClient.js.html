@@ -99,7 +99,7 @@ class HttpClient {
     }
     
     // request using fetch or xhr with timeout
-    let timeout = request.timeout ? request.timeout : HttpClient._DEFAULT_TIMEOUT;
+    let timeout = request.timeout === undefined ? HttpClient._DEFAULT_TIMEOUT : request.timeout === 0 ? HttpClient.MAX_TIMEOUT : request.timeout;
     let requestPromise = request.requestApi === "fetch" ? HttpClient._requestFetch(request) : HttpClient._requestXhr(request);
     let timeoutPromise = new Promise((resolve, reject) => {
       let id = setTimeout(() => {
@@ -519,6 +519,7 @@ HttpClient._DEFAULT_REQUEST = {
 HttpClient._PROMISE_THROTTLES = [];
 HttpClient._TASK_QUEUES = [];
 HttpClient._DEFAULT_TIMEOUT = 60000;
+HttpClient.MAX_TIMEOUT = 2147483647; // max 32-bit signed number
 
 module.exports = HttpClient;</code></pre>
         </article>
