@@ -4654,6 +4654,14 @@ class TestMoneroWalletCommon {
       madeMultisigHexes.push(multisigHex);
     }
     
+    // try to get seed before wallet initialized
+    try {
+      await participants[0].getMnemonic();
+      throw new Error("Should have thrown exception getting multisig seed before initialized");
+    } catch (err) {
+      assert.equal("This wallet is multisig, but not yet finalized", err.message);
+    }
+    
     // exchange keys N - M + 1 times
     let address = undefined;
     assert.equal(madeMultisigHexes.length, N);
@@ -4700,10 +4708,12 @@ class TestMoneroWalletCommon {
       prevMultisigHexes = exchangeMultisigHexes;
     }
     
-    // validate final multisig address
+    // validate final multisig
     let participant = participants[0];
     await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
     this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
+    let seed = await participant.getMnemonic();
+    assert(seed.length > 0);
     
     // test sending a multisig transaction if configured
     if (testTx) {
