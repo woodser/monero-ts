@@ -1500,10 +1500,14 @@ class GenUtils {
    * @return {Promise<number|undefined>} the exit code from killing the process
    */
   static async killProcess(process, signal) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       process.on("exit", function(code, signal) { resolve(code); });
       process.on("error", function(err) { reject(err); });
-      process.kill(signal ? signal : "SIGINT");
+      try {
+        if (!process.kill(signal ? signal : "SIGINT")) resolve(); // resolve immediately if not running
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 }
