@@ -1627,7 +1627,10 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
-        let callbackFn = function(resp) { resolve(JSON.parse(resp).txHashes); }
+        let callbackFn = function(resp) { 
+          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          else resolve(JSON.parse(resp).txHashes);
+        }
         that._module.submit_multisig_tx_hex(that._cppAddress, signedMultisigTxHex, callbackFn);
       });
     });
