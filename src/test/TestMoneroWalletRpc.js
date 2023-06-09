@@ -57,7 +57,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 
         // assign defaults
         config = new MoneroWalletConfig(config);
-        if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+        if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
         if (!config.getServer()) config.setServer(await this.daemon.getRpcConnection());
 
         // create client connected to internal monero-wallet-rpc executable
@@ -82,7 +82,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         config = new MoneroWalletConfig(config);
         let random = !config.getMnemonic() && !config.getPrimaryAddress();
         if (!config.getPath()) config.setPath(GenUtils.getUUID());
-        if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+        if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
         if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
         if (!config.getServer()) config.setServer(await this.daemon.getRpcConnection());
 

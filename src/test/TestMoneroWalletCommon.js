@@ -2489,7 +2489,7 @@ class TestMoneroWalletCommon {
         let path = await wallet.getPath();
         
         // change password
-        let newPassword = GenUtils.getUUID();
+        let newPassword = "";
         await wallet.changePassword(TestUtils.WALLET_PASSWORD, newPassword);
         
         // close wallet without saving
@@ -2528,7 +2528,8 @@ class TestMoneroWalletCommon {
       it("Can save and close the wallet in a single call", async function() {
         
         // create random wallet
-        let wallet = await that.createWallet();
+        let password = ""; // unencrypted
+        let wallet = await that.createWallet({password: password});
         let path = await wallet.getPath();
         
         // set an attribute
@@ -2539,7 +2540,7 @@ class TestMoneroWalletCommon {
         await that.closeWallet(wallet);
         
         // re-open the wallet and ensure attribute was not saved
-        wallet = await that.openWallet({path: path});
+        wallet = await that.openWallet({path: path, password: password});
         assert.equal(await wallet.getAttribute("id"), undefined);
         
         // set the attribute and close with saving
@@ -2547,7 +2548,7 @@ class TestMoneroWalletCommon {
         await that.closeWallet(wallet, true);
         
         // re-open the wallet and ensure attribute was saved
-        wallet = await that.openWallet({path: path});
+        wallet = await that.openWallet({path: path, password: password});
         assert.equal(await wallet.getAttribute("id"), uuid);
         await that.closeWallet(wallet);
       });
@@ -4814,7 +4815,7 @@ class TestMoneroWalletCommon {
         assert.equal(e.message, "Cannot relay multisig transaction until co-signed");
       }
       
-      // send funds from a subaddress in the multisig wallet
+      // create txs to send funds from a subaddress in the multisig wallet
       console.log("Sending");
       let txs = await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: accountIdx, subaddressIndex: 0});
       assert(txs.length > 0);
@@ -4839,6 +4840,7 @@ class TestMoneroWalletCommon {
       // submit the signed multisig tx hex to the network
       console.log("Submitting");
       let txHashes = await participant.submitMultisigTxHex(multisigTxHex);
+      assert(txHashes.length > 0);
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
