@@ -187,7 +187,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating full WASM wallet");
     if (config.getPath() === undefined) config.setPath("");
     if (config.getPath() && MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
-    if (!config.getPassword()) throw new MoneroError("Must provide a password to create the wallet with");
+    if (config.getPassword() === undefined) config.setPassword("");
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
@@ -1688,6 +1688,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
   
   async changePassword(oldPassword, newPassword) {
     if (oldPassword !== this._password) throw new MoneroError("Invalid original password."); // wallet2 verify_password loads from disk so verify password here
+    if (newPassword === undefined) newPassword = "";
     let that = this;
     await that._module.queueTask(async function() {
       that._assertNotClosed();
@@ -1740,7 +1741,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (proxyToWorker) return MoneroWalletFullProxy.openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, fs);
     
     // validate and normalize parameters
-    assert(password, "Must provide a password to open the wallet");
     if (networkType === undefined) throw new MoneroError("Must provide the wallet's network type");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
@@ -1987,6 +1987,7 @@ class MoneroWalletFullProxy extends MoneroWallet {
   
   static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, fs) {
     let walletId = GenUtils.getUUID();
+    if (password === undefined) password = "";
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await LibraryUtils.invokeWorker(walletId, "openWalletData", [path, password, networkType, keysData, cacheData, daemonUriOrConfig]);
     let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), path, fs);
