@@ -278,12 +278,11 @@ class MoneroWalletRpc extends MoneroWallet {
   async openWallet(pathOrConfig, password) {
     
     // normalize and validate config
-    let config = new MoneroWalletConfig(typeof pathOrConfig === "string" ? {path: pathOrConfig, password: password} : pathOrConfig);
+    let config = new MoneroWalletConfig(typeof pathOrConfig === "string" ? {path: pathOrConfig, password: password ? password : ""} : pathOrConfig);
     // TODO: ensure other fields are uninitialized?
     
     // open wallet on rpc server
     if (!config.getPath()) throw new MoneroError("Must provide name of wallet to open");
-    if (!config.getPassword()) throw new MoneroError("Must provide password of wallet to open");
     await this.rpc.sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
     await this._clear();
     this.path = config.getPath();
@@ -339,6 +338,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
     if (config.getAccountLookahead() !== undefined || config.getSubaddressLookahead() !== undefined) throw new MoneroError("monero-wallet-rpc does not support creating wallets with subaddress lookahead over rpc");
+    if (config.getPassword() === undefined) config.setPassword("");
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
@@ -368,7 +368,6 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   async _createWalletRandom(name, password, language) {
     if (!name) throw new MoneroError("Name is not initialized");
-    if (!password) throw new MoneroError("Password is not initialized");
     if (!language) language = MoneroWallet.DEFAULT_LANGUAGE;
     let params = { filename: name, password: password, language: language };
     try {
@@ -1569,7 +1568,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async changePassword(oldPassword, newPassword) {
-    return this.rpc.sendJsonRequest("change_wallet_password", {old_password: oldPassword, new_password: newPassword});
+    return this.rpc.sendJsonRequest("change_wallet_password", {old_password: oldPassword || "", new_password: newPassword || ""});
   }
   
   async save() {
