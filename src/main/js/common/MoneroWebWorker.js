@@ -490,7 +490,7 @@ self.decodeIntegratedAddress = async function(walletId, integratedAddress) {
 }
 
 self.setDaemonConnection = async function(walletId, config) {
-  return self.WORKER_OBJECTS[walletId].setDaemonConnection(config ? new MoneroRpcConnection(config) : undefined);
+  return self.WORKER_OBJECTS[walletId].setDaemonConnection(config ? new MoneroRpcConnection(Object.assign(config, {proxyToWorker: false})) : undefined);
 }
 
 self.getDaemonConnection = async function(walletId) {
