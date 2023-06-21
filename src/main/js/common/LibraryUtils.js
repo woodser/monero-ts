@@ -29,6 +29,7 @@ class LibraryUtils {
   static async setLogLevel(level) {
     assert(level === parseInt(level, 10) && level >= 0, "Log level must be an integer >= 0");
     LibraryUtils.LOG_LEVEL = level;
+    if (LibraryUtils.WASM_MODULE) LibraryUtils.WASM_MODULE.set_log_level(level);
     if (LibraryUtils.WORKER) await LibraryUtils.invokeWorker(GenUtils.getUUID(), "setLogLevel", [level]);
   }
   
@@ -179,9 +180,6 @@ class LibraryUtils {
         // invoke callback function with this arg and arguments
         callbackFn.apply(thisArg, e.data.slice(2));
       }
-      
-      // set worker log level
-      await LibraryUtils.setLogLevel(LibraryUtils.getLogLevel());
     }
     return LibraryUtils.WORKER;
   }

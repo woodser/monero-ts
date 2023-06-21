@@ -9,6 +9,7 @@ EMSCRIPTEN_BINDINGS(module)
 {
   // ------------------------------ UTILITIES ---------------------------------
 
+  emscripten::function("set_log_level", &monero_wasm_bridge::set_log_level);
   emscripten::function("get_integrated_address_util", &monero_wasm_bridge::get_integrated_address_util);
   emscripten::function("validate_address", &monero_wasm_bridge::validate_address);
   emscripten::function("get_exception_message", &monero_wasm_bridge::get_exception_message);

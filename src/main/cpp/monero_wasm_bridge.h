@@ -22,6 +22,7 @@ namespace monero_wasm_bridge
 
   // ------------------------------ UTILITIES ---------------------------------
 
+  void set_log_level(int level);
   string get_integrated_address_util(int network_type, const string& standard_address, const string& payment_id);
   string validate_address(const string& address, int network_type);
   string get_exception_message(int exception_ptr);

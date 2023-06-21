@@ -73,6 +73,11 @@ struct wallet_wasm_listener : public monero_wallet_listener {
 
 // ------------------------------- UTILITIES ----------------------------------
 
+void monero_wasm_bridge::set_log_level(int level)
+{
+  monero_utils::set_log_level(level);
+}
+
 string monero_wasm_bridge::get_integrated_address_util(int network_type, const string& standard_address, const string& payment_id)
 {
   try {
