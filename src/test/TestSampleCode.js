@@ -49,9 +49,14 @@ class TestSampleCode {
         const monerojs = require("../../index");	// *** CHANGE README TO "monero-javascript" ***
         
         // connect to daemon
-        let daemon = await monerojs.connectToDaemonRpc("http://localhost:28081");
+        let daemon = await monerojs.connectToDaemonRpc({
+            uri: "http://localhost:28081",
+            proxyToWorker: true
+        });
         let height = await daemon.getHeight();            // 1523651
         let txsInPool = await daemon.getTxPool();         // get transactions in the pool
+        
+        console.log("1");
         
         // open wallet on monero-wallet-rpc
         let walletRpc = await monerojs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
@@ -70,7 +75,8 @@ class TestSampleCode {
           serverPassword: "abctesting123",
           mnemonic: TestUtils.MNEMONIC,                  // *** REPLACE README WITH MNEMONIC ***
           restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, // *** REPLACE README WITH FIRST RECEIVE HEIGHT ***
-          fs: TestUtils.getDefaultFs()
+          fs: TestUtils.getDefaultFs(),
+          proxyToWorker: true
         });
         
         // synchronize with progress notifications

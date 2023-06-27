@@ -30,6 +30,11 @@ mkdir -p ./dist || exit 1
   && {
     mv ./build/monero_wallet_keys.wasm ./dist/
   }
+  
+[ -f ./build/monero_wallet_keys.worker.js ] \
+  && {
+    mv ./build/monero_wallet_keys.worker.js ./dist/
+  }
 
 [ -f ./build/monero_wallet_full.js ] \
   && {
@@ -39,4 +44,9 @@ mkdir -p ./dist || exit 1
 [ -f ./build/monero_wallet_full.wasm ] \
   && {
     mv ./build/monero_wallet_full.wasm ./dist/
+  }
+
+[ -f ./build/monero_wallet_full.worker.js ] \
+  && {
+    mv ./build/monero_wallet_full.worker.js ./dist/
   }

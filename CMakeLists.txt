@@ -5,7 +5,7 @@ project(monero-javascript-wasm)
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 set(BUILD_MONERO_WALLET_FULL_WASM ON)
@@ -82,11 +82,11 @@ set(OPENSSL ${CMAKE_SOURCE_DIR}/build/openssl)
 include_directories("${OPENSSL}")
 include_directories("${OPENSSL}/include") # must exist already - run bin/build-openssl-emscripten.sh
 
-add_library(openssl_crypto STATIC IMPORTED)
-set_target_properties(
-    openssl_crypto PROPERTIES IMPORTED_LOCATION
-    ${OPENSSL}/lib/libcrypto.a
-)
+#add_library(openssl_crypto STATIC IMPORTED)
+#set_target_properties(
+    #openssl_crypto PROPERTIES IMPORTED_LOCATION
+    #${OPENSSL}/lib/libcrypto.a
+#)
 
 add_library(openssl_ssl STATIC IMPORTED)
 set_target_properties(
@@ -263,13 +263,18 @@ set(
 ####################
 
 #-s USE_PTHREADS=1 \
-#-s PTHREAD_POOL_SIZE=2 \
+
 #-s PROXY_TO_PTHREAD \
 #-s DISABLE_EXCEPTION_CATCHING=0 \
 #-s ASYNCIFY=1 \
 #-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 #-s ALLOW_MEMORY_GROWTH=0 \
 #-s INITIAL_MEMORY=1536MB \
+#-s USE_PTHREADS=1 \
+
+#-s ENVIRONMENT=worker \
+
+
 
 set (
 EMCC_LINKER_FLAGS_BASE
@@ -277,8 +282,9 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
---bind -s MODULARIZE=1 \
+"-Wall -Werror -Wl,--allow-undefined -std=c++14 -pthread -Oz \
+--bind \
+-s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_javascript\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=0 \
@@ -291,7 +297,11 @@ EMCC_LINKER_FLAGS_BASE
 -s RESERVED_FUNCTION_POINTERS=5 \
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"getTempRet0\",\"addFunction\"]' \
 -s WASM=1 \
--s ALLOW_MEMORY_GROWTH=1 \
+-s USE_PTHREADS=1 \
+-s PROXY_TO_PTHREAD=0 \
+-s ALLOW_MEMORY_GROWTH=0 \
+-s INITIAL_MEMORY=1536MB \
+-s PTHREAD_POOL_SIZE=16 \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it

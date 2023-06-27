@@ -87,7 +87,7 @@ export NO_BZIP2=1 #bc it's supplied by emscripten but b2 will fail to find it
 
 
 ./bootstrap.sh \
-  --with-libraries=system,thread,chrono,serialization,regex \
+  --with-libraries=system,thread,chrono,serialization,regex,atomic \
 2>&1
 
 if [ $? != 0 ]; then
@@ -107,11 +107,11 @@ HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2
 
 ./b2 -q -a -j $HOST_NCORES    \
   toolset=clang-emscripten    \
-  threading=single            \
+  threading=multi             \
   link=static                 \
   optimization=space          \
   variant=release             \
-  cxxflags=-no-pthread        \
+  cxxflags=-pthread           \
   stage                       \
   --stagedir="$INSTALL_PATH"  \
   2>&1

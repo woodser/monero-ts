@@ -106,6 +106,26 @@ class LibraryUtils {
         resolve(LibraryUtils.WASM_MODULE);
       });
     });
+    
+
+    
+/*    // sleep for a moment
+    await new Promise(function(resolve) { setTimeout(resolve, 5000); });
+    console.log("done sleeping!");
+    console.log(LibraryUtils.WASM_MODULE);
+    LibraryUtils.FULL_LOADED = true;
+    LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
+    return LibraryUtils.WASM_MODULE;*/
+    
+/*    return new Promise(function(resolve, reject) {
+      LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_full");
+      LibraryUtils.WASM_MODULE['onRuntimeInitialized'] = () => {
+        console.log("initialized!!!");
+        LibraryUtils.FULL_LOADED = true;
+        LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
+        resolve(LibraryUtils.WASM_MODULE);
+      }
+    });*/
   }
   
   /**

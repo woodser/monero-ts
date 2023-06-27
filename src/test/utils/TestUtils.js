@@ -312,7 +312,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
 
 const WalletTxTracker = require("./WalletTxTracker");
 TestUtils.WALLET_TX_TRACKER = new WalletTxTracker(); // used to track wallet txs for tests
-TestUtils.PROXY_TO_WORKER = true;
+TestUtils.PROXY_TO_WORKER = false;
 TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
 TestUtils.OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
 
