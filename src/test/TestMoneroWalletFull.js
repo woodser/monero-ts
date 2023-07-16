@@ -50,7 +50,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
     //console.log(process.memoryUsage());
     
     // remove non-whitelisted wallets
-    let whitelist = [TestUtils.WALLET_NAME, "ground_truth"];
+    let whitelist = [TestUtils.WALLET_NAME, "ground_truth", "moved"];
     let items = TestUtils.getDefaultFs().readdirSync(TestUtils.TEST_WALLETS_DIR);
     for (let item of items) {
       let found = false;
@@ -1064,7 +1064,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert.equal("myval2", await wallet.getAttribute("mykey"));
           
           // move wallet to new directory
-          let path2 = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
+          let path2 = TestUtils.TEST_WALLETS_DIR + "/moved/" + GenUtils.getUUID();
           await wallet.setAttribute("mykey", "myval3");
           await wallet.moveTo(path2);
           assert(!MoneroWalletFull.walletExists(path1, TestUtils.getDefaultFs()));
