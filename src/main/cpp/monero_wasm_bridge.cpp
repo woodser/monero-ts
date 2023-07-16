@@ -1300,13 +1300,13 @@ string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, boo
 #endif
 }
 
-string monero_wasm_bridge::get_cache_file_buffer(int handle, string password) {
+string monero_wasm_bridge::get_cache_file_buffer(int handle) {
 #if defined BUILD_WALLET_FULL
   // get wallet
   monero_wallet_full* wallet = (monero_wallet_full*) handle;
 
   // get cache buffer
-  string cache_buf = wallet->get_cache_file_buffer(password);
+  string cache_buf = wallet->get_cache_file_buffer();
 
   // copy cache buffer to heap and keep pointer
   std::string* cache_buf_ptr = new std::string(cache_buf.c_str(), cache_buf.length());

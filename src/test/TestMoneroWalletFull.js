@@ -1045,6 +1045,10 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           wallet = await that.createWallet(new MoneroWalletConfig().setPath(""));
           let mnemonic = await wallet.getMnemonic();
           await wallet.setAttribute("mykey", "myval1");
+
+          // change password of in-memory wallet
+          let password2 = "abc123";
+          await wallet.changePassword(TestUtils.WALLET_PASSWORD, password2);
           
           // move wallet from memory to disk
           let path1 = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
@@ -1059,7 +1063,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           await wallet.moveTo(path1);
           await wallet.close();
           assert(MoneroWalletFull.walletExists(path1, TestUtils.getDefaultFs()));
-          wallet = await that.openWallet(new MoneroWalletConfig().setPath(path1));
+          wallet = await that.openWallet(new MoneroWalletConfig().setPath(path1).setPassword(password2));
           assert.equal(await wallet.getMnemonic(), mnemonic);
           assert.equal("myval2", await wallet.getAttribute("mykey"));
           
@@ -1073,7 +1077,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
           
           // re-open and test wallet
           await wallet.close();
-          wallet = await that.openWallet(new MoneroWalletConfig().setPath(path2));
+          wallet = await that.openWallet(new MoneroWalletConfig().setPath(path2).setPassword(password2));
           await wallet.sync();
           assert.equal(await wallet.getMnemonic(), mnemonic);
           assert.equal("myval3", await wallet.getAttribute("mykey"));
