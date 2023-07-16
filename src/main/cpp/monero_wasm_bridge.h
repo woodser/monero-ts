@@ -146,7 +146,7 @@ namespace monero_wasm_bridge
   void change_wallet_password(int handle, const string& old_password, const string& new_password, emscripten::val callback);
   void close(int handle, bool save, emscripten::val callback);
   string get_keys_file_buffer(int handle, string password, bool view_only);
-  string get_cache_file_buffer(int handle, string password);
+  string get_cache_file_buffer(int handle);
 }
 
 #endif /* monero_wasm_bridge_h */

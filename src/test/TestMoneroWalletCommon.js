@@ -3503,6 +3503,16 @@ class TestMoneroWalletCommon {
         let dustAmt = (await that.daemon.getFeeEstimate()).getFee().divide(new BigInteger(2));
         await testSendToMultiple(5, 3, true, dustAmt);
       });
+
+      if (testConfig.testRelays)
+      it("Can subtract fees from destinations", async function() {
+        await testSendToMultiple(5, 3, false, undefined, false, true);
+      });
+
+      if (testConfig.testRelays)
+      it("Cannot subtract fees from destinations in split transactions", async function() {
+        await testSendToMultiple(3, 15, true, undefined, true, true);
+      });
       
       /**
        * Sends funds from the first unlocked account to multiple accounts and subaddresses.
@@ -3512,8 +3522,9 @@ class TestMoneroWalletCommon {
        * @param canSplit specifies if the operation can be split into multiple transactions
        * @param sendAmountPerSubaddress is the amount to send to each subaddress (optional, computed if not given)
        * @param useJsConfig specifies if the api should be invoked with a JS object instead of a MoneroTxConfig
+       * @param subtractFeeFromDestinations specifies to subtract the fee from destination addresses
        */
-      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress, useJsConfig) {
+      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress, useJsConfig, subtractFeeFromDestinations) {
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
         // compute the minimum account unlocked balance needed in order to fulfill the request
@@ -3564,16 +3575,19 @@ class TestMoneroWalletCommon {
         
         // build tx config using MoneroTxConfig
         let config = new MoneroTxConfig();
-        config.setAccountIndex(srcAccount.getIndex());
+        config.setAccountIndex(srcAccount.getIndex())
+        config.setSubaddressIndices(undefined); // test assigning undefined
         config.setDestinations([]);
+        config.setRelay(true);
         config.setCanSplit(canSplit);
         config.setPriority(MoneroTxPriority.NORMAL);
-        config.setRelay(true);
+        let subtractFeeFrom = [];
         for (let i = 0; i < destinationAddresses.length; i++) {
           config.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
+          subtractFeeFrom.push(i);
         }
-        let configCopy = config.copy();
-        
+        if (subtractFeeFromDestinations) config.setSubtractFeeFrom(subtractFeeFrom);
+
         // build tx config with JS object
         let jsConfig;
         if (useJsConfig) {
@@ -3585,14 +3599,27 @@ class TestMoneroWalletCommon {
           for (let i = 0; i < destinationAddresses.length; i++) {
             jsConfig.destinations.push({address: destinationAddresses[i], amount: sendAmountPerSubaddress});
           }
+          if (subtractFeeFromDestinations) jsConfig.subtractFeeFrom = subtractFeeFrom;
         }
         
         // send tx(s) with config xor js object
-        let txs = [];
-        if (canSplit) {
-          for (let tx of await that.wallet.createTxs(useJsConfig ? jsConfig : config)) txs.push(tx);
-        } else {
-          txs.push(await that.wallet.createTx(useJsConfig ? jsConfig : config));
+        let configCopy = config.copy();
+        let txs = undefined;
+        try {
+          if (canSplit) {
+            txs = await that.wallet.createTxs(useJsConfig ? jsConfig : config);
+          } else {
+            txs = [await that.wallet.createTx(useJsConfig ? jsConfig : config)];
+          }
+        } catch (err) {
+
+          // test error applying subtractFromFee with split txs
+          if (subtractFeeFromDestinations && !txs) {
+            if (err.message !== "subtractfeefrom transfers cannot be split over multiple transactions yet") throw err;
+            return;
+          }
+
+          throw err;
         }
         
         // test that config is unchanged
@@ -3603,12 +3630,21 @@ class TestMoneroWalletCommon {
         let account = await that.wallet.getAccount(srcAccount.getIndex());
         assert(account.getBalance().compare(balance) < 0);
         assert(account.getUnlockedBalance().compare(unlockedBalance) < 0);
+
+        // build test context
+        config.setCanSplit(canSplit);
+        let ctx = {};
+        ctx.wallet = that.wallet;
+        ctx.config = config;
+        ctx.isSendResponse = true;
         
         // test each transaction
         assert(txs.length > 0);
+        let feeSum = new BigInteger(0);
         let outgoingSum = new BigInteger(0);
+        that._testTxsWallet(txs, ctx);
         for (let tx of txs) {
-          await that._testTxWallet(tx, {wallet: that.wallet, config: config, isSendResponse: true});
+          feeSum = feeSum.add(tx.getFee());
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
@@ -3622,8 +3658,8 @@ class TestMoneroWalletCommon {
         }
         
         // assert that outgoing amounts sum up to the amount sent within a small margin
-        if (Math.abs(sendAmount.subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
-          throw new Error("Actual send amount is too different from requested send amount: " + sendAmount + " - " + outgoingSum + " = " + sendAmount.subtract(outgoingSum));
+        if (Math.abs(sendAmount.subtract(subtractFeeFromDestinations ? feeSum : new BigInteger(0)).subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
+          throw new Error("Actual send amount is too different from requested send amount: " + sendAmount + " - " + (subtractFeeFromDestinations ? feeSum : new BigInteger(0)) + " - " + outgoingSum + " = " + sendAmount.subtract(subtractFeeFromDestinations ? feeSum : new BigInteger(0)).subtract(outgoingSum));
         }
       }
       
@@ -4272,6 +4308,38 @@ class TestMoneroWalletCommon {
     }
     return outputs;
   }
+
+  async _testTxsWallet(txs, ctx) {
+
+    // test each transaction
+    assert(txs.length > 0);
+    for (let tx of txs) await this._testTxWallet(tx, ctx);
+
+    // test destinations across transactions
+    if (ctx.config && ctx.config.getDestinations()) {
+      let destinationIdx = 0;
+      let subtractFeeFromDestinations = ctx.config.getSubtractFeeFrom() && ctx.config.getSubtractFeeFrom().length > 0;
+      for (let tx of txs) {
+
+        // TODO: remove this after >18.2.2 when amounts_by_dest_list is official
+        if (tx.getOutgoingTransfer().getDestinations() === undefined) {
+          console.warn("Tx missing destinations");
+          return;
+        }
+
+        let amountDiff = new BigInteger(0);
+        for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+          let ctxDestination = ctx.config.getDestinations()[destinationIdx];
+          assert.equal(destination.getAddress(), ctxDestination.getAddress());
+          if (subtractFeeFromDestinations) amountDiff = amountDiff.add(ctxDestination.getAmount().subtract(destination.getAmount()));
+          else assert.equal(destination.getAmount().toString(), ctxDestination.getAmount().toString());
+          destinationIdx++;
+        }
+        if (subtractFeeFromDestinations) assert.equal(tx.getFee().toString(), amountDiff.toString());
+      }
+      assert.equal(ctx.config.getDestinations().length, destinationIdx);
+    }
+  }
   
   /**
    * Tests a wallet transaction with a test configuration.
@@ -4475,17 +4543,18 @@ class TestMoneroWalletCommon {
       }
       
       // test destinations of sent tx
-      if (tx.getOutgoingTransfer().getDestinations() === undefined) assert(config.getCanSplit()); // TODO: destinations not returned from transfer_split
-      else {
-        assert.equal(tx.getOutgoingTransfer().getDestinations().length, config.getDestinations().length);
-        for (let i = 0; i < config.getDestinations().length; i++) {
-          assert.equal(tx.getOutgoingTransfer().getDestinations()[i].getAddress(), config.getDestinations()[i].getAddress());
-          if (ctx.isSweepResponse) {
-            assert.equal(config.getDestinations().length, 1);
-            assert.equal(config.getDestinations()[i].getAmount(), undefined);
-            assert.equal(tx.getOutgoingTransfer().getDestinations()[i].getAmount().toString(), tx.getOutgoingTransfer().getAmount().toString());
-          } else {
-            assert.equal(tx.getOutgoingTransfer().getDestinations()[i].getAmount().toString(), config.getDestinations()[i].getAmount().toString());
+      if (tx.getOutgoingTransfer().getDestinations() == null) {
+        assert(config.getCanSplit());
+        console.warn("Destinations not returned from split transactions"); // TODO: remove this after >18.2.2 when amounts_by_dest_list official
+      } else {
+        assert(tx.getOutgoingTransfer().getDestinations());
+        assert(tx.getOutgoingTransfer().getDestinations().length > 0);
+        let subtractFeeFromDestinations = ctx.config.getSubtractFeeFrom() && ctx.config.getSubtractFeeFrom().length > 0;
+        if (ctx.isSweepResponse) {
+          assert.equal(config.getDestinations().length, 1);
+          assert.equal(undefined, config.getDestinations()[0].getAmount());
+          if (!subtractFeeFromDestinations) {
+            assert.equal(tx.getOutgoingTransfer().getDestinations()[0].getAmount().toString(), tx.getOutgoingTransfer().getAmount().toString());
           }
         }
       }
@@ -5159,7 +5228,7 @@ async function testOutgoingTransfer(transfer, ctx) {
       sum = sum.add(destination.getAmount());
     }
     if (transfer.getAmount().compare(sum) !== 0) console.log(transfer.getTx().getTxSet() === undefined ? transfer.getTx().toString() : transfer.getTx().getTxSet().toString());
-    assert.equal(sum.toString(), transfer.getAmount().toString()); // TODO: sum of destinations != outgoing amount in split txs
+    assert.equal(sum.toString(), transfer.getAmount().toString());
   }
 }
 

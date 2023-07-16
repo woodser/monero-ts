@@ -99,7 +99,7 @@ class LibraryUtils {
     LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_full")();
     return new Promise(function(resolve, reject) {
       LibraryUtils.WASM_MODULE.then(module => {
-        LibraryUtils.WASM_MODULE = module
+        LibraryUtils.WASM_MODULE = module;
         delete LibraryUtils.WASM_MODULE.then;
         LibraryUtils.FULL_LOADED = true;
         LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);

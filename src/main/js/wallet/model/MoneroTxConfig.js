@@ -32,6 +32,7 @@ class MoneroTxConfig {
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
+   * @param {int[]} config.subtractFeeFrom - list of destination indices to split the transaction fee
    * @param {string} config.paymentId - transaction payment ID
    * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
    * @param {string} config.note - transaction note saved locally with the wallet
@@ -161,6 +162,16 @@ class MoneroTxConfig {
   
   setDestination(destination) {
     return this.setDestinations(destination ? [destination] : destination);
+  }
+
+  getSubtractFeeFrom() {
+    return this.state.subtractFeeFrom;
+  }
+
+  setSubtractFeeFrom(destinationIndices) {
+    if (arguments.length > 1) destinationIndices = Array.from(arguments);
+    this.state.subtractFeeFrom = destinationIndices;
+    return this;
   }
   
   getPaymentId() {

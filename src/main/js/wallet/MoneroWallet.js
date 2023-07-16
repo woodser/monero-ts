@@ -698,6 +698,7 @@ class MoneroWallet {
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain (default false)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
+   * @param {int[]} config.subtractFeeFrom - list of destination indices to split the transaction fee (optional)
    * @param {string} config.paymentId - transaction payment ID (optional)
    * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
    * @return {MoneroTxWallet} the created transaction
@@ -1366,7 +1367,8 @@ class MoneroWallet {
     assert.equal(config.getBelowAmount(), undefined);
     assert.equal(config.getCanSplit(), undefined, "Cannot split transactions when sweeping an output");
     if (!config.getDestinations() || config.getDestinations().length !== 1 || !config.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
-    return config;
+    if (config.getSubtractFeeFrom() && config.getSubtractFeeFrom().length > 0) throw new MoneroError("Sweep transfers do not support subtracting fees from destinations");
+    return config;  
   }
   
   static _normalizeSweepUnlockedConfig(config) {
