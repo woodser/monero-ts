@@ -1019,6 +1019,7 @@ class MoneroWalletRpc extends MoneroWallet {
       assert(destination.getAmount(), "Destination amount is not defined");
       params.destinations.push({ address: destination.getAddress(), amount: destination.getAmount().toString() });
     }
+    if (config.getSubtractFeeFrom()) params.subtract_fee_from_outputs = config.getSubtractFeeFrom();
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = config.getPaymentId();
@@ -1030,6 +1031,11 @@ class MoneroWalletRpc extends MoneroWallet {
     params.get_tx_metadata = true;
     if (config.getCanSplit()) params.get_tx_keys = true; // param to get tx key(s) depends if split
     else params.get_tx_key = true;
+
+    // cannot apply subtractFeeFrom with `transfer_split` call
+    if (config.getCanSplit() && config.getSubtractFeeFrom() && config.getSubtractFeeFrom().length > 0) {
+      throw new MoneroError("subtractfeefrom transfers cannot be split over multiple transactions yet");
+    }
     
     // send request
     let result;
@@ -1058,8 +1064,8 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getRelay()) await this._poll();
     
     // initialize tx set from rpc response with pre-initialized txs
-    if (config.getCanSplit()) return MoneroWalletRpc._convertRpcSentTxsToTxSet(result, txs).getTxs();
-    else return MoneroWalletRpc._convertRpcTxToTxSet(result, txs === undefined ? undefined : txs[0], true).getTxs();
+    if (config.getCanSplit()) return MoneroWalletRpc._convertRpcSentTxsToTxSet(result, txs, config).getTxs();
+    else return MoneroWalletRpc._convertRpcTxToTxSet(result, txs === undefined ? undefined : txs[0], true, config).getTxs();
   }
   
   async sweepOutput(config) {
@@ -1067,7 +1073,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // normalize and validate config
     config = MoneroWallet._normalizeSweepOutputConfig(config);
     
-    // build config parameters
+    // build request parameters
     let params = {};
     params.address = config.getDestinations()[0].getAddress();
     params.account_index = config.getAccountIndex();
@@ -1090,8 +1096,8 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getRelay()) await this._poll();
     
     // build and return tx
-    let tx = MoneroWalletRpc._initSentTxWallet(config, null, true);
-    MoneroWalletRpc._convertRpcTxToTxSet(result, tx, true);
+    let tx = MoneroWalletRpc._initSentTxWallet(config, undefined, true);
+    MoneroWalletRpc._convertRpcTxToTxSet(result, tx, true, config);
     tx.getOutgoingTransfer().getDestinations()[0].setAmount(tx.getOutgoingTransfer().getAmount()); // initialize destination amount
     return tx;
   }
@@ -1802,6 +1808,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
     if (config.getSubaddressIndices() !== undefined && config.getSubaddressIndices().length === 0) throw new MoneroError("Empty list given for subaddresses indices to sweep");
     if (config.getSweepEachSubaddress()) throw new MoneroError("Cannot sweep each subaddress with RPC `sweep_all`");
+    if (config.getSubtractFeeFrom() !== undefined && config.getSubtractFeeFrom().length > 0) throw new MoneroError("Sweeping output does not support subtracting fees from destinations");
     
     // sweep from all subaddresses if not otherwise defined
     if (config.getSubaddressIndices() === undefined) {
@@ -1833,7 +1840,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let result = resp.result;
     
     // initialize txs from response
-    let txSet = MoneroWalletRpc._convertRpcSentTxsToTxSet(result);
+    let txSet = MoneroWalletRpc._convertRpcSentTxsToTxSet(result, undefined, config);
     
     // initialize remaining known fields
     for (let tx of txSet.getTxs()) {
@@ -1961,6 +1968,8 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a sent transaction.
    * 
+   * TODO: remove copyDestinations after >18.2.2 when subtractFeeFrom fully supported
+   * 
    * @param {MoneroTxConfig} config - send config
    * @param {MoneroTxWallet} tx - existing transaction to initialize (optional)
    * @param {boolean} copyDestinations - copies config destinations if true
@@ -2015,13 +2024,14 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Initializes a MoneroTxSet from from a list of rpc txs.
+   * Initializes a MoneroTxSet from a list of rpc txs.
    * 
    * @param rpcTxs - rpc txs to initialize the set from
    * @param txs - existing txs to further initialize (optional)
+   * @param config - tx config
    * @return the converted tx set
    */
-  static _convertRpcSentTxsToTxSet(rpcTxs, txs) {
+  static _convertRpcSentTxsToTxSet(rpcTxs, txs, config) {
     
     // build shared tx set
     let txSet = MoneroWalletRpc._convertRpcTxSet(rpcTxs);
@@ -2058,8 +2068,8 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "weight_list") for (let i = 0; i < val.length; i++) txs[i].setWeight(val[i]);
       else if (key === "amount_list") {
         for (let i = 0; i < val.length; i++) {
-          if (txs[i].getOutgoingTransfer() !== undefined) txs[i].getOutgoingTransfer().setAmount(new BigInteger(val[i]));
-          else txs[i].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[i]).setAmount(new BigInteger(val[i])));
+          if (txs[i].getOutgoingTransfer() == undefined) txs[i].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[i]));
+          txs[i].getOutgoingTransfer().setAmount(new BigInteger(val[i]));
         }
       }
       else if (key === "multisig_txset" || key === "unsigned_txset" || key === "signed_txset") {} // handled elsewhere
@@ -2073,6 +2083,19 @@ class MoneroWalletRpc extends MoneroWallet {
           }
         }
       }
+      else if (key === "amounts_by_dest_list") {
+        let amountsByDestList = val;
+        let destinationIdx = 0;
+        for (let txIdx = 0; txIdx < amountsByDestList.length; txIdx++) {
+          let amountsByDest = amountsByDestList[txIdx]["amounts"];
+          if (txs[txIdx].getOutgoingTransfer() === undefined) txs[txIdx].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[txIdx]));
+          txs[txIdx].getOutgoingTransfer().setDestinations([]);
+          for (let amount of amountsByDest) {
+            txs[txIdx].getOutgoingTransfer().getDestinations().push(new MoneroDestination(config.getDestinations()[destinationIdx++].getAddress(), new BigInteger(amount)));
+          }
+        }
+        assert(config.getDestinations().length, destinationIdx);
+      }
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
@@ -2085,11 +2108,12 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param rpcTx - rpc tx to build from
    * @param tx - existing tx to continue initializing (optional)
    * @param isOutgoing - specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
+   * @param config - tx config
    * @returns the initialized tx set with a tx
    */
-  static _convertRpcTxToTxSet(rpcTx, tx, isOutgoing) {
+  static _convertRpcTxToTxSet(rpcTx, tx, isOutgoing, config) {
     let txSet = MoneroWalletRpc._convertRpcTxSet(rpcTx);
-    txSet.setTxs([MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing).setTxSet(txSet)]);
+    txSet.setTxs([MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing, config).setTxSet(txSet)]);
     return txSet;
   }
   
@@ -2099,9 +2123,10 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param rpcTx - rpc tx to build from
    * @param tx - existing tx to continue initializing (optional)
    * @param isOutgoing - specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
+   * @param config - tx config
    * @returns {MoneroTxWallet} is the initialized tx
    */
-  static _convertRpcTxWithTransfer(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
+  static _convertRpcTxWithTransfer(rpcTx, tx, isOutgoing, config) {  // TODO: change everything to safe set
         
     // initialize tx to return
     if (!tx) tx = new MoneroTxWallet();
@@ -2208,7 +2233,17 @@ class MoneroWalletRpc extends MoneroWallet {
           tx.getInputs().push(new MoneroOutputWallet().setKeyImage(new MoneroKeyImage().setHex(inputKeyImage)).setTx(tx));
         }
       }
-      else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
+      else if (key === "amounts_by_dest") {
+        GenUtils.assertTrue(isOutgoing);
+        let amountsByDest = val.amounts;
+        assert.equal(config.getDestinations().length, amountsByDest.length);
+        if (transfer === undefined) transfer = new MoneroOutgoingTransfer().setTx(tx);
+        transfer.setDestinations([]);
+        for (let i = 0; i < config.getDestinations().length; i++) {
+          transfer.getDestinations().push(new MoneroDestination(config.getDestinations()[i].getAddress(), new BigInteger(amountsByDest[i])));
+        }
+      }
+      else console.log("WARNING: ignoring unexpected transaction field with transfer: " + key + ": " + val);
     }
     
     // link block and tx
@@ -2220,7 +2255,10 @@ class MoneroWalletRpc extends MoneroWallet {
       if (!transfer.getTx().isConfirmed()) tx.setNumConfirmations(0);
       if (isOutgoing) {
         tx.setIsOutgoing(true);
-        if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().merge(transfer);
+        if (tx.getOutgoingTransfer()) {
+          if (transfer.getDestinations()) tx.getOutgoingTransfer().setDestinations(undefined); // overwrite to avoid reconcile error TODO: remove after >18.2.2 when amounts_by_dest supported
+          tx.getOutgoingTransfer().merge(transfer);
+        }
         else tx.setOutgoingTransfer(transfer);
       } else {
         tx.setIsIncoming(true);
