@@ -1682,7 +1682,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
       let views = [];
       
       // malloc cache buffer and get buffer location in c++ heap
-      let cacheBufferLoc = JSON.parse(that._module.get_cache_file_buffer(that._cppAddress, that._password));
+      let cacheBufferLoc = JSON.parse(that._module.get_cache_file_buffer(that._cppAddress));
       
       // read binary data from heap to DataView
       let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
