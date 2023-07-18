@@ -238,7 +238,7 @@ class LibraryUtils {
   }
   
   static _prefixWindowsPath(path) {
-    if (path.indexOf("C:") == 0 && path.indexOf("file://") == -1) path = "file://" + path; // prepend C: paths with file://
+    if (/^[A-Z]:/.test(path) && path.indexOf("file://") == -1) path = "file://" + path; // prepend e.g. C: paths with file://
     return path;
   }
 }
