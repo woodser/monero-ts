@@ -277,7 +277,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * await walletRpc.createWallet({<br>
    * &nbsp;&nbsp; path: "mywallet",<br>
    * &nbsp;&nbsp; password: "abc123",<br>
-   * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
+   * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
    * &nbsp;&nbsp; restoreHeight: 1543218l<br>
    * });
    *  </code>
@@ -285,13 +285,13 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {object|MoneroWalletConfig} config - MoneroWalletConfig or equivalent JS object
    * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
    * @param {string} config.password - password of the wallet to create
-   * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-   * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
    * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} config.language - language of the wallet's mnemonic phrase or seed (defaults to "English" or auto-detected)
    * @param {string} config.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
    * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
@@ -304,26 +304,18 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // normalize and validate config
     if (config === undefined) throw new MoneroError("Must provide config to create wallet");
-    config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
-    if (config.getMnemonic() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
-      throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
+    config = new MoneroWalletConfig(config);
+    if (config.getSeed() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
+      throw new MoneroError("Wallet may be initialized with a seed or keys but not both");
     }
     if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
     if (config.getAccountLookahead() !== undefined || config.getSubaddressLookahead() !== undefined) throw new MoneroError("monero-wallet-rpc does not support creating wallets with subaddress lookahead over rpc");
     if (config.getPassword() === undefined) config.setPassword("");
-    
+
     // create wallet
-    if (config.getMnemonic() !== undefined) {
-      await this._createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getMnemonic(), config.getRestoreHeight(), config.getLanguage(), config.getSeedOffset(), config.getSaveCurrent());
-    } else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      await this._createWalletFromKeys(config.getPath(), config.getPassword(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getRestoreHeight(), config.getLanguage(), config.getSaveCurrent());
-    } else {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
-      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      if (config.getSaveCurrent() === false) throw new MoneroError("Current wallet is saved automatically when creating random wallet");
-      await this._createWalletRandom(config.getPath(), config.getPassword(), config.getLanguage());
-    }
+    if (config.getSeed() !== undefined) await this._createWalletFromSeed(config);
+    else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) await this._createWalletFromKeys(config);
+    else await this._createWalletRandom(config);
     
     // set daemon if provided
     if (config.getServer()) return this.setDaemonConnection(config.getServer());
@@ -333,88 +325,77 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Create and open a new wallet with a randomly generated seed on the RPC server.
    * 
-   * @param {string} name - name of the wallet file to create
-   * @param {string} password - wallet's password
-   * @param {string} language - language for the wallet's mnemonic phrase
+   * @param {MoneroWalletConfig} config - the wallet configuration
    * @return {MoneroWalletRpc} this wallet client
    */
-  async _createWalletRandom(name, password, language) {
-    if (!name) throw new MoneroError("Name is not initialized");
-    if (!language) language = MoneroWallet.DEFAULT_LANGUAGE;
-    let params = { filename: name, password: password, language: language };
+  async _createWalletRandom(config) {
+    if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
+    if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
+    if (config.getSaveCurrent() === false) throw new MoneroError("Current wallet is saved automatically when creating random wallet");
+    if (!config.getPath()) throw new MoneroError("Name is not initialized");
+    if (!config.getLanguage()) config.setLanguage(MoneroWallet.DEFAULT_LANGUAGE);
+    let params = { filename: config.getPath(), password: config.getPassword(), language: config.getLanguage() };
     try {
       await this.rpc.sendJsonRequest("create_wallet", params);
     } catch (err) {
-      this._handleCreateWalletError(name, err);
+      this._handleCreateWalletError(config.getPath(), err);
     }
     await this._clear();
-    this.path = name;
+    this.path = config.getPath();
     return this;
   }
   
   /**
-   * Create and open a wallet from an existing mnemonic phrase on the RPC server,
+   * Create and open a wallet from an existing seed on the RPC server,
    * closing the currently open wallet if applicable.
    * 
-   * @param {string} name - name of the wallet to create on the RPC server
-   * @param {string} password - wallet's password
-   * @param {string} mnemonic - mnemonic of the wallet to construct
-   * @param {int} restoreHeight - block height to restore from (default = 0)
-   * @param {string} language - language of the mnemonic in case the old language is invalid
-   * @param {string} seedOffset - offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   * @param {boolean} saveCurrent - specifies if the current RPC wallet should be saved before being closed
+   * @param {MoneroWalletConfig} config - the wallet configuration
    * @return {MoneroWalletRpc} this wallet client
    */
-  async _createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent) {
+  async _createWalletFromSeed(config) {
     try {
       await this.rpc.sendJsonRequest("restore_deterministic_wallet", {
-        filename: name,
-        password: password,
-        seed: mnemonic,
-        seed_offset: seedOffset,
-        restore_height: restoreHeight,
-        language: language,
-        autosave_current: saveCurrent
+        filename: config.getPath(),
+        password: config.getPassword(),
+        seed: config.getSeed(),
+        seed_offset: config.getSeedOffset(),
+        restore_height: config.getRestoreHeight(),
+        language: config.getLanguage(),
+        autosave_current: config.getSaveCurrent()
       });
     } catch (err) {
-      this._handleCreateWalletError(name, err);
+      this._handleCreateWalletError(config.getPath(), err);
     }
     await this._clear();
-    this.path = name;
+    this.path = config.getPath();
     return this;
   }
   
   /**
    * Create a wallet on the RPC server from an address, view key, and (optionally) spend key.
    * 
-   * @param name - name of the wallet to create on the RPC server
-   * @param password - password encrypt the wallet
-   * @param networkType - wallet's network type
-   * @param address - address of the wallet to construct
-   * @param viewKey - view key of the wallet to construct
-   * @param spendKey - spend key of the wallet to construct or null to create a view-only wallet
-   * @param restoreHeight - block height to restore (i.e. scan the chain) from (default = 0)
-   * @param language - wallet and mnemonic's language (default = "English")
+   * @param {MoneroWalletConfig} config - the wallet configuration
    * @return {MoneroWalletRpc} this wallet client
    */
-  async _createWalletFromKeys(name, password, address, viewKey, spendKey, restoreHeight, language, saveCurrent) {
-    if (restoreHeight === undefined) restoreHeight = 0;
-    if (language === undefined) language = MoneroWallet.DEFAULT_LANGUAGE;
+  async _createWalletFromKeys(config) {
+    if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
+    if (config.getRestoreHeight() === undefined) config.setRestoreHeight(0);
+    if (config.getLanguage() === undefined) config.setLanguage(MoneroWallet.DEFAULT_LANGUAGE);
     try {
       await this.rpc.sendJsonRequest("generate_from_keys", {
-        filename: name,
-        password: password,
-        address: address,
-        viewkey: viewKey,
-        spendkey: spendKey,
-        restore_height: restoreHeight,
-        autosave_current: saveCurrent
+        filename: config.getPath(),
+        password: config.getPassword(),
+        address: config.getPrimaryAddress(),
+        viewkey: config.getPrivateViewKey(),
+        spendkey: config.getPrivateSpendKey(),
+        restore_height: config.getRestoreHeight(),
+        autosave_current: config.getSaveCurrent()
       });
     } catch (err) {
-      this._handleCreateWalletError(name, err);
+      this._handleCreateWalletError(config.getPath(), err);
     }
     await this._clear();
-    this.path = name;
+    this.path = config.getPath();
     return this;
   }
   
@@ -501,7 +482,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return this.path;
   }
   
-  async getMnemonic() {
+  async getSeed() {
     try {
       let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
       return resp.result.key;
@@ -511,17 +492,17 @@ class MoneroWalletRpc extends MoneroWallet {
     }
   }
   
-  async getMnemonicLanguage() {
-    if (await this.getMnemonic() === undefined) return undefined;
-    throw new MoneroError("MoneroWalletRpc.getMnemonicLanguage() not supported");
+  async getSeedLanguage() {
+    if (await this.getSeed() === undefined) return undefined;
+    throw new MoneroError("MoneroWalletRpc.getSeedLanguage() not supported");
   }
 
   /**
-   * Get a list of available languages for the wallet's mnemonic phrase.
+   * Get a list of available languages for the wallet's seed.
    * 
-   * @return {string[]} the available languages for the wallet's mnemonic phrase
+   * @return {string[]} the available languages for the wallet's seed.
    */
-  async getMnemonicLanguages() {
+  async getSeedLanguages() {
     return (await this.rpc.sendJsonRequest("get_languages")).result.languages;
   }
   

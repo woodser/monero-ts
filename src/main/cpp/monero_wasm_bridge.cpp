@@ -190,48 +190,54 @@ void monero_wasm_bridge::create_full_wallet(const string& config_json, const str
 #endif
 }
 
-string monero_wasm_bridge::get_full_wallet_mnemonic_languages() {
+string monero_wasm_bridge::get_full_wallet_seed_languages() {
 #if defined BUILD_WALLET_FULL
   rapidjson::Document doc;
   doc.SetObject();
-  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_full::get_mnemonic_languages()), doc.GetAllocator());
+  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_full::get_seed_languages()), doc.GetAllocator());
   return monero_utils::serialize(doc);
 #else
   throw runtime_error("monero_wallet_full not built");
 #endif
 }
 
-void monero_wasm_bridge::create_keys_wallet_random(int network_type, const string& language, emscripten::val callback) {
+void monero_wasm_bridge::create_keys_wallet_random(const string& config_json, emscripten::val callback) {
   try {
-    monero_wallet* wallet = monero_wallet_keys::create_wallet_random(static_cast<monero_network_type>(network_type), language);
+    shared_ptr<monero_wallet_config> config = monero_wallet_config::deserialize(config_json);
+    config->m_path = std::string("");
+    monero_wallet* wallet = monero_wallet_keys::create_wallet_random(*config);
     callback((int) wallet); // callback with wallet memory address
   } catch (exception& e) {
     callback(string(e.what()));
   }
 }
 
-void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, const string& seed_offset, emscripten::val callback) {
+void monero_wasm_bridge::create_keys_wallet_from_seed(const string& config_json, emscripten::val callback) {
   try {
-    monero_wallet* wallet = monero_wallet_keys::create_wallet_from_mnemonic(static_cast<monero_network_type>(network_type), mnemonic, seed_offset);
+    shared_ptr<monero_wallet_config> config = monero_wallet_config::deserialize(config_json);
+    config->m_path = std::string("");
+    monero_wallet* wallet = monero_wallet_keys::create_wallet_from_seed(*config);
     callback((int) wallet); // callback with wallet memory address
   } catch (exception& e) {
     callback(string(e.what()));
   }
 }
 
-void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback) {
+void monero_wasm_bridge::create_keys_wallet_from_keys(const string& config_json, emscripten::val callback) {
   try {
-    monero_wallet* wallet = monero_wallet_keys::create_wallet_from_keys(static_cast<monero_network_type>(network_type), address, view_key, spend_key);
+    shared_ptr<monero_wallet_config> config = monero_wallet_config::deserialize(config_json);
+    config->m_path = std::string("");
+    monero_wallet* wallet = monero_wallet_keys::create_wallet_from_keys(*config);
     callback((int) wallet); // callback with wallet memory address
   } catch (exception& e) {
     callback(string(e.what()));
   }
 }
 
-string monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
+string monero_wasm_bridge::get_keys_wallet_seed_languages() {
   rapidjson::Document doc;
   doc.SetObject();
-  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_keys::get_mnemonic_languages()), doc.GetAllocator());
+  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_keys::get_seed_languages()), doc.GetAllocator());
   return monero_utils::serialize(doc);
 }
 
@@ -274,18 +280,18 @@ string monero_wasm_bridge::get_version(int handle) {
   return wallet->get_version().serialize();
 }
 
-string monero_wasm_bridge::get_mnemonic(int handle) {
+string monero_wasm_bridge::get_seed(int handle) {
   try {
     monero_wallet* wallet = (monero_wallet*) handle;
-    return wallet->get_mnemonic();
+    return wallet->get_seed();
   } catch (exception& e) {
     return string("error: ") + string(e.what());
   }
 }
 
-string monero_wasm_bridge::get_mnemonic_language(int handle) {
+string monero_wasm_bridge::get_seed_language(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_mnemonic_language();
+  return wallet->get_seed_language();
 }
 
 string monero_wasm_bridge::get_public_view_key(int handle) {

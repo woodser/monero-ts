@@ -49,7 +49,7 @@ let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz
 let balance = await walletRpc.getBalance();               // 533648366742
 let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
 
-// create wallet from mnemonic phrase using WebAssembly bindings to monero-project
+// create wallet from seed phrase using WebAssembly bindings to monero-project
 let walletFull = await monerojs.createWalletFull({
   path: "sample_wallet_full",
   password: "supersecretpassword123",
@@ -57,7 +57,7 @@ let walletFull = await monerojs.createWalletFull({
   serverUri: "http://localhost:38081",
   serverUsername: "superuser",
   serverPassword: "abctesting123",
-  mnemonic: "hefty value scenic...",
+  seed: "hefty value scenic...",
   restoreHeight: 573936,
 });
 

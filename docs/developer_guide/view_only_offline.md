@@ -35,7 +35,7 @@ await viewOnlyWallet.sync();
 let offlineWallet = await monerojs.createWalletFull({
   path: "my_offline_wallet",
   networkType: "stagenet",
-  mnemonic: "spying swept ashtray going hence jester swagger cease spying unusual..."
+  seed: "spying swept ashtray going hence jester swagger cease spying unusual..."
 });
   
 // export outputs from view-only wallet

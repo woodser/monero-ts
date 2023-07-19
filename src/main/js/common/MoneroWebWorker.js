@@ -441,16 +441,16 @@ self.getNetworkType = async function(walletId) {
 //  throw new Error("Not implemented");
 //}
 
-self.getMnemonic = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getMnemonic();
+self.getSeed = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getSeed();
 }
 
-self.getMnemonicLanguage = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getMnemonicLanguage();
+self.getSeedLanguage = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getSeedLanguage();
 }
 
-self.getMnemonicLanguages = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].getMnemonicLanguages();
+self.getSeedLanguages = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getSeedLanguages();
 }
 
 self.getPrivateSpendKey = async function(walletId) {

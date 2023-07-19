@@ -71,7 +71,7 @@ The offline wallet generator displays four basic wallet attributes:
 
 Wallet getters are used to obtain wallet attributes and log them to the console:
 ```
-console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
+console.log("Mnemonic phrase: " + await walletKeys.getSeed());
 console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -88,7 +88,7 @@ async function main() {
   let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
 
   // print wallet attributes
-  console.log("Mnemonic phrase: " + await walletKeys.getMnemonic());
+  console.log("Mnemonic phrase: " + await walletKeys.getSeed());
   console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
   console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
   console.log("View key: " + await walletKeys.getPrivateViewKey());
