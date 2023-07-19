@@ -122,20 +122,20 @@ class MoneroWallet {
   }
   
   /**
-   * Get the wallet's mnemonic phrase derived from the seed.
+   * Get the wallet's mnemonic phrase or seed.
    * 
-   * @return {string} the wallet's mnemonic phrase
+   * @return {string} the wallet's mnemonic phrase or seed.
    */
-  async getMnemonic() {
+  async getSeed() {
     throw new MoneroError("Not supported");
   }
   
   /**
-   * Get the language of the wallet's mnemonic phrase.
+   * Get the language of the wallet's mnemonic phrase or seed.
    * 
-   * @return {string} the language of the wallet's mnemonic phrase
+   * @return {string} the language of the wallet's mnemonic phrase or seed.
    */
-  async getMnemonicLanguage() {
+  async getSeedLanguage() {
     throw new MoneroError("Not supported");
   }
   

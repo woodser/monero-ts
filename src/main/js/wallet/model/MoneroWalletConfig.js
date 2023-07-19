@@ -49,6 +49,10 @@ class MoneroWalletConfig {
       }
     }
   }
+
+  copy() {
+    return new MoneroWalletConfig(this.toJson());
+  }
   
   toJson() {
     let json = Object.assign({}, this.config);
@@ -132,12 +136,12 @@ class MoneroWalletConfig {
     return this;
   }
   
-  getMnemonic() {
-    return this.config.mnemonic;
+  getSeed() {
+    return this.config.seed;
   }
   
-  setMnemonic(mnemonic) {
-    this.config.mnemonic = mnemonic;
+  setSeed(seed) {
+    this.config.seed = seed;
     return this;
   }
   
@@ -259,6 +263,6 @@ class MoneroWalletConfig {
   }
 }
 
-MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
+MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "seed", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
 
 module.exports = MoneroWalletConfig;

@@ -65,14 +65,14 @@ class TestUtils {
       if (e.getCode() === -1) {
         
         // create wallet
-        await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_NAME, password: TestUtils.WALLET_PASSWORD, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
+        await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_NAME, password: TestUtils.WALLET_PASSWORD, seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
       } else {
         throw e;
       }
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await TestUtils.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await TestUtils.walletRpc.getSeed(), TestUtils.SEED);
     assert.equal(await TestUtils.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
     
     // sync and save the wallet
@@ -161,7 +161,7 @@ class TestUtils {
   static async getWalletFull() {
     if (!TestUtils.walletFull || await TestUtils.walletFull.isClosed()) {
       
-      // create wallet from mnemonic phrase if it doesn't exist
+      // create wallet from seed phrase if it doesn't exist
       let fs = TestUtils.getDefaultFs();
       if (!await monerojs.MoneroWalletFull.walletExists(TestUtils.WALLET_FULL_PATH, fs)) {
         
@@ -172,7 +172,7 @@ class TestUtils {
         }
         
         // create wallet with connection
-        TestUtils.walletFull = await monerojs.createWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
+        TestUtils.walletFull = await monerojs.createWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, seed: TestUtils.SEED, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
         assert.equal(await TestUtils.walletFull.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletFull.sync(new WalletSyncPrinter());
         await TestUtils.walletFull.save();
@@ -188,7 +188,7 @@ class TestUtils {
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await TestUtils.walletFull.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await TestUtils.walletFull.getSeed(), TestUtils.SEED);
     assert.equal(await TestUtils.walletFull.getPrimaryAddress(), TestUtils.ADDRESS);
     return TestUtils.walletFull;
   }
@@ -201,8 +201,8 @@ class TestUtils {
   static async getWalletKeys() {
     if (TestUtils.walletKeys === undefined) {
       
-      // create wallet from mnemonic
-      TestUtils.walletKeys = await monerojs.createWalletKeys({networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC});
+      // create wallet from seed
+      TestUtils.walletKeys = await monerojs.createWalletKeys({networkType: TestUtils.NETWORK_TYPE, seed: TestUtils.SEED});
     }
     return TestUtils.walletKeys;
   }
@@ -211,12 +211,12 @@ class TestUtils {
    * Creates a new wallet considered to be "ground truth".
    * 
    * @param networkType - ground truth wallet's network type
-   * @param mnemonic - ground truth wallet's mnemonic
+   * @param seed - ground truth wallet's seed
    * @param startHeight - height to start syncing from
    * @param restoreHeight - ground truth wallet's restore height
    * @return {MoneroWalletFull} the created wallet
    */
-  static async createWalletGroundTruth(networkType, mnemonic, startHeight, restoreHeight) {
+  static async createWalletGroundTruth(networkType, seed, startHeight, restoreHeight) {
 
     // create directory for test wallets if it doesn't exist
     let fs = TestUtils.getDefaultFs();
@@ -232,7 +232,7 @@ class TestUtils {
       path: path,
       password: TestUtils.WALLET_PASSWORD,
       networkType: networkType,
-      mnemonic: mnemonic,
+      seed: seed,
       server: daemonConnection,
       restoreHeight: restoreHeight,
       fs: fs
@@ -289,9 +289,9 @@ TestUtils.MAX_FEE = new BigInteger("7500000").multiply(new BigInteger("10000"));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.TESTNET;
 
 // default keypair to test
-TestUtils.MNEMONIC = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
+TestUtils.SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
 TestUtils.ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-TestUtils.FIRST_RECEIVE_HEIGHT = 324; // NOTE: this value must be the height of the wallet's first tx for tests
+TestUtils.FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {

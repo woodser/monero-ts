@@ -18,7 +18,7 @@ class WalletEqualityUtils {
    * Compare the keys of two wallets.
    */
   static async testWalletEqualityKeys(w1, w2) {
-    assert.equal(await w2.getMnemonic(), await w1.getMnemonic());
+    assert.equal(await w2.getSeed(), await w1.getSeed());
     assert.equal(await w2.getPrimaryAddress(), await w1.getPrimaryAddress());
     assert.equal(await w2.getPrivateViewKey(), await w1.getPrivateViewKey());
   }
@@ -46,7 +46,7 @@ class WalletEqualityUtils {
     
     // test that wallets are equal using only on-chain data
     assert.equal(await w2.getHeight(), await w1.getHeight(), "Wallet heights are not equal after syncing");
-    assert.equal(await w2.getMnemonic(), await w1.getMnemonic());
+    assert.equal(await w2.getSeed(), await w1.getSeed());
     assert.equal(await w2.getPrimaryAddress(), await w1.getPrimaryAddress());
     assert.equal(await w2.getPrivateViewKey(), await w1.getPrivateViewKey());
     assert.equal(await w2.getPrivateSpendKey(), await w1.getPrivateSpendKey());

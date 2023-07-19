@@ -23,7 +23,7 @@ let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38081", "sup
 await walletRpc.createWallet({
   path: "mywallet",
   password: "supersecretpassword",
-  mnemonic: "coexist igloo pamphlet lagoon...",
+  seed: "coexist igloo pamphlet lagoon...",
   restoreHeight: 1543218
 }); 
 ```
@@ -43,7 +43,7 @@ let wallet = await monerojs.createWalletFull({
    path: "./test_wallets/wallet1", // leave blank for in-memory wallet
    password: "supersecretpassword",
    networkType: "stagenet",
-   mnemonic: "coexist igloo pamphlet lagoon...",
+   seed: "coexist igloo pamphlet lagoon...",
    restoreHeight: 1543218,
    serverUri: "http://localhost:38081",
    serverUsername: "daemon_user",
@@ -65,6 +65,6 @@ let monerojs = require("monero-javascript");
 let wallet = await monerojs.createWalletKeys({
    password: "abc123",
    networkType: MoneroNetworkType.STAGENET,
-   mnemonic: "coexist igloo pamphlet lagoon..."
+   seed: "coexist igloo pamphlet lagoon..."
 });
 ```

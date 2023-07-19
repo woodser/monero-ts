@@ -114,7 +114,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
       else config.setServerUri(daemonUriOrConnection);
     }
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
-    if (config.getMnemonic() !== undefined) throw new MoneroError("Cannot specify mnemonic when opening wallet");
+    if (config.getSeed() !== undefined) throw new MoneroError("Cannot specify seed when opening wallet");
     if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when opening wallet");
     if (config.getPrimaryAddress() !== undefined) throw new MoneroError("Cannot specify primary address when opening wallet");
     if (config.getPrivateViewKey() !== undefined) throw new MoneroError("Cannot specify private view key when opening wallet");
@@ -146,7 +146,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
    * &nbsp;&nbsp; password: "supersecretpassword",<br>
    * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
-   * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
+   * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
    * &nbsp;&nbsp; restoreHeight: 1543218,<br>
    * &nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
    * });
@@ -156,13 +156,13 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
    * @param {string} config.password - password of the wallet to create
    * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-   * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-   * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
    * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} config.language - language of the wallet's seed phrase (defaults to "English" or auto-detected)
    * @param {number} config.accountLookahead -  number of accounts to scan (optional)
    * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    * @param {string} config.serverUri - uri of the wallet's daemon (optional)
@@ -179,8 +179,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
     // normalize and validate config
     if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
-    if (config.getMnemonic() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
-      throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
+    if (config.getSeed() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
+      throw new MoneroError("Wallet may be initialized with a seed or keys but not both");
     } // TODO: factor this much out to common
     if (config.getNetworkType() === undefined) throw new MoneroError("Must provide a networkType: 'mainnet', 'testnet' or 'stagenet'");
     MoneroNetworkType.validate(config.getNetworkType());
@@ -190,9 +190,9 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getPassword() === undefined) config.setPassword("");
     
     // create wallet
-    if (config.getMnemonic() !== undefined) {
-      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
-      return MoneroWalletFull._createWalletFromMnemonic(config);
+    if (config.getSeed() !== undefined) {
+      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from seed");
+      return MoneroWalletFull._createWalletFromSeed(config);
     } else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
       return MoneroWalletFull._createWalletFromKeys(config);
@@ -203,7 +203,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     }
   }
   
-  static async _createWalletFromMnemonic(config) {
+  static async _createWalletFromSeed(config) {
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(true);
     if (config.getProxyToWorker()) return MoneroWalletFullProxy._createWallet(config);
     
@@ -317,10 +317,10 @@ class MoneroWalletFull extends MoneroWalletKeys {
     return wallet;
   }
   
-  static async getMnemonicLanguages() {
+  static async getSeedLanguages() {
     let module = await LibraryUtils.loadFullModule();
     return module.queueTask(async function() {
-      return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+      return JSON.parse(module.get_keys_wallet_seed_languages()).languages;
     });
   }
   
@@ -2040,16 +2040,16 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return this._path;
   }
   
-  async getMnemonic() {
-    return this._invokeWorker("getMnemonic");
+  async getSeed() {
+    return this._invokeWorker("getSeed");
   }
   
-  async getMnemonicLanguage() {
-    return this._invokeWorker("getMnemonicLanguage");
+  async getSeedLanguage() {
+    return this._invokeWorker("getSeedLanguage");
   }
   
-  async getMnemonicLanguages() {
-    return this._invokeWorker("getMnemonicLanguages");
+  async getSeedLanguages() {
+    return this._invokeWorker("getSeedLanguages");
   }
   
   async getPrivateSpendKey() {

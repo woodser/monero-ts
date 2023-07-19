@@ -61,8 +61,8 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     await wallet.close(save);
   }
 
-  async getMnemonicLanguages() {
-    return await monerojs.MoneroWalletKeys.getMnemonicLanguages();
+  async getSeedLanguages() {
+    return await monerojs.MoneroWalletKeys.getSeedLanguages();
   }
   
   runTests() {
@@ -103,12 +103,12 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         
         // create rpc wallet with offset
         let walletRpc = await TestUtils.getWalletRpc();
-        await walletRpc.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, mnemonic: await walletRpc.getMnemonic(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: seedOffset});
+        await walletRpc.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, seed: await walletRpc.getSeed(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: seedOffset});
         
         // create keys-only wallet with offset
         let walletKeys = await monerojs.createWalletKeys({
             networkType: TestUtils.NETWORK_TYPE,
-            mnemonic: TestUtils.MNEMONIC,
+            seed: TestUtils.SEED,
             seedOffset: seedOffset
         });
         

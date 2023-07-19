@@ -143,12 +143,12 @@ class TestMoneroWalletCommon {
    }
   
   /**
-   * Get the wallet's supported languages for the mnemonic phrase.  This is an
+   * Get the wallet's supported languages for the seed phrase.  This is an
    * instance method for wallet rpc and a static utility for other wallets.
    * 
    * @return {string[]} the wallet's supported languages
    */
-  async getMnemonicLanguages() {
+  async getSeedLanguages() {
     throw new Error("Subclass must implement");
   }
   
@@ -180,8 +180,8 @@ class TestMoneroWalletCommon {
             await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
             await MoneroUtils.validatePrivateViewKey(await wallet.getPrivateViewKey());
             await MoneroUtils.validatePrivateSpendKey(await wallet.getPrivateSpendKey());
-            await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE); // TODO monero-wallet-rpc: get mnemonic language
+            await MoneroUtils.validateMnemonic(await wallet.getSeed());
+            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getSeedLanguage(), MoneroWallet.DEFAULT_LANGUAGE); // TODO monero-wallet-rpc: get mnemonic language
           } catch (e) {
             e2 = e;
           }
@@ -222,15 +222,15 @@ class TestMoneroWalletCommon {
           let privateViewKey = await that.wallet.getPrivateViewKey();
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
-          // recreate test wallet from mnemonic
-          let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
+          // recreate test wallet from seed
+          let wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
           let path; try { path = await wallet.getPath(); } catch(e) { }  // TODO: factor out keys-only tests?
           let e2 = undefined;
           try {
             assert.equal(await wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await wallet.getPrivateSpendKey(), privateSpendKey);
-            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getSeedLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
           } catch (e) {
             e2 = e;
           }
@@ -240,7 +240,7 @@ class TestMoneroWalletCommon {
           // attempt to create wallet with two missing words
           try {
             let invalidMnemonic = "memoir desk algebra inbound innocent unplugs fully okay five inflamed giant factual ritual toyed topic snake unhappy guarded tweezers haunted inundate giant";
-            await that.createWallet(new MoneroWalletConfig().setMnemonic(invalidMnemonic).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT));
+            await that.createWallet(new MoneroWalletConfig().setSeed(invalidMnemonic).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT));
           } catch(err) {
             assert.equal("Invalid mnemonic", err.message);
           }
@@ -267,14 +267,14 @@ class TestMoneroWalletCommon {
         try {
           
           // create test wallet with offset
-          let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: "my secret offset!"});
+          let wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: "my secret offset!"});
           let e2 = undefined;
           try {
-            await MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-            assert.notEqual(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+            await MoneroUtils.validateMnemonic(await wallet.getSeed());
+            assert.notEqual(await wallet.getSeed(), TestUtils.SEED);
             await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
             assert.notEqual(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);  // TODO monero-wallet-rpc: support
+            if (!(wallet instanceof MoneroWalletRpc)) assert.equal(await wallet.getSeedLanguage(), MoneroWallet.DEFAULT_LANGUAGE);  // TODO monero-wallet-rpc: support
           } catch (e) {
             e2 = e;
           }
@@ -307,8 +307,8 @@ class TestMoneroWalletCommon {
             assert.equal(await wallet.getPrivateSpendKey(), privateSpendKey);
             if (!(wallet instanceof MoneroWalletKeys) && !await wallet.isConnectedToDaemon()) console.log("WARNING: wallet created from keys is not connected to authenticated daemon");  // TODO monero-project: keys wallets not connected
             if (!(wallet instanceof MoneroWalletRpc)) {
-              assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
-              assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+              assert.equal(await wallet.getSeed(), TestUtils.SEED); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+              assert.equal(await wallet.getSeedLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
             }
           } catch (e) {
             e2 = e;
@@ -327,8 +327,8 @@ class TestMoneroWalletCommon {
               assert.equal(await wallet.getPrivateSpendKey(), privateSpendKey);
               if (!(wallet instanceof MoneroWalletKeys) && !await wallet.isConnectedToDaemon()) console.log("WARNING: wallet created from keys is not connected to authenticated daemon"); // TODO monero-project: keys wallets not connected
               if (!(wallet instanceof MoneroWalletRpc)) {
-                assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
-                assert.equal(await wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+                assert.equal(await wallet.getSeed(), TestUtils.SEED); // TODO monero-wallet-rpc: cannot get seed from wallet created from keys?
+                assert.equal(await wallet.getSeedLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
               }
             } catch (e) {
               e2 = e;
@@ -486,21 +486,21 @@ class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the mnemonic phrase", async function() {
-        let mnemonic = await that.wallet.getMnemonic();
+      it("Can get the seed as a mnemonic phrase", async function() {
+        let mnemonic = await that.wallet.getSeed();
         await MoneroUtils.validateMnemonic(mnemonic);
-        assert.equal(mnemonic, TestUtils.MNEMONIC);
+        assert.equal(mnemonic, TestUtils.SEED);
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the language of the mnemonic phrase", async function() {
-        let language = await that.wallet.getMnemonicLanguage();
+      it("Can get the language of the seed", async function() {
+        let language = await that.wallet.getSeedLanguage();
         assert.equal(language, "English");
       });
       
       if (testConfig.testNonRelays)
-      it("Can get a list of supported languages for the mnemonic phrase", async function() {
-        let languages = await that.getMnemonicLanguages();
+      it("Can get a list of supported languages for the seed", async function() {
+        let languages = await that.getSeedLanguages();
         assert(Array.isArray(languages));
         assert(languages.length);
         for (let language of languages) assert(language);
@@ -3998,7 +3998,7 @@ class TestMoneroWalletCommon {
         for (let i = 0; i < 3; i++) txHashes.push(txs[i].getHash());
         
         // start wallet without scanning
-        let scanWallet = await that.createWallet(new MoneroWalletConfig().setMnemonic(await that.wallet.getMnemonic()).setRestoreHeight(0));
+        let scanWallet = await that.createWallet(new MoneroWalletConfig().setSeed(await that.wallet.getSeed()).setRestoreHeight(0));
         await scanWallet.stopSyncing(); // TODO: create wallet without daemon connection (offline does not reconnect, default connects to localhost, offline then online causes confirmed txs to disappear)
         assert(await scanWallet.isConnectedToDaemon());
         
@@ -4726,7 +4726,7 @@ class TestMoneroWalletCommon {
     
     // try to get seed before wallet initialized
     try {
-      await participants[0].getMnemonic();
+      await participants[0].getSeed();
       throw new Error("Should have thrown exception getting multisig seed before initialized");
     } catch (err) {
       assert.equal("This wallet is multisig, but not yet finalized", err.message);
@@ -4782,7 +4782,7 @@ class TestMoneroWalletCommon {
     let participant = participants[0];
     await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
     this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
-    let seed = await participant.getMnemonic();
+    let seed = await participant.getSeed();
     assert(seed.length > 0);
     
     // test sending a multisig transaction if configured
@@ -5042,11 +5042,11 @@ class TestMoneroWalletCommon {
     assert.equal(await viewOnlyWallet.getPrimaryAddress(), primaryAddress);
     assert.equal(await viewOnlyWallet.getPrivateViewKey(), privateViewKey);
     assert.equal(await viewOnlyWallet.getPrivateSpendKey(), undefined);
-    assert.equal(await viewOnlyWallet.getMnemonic(), undefined);
-    assert.equal(await viewOnlyWallet.getMnemonicLanguage(), undefined);
+    assert.equal(await viewOnlyWallet.getSeed(), undefined);
+    assert.equal(await viewOnlyWallet.getSeedLanguage(), undefined);
     assert(await viewOnlyWallet.isViewOnly());
     assert(await viewOnlyWallet.isConnectedToDaemon(), "Wallet created from keys is not connected to authenticated daemon");  // TODO
-    assert.equal(await viewOnlyWallet.getMnemonic(), undefined);
+    assert.equal(await viewOnlyWallet.getSeed(), undefined);
     await viewOnlyWallet.sync();
     assert((await viewOnlyWallet.getTxs()).length > 0);
     
@@ -5056,7 +5056,7 @@ class TestMoneroWalletCommon {
     // test offline wallet
     assert(!await offlineWallet.isConnectedToDaemon());
     assert(!await offlineWallet.isViewOnly());
-    if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-project: cannot get mnemonic from offline wallet rpc
+    if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getSeed(), TestUtils.SEED); // TODO monero-project: cannot get seed from offline wallet rpc
     assert.equal((await offlineWallet.getTxs(new MoneroTxQuery().setInTxPool(false))).length, 0);
     
     // import outputs to offline wallet

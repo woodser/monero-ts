@@ -21,12 +21,12 @@ EMSCRIPTEN_BINDINGS(module)
 
   emscripten::function("open_wallet_full", &monero_wasm_bridge::open_wallet_full);
   emscripten::function("create_full_wallet", &monero_wasm_bridge::create_full_wallet);
-  emscripten::function("get_full_wallet_mnemonic_languages", &monero_wasm_bridge::get_full_wallet_mnemonic_languages);
+  emscripten::function("get_full_wallet_seed_languages", &monero_wasm_bridge::get_full_wallet_seed_languages);
 
   emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);
-  emscripten::function("create_keys_wallet_from_mnemonic", &monero_wasm_bridge::create_keys_wallet_from_mnemonic);
+  emscripten::function("create_keys_wallet_from_seed", &monero_wasm_bridge::create_keys_wallet_from_seed);
   emscripten::function("create_keys_wallet_from_keys", &monero_wasm_bridge::create_keys_wallet_from_keys);
-  emscripten::function("get_keys_wallet_mnemonic_languages", &monero_wasm_bridge::get_keys_wallet_mnemonic_languages);
+  emscripten::function("get_keys_wallet_seed_languages", &monero_wasm_bridge::get_keys_wallet_seed_languages);
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
@@ -36,8 +36,8 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("is_connected_to_daemon", &monero_wasm_bridge::is_connected_to_daemon);
   emscripten::function("get_daemon_max_peer_height", &monero_wasm_bridge::get_daemon_max_peer_height);
   emscripten::function("get_version", &monero_wasm_bridge::get_version);
-  emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);
-  emscripten::function("get_mnemonic_language", &monero_wasm_bridge::get_mnemonic_language);
+  emscripten::function("get_seed", &monero_wasm_bridge::get_seed);
+  emscripten::function("get_seed_language", &monero_wasm_bridge::get_seed_language);
   emscripten::function("get_private_spend_key", &monero_wasm_bridge::get_private_spend_key);
   emscripten::function("get_private_view_key", &monero_wasm_bridge::get_private_view_key);
   emscripten::function("get_public_view_key", &monero_wasm_bridge::get_public_view_key);

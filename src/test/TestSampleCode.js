@@ -60,7 +60,7 @@ class TestSampleCode {
         let balance = await walletRpc.getBalance();               // 533648366742
         let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
         
-        // create wallet from mnemonic phrase using WebAssembly bindings to monero-project
+        // create wallet from seed phrase using WebAssembly bindings to monero-project
         let walletFull = await monerojs.createWalletFull({
           path: "./test_wallets/" + monerojs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_full"
           password: "supersecretpassword123",
@@ -68,7 +68,7 @@ class TestSampleCode {
           serverUri: "http://localhost:28081",
           serverUsername: "superuser",
           serverPassword: "abctesting123",
-          mnemonic: TestUtils.MNEMONIC,                  // *** REPLACE README WITH MNEMONIC ***
+          seed: TestUtils.SEED,                  // *** REPLACE README WITH SEED ***
           restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, // *** REPLACE README WITH FIRST RECEIVE HEIGHT ***
           fs: TestUtils.getDefaultFs()
         });
@@ -317,7 +317,7 @@ class TestSampleCode {
       
       it("Test developer guide send funds", async function() {
         
-        // create in-memory test wallet with randomly generated mnemonic
+        // create in-memory test wallet with randomly generated seed
         let wallet = await monerojs.createWalletFull({
           password: "abctesting123",
           networkType: "testnet",
