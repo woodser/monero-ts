@@ -281,8 +281,8 @@ string monero_wasm_bridge::get_version(int handle) {
 }
 
 string monero_wasm_bridge::get_seed(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    monero_wallet* wallet = (monero_wallet*) handle;
     return wallet->get_seed();
   } catch (exception& e) {
     return string("error: ") + string(e.what());
@@ -291,27 +291,47 @@ string monero_wasm_bridge::get_seed(int handle) {
 
 string monero_wasm_bridge::get_seed_language(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_seed_language();
+  try {
+    return wallet->get_seed_language();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_public_view_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_public_view_key();
+  try {
+    return wallet->get_public_view_key();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_private_view_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_private_view_key();
+  try {
+    return wallet->get_private_view_key();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_public_spend_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_public_spend_key();
+  try {
+    return wallet->get_public_spend_key();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_private_spend_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_private_spend_key();
+  try {
+    return wallet->get_private_spend_key();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_address(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {

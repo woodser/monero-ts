@@ -5041,12 +5041,27 @@ class TestMoneroWalletCommon {
     // test and sync view-only wallet
     assert.equal(await viewOnlyWallet.getPrimaryAddress(), primaryAddress);
     assert.equal(await viewOnlyWallet.getPrivateViewKey(), privateViewKey);
-    assert.equal(await viewOnlyWallet.getPrivateSpendKey(), undefined);
-    assert.equal(await viewOnlyWallet.getSeed(), undefined);
-    assert.equal(await viewOnlyWallet.getSeedLanguage(), undefined);
     assert(await viewOnlyWallet.isViewOnly());
+    let errMsg = "Should have failed";
+    try {
+      await await viewOnlyWallet.getSeed();
+      throw new Error(errMsg);
+    } catch (e) {
+      if (e.message === errMsg) throw e;
+    }
+    try {
+      await await viewOnlyWallet.getSeedLanguage();
+      throw new Error(errMsg);
+    } catch (e) {
+      if (e.message === errMsg) throw e;
+    }
+    try {
+      await await viewOnlyWallet.getPrivateSpendKey();
+      throw new Error(errMsg);
+    } catch (e) {
+      if (e.message === errMsg) throw e;
+    }
     assert(await viewOnlyWallet.isConnectedToDaemon(), "Wallet created from keys is not connected to authenticated daemon");  // TODO
-    assert.equal(await viewOnlyWallet.getSeed(), undefined);
     await viewOnlyWallet.sync();
     assert((await viewOnlyWallet.getTxs()).length > 0);
     
