@@ -997,10 +997,7 @@ class TestMoneroWalletCommon {
         // test fetching with missing tx hashes
         let missingTxHash = "d01ede9cde813b2a693069b640c4b99c5adbdb49fbbd8da2c16c8087d0c3e320";
         txHashes.push(missingTxHash);
-        let missingTxHashes = [];
-        fetchedTxs = await that.wallet.getTxs(txHashes, missingTxHashes);
-        assert.equal(1, missingTxHashes.length);
-        assert.equal(missingTxHash, missingTxHashes[0]);
+        fetchedTxs = await that.wallet.getTxs(txHashes);
         assert.equal(txs.length, fetchedTxs.length);
         for (let i = 0; i < txs.length; i++) {
           assert.equal(txs[i].getHash(), fetchedTxs[i].getHash());
@@ -1285,67 +1282,39 @@ class TestMoneroWalletCommon {
         let unknownHash2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
         
         // fetch unknown tx hash
-        try {
-          await that.wallet.getTx(unknownHash1);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
-        }
+        assert.equal(await that.wallet.getTx(unknownHash1), undefined);
         
         // fetch unknown tx hash using query
-        try {
-          await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownHash1));
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
-        }
+        let txs = await that.wallet.getTxs(new MoneroTxQuery().setHash(unknownHash1));
+        assert.equal(txs.length, 0);
         
         // fetch unknown tx hash in collection
-        try {
-          await that.wallet.getTxs([txHash, unknownHash1]);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1]);
-        }
-        
+        txs = await that.wallet.getTxs([txHash, unknownHash1]);
+        assert.equal(txs.length, 1);
+        assert.equal(txs[0].getHash(), txHash);
+
         // fetch unknown tx hashes in collection
-        try {
-          await that.wallet.getTxs([txHash, unknownHash1, unknownHash2]);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [unknownHash1, unknownHash2]);
-        }
+        txs = await that.wallet.getTxs([txHash, unknownHash1, unknownHash2]);
+        assert.equal(txs.length, 1);
+        assert.equal(txs[0].getHash(), txHash);
         
         // fetch invalid hash
-        try {
-          await that.wallet.getTx(invalidHash);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
-        }
+        assert.equal(await wallet.getTx(invalidHash), undefined);
         
         // fetch invalid hash collection
-        try {
-          await that.wallet.getTxs([txHash, invalidHash]);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash]);
-        }
+        txs = await that.wallet.getTxs([txHash, invalidHash]);
+        assert.equal(txs.length, 1);
+        assert.equal(txs[0].getHash(), txHash);
         
         // fetch invalid hashes in collection
-        try {
-          await that.wallet.getTxs([txHash, invalidHash, "invalid_hash_2"]);
-          throw new Error("Should have thrown error getting tx hash unknown to wallet");
-        } catch (e) {
-          assert.equal(e.message, "Wallet missing requested tx hashes: " + [invalidHash, "invalid_hash_2"]);
-        }
+        txs = await that.wallet.getTxs([txHash, invalidHash, "invalid_hash_2"]);
+        assert.equal(txs.length, 1);
+        assert.equal(txs[0].getHash(), txHash);
         
         // test collection of invalid hashes
-        let missingTxHashes = [];
-        let txs = await that.wallet.getTxs(new MoneroTxQuery().setHashes([txHash, invalidHash, "invalid_hash_2"]), missingTxHashes);
+        txs = await that.wallet.getTxs(new MoneroTxQuery().setHashes([txHash, invalidHash, "invalid_hash_2"]));
         assert.equal(1, txs.length);
         for (let tx of txs) await that._testTxWallet(tx);
-        assert.deepEqual([invalidHash, "invalid_hash_2"], missingTxHashes);
       });
 
       if (testConfig.testNonRelays)

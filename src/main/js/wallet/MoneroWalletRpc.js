@@ -783,7 +783,7 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.rpc.sendJsonRequest("label_address", {index: {major: accountIdx, minor: subaddressIdx}, label: label});
   }
   
-  async getTxs(query, missingTxHashes) {
+  async getTxs(query) {
     
     // copy query
     query = MoneroWallet._normalizeTxQuery(query);
@@ -845,25 +845,6 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (tx.getBlock() !== undefined) tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
     }
     txs = txsQueried;
-    
-    // collect unfound tx hashes
-    if (query.getHashes()) {
-      let unfoundTxHashes = [];
-      for (let txHash of query.getHashes()) {
-        let found = false;
-        for (let tx of txs) {
-          if (txHash === tx.getHash()) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) unfoundTxHashes.push(txHash);
-      }
-     
-      // if txs not found, collect missing hashes or throw error if no collection given
-      if (missingTxHashes) for (let unfoundTxHash of unfoundTxHashes) missingTxHashes.push(unfoundTxHash);
-      else if (unfoundTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + unfoundTxHashes);
-    }
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
@@ -2495,7 +2476,7 @@ class WalletPoller {
         that._prevLockedTxs = lockedTxs;
         
         // fetch txs which are no longer locked
-        let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(minHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true), []); // ignore missing tx hashes which could be removed due to re-org
+        let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that._wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(minHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true));
          
         // announce new unconfirmed and confirmed outputs
         for (let lockedTx of lockedTxs) {

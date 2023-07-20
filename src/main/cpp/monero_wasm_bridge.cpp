@@ -625,8 +625,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
     shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
 
     // get txs
-    vector<string> missing_tx_hashes;
-    vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_hashes);
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query);
 
     // collect unique blocks to preserve model relationships as trees
     shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
@@ -649,7 +648,6 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-    if (!missing_tx_hashes.empty()) doc.AddMember("missingTxHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), missing_tx_hashes), doc.GetAllocator());
     callback(monero_utils::serialize(doc));
 
     // free memory
