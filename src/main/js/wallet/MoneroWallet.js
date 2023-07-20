@@ -475,8 +475,7 @@ class MoneroWallet {
    * Get a wallet transaction by hash.
    * 
    * @param {string} txHash - hash of a transaction to get
-   * @return {MoneroTxWallet} the identified transactions
-   * @throws {MoneroError} if the transaction is not found
+   * @return {MoneroTxWallet} the identified transaction or undefined if not found
    */
   async getTx(txHash) {
     let txs = await this.getTxs([txHash]);
@@ -508,10 +507,9 @@ class MoneroWallet {
    * @param {boolean} query.isIncoming - get txs with an incoming transfer or not (optional)
    * @param {MoneroTransferQuery} query.transferQuery - get txs that have a transfer that meets this query (optional)
    * @param {boolean} query.includeOutputs - specifies that tx outputs should be returned with tx results (optional)
-   * @param {string[]} missingTxHashes - populated with hashes of unfound or unmet transactions that were queried by hash (throws error if undefined and queried transaction hashes are unfound or unmet) 
    * @return {MoneroTxWallet[]} wallet transactions per the configuration
    */
-  async getTxs(query, missingTxHashes) {
+  async getTxs(query) {
     throw new MoneroError("Not supported");
   }
 

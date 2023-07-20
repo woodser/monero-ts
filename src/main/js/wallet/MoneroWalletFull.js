@@ -865,7 +865,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async getTxs(query, missingTxHashes) {
+  async getTxs(query) {
     this._assertNotClosed();
     
     // copy and normalize query up to block
@@ -888,7 +888,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
           
           // resolve with deserialized txs
           try {
-            resolve(MoneroWalletFull._deserializeTxs(query, blocksJsonStr, missingTxHashes));
+            resolve(MoneroWalletFull._deserializeTxs(query, blocksJsonStr));
           } catch (err) {
             reject(err);
           }
@@ -1831,18 +1831,14 @@ class MoneroWalletFull extends MoneroWalletKeys {
     let blocksJson = JSON.parse(GenUtils.stringifyBIs(blocksJsonStr));
     let deserializedBlocks = {};
     deserializedBlocks.blocks = [];
-    deserializedBlocks.missingTxHashes = [];
     if (blocksJson.blocks) for (let blockJson of blocksJson.blocks) deserializedBlocks.blocks.push(MoneroWalletFull._sanitizeBlock(new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET)));
-    if (blocksJson.missingTxHashes) for (let missingTxHash of blocksJson.missingTxHashes) deserializedBlocks.missingTxHashes.push(missingTxHash);
     return deserializedBlocks;
   }
   
-  static _deserializeTxs(query, blocksJsonStr, missingTxHashes) {
+  static _deserializeTxs(query, blocksJsonStr) {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletFull._deserializeBlocks(blocksJsonStr);
-    if (missingTxHashes === undefined && deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
-    for (let missingTxHash of deserializedBlocks.missingTxHashes) missingTxHashes.push(missingTxHash);
     let blocks = deserializedBlocks.blocks;
     
     // collect txs
@@ -1871,7 +1867,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletFull._deserializeBlocks(blocksJsonStr);
-    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
     let blocks = deserializedBlocks.blocks;
     
     // collect transfers
@@ -1893,7 +1888,6 @@ class MoneroWalletFull extends MoneroWalletKeys {
     
     // deserialize blocks
     let deserializedBlocks = MoneroWalletFull._deserializeBlocks(blocksJsonStr);
-    if (deserializedBlocks.missingTxHashes.length > 0) throw new MoneroError("Wallet missing requested tx hashes: " + deserializedBlocks.missingTxHashes);
     let blocks = deserializedBlocks.blocks;
     
     // collect outputs
@@ -2262,10 +2256,10 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return MoneroWalletFull._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
-  async getTxs(query, missingTxHashes) {
+  async getTxs(query) {
     query = MoneroWallet._normalizeTxQuery(query);
-    let respJson = await this._invokeWorker("getTxs", [query.getBlock().toJson(), missingTxHashes]);
-    return MoneroWalletFull._deserializeTxs(query, JSON.stringify({blocks: respJson.blocks, missingTxHashes: respJson.missingTxHashes}), missingTxHashes); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
+    let respJson = await this._invokeWorker("getTxs", [query.getBlock().toJson()]);
+    return MoneroWalletFull._deserializeTxs(query, JSON.stringify({blocks: respJson.blocks})); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getTransfers(query) {
