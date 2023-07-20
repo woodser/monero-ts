@@ -483,13 +483,8 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getSeed() {
-    try {
-      let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
-      return resp.result.key;
-    } catch (e) {
-      if (e.getCode() === -29) return undefined;  // wallet is view-only
-      throw e;
-    }
+    let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
+    return resp.result.key;
   }
   
   async getSeedLanguage() {
@@ -512,15 +507,8 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getPrivateSpendKey() {
-    
-    // get private spend key which will throw error if wallet is view-only
-    try {
-      let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
-      return resp.result.key;
-    } catch (e) {
-      if (e.getCode() === -29 && e.message.indexOf("watch-only") !== -1) return undefined; // return undefined if wallet is view-only
-      throw e;
-    }
+    let resp = await this.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
+    return resp.result.key;
   }
   
   async getAddress(accountIdx, subaddressIdx) {

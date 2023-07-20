@@ -209,10 +209,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let seed = that._module.get_seed(that._cppAddress);
+      let resp = that._module.get_seed(that._cppAddress);
       const errorStr = "error: ";
-      if (seed.indexOf(errorStr) === 0) throw new MoneroError(seed.substring(errorStr.length));
-      return seed ? seed : undefined;
+      if (resp.indexOf(errorStr) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -220,17 +220,21 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let seedLanguage = that._module.get_seed_language(that._cppAddress);
-      return seedLanguage ? seedLanguage : undefined;
+      let resp = that._module.get_seed_language(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
-  
+
   async getPrivateSpendKey() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let privateSpendKey = that._module.get_private_spend_key(that._cppAddress);
-      return privateSpendKey ? privateSpendKey : undefined;
+      let resp = that._module.get_private_spend_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -238,7 +242,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_private_view_key(that._cppAddress);
+      let resp = that._module.get_private_view_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -246,7 +253,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_public_view_key(that._cppAddress);
+      let resp = that._module.get_public_view_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -254,7 +264,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_public_spend_key(that._cppAddress);
+      let resp = that._module.get_public_spend_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
