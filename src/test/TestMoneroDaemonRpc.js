@@ -1308,7 +1308,7 @@ function testMinerTx(minerTx) {
   assert(minerTx.getVersion() >= 0);
   assert(Array.isArray(minerTx.getExtra()));
   assert(minerTx.getExtra().length > 0);
-  assert(minerTx.getUnlockHeight() >= 0);
+  assert(minerTx.getUnlockTime().compare(new BigInteger(0)) >= 0);
 
   // TODO: miner tx does not have hashes in binary requests so this will fail, need to derive using prunable data
 //  testTx(minerTx, {
@@ -1340,7 +1340,7 @@ function testTx(tx, ctx) {
   assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
   assert(tx.getVersion() >= 0);
-  assert(tx.getUnlockHeight() >= 0);
+  assert(tx.getUnlockTime().compare(new BigInteger(0)) >= 0);
   assert(tx.getInputs());
   assert(tx.getOutputs());
   assert(tx.getExtra().length > 0);
@@ -1455,7 +1455,7 @@ function testTx(tx, ctx) {
   } else {
     assert.equal(tx.getPrunedHex(), undefined);
     assert(tx.getVersion() >= 0);
-    assert(tx.getUnlockHeight() >= 0);
+    assert(tx.getUnlockTime().compare(new BigInteger(0)) >= 0);
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     if (ctx.fromBinaryBlock) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getFullHex().length > 0);

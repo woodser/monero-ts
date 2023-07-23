@@ -1798,8 +1798,8 @@ class MoneroWalletFull extends MoneroWalletKeys {
             isEnabled ? async function(height, startHeight, endHeight, percentDone, message) { await that._fullListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); } : undefined,
             isEnabled ? async function(height) { await that._fullListener.onNewBlock(height); } : undefined,
             isEnabled ? async function(newBalanceStr, newUnlockedBalanceStr) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr); } : undefined,
-            isEnabled ? async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked); } : undefined,
-            isEnabled ? async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked); } : undefined,
+            isEnabled ? async function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked); } : undefined,
+            isEnabled ? async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockTime, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockTime, isLocked); } : undefined,
         );
       });
     });
@@ -2569,7 +2569,7 @@ class WalletFullListener {
     for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr));
   }
   
-  async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
+  async onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime, isLocked) {
     
     // build received output
     let output = new MoneroOutputWallet();
@@ -2579,7 +2579,7 @@ class WalletFullListener {
     let tx = new MoneroTxWallet();
     tx.setHash(txHash);
     tx.setVersion(version);
-    tx.setUnlockHeight(unlockHeight);
+    tx.setUnlockTime(unlockTime);
     output.setTx(tx);
     tx.setOutputs([output]);
     tx.setIsIncoming(true);
@@ -2600,7 +2600,7 @@ class WalletFullListener {
     for (let listener of this._wallet.getListeners()) await listener.onOutputReceived(tx.getOutputs()[0]);
   }
   
-  async onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) {
+  async onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockTime, isLocked) {
     
     // build spent output
     let output = new MoneroOutputWallet();
@@ -2610,7 +2610,7 @@ class WalletFullListener {
     let tx = new MoneroTxWallet();
     tx.setHash(txHash);
     tx.setVersion(version);
-    tx.setUnlockHeight(unlockHeight);
+    tx.setUnlockTime(unlockTime);
     tx.setIsLocked(isLocked);
     output.setTx(tx);
     tx.setInputs([output]);

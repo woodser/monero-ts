@@ -1,5 +1,6 @@
 const assert = require("assert");
 const BigInteger = require("../../common/biginteger").BigInteger;
+const GenUtils = require("../../common/GenUtils");
 const MoneroDestination = require("./MoneroDestination");
 const MoneroError = require("../../common/MoneroError");
 
@@ -34,7 +35,7 @@ class MoneroTxConfig {
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx
    * @param {int[]} config.subtractFeeFrom - list of destination indices to split the transaction fee
    * @param {string} config.paymentId - transaction payment ID
-   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
+   * @param {BigInteger} config.unlockTime - minimum height or timestamp for the transaction to unlock (default 0)
    * @param {string} config.note - transaction note saved locally with the wallet
    * @param {string} config.recipientName - recipient name saved locally with the wallet
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions
@@ -50,11 +51,27 @@ class MoneroTxConfig {
     else if (config instanceof MoneroTxConfig) this.state = config.toJson();
     else if (typeof config === "object") {
       this.state = Object.assign({}, config);
-      if (relaxValidation && typeof this.state.amount === "number") this.state.amount = BigInteger.parse(this.state.amount);
+      if (relaxValidation) {
+        if (typeof this.state.amount === "number") this.state.amount = BigInteger.parse(this.state.amount);
+        if (typeof this.state.unlockTime === "number") this.state.unlockTime = BigInteger.parse(this.state.unlockTime);
+        if (typeof this.state.belowAmount === "number") this.state.belowAmount = BigInteger.parse(this.state.belowAmount);
+      }
+
+      // check for unsupported fields
+      for (let key of Object.keys(config)) {
+        if (!GenUtils.arrayContains(MoneroTxConfig.SUPPORTED_FIELDS, key)) {
+          throw new MoneroError("Unsupported field in MoneroTxConfig: '" + key + "'");
+        }
+      }
     }
     else throw new MoneroError("Invalid argument given to MoneroTxConfig: " + typeof config);
+
+    // deserialize BigIntegers
+    if (this.state.fee !== undefined && !(this.state.fee instanceof BigInteger)) this.state.fee = BigInteger.parse(this.state.fee);
+    if (this.state.unlockTime !== undefined && !(this.state.unlockTime instanceof BigInteger)) this.state.unlockTime = BigInteger.parse(this.state.unlockTime);
+    if (this.state.belowAmount !== undefined && !(this.state.belowAmount instanceof BigInteger)) this.state.belowAmount = BigInteger.parse(this.state.belowAmount);
     
-    // deserialize if necessary
+    // deserialize destinations
     if (this.state.destinations) {
       assert(this.state.address === undefined && this.state.amount === undefined, "Tx configuration may specify destinations or an address/amount but not both");
       this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
@@ -87,6 +104,7 @@ class MoneroTxConfig {
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
     if (this.getFee()) json.fee = this.getFee().toString();
+    if (this.getUnlockTime()) json.unlockTime = this.getUnlockTime().toString();
     if (this.getBelowAmount()) json.belowAmount = this.getBelowAmount().toString();
     return json;
   }
@@ -225,12 +243,19 @@ class MoneroTxConfig {
     return this;
   }
   
-  getUnlockHeight() {
-    return this.state.unlockHeight;
+  getUnlockTime() {
+    return this.state.unlockTime;
   }
   
-  setUnlockHeight(unlockHeight) {
-    this.state.unlockHeight = unlockHeight;
+  setUnlockTime(unlockTime) {
+    if (unlockTime !== undefined) {
+      if (typeof unlockTime === "number") unlockTime = "" + unlockTime;
+      if (!(unlockTime instanceof BigInteger)) {
+        try { unlockTime = BigInteger.parse(unlockTime); }
+        catch (err) { throw new MoneroError("Invalid unlock time: " + unlockTime); }
+      }
+    }
+    this.state.unlockTime = unlockTime;
     return this;
   }
   
@@ -309,5 +334,7 @@ class MoneroTxConfig {
     return this;
   }
 }
+
+MoneroTxConfig.SUPPORTED_FIELDS = ["address", "amount", "accountIndex", "subaddressIndex", "subaddressIndices", "relay", "priority", "destinations", "subtractFeeFrom", "paymentId", "unlockTime", "note", "recipientName", "canSplit", "belowAmount", "sweepEachSubaddress", "keyImage"];
 
 module.exports = MoneroTxConfig
