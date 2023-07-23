@@ -360,7 +360,7 @@ class MoneroWallet {
       txs = await this.getTxs({isLocked: true}); // get locked txs
       height = await this.getHeight(); // get most recent height
       for (let tx of txs) {
-        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
+        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockTime()) - height;
         numBlocksToNextUnlock = numBlocksToNextUnlock === undefined ? numBlocksToUnlock : Math.min(numBlocksToNextUnlock, numBlocksToUnlock);
       }
     }
@@ -375,7 +375,7 @@ class MoneroWallet {
         height = await this.getHeight(); // get most recent height
       }
       for (let tx of txs) {
-        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockHeight()) - height;
+        let numBlocksToUnlock = Math.max((tx.isConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockTime()) - height;
         numBlocksToLastUnlock = numBlocksToLastUnlock === undefined ? numBlocksToUnlock : Math.max(numBlocksToLastUnlock, numBlocksToUnlock);
       }
     }
@@ -698,7 +698,7 @@ class MoneroWallet {
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {int[]} config.subtractFeeFrom - list of destination indices to split the transaction fee (optional)
    * @param {string} config.paymentId - transaction payment ID (optional)
-   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
+   * @param {BigInteger|string} config.unlockTime - minimum height or timestamp for the transaction to unlock (default 0)
    * @return {MoneroTxWallet} the created transaction
    */
   async createTx(config) {
@@ -721,7 +721,7 @@ class MoneroWallet {
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {string} config.paymentId - transaction payment ID (optional)
-   * @param {int} config.unlockHeight - minimum height for the transactions to unlock (default 0)
+   * @param {BigInteger|string} config.unlockTime - minimum height or timestamp for the transactions to unlock (default 0)
    * @param {boolean} config.canSplit - allow funds to be transferred using multiple transactions (default true)
    * @return {MoneroTxWallet[]} the created transactions
    */
@@ -736,7 +736,7 @@ class MoneroWallet {
    * @param {string} config.address - single destination address (required)
    * @param {string} config.keyImage - key image to sweep (required)
    * @param {boolean} config.relay - relay the transaction to peers to commit to the blockchain (default false)
-   * @param {int} config.unlockHeight - minimum height for the transaction to unlock (default 0)
+   * @param {BigInteger|string} config.unlockTime - minimum height or timestamp for the transaction to unlock (default 0)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
    * @return {MoneroTxWallet} the created transaction
    */
@@ -754,7 +754,7 @@ class MoneroWallet {
    * @param {int[]} config.subaddressIndices - source subaddress indices to sweep from (optional)
    * @param {boolean} config.relay - relay the transactions to peers to commit to the blockchain (default false)
    * @param {MoneroTxPriority} config.priority - transaction priority (default MoneroTxPriority.NORMAL)
-   * @param {int} config.unlockHeight - minimum height for the transactions to unlock (default 0)
+   * @param {BigInteger|string} config.unlockTime - minimum height or timestamp for the transactions to unlock (default 0)
    * @param {boolean} config.sweepEachSubaddress - sweep each subaddress individually if true (default false)
    * @return {MoneroTxWallet[]} the created transactions
    */

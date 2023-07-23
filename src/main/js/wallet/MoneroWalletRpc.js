@@ -973,7 +973,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = config.getPaymentId();
-    params.unlock_time = config.getUnlockHeight();
+    if (config.getUnlockTime() !== undefined) params.unlock_time = config.getUnlockTime().toString()
     params.do_not_relay = config.getRelay() !== true;
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
@@ -1029,7 +1029,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = config.getAccountIndex();
     params.subaddr_indices = config.getSubaddressIndices();
     params.key_image = config.getKeyImage();
-    params.unlock_time = config.getUnlockHeight();
+    if (config.getUnlockTime() !== undefined) params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getRelay() !== true;
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
@@ -1777,7 +1777,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.address = config.getDestinations()[0].getAddress();
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
-    params.unlock_time = config.getUnlockHeight();
+    if (config.getUnlockTime() !== undefined) params.unlock_time = config.getUnlockTime();
     params.payment_id = config.getPaymentId();
     params.do_not_relay = !relay;
     params.below_amount = config.getBelowAmount();
@@ -1810,7 +1810,7 @@ class MoneroWalletRpc extends MoneroWallet {
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(config.getPaymentId());
-      if (tx.getUnlockHeight() === undefined) tx.setUnlockHeight(config.getUnlockHeight() === undefined ? 0 : config.getUnlockHeight());
+      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
       if (tx.getRelay()) {
         if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
         if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
@@ -1947,7 +1947,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     tx.setOutgoingTransfer(transfer);
     tx.setPaymentId(config.getPaymentId());
-    if (tx.getUnlockHeight() === undefined) tx.setUnlockHeight(config.getUnlockHeight() === undefined ? 0 : config.getUnlockHeight());
+    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
     if (config.getRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
       if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
@@ -2098,7 +2098,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
-      else if (key === "unlock_time") tx.setUnlockHeight(val);
+      else if (key === "unlock_time") tx.setUnlockTime(val);
       else if (key === "weight") tx.setWeight(val);
       else if (key === "locked") tx.setIsLocked(val);
       else if (key === "tx_blob") tx.setFullHex(val);

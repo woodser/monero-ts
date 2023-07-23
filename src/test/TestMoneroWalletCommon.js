@@ -1299,7 +1299,7 @@ class TestMoneroWalletCommon {
         assert.equal(txs[0].getHash(), txHash);
         
         // fetch invalid hash
-        assert.equal(await wallet.getTx(invalidHash), undefined);
+        assert.equal(await that.wallet.getTx(invalidHash), undefined);
         
         // fetch invalid hash collection
         txs = await that.wallet.getTxs([txHash, invalidHash]);
@@ -2678,7 +2678,7 @@ class TestMoneroWalletCommon {
         
         // loop every sync period until unlock tested
         let threads = [];
-        let expectedUnlockHeight = lastHeight + unlockDelay;
+        let expectedUnlockTime = lastHeight + unlockDelay;
         let confirmHeight = undefined;
         while (true) {
           
@@ -2714,7 +2714,7 @@ class TestMoneroWalletCommon {
             // test confirm notifications
             if (tx.isConfirmed() && confirmHeight === undefined) {
               confirmHeight = tx.getHeight();
-              expectedUnlockHeight = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockHeight); // exact unlock height known
+              expectedUnlockTime = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockTime); // exact unlock time known
               let threadFn = async function() {
                 await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
                 let confirmedQuery = outputQuery.getTxQuery().copy().setIsConfirmed(true).setIsLocked(true).getOutputQuery();
@@ -2739,7 +2739,7 @@ class TestMoneroWalletCommon {
           }
           
           // otherwise test unlock notifications
-          else if (height >= expectedUnlockHeight) {
+          else if (height >= expectedUnlockTime) {
             let threadFn = async function() {
               await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
               let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
@@ -2903,30 +2903,30 @@ class TestMoneroWalletCommon {
       // TODO: test sending to multiple accounts
       if (testConfig.testRelays && testConfig.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: true, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: await that.daemon.getHeight() + 3, canSplit: true, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: await that.daemon.getHeight() + 3, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockHeight: await that.daemon.getHeight() + 3, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: await that.daemon.getHeight() + 3, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       /**
-       * Tests sending a tx with an unlock height then tracking and updating it as
+       * Tests sending a tx with an unlock time then tracking and updating it as
        * blocks are added to the chain.
        * 
        * TODO: test wallet accounting throughout this; dedicated method? probably.
@@ -3561,7 +3561,6 @@ class TestMoneroWalletCommon {
         let jsConfig;
         if (useJsConfig) {
           jsConfig = {};
-          jsConfig.ringSize = MoneroUtils.RING_SIZE;
           jsConfig.accountIndex = srcAccount.getIndex();
           jsConfig.relay = true;
           jsConfig.destinations = [];
@@ -4349,7 +4348,7 @@ class TestMoneroWalletCommon {
     TestUtils.testUnsignedBigInteger(tx.getFee());
     if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
     if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
-    assert(tx.getUnlockHeight() >= 0);
+    assert(tx.getUnlockTime().compare(new BigInteger(0)) >= 0);
     assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
     assert.equal(tx.getReceivedTimestamp(), undefined);  // TODO monero-wallet-rpc: return received timestamp (asked to file issue if wanted)
     
@@ -4493,7 +4492,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isConfirmed(), false);
       await testTransfer(tx.getOutgoingTransfer(), ctx);
       assert.equal(tx.getRingSize(), MoneroUtils.RING_SIZE);
-      assert.equal(tx.getUnlockHeight(), config.getUnlockHeight() ? config.getUnlockHeight() : 0);
+      assert.equal(tx.getUnlockTime().toString(), (config.getUnlockTime() ? config.getUnlockTime() : new BigInteger(0)).toString());
       assert.equal(tx.getBlock(), undefined);
       assert(tx.getKey().length > 0);
       assert.equal(typeof tx.getFullHex(), "string");
@@ -4503,7 +4502,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isLocked(), true);
       
       // test locked state
-      if (tx.getUnlockHeight() === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
+      if (new BigInteger(0).compare(tx.getUnlockTime()) === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
       else assert.equal(tx.isLocked(), true);
       if (tx.getOutputs() !== undefined) {
         for (let output of tx.getOutputs()) {
@@ -5335,7 +5334,7 @@ async function testDescribedTxSet(describedTxSet) {
     if (describedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(describedTx.getChangeAddress(), undefined);
     else await MoneroUtils.validateAddress(describedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
     assert(describedTx.getRingSize() > 1);
-    assert(describedTx.getUnlockHeight() >= 0);
+    assert(describedTx.getUnlockTime().compare(new BigInteger(0)) >= 0);
     assert(describedTx.getNumDummyOutputs() >= 0);
     assert(describedTx.getExtraHex());
     assert(describedTx.getPaymentId() === undefined || describedTx.getPaymentId().length > 0);

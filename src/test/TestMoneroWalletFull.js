@@ -1266,7 +1266,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert(output.getTx().getUnlockHeight() >= 0);
+    assert(output.getTx().getUnlockTime() >= 0);
     assert.equal(output.getTx().getInputs(), undefined);
     assert.equal(output.getTx().getOutputs().length, 1);
     assert(output.getTx().getOutputs()[0] === output);
@@ -1293,7 +1293,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx().getHash());
     assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
-    assert(output.getTx().getUnlockHeight() >= 0);
+    assert(output.getTx().getUnlockTime() >= 0);
     assert.equal(output.getTx().getInputs().length, 1);
     assert(output.getTx().getInputs()[0] === output);
     assert.equal(output.getTx().getOutputs(), undefined);
