@@ -1973,195 +1973,6 @@
     
 
     
-    <h4 class="name" id="getBlockTemplate"><span class="type-signature">(async) </span>getBlockTemplate<span class="signature">(walletAddress, reserveSize)</span><span class="type-signature"> &rarr; {<a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get a block template for mining a new block.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>walletAddress</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">address of the wallet to receive miner transactions if block is successfully mined</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>reserveSize</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">int</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">reserve size (optional)</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="implements">Implements:</dt>
-    <dd class="implements"><ul>
-        
-            <li><a href="MoneroDaemon.html#getBlockTemplate">MoneroDaemon#getBlockTemplate</a></li>
-        
-    </ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line271">line 271</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    is a block template for mining a new block
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="getBlocksByHeight"><span class="type-signature">(async) </span>getBlocksByHeight<span class="signature">(heights)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroBlock.html">MoneroBlock</a>>}</span></h4>
     
 
@@ -2713,6 +2524,195 @@ not too big.
     <dd>
         
 <span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroBlock.html">MoneroBlock</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getBlockTemplate"><span class="type-signature">(async) </span>getBlockTemplate<span class="signature">(walletAddress, reserveSize)</span><span class="type-signature"> &rarr; {<a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get a block template for mining a new block.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>walletAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">address of the wallet to receive miner transactions if block is successfully mined</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>reserveSize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">int</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">reserve size (optional)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroDaemon.html#getBlockTemplate">MoneroDaemon#getBlockTemplate</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_daemon_MoneroDaemonRpc.js.html">src/main/js/daemon/MoneroDaemonRpc.js</a>, <a href="src_main_js_daemon_MoneroDaemonRpc.js.html#line271">line 271</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    is a block template for mining a new block
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></span>
 
 
     </dd>
@@ -9911,7 +9911,7 @@ as spent key image information for the tx pool.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
 </footer>
 
 <script> prettyPrint(); </script>

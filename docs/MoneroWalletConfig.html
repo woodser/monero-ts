@@ -206,6 +206,236 @@
 
         <tr>
             
+                <td class="name"><code>seed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">seed of the wallet to create (optional, random wallet created if neither seed nor keys given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seedOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isMultisig</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">restore multisig wallet from seed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>primaryAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">primary address of the wallet to create (only provide if restoring from keys)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateViewKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private view key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateSpendKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private spend key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>restoreHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">block height to start scanning from (defaults to 0 unless generating random wallet)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>language</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">language of the wallet's seed phrase (defaults to "English" or auto-detected)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountLookahead</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of accounts to scan (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressLookahead</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of subaddresses to scan per account (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>serverUri</code></td>
             
 
@@ -582,2527 +812,7 @@
     
 
     
-    <h4 class="name" id="getAccountLookahead"><span class="type-signature"></span>getAccountLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line243">line 243</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getCacheData"><span class="type-signature"></span>getCacheData<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line234">line 234</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getFs"><span class="type-signature"></span>getFs<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line216">line 216</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getKeysData"><span class="type-signature"></span>getKeysData<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line225">line 225</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getLanguage"><span class="type-signature"></span>getLanguage<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line189">line 189</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getMnemonic"><span class="type-signature"></span>getMnemonic<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line135">line 135</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getNetworkType"><span class="type-signature"></span>getNetworkType<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line77">line 77</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getPassword"><span class="type-signature"></span>getPassword<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line68">line 68</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getPath"><span class="type-signature"></span>getPath<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line59">line 59</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getPrimaryAddress"><span class="type-signature"></span>getPrimaryAddress<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line153">line 153</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getPrivateSpendKey"><span class="type-signature"></span>getPrivateSpendKey<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line171">line 171</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getPrivateViewKey"><span class="type-signature"></span>getPrivateViewKey<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line162">line 162</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getProxyToWorker"><span class="type-signature"></span>getProxyToWorker<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line207">line 207</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getRejectUnauthorized"><span class="type-signature"></span>getRejectUnauthorized<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line126">line 126</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getRestoreHeight"><span class="type-signature"></span>getRestoreHeight<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line180">line 180</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getSaveCurrent"><span class="type-signature"></span>getSaveCurrent<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line198">line 198</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getSeedOffset"><span class="type-signature"></span>getSeedOffset<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line144">line 144</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getServer"><span class="type-signature"></span>getServer<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line86">line 86</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getServerPassword"><span class="type-signature"></span>getServerPassword<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line117">line 117</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getServerUri"><span class="type-signature"></span>getServerUri<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line99">line 99</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getServerUsername"><span class="type-signature"></span>getServerUsername<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line108">line 108</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getSubaddressLookahead"><span class="type-signature"></span>getSubaddressLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line252">line 252</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setAccountLookahead"><span class="type-signature"></span>setAccountLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line247">line 247</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setCacheData"><span class="type-signature"></span>setCacheData<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line238">line 238</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setFs"><span class="type-signature"></span>setFs<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line220">line 220</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setKeysData"><span class="type-signature"></span>setKeysData<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line229">line 229</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setLanguage"><span class="type-signature"></span>setLanguage<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line193">line 193</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setMnemonic"><span class="type-signature"></span>setMnemonic<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line139">line 139</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setNetworkType"><span class="type-signature"></span>setNetworkType<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line81">line 81</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setPassword"><span class="type-signature"></span>setPassword<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line72">line 72</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setPath"><span class="type-signature"></span>setPath<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="copy"><span class="type-signature"></span>copy<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -3186,6 +896,2694 @@
     
 
     
+    <h4 class="name" id="getAccountLookahead"><span class="type-signature"></span>getAccountLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line266">line 266</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getCacheData"><span class="type-signature"></span>getCacheData<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line257">line 257</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getFs"><span class="type-signature"></span>getFs<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line239">line 239</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getKeysData"><span class="type-signature"></span>getKeysData<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line248">line 248</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getLanguage"><span class="type-signature"></span>getLanguage<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line212">line 212</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getNetworkType"><span class="type-signature"></span>getNetworkType<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPassword"><span class="type-signature"></span>getPassword<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPath"><span class="type-signature"></span>getPath<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line73">line 73</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPrimaryAddress"><span class="type-signature"></span>getPrimaryAddress<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line176">line 176</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPrivateSpendKey"><span class="type-signature"></span>getPrivateSpendKey<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line194">line 194</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPrivateViewKey"><span class="type-signature"></span>getPrivateViewKey<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line185">line 185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getProxyToWorker"><span class="type-signature"></span>getProxyToWorker<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line230">line 230</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getRejectUnauthorized"><span class="type-signature"></span>getRejectUnauthorized<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getRestoreHeight"><span class="type-signature"></span>getRestoreHeight<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line203">line 203</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getSaveCurrent"><span class="type-signature"></span>getSaveCurrent<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line221">line 221</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getSeed"><span class="type-signature"></span>getSeed<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line149">line 149</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getSeedOffset"><span class="type-signature"></span>getSeedOffset<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line158">line 158</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getServer"><span class="type-signature"></span>getServer<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line100">line 100</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getServerPassword"><span class="type-signature"></span>getServerPassword<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line131">line 131</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getServerUri"><span class="type-signature"></span>getServerUri<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line113">line 113</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getServerUsername"><span class="type-signature"></span>getServerUsername<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line122">line 122</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getSubaddressLookahead"><span class="type-signature"></span>getSubaddressLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line275">line 275</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isMultisig"><span class="type-signature"></span>isMultisig<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line167">line 167</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setAccountLookahead"><span class="type-signature"></span>setAccountLookahead<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line270">line 270</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setCacheData"><span class="type-signature"></span>setCacheData<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line261">line 261</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setFs"><span class="type-signature"></span>setFs<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line243">line 243</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setIsMultisig"><span class="type-signature"></span>setIsMultisig<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line171">line 171</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setKeysData"><span class="type-signature"></span>setKeysData<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line252">line 252</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setLanguage"><span class="type-signature"></span>setLanguage<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line216">line 216</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setNetworkType"><span class="type-signature"></span>setNetworkType<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line95">line 95</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setPassword"><span class="type-signature"></span>setPassword<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line86">line 86</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setPath"><span class="type-signature"></span>setPath<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line77">line 77</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="setPrimaryAddress"><span class="type-signature"></span>setPrimaryAddress<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
@@ -3234,7 +3632,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line157">line 157</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line180">line 180</a>
     </li></ul></dd>
     
 
@@ -3318,7 +3716,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line175">line 175</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line198">line 198</a>
     </li></ul></dd>
     
 
@@ -3402,7 +3800,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line166">line 166</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -3486,7 +3884,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line211">line 211</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line234">line 234</a>
     </li></ul></dd>
     
 
@@ -3570,7 +3968,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line130">line 130</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -3654,7 +4052,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line184">line 184</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line207">line 207</a>
     </li></ul></dd>
     
 
@@ -3738,7 +4136,91 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line202">line 202</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line225">line 225</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setSeed"><span class="type-signature"></span>setSeed<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -3822,7 +4304,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line148">line 148</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -3906,7 +4388,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line90">line 90</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -3990,7 +4472,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line121">line 121</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -4074,7 +4556,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line103">line 103</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line117">line 117</a>
     </li></ul></dd>
     
 
@@ -4158,7 +4640,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line112">line 112</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line126">line 126</a>
     </li></ul></dd>
     
 
@@ -4242,7 +4724,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line256">line 256</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -4326,7 +4808,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line53">line 53</a>
+        <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html">src/main/js/wallet/model/MoneroWalletConfig.js</a>, <a href="src_main_js_wallet_model_MoneroWalletConfig.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -4378,7 +4860,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
 </footer>
 
 <script> prettyPrint(); </script>
