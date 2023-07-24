@@ -15,6 +15,16 @@ class MoneroWalletConfig {
    * @param {string} config.path - path of the wallet to open or create
    * @param {string} config.password - password of the wallet to open
    * @param {string|number} config.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
+   * @param {boolean} config.isMultisig - restore multisig wallet from seed
+   * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
+   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
+   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
+   * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
+   * @param {string} config.language - language of the wallet's seed phrase (defaults to "English" or auto-detected)
+   * @param {number} config.accountLookahead -  number of accounts to scan (optional)
+   * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
    * @param {string} config.serverUri - uri of the wallet's server (optional)
    * @param {string} config.serverUsername - username of the wallet's server (optional)
    * @param {string} config.serverPassword - password of the wallet's server (optional)
@@ -153,6 +163,15 @@ class MoneroWalletConfig {
     this.config.seedOffset = seedOffset;
     return this;
   }
+
+  isMultisig() {
+    return this.config.isMultisig;
+  }
+  
+  setIsMultisig(isMultisig) {
+    this.config.isMultisig = isMultisig;
+    return this;
+  }
   
   getPrimaryAddress() {
     return this.config.primaryAddress;
@@ -263,6 +282,6 @@ class MoneroWalletConfig {
   }
 }
 
-MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "seed", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
+MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "seed", "seedOffset", "isMultisig", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
 
 module.exports = MoneroWalletConfig;

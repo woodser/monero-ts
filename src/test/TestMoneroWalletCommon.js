@@ -4752,6 +4752,14 @@ class TestMoneroWalletCommon {
     this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
     let seed = await participant.getSeed();
     assert(seed.length > 0);
+
+    // restore participant from multisig seed
+    // TODO: fix restoring from seed: https://github.com/monero-project/monero/pull/8942
+    // participant = await this.createWallet(new MoneroWalletConfig().setSeed(seed).setIsMultisig(true));
+    // await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+    // assert.equal(await participant.getPrimaryAddress(), address);
+    // this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
+    // assert.equal(await participant.getSeed(), seed);
     
     // test sending a multisig transaction if configured
     if (testTx) {
@@ -4830,7 +4838,7 @@ class TestMoneroWalletCommon {
         await participant.createTx({accountIndex: accountIdx, address: returnAddress, amount: TestUtils.MAX_FEE.multiply(new BigInteger(3))});
         throw new Error("Should have failed sending funds without synchronizing with peers");
       } catch (e) {
-        assert.equal(e.message, "No transaction created");
+        if (e.message !== "No transaction created") throw new Error(e);
       }
       
       // synchronize the multisig participants since receiving outputs
@@ -4841,7 +4849,7 @@ class TestMoneroWalletCommon {
       try {
         await participant.exportKeyImages(true);
       } catch (e) {
-        assert(e.message.indexOf("key_image generated not matched with cached key image") >= 0, "Unexpected error: " + e.message);
+        if (e.message.indexOf("key_image generated not matched with cached key image") < 0) throw new Error(e);
       }
       
       // attempt relaying created transactions without co-signing
@@ -4849,7 +4857,7 @@ class TestMoneroWalletCommon {
         await participant.createTxs({address: returnAddress, amount: TestUtils.MAX_FEE, accountIndex: accountIdx, subaddressIndex: 0, relay: true});
         throw new Error("Should have failed");
       } catch (e) {
-        assert.equal(e.message, "Cannot relay multisig transaction until co-signed");
+        if (e.message !== "Cannot relay multisig transaction until co-signed") throw new Error(e);
       }
       
       // create txs to send funds from a subaddress in the multisig wallet

@@ -287,6 +287,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.password - password of the wallet to create
    * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed
+   * @param {boolean} config.isMultisig - restore multisig wallet from seed
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
@@ -359,6 +360,7 @@ class MoneroWalletRpc extends MoneroWallet {
         password: config.getPassword(),
         seed: config.getSeed(),
         seed_offset: config.getSeedOffset(),
+        enable_multisig_experimental: config.isMultisig(),
         restore_height: config.getRestoreHeight(),
         language: config.getLanguage(),
         autosave_current: config.getSaveCurrent()
