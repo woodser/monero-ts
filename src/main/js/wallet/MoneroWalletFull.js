@@ -158,6 +158,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
    * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
    * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
+   * @param {boolean} config.isMultisig - restore multisig wallet from seed
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
