@@ -225,7 +225,7 @@ class MoneroConnectionManager {
           checkPromises.push(new Promise(async function(resolve, reject) {
             await connection.checkConnection(that._timeoutInMs);
             if (connection.isConnected()) resolve(connection);
-            reject();
+            else reject();
           }));
         }
         

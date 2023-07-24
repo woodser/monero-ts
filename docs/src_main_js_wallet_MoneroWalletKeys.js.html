@@ -55,18 +55,18 @@ class MoneroWalletKeys extends MoneroWallet {
    * let wallet = await MoneroWalletKeys.createWallet({&lt;br>
    * &amp;nbsp;&amp;nbsp; password: "abc123",&lt;br>
    * &amp;nbsp;&amp;nbsp; networkType: MoneroNetworkType.STAGENET,&lt;br>
-   * &amp;nbsp;&amp;nbsp; mnemonic: "coexist igloo pamphlet lagoon..."&lt;br>
+   * &amp;nbsp;&amp;nbsp; seed: "coexist igloo pamphlet lagoon..."&lt;br>
    * });
    * &lt;/code>
    * 
    * @param {MoneroWalletConfig|object} config - MoneroWalletConfig or equivalent config object
    * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
-   * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-   * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
    * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
-   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} config.language - language of the wallet's seed (defaults to "English" or auto-detected)
    * @return {MoneroWalletKeys} the created wallet
    */
   static async createWallet(config) {
@@ -74,31 +74,26 @@ class MoneroWalletKeys extends MoneroWallet {
     // normalize and validate config
     if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
-    if (config.getMnemonic() !== undefined &amp;&amp; (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
-      throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
+    if (config.getSeed() !== undefined &amp;&amp; (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
+      throw new MoneroError("Wallet may be initialized with a seed or keys but not both");
     }
     if (config.getNetworkType() === undefined) throw new MoneroError("Must provide a networkType: 'mainnet', 'testnet' or 'stagenet'");
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating keys-only wallet");
     
     // create wallet
-    if (config.getMnemonic() !== undefined) {
-      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
-      return MoneroWalletKeys._createWalletFromMnemonic(config.getNetworkType(), config.getMnemonic(), config.getSeedOffset());
-    } else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return MoneroWalletKeys._createWalletFromKeys(config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getLanguage());
-    } else {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
-      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      return MoneroWalletKeys._createWalletRandom(config.getNetworkType(), config.getLanguage());
-    }
+    if (config.getSeed() !== undefined) return MoneroWalletKeys._createWalletFromSeed(config);
+    else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) return MoneroWalletKeys._createWalletFromKeys(config);
+    else return MoneroWalletKeys._createWalletRandom(config);
   }
   
-  static async _createWalletRandom(networkType, language) {
+  static async _createWalletRandom(config) {
 
     // validate and sanitize params
-    MoneroNetworkType.validate(networkType);
-    if (language === undefined) language = "English";
+    config = config.copy();
+    if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
+    if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
+    MoneroNetworkType.validate(config.getNetworkType());
+    if (config.getLanguage() === undefined) config.setLanguage("English");
     
     // load wasm module
     let module = await LibraryUtils.loadKeysModule();
@@ -114,17 +109,18 @@ class MoneroWalletKeys extends MoneroWallet {
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_keys_wallet_random(networkType, language, callbackFn);
+        module.create_keys_wallet_random(JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  static async _createWalletFromMnemonic(networkType, mnemonic, seedOffset) {
+  static async _createWalletFromSeed(config) {
     
     // validate and sanitize params
-    MoneroNetworkType.validate(networkType);
-    if (mnemonic === undefined) throw Error("Must define mnemonic phrase to create wallet from");
-    if (seedOffset === undefined) seedOffset = "";
+    MoneroNetworkType.validate(config.getNetworkType());
+    if (config.getSeed() === undefined) throw Error("Must define seed to create wallet from");
+    if (config.getSeedOffset() === undefined) config.setSeedOffset("");
+    if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from seed");
     
     // load wasm module
     let module = await LibraryUtils.loadKeysModule();
@@ -140,19 +136,20 @@ class MoneroWalletKeys extends MoneroWallet {
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_keys_wallet_from_mnemonic(networkType, mnemonic, seedOffset, callbackFn);
+        module.create_keys_wallet_from_seed(JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  static async _createWalletFromKeys(networkType, address, privateViewKey, privateSpendKey, language) {
+  static async _createWalletFromKeys(config) {
     
     // validate and sanitize params
-    MoneroNetworkType.validate(networkType);
-    if (address === undefined) address = "";
-    if (privateViewKey === undefined) privateViewKey = "";
-    if (privateSpendKey === undefined) privateSpendKey = "";
-    if (language === undefined) language = "English";
+    if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
+    MoneroNetworkType.validate(config.getNetworkType());
+    if (config.getPrimaryAddress() === undefined) config.setPrimaryAddress("");
+    if (config.getPrivateViewKey() === undefined) config.setPrivateViewKey("");
+    if (config.getPrivateSpendKey() === undefined) config.setPrivateSpendKey("");
+    if (config.getLanguage() === undefined) config.setLanguage("English");
     
     // load wasm module
     let module = await LibraryUtils.loadKeysModule();
@@ -168,15 +165,15 @@ class MoneroWalletKeys extends MoneroWallet {
         };
         
         // create wallet in wasm and invoke callback when done
-        module.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
+        module.create_keys_wallet_from_keys(JSON.stringify(config.toJson()), callbackFn);
       });
     });
   }
   
-  static async getMnemonicLanguages() {
+  static async getSeedLanguages() {
     let module = await LibraryUtils.loadKeysModule();
     return module.queueTask(async function() {
-      return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+      return JSON.parse(module.get_keys_wallet_seed_languages()).languages;
     });
   }
   
@@ -236,32 +233,36 @@ class MoneroWalletKeys extends MoneroWallet {
     throw new MoneroError("MoneroWalletKeys does not support a persisted path");
   }
   
-  async getMnemonic() {
+  async getSeed() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let mnemonic = that._module.get_mnemonic(that._cppAddress);
+      let resp = that._module.get_seed(that._cppAddress);
       const errorStr = "error: ";
-      if (mnemonic.indexOf(errorStr) === 0) throw new MoneroError(mnemonic.substring(errorStr.length));
-      return mnemonic ? mnemonic : undefined;
+      if (resp.indexOf(errorStr) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
-  async getMnemonicLanguage() {
+  async getSeedLanguage() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let mnemonicLanguage = that._module.get_mnemonic_language(that._cppAddress);
-      return mnemonicLanguage ? mnemonicLanguage : undefined;
+      let resp = that._module.get_seed_language(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
-  
+
   async getPrivateSpendKey() {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let privateSpendKey = that._module.get_private_spend_key(that._cppAddress);
-      return privateSpendKey ? privateSpendKey : undefined;
+      let resp = that._module.get_private_spend_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -269,7 +270,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_private_view_key(that._cppAddress);
+      let resp = that._module.get_private_view_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -277,7 +281,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_public_view_key(that._cppAddress);
+      let resp = that._module.get_public_view_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   
@@ -285,7 +292,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.get_public_spend_key(that._cppAddress);
+      let resp = that._module.get_public_spend_key(that._cppAddress);
+      let errorKey = "error: ";
+      if (resp.indexOf(errorKey) === 0) throw new MoneroError(resp.substring(errorStr.length));
+      return resp ? resp : undefined;
     });
   }
   

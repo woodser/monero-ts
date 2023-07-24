@@ -57,6 +57,7 @@ class LibraryUtils {
   static async setLogLevel(level) {
     assert(level === parseInt(level, 10) &amp;&amp; level >= 0, "Log level must be an integer >= 0");
     LibraryUtils.LOG_LEVEL = level;
+    if (LibraryUtils.WASM_MODULE) LibraryUtils.WASM_MODULE.set_log_level(level);
     if (LibraryUtils.WORKER) await LibraryUtils.invokeWorker(GenUtils.getUUID(), "setLogLevel", [level]);
   }
   
@@ -126,7 +127,7 @@ class LibraryUtils {
     LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_full")();
     return new Promise(function(resolve, reject) {
       LibraryUtils.WASM_MODULE.then(module => {
-        LibraryUtils.WASM_MODULE = module
+        LibraryUtils.WASM_MODULE = module;
         delete LibraryUtils.WASM_MODULE.then;
         LibraryUtils.FULL_LOADED = true;
         LibraryUtils._initWasmModule(LibraryUtils.WASM_MODULE);
@@ -207,9 +208,6 @@ class LibraryUtils {
         // invoke callback function with this arg and arguments
         callbackFn.apply(thisArg, e.data.slice(2));
       }
-      
-      // set worker log level
-      await LibraryUtils.setLogLevel(LibraryUtils.getLogLevel());
     }
     return LibraryUtils.WORKER;
   }
@@ -268,7 +266,7 @@ class LibraryUtils {
   }
   
   static _prefixWindowsPath(path) {
-    if (path.indexOf("C:") == 0 &amp;&amp; path.indexOf("file://") == -1) path = "file://" + path; // prepend C: paths with file://
+    if (/^[A-Z]:/.test(path) &amp;&amp; path.indexOf("file://") == -1) path = "file://" + path; // prepend e.g. C: paths with file://
     return path;
   }
 }

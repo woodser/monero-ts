@@ -52,8 +52,9 @@ class MoneroTx {
     else throw new MoneroError("state must be a MoneroTx or JavaScript object");
     this.state = state;
     
-    // deserialize fee
+    // deserialize BigIntegers
     if (state.fee !== undefined &amp;&amp; !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    if (state.unlockTime !== undefined &amp;&amp; !(state.unlockTime instanceof BigInteger)) state.unlockTime = BigInteger.parse(state.unlockTime);
     
     // deserialize inputs
     if (state.inputs) {
@@ -186,12 +187,24 @@ class MoneroTx {
     return this;
   }
   
-  getUnlockHeight() {
-    return this.state.unlockHeight;
+  /**
+   * Get the minimum height or timestamp for the transactions to unlock.
+   * 
+   * @return {BigInteger} the minimum height or timestamp for the transactin to unlock
+   */
+  getUnlockTime() {
+    return this.state.unlockTime;
   }
   
-  setUnlockHeight(unlockHeight) {
-    this.state.unlockHeight = unlockHeight;
+  setUnlockTime(unlockTime) {
+    if (unlockTime !== undefined) {
+      if (typeof unlockTime === "number") unlockTime = "" + unlockTime;
+      if (!(unlockTime instanceof BigInteger)) {
+        try { unlockTime = BigInteger.parse(unlockTime); }
+        catch (err) { throw new MoneroError("Invalid unlock time: " + unlockTime); }
+      }
+    }
+    this.state.unlockTime = unlockTime;
     return this;
   }
   
@@ -434,6 +447,7 @@ class MoneroTx {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
+    if (this.getUnlockTime()) json.unlockTime = this.getUnlockTime().toString();
     if (this.getInputs()) {
       json.inputs = [];
       for (let input of this.getInputs()) json.inputs.push(input.toJson());
@@ -499,7 +513,7 @@ class MoneroTx {
     this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
     this.setMaxUsedBlockHash(GenUtils.reconcile(this.getMaxUsedBlockHash(), tx.getMaxUsedBlockHash()));
     this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
-    this.setUnlockHeight(GenUtils.reconcile(this.getUnlockHeight(), tx.getUnlockHeight()));
+    this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
     this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
     // merge inputs
@@ -571,7 +585,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
     str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);
     str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += GenUtils.kvLine("Unlock height", this.getUnlockHeight(), indent);
+    str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
     str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += GenUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
     str += GenUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
