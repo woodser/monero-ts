@@ -27,7 +27,7 @@ Node.js and npm need to be installed before using the monero-javascript library.
 
 ### The offline wallet generator
 
-An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and mnemonic phrase. An offline wallet generator only needs to produce and display these wallet attributes; it does not need to communicate with a Monero network, transfer XMR, or track a wallet's balance or outputs.
+An offline wallet generator creates and displays a new, random wallet address along with that address's associated view key, spend key, and seed phrase. An offline wallet generator only needs to produce and display these wallet attributes; it does not need to communicate with a Monero network, transfer XMR, or track a wallet's balance or outputs.
 
 monero-javascript's keys-only wallet meets these requirements and is ideal for a monero-javascript-based offline wallet generator. The keys-only wallet is a minimal Wasm wallet implementation that only provides a wallet's _static_ attributes. It cannot initiate transfers, report its balance, or communicate with a Monero network.
 
@@ -64,14 +64,14 @@ let keysOnlyWallet = await monerojs.createWalletKeys({networkType: "stagenet", l
 Wallets are created with a [MoneroWalletConfig](https://moneroecosystem.org/monero-javascript/MoneroWalletConfig) or equivalent JSON object.  The monero-javascript library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-javascript generates a new, random wallet rather than restoring an existing wallet.
 
 The offline wallet generator displays four basic wallet attributes:
-* The mnemonic phrase
+* The seed phrase
 * The primary address
 * The spend key
 * The view key
 
 Wallet getters are used to obtain wallet attributes and log them to the console:
 ```
-console.log("Mnemonic phrase: " + await walletKeys.getSeed());
+console.log("Seed phrase: " + await walletKeys.getSeed());
 console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -88,7 +88,7 @@ async function main() {
   let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
 
   // print wallet attributes
-  console.log("Mnemonic phrase: " + await walletKeys.getSeed());
+  console.log("Seed phrase: " + await walletKeys.getSeed());
   console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
   console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
   console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -100,7 +100,7 @@ Save the file as "offline_wallet_generator.js" and run the program with Node.js:
 
 The output should look similar to the following:
 ```
-Mnemonic phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
+Seed phrase: darted oatmeal toenail launching frown empty agenda apply unnoticed blip waist ashtray threaten deftly sawmill rotate skirting origin ahead obtains makeup bakery bounced dagger apply
 Address: 5ATdKTGQpETCHbBHgDhwd1Wi7oo52PVZYjk2ucf5fnkn9T5yKau2UXkbm7Mo23SAx4MRdyvAaVq75LY9EjSPQnorCGebFqg
 Spend key: 7bf64c44ecb5ecf02261e6d721d6201d138d0891f0fcf4d613dc27ec84bc070e
 View key: b4e167b76888bf6ad4c1ab23b4d1bb2e57e7c082ac96478bcda4a9af7fd19507

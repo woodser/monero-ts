@@ -70,7 +70,7 @@ _Note: In order for the server to reflect changes to source files, you need to s
 	  let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
 	
 	  // print wallet attributes
-	  console.log("Mnemonic phrase: " + await walletKeys.getSeed());
+	  console.log("Seed phrase: " + await walletKeys.getSeed());
 	  console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 	  console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 	  console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -93,7 +93,7 @@ Add "div" elements between the opening and closing "body" tags to display each w
 
 ```
     <div id="wallet_address"></div>
-    <div id="wallet_mnemonic_phrase"></div>
+    <div id="wallet_seed_phrase"></div>
     <div id="wallet_spend_key"></div>
     <div id="wallet_view_key"></div>
 ```
@@ -103,7 +103,7 @@ Add "div" elements between the opening and closing "body" tags to display each w
 Open offline_wallet_generator.js and find the lines that the print the wallet attributes to the console:
 
 ```
-console.log("Mnemonic phrase: " + await walletKeys.getSeed());
+console.log("Seed phrase: " + await walletKeys.getSeed());
 console.log("Address: " + await walletKeys.getAddress(0,0)); // get address of account 0, subaddress 0
 console.log("Spend key: " + await walletKeys.getPrivateSpendKey());
 console.log("View key: " + await walletKeys.getPrivateViewKey());
@@ -113,7 +113,7 @@ Modify these lines to assign each string to its corresponding div element in ind
 
 ```
 // print the wallet's attributes in the browser window
-document.getElementById("wallet_mnemonic_phrase").innerHTML = "Mnemonic phrase: " + await walletKeys.getSeed();
+document.getElementById("wallet_seed_phrase").innerHTML = "Seed phrase: " + await walletKeys.getSeed();
 document.getElementById("wallet_address").innerHTML = "Address: " + await walletKeys.getAddress(0, 0); // get address of account 0, subaddress 0
 document.getElementById("wallet_spend_key").innerHTML = "Spend key: " + await walletKeys.getPrivateSpendKey();
 document.getElementById("wallet_view_key").innerHTML = "View key: " + await walletKeys.getPrivateViewKey();
@@ -133,7 +133,7 @@ The final HTML and JavaScript files should match the following:
   </head>
   <body>
     <div id="wallet_address"></div>
-    <div id="wallet_mnemonic_phrase"></div>
+    <div id="wallet_seed_phrase"></div>
     <div id="wallet_spend_key"></div>
     <div id="wallet_view_key"></div>
     <script type="text/javascript" src="offline_wallet_generator.dist.js"></script>
@@ -153,14 +153,14 @@ async function main() {
   let walletKeys = await monerojs.createWalletKeys({networkType: "stagenet", language: "English"});
   
   // print the wallet's attributes in the browser window
-  document.getElementById("wallet_mnemonic_phrase").innerHTML = "Mnemonic phrase: " + await walletKeys.getSeed();
+  document.getElementById("wallet_seed_phrase").innerHTML = "Seed phrase: " + await walletKeys.getSeed();
   document.getElementById("wallet_address").innerHTML = "Address: " + await walletKeys.getAddress(0, 0); // get address at account 0, subaddress 0
   document.getElementById("wallet_spend_key").innerHTML = "Spend key: " + await walletKeys.getPrivateSpendKey();
   document.getElementById("wallet_view_key").innerHTML = "View key: " + await walletKeys.getPrivateViewKey();
 }
 ```
 
-Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, mnemonic phrase, spend key, and view key displayed in the browser window.
+Run `./bin/build_browser_app.sh` to rebuild the application and launch the server, then point your browser to http://localhost:9100/offline_wallet_generator.html. You should see the wallet's address, seed phrase, spend key, and view key displayed in the browser window.
 
 ## Running the application on your own application server
 

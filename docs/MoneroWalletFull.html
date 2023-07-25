@@ -157,1553 +157,6 @@
     
 
     
-    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(config)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletFull.html">MoneroWalletFull</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Create a wallet using WebAssembly bindings to wallet2.h.<p>
-
-<p>Example:</p>
-
-<code>
-let wallet = await MoneroWalletFull.createWallet({<br>
-&nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
-&nbsp;&nbsp; password: "supersecretpassword",<br>
-&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
-&nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
-&nbsp;&nbsp; restoreHeight: 1543218,<br>
-&nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
-});
-</code>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-|
-
-<span class="param-type"><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">MoneroWalletConfig or equivalent config object
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">path of the wallet to create (optional, in-memory wallet if not given)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password of the wallet to create</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>networkType</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>seed</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">seed of the wallet to create (optional, random wallet created if neither seed nor keys given)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>seedOffset</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isMultisig</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">restore multisig wallet from seed</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>primaryAddress</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">primary address of the wallet to create (only provide if restoring from keys)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>privateViewKey</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">private view key of the wallet to create (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>privateSpendKey</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">private spend key of the wallet to create (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>restoreHeight</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">block height to start scanning from (defaults to 0 unless generating random wallet)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>language</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">language of the wallet's seed phrase (defaults to "English" or auto-detected)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>accountLookahead</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">number of accounts to scan (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>subaddressLookahead</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">number of subaddresses to scan per account (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUri</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">uri of the wallet's daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUsername</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">username to authenticate with the daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverPassword</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password to authenticate with the daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>rejectUnauthorized</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">reject self-signed server certificates if true (defaults to true)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>server</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-|
-
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>proxyToWorker</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">fs</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line178">line 178</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the created wallet
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MoneroWalletFull.html">MoneroWalletFull</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".getSeedLanguages"><span class="type-signature">(async, static) </span>getSeedLanguages<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line321">line 321</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".openWallet"><span class="type-signature">(async, static) </span>openWallet<span class="signature">(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletFull.html">MoneroWalletFull</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Open an existing wallet using WebAssembly bindings to wallet2.h.</p>
-
-<p>Examples:<p>
-
-<code>
-let wallet1 = await MoneroWalletFull.openWallet(<br>
-&nbsp;&nbsp; "./wallets/wallet1",<br>
-&nbsp;&nbsp; "supersecretpassword",<br>
-&nbsp;&nbsp; MoneroNetworkType.STAGENET,<br>
-&nbsp;&nbsp; "http://localhost:38081" // daemon uri<br>
-);<br><br>
-
-let wallet2 = await MoneroWalletFull.openWallet({<br>
-&nbsp;&nbsp; path: "./wallets/wallet2",<br>
-&nbsp;&nbsp; password: "supersecretpassword",<br>
-&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
-&nbsp;&nbsp; serverUri: "http://localhost:38081", // daemon configuration<br>
-&nbsp;&nbsp; serverUsername: "superuser",<br>
-&nbsp;&nbsp; serverPassword: "abctesting123"<br>
-});
-</code>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>configOrPath</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></span>
-|
-
-<span class="param-type">object</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">MoneroWalletConfig or equivalent config object or a path to a wallet to open
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">path of the wallet to open (optional if 'keysData' provided)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password of the wallet to open</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>networkType</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>keysData</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Uint8Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet keys data to open (optional if path provided)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cacheData</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Uint8Array</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">wallet cache data to open (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUri</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">uri of the wallet's daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUsername</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">username to authenticate with the daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverPassword</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password to authenticate with the daemon (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>rejectUnauthorized</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">reject self-signed server certificates if true (default true)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>server</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-|
-
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>proxyToWorker</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">fs</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password of the wallet to open</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>networkType</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">network type of the wallet to open</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>daemonUriOrConnection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">daemon URI or MoneroRpcConnection</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>proxyToWorker</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">fs</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line104">line 104</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the opened wallet
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MoneroWalletFull.html">MoneroWalletFull</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id=".walletExists"><span class="type-signature">(static) </span>walletExists<span class="signature">(path, fs)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Check if a wallet exists at a given path.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">path of the wallet on the file system</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">fs</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Node.js compatible file system to use (optional, defaults to disk if nodejs)</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line52">line 52</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    true if a wallet exists at the given path, false otherwise
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="addAddressBookEntry"><span class="type-signature">(async) </span>addAddressBookEntry<span class="signature">(address, description)</span><span class="type-signature"> &rarr; {int}</span></h4>
     
 
@@ -6177,6 +4630,123 @@ This process must be repeated with participants exactly N-M times.
     
 
     
+    <h4 class="name" id="getAccountTags"><span class="type-signature">(async) </span>getAccountTags<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroAccountTag.html">MoneroAccountTag</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Return all account tags.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="MoneroWallet.html#getAccountTags">MoneroWallet#getAccountTags</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line1450">line 1450</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the wallet's account tags
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroAccountTag.html">MoneroAccountTag</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="getAccounts"><span class="type-signature">(async) </span>getAccounts<span class="signature">(includeSubaddresses, tag)</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroAccount.html">MoneroAccount</a>>}</span></h4>
     
 
@@ -6354,123 +4924,6 @@ This process must be repeated with participants exactly N-M times.
     <dd>
         
 <span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroAccount.html">MoneroAccount</a>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getAccountTags"><span class="type-signature">(async) </span>getAccountTags<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Array.html">Array</a>.&lt;<a href="MoneroAccountTag.html">MoneroAccountTag</a>>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Return all account tags.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="implements">Implements:</dt>
-    <dd class="implements"><ul>
-        
-            <li><a href="MoneroWallet.html#getAccountTags">MoneroWallet#getAccountTags</a></li>
-        
-    </ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line1450">line 1450</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the wallet's account tags
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Array.html">Array</a>.&lt;<a href="MoneroAccountTag.html">MoneroAccountTag</a>></span>
 
 
     </dd>
@@ -21784,6 +20237,1553 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id=".createWallet"><span class="type-signature">(async, static) </span>createWallet<span class="signature">(config)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletFull.html">MoneroWalletFull</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Create a wallet using WebAssembly bindings to wallet2.h.<p>
+
+<p>Example:</p>
+
+<code>
+let wallet = await MoneroWalletFull.createWallet({<br>
+&nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
+&nbsp;&nbsp; password: "supersecretpassword",<br>
+&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
+&nbsp;&nbsp; restoreHeight: 1543218,<br>
+&nbsp;&nbsp; server: new MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
+});
+</code>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type"><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroWalletConfig or equivalent config object
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet to create (optional, in-memory wallet if not given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to create</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">seed of the wallet to create (optional, random wallet created if neither seed nor keys given)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seedOffset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isMultisig</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">restore multisig wallet from seed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>primaryAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">primary address of the wallet to create (only provide if restoring from keys)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateViewKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private view key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>privateSpendKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">private spend key of the wallet to create (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>restoreHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">block height to start scanning from (defaults to 0 unless generating random wallet)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>language</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">language of the wallet's seed phrase (defaults to "English" or auto-detected)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accountLookahead</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of accounts to scan (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subaddressLookahead</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of subaddresses to scan per account (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">uri of the wallet's daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUsername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">username to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverPassword</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rejectUnauthorized</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">reject self-signed server certificates if true (defaults to true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>proxyToWorker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line178">line 178</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the created wallet
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroWalletFull.html">MoneroWalletFull</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getSeedLanguages"><span class="type-signature">(async, static) </span>getSeedLanguages<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line321">line 321</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".openWallet"><span class="type-signature">(async, static) </span>openWallet<span class="signature">(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs)</span><span class="type-signature"> &rarr; {<a href="MoneroWalletFull.html">MoneroWalletFull</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Open an existing wallet using WebAssembly bindings to wallet2.h.</p>
+
+<p>Examples:<p>
+
+<code>
+let wallet1 = await MoneroWalletFull.openWallet(<br>
+&nbsp;&nbsp; "./wallets/wallet1",<br>
+&nbsp;&nbsp; "supersecretpassword",<br>
+&nbsp;&nbsp; MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; "http://localhost:38081" // daemon uri<br>
+);<br><br>
+
+let wallet2 = await MoneroWalletFull.openWallet({<br>
+&nbsp;&nbsp; path: "./wallets/wallet2",<br>
+&nbsp;&nbsp; password: "supersecretpassword",<br>
+&nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
+&nbsp;&nbsp; serverUri: "http://localhost:38081", // daemon configuration<br>
+&nbsp;&nbsp; serverUsername: "superuser",<br>
+&nbsp;&nbsp; serverPassword: "abctesting123"<br>
+});
+</code>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>configOrPath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></span>
+|
+
+<span class="param-type">object</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroWalletConfig or equivalent config object or a path to a wallet to open
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet to open (optional if 'keysData' provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to open</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keysData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Uint8Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">wallet keys data to open (optional if path provided)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cacheData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Uint8Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">wallet cache data to open (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">uri of the wallet's daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUsername</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">username to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>serverPassword</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password to authenticate with the daemon (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rejectUnauthorized</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">reject self-signed server certificates if true (default true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>proxyToWorker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">password of the wallet to open</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>networkType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">network type of the wallet to open</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>daemonUriOrConnection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">daemon URI or MoneroRpcConnection</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>proxyToWorker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">proxies wallet operations to a worker in order to not block the main thread (default true)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Node.js compatible file system to use (defaults to disk or in-memory FS if browser)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line104">line 104</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the opened wallet
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MoneroWalletFull.html">MoneroWalletFull</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".walletExists"><span class="type-signature">(static) </span>walletExists<span class="signature">(path, fs)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Check if a wallet exists at a given path.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the wallet on the file system</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">fs</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Node.js compatible file system to use (optional, defaults to disk if nodejs)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_main_js_wallet_MoneroWalletFull.js.html">src/main/js/wallet/MoneroWalletFull.js</a>, <a href="src_main_js_wallet_MoneroWalletFull.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    true if a wallet exists at the given path, false otherwise
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -21805,7 +21805,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a>
 </footer>
 
 <script> prettyPrint(); </script>

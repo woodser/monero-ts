@@ -38,7 +38,7 @@ update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic lik
 sync end height != daemon height for long syncs
 implement Can submit a mined block to the network
 compare sync performance with multithreading vs singlethreading - build both?
-await MoneroWallet.create({type: "full", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
+await MoneroWallet.create({type: "full", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", seed: "})
 MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method? copy constructor?
 support MoneroWalletRpc(string uri, string username, string password) like java
 build boost and openssl in ./bin/build_dist.sh only if necessary
@@ -67,7 +67,7 @@ port testSyncWithPoolSubmit from java
 monero_wallet_full::set_daemon_connection is_local_address() uses common/util which requires libunbound
 libsodium dependency in monero-cpp, why doesn't monero-project's work?
 test "Can get transactions by id" passes tx query where txs is array of characters
-mymonero monero_wallet_utils.cpp 182 mnemonic sanitation
+mymonero monero_wallet_utils.cpp 182 seed sanitation
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
 support keys-ony wallet integrated address, accounts, subaddresses

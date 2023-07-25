@@ -185,7 +185,7 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
- * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon...",<br>
+ * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
  * &nbsp;&nbsp; restoreHeight: 1543218,<br>
  * &nbsp;&nbsp; server: new monerojs.MoneroRpcConnection("http://localhost:38081", "daemon_user", "daemon_password_123"),<br>
  * });
@@ -195,13 +195,13 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
  * @param {string} config.password - password of the wallet to create
  * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
- * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
- * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+ * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+ * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
  * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
  * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
  * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
  * @param {number} config.restoreHeight - block height to start scanning frsom (defaults to 0 unless generating random wallet)
- * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+ * @param {string} config.language - language of the wallet's seed (defaults to "English" or auto-detected)
  * @param {number} config.accountLookahead -  number of accounts to scan (optional)
  * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
  * @param {string} config.serverUri - uri of the wallet's daemon (optional)
@@ -269,18 +269,18 @@ module.exports.openWalletFull = function() { return module.exports.MoneroWalletF
  * let wallet = await monerojs.createWalletKeys({<br>
  * &nbsp;&nbsp; password: "abc123",<br>
  * &nbsp;&nbsp; networkType: MoneroNetworkType.STAGENET,<br>
- * &nbsp;&nbsp; mnemonic: "coexist igloo pamphlet lagoon..."<br>
+ * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon..."<br>
  * });
  * </code>
  * 
  * @param {MoneroWalletConfig|object} config - MoneroWalletConfig or equivalent config object
  * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
- * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
- * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+ * @param {string} config.seed - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
+ * @param {string} config.seedOffset - the offset used to derive a new seed from the given seed to recover a secret wallet from the seed phrase
  * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
  * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
  * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
- * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+ * @param {string} config.language - language of the wallet's seed phrase (defaults to "English" or auto-detected)
  * @return {MoneroWalletKeys} the created wallet
  */
 module.exports.createWalletKeys = function() { return module.exports.MoneroWalletKeys.createWallet(...arguments); }
