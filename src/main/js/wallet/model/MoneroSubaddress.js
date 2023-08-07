@@ -119,7 +119,7 @@ class MoneroSubaddress {
     str += GenUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
     str += GenUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
     str += GenUtils.kvLine("Is used", this.isUsed(), indent);
-    str += GenUtils.kvLine("Num blocks to unlock", this.isUsed(), indent);
+    str += GenUtils.kvLine("Num blocks to unlock", this.getNumBlocksToUnlock(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }
