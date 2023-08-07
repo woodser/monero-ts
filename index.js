@@ -33,6 +33,7 @@ module.exports.MoneroDaemonListener = require("./src/main/js/daemon/model/Monero
 module.exports.MoneroDaemonSyncInfo = require("./src/main/js/daemon/model/MoneroDaemonSyncInfo");
 module.exports.MoneroDaemonUpdateCheckResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateCheckResult");
 module.exports.MoneroDaemonUpdateDownloadResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateDownloadResult");
+module.exports.MoneroFeeEstimate = require("./src/main/js/daemon/model/MoneroFeeEstimate");
 module.exports.MoneroHardForkInfo = require("./src/main/js/daemon/model/MoneroHardForkInfo");
 module.exports.MoneroKeyImage = require("./src/main/js/daemon/model/MoneroKeyImage");
 module.exports.MoneroKeyImageSpentStatus = require("./src/main/js/daemon/model/MoneroKeyImageSpentStatus");
