@@ -124,11 +124,15 @@ await walletFull.close(true);
 2. `npm install monero-javascript@0.8.0`
 3. Add `require("monero-javascript")` to your application code.
 
-#### If building a browser application
+#### Running in Node.js
+
+Node.js 18 LTS is recommended and requires using the `--no-experimental-fetch` flag. Alternatively, Node.js 16 LTS works.
+
+#### Building a browser application
 1. Bundle your application code for a browser. See [xmr-sample-app](https://github.com/woodser/xmr-sample-app) for an example project using webpack.
 2. Copy assets from ./dist to your web app's build directory.
 
-#### If using RPC servers:
+#### Using RPC servers:
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 2. Start monerod, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
