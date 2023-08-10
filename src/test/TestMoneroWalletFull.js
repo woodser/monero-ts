@@ -861,7 +861,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         let preparedMultisigHexes = []
         for (let wallet of wallets) preparedMultisigHexes.push(await wallet.prepareMultisig());
         
-        // make each wallet multsig and collect results
+        // make each wallet multisig and collect results
         let madeMultisigHexes = [];
         for (let i = 0; i < wallets.length; i++) {
           
