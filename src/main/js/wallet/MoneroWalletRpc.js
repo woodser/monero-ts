@@ -2433,18 +2433,21 @@ class WalletPoller {
   }
   
   async poll() {
+
+    // skip if next poll is queued
+    if (this._numPolling > 1) return;
+    this._numPolling++;
     
     // synchronize polls
     let that = this;
     return this._threadPool.submit(async function() {
       try {
         
-        // skip if next poll is already queued
-        if (that._numPolling > 1) return;
-        that._numPolling++;
-        
         // skip if wallet is closed
-        if (await that._wallet.isClosed()) return;
+        if (await that._wallet.isClosed()) {
+          that._numPolling--;
+          return;
+        }
         
         // take initial snapshot
         if (that._prevHeight === undefined) {
