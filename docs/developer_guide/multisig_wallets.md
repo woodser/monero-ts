@@ -2,7 +2,7 @@
 
 The following is an example of creating multisig wallets.
 
-For a full example of creating and sending funds from multisig wallets, see "Supports multisig sample code" in [TestMoneroWalletCommon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/test/TestMoneroWalletCommon.js).
+For a full example of creating and sending funds from multisig wallets, see "Supports multisig wallets" in [TestMoneroWalletCommon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/test/TestMoneroWalletCommon.js).
 
 ```javascript
 // create multisig wallets which require 3 out of 5 participants to send funds
