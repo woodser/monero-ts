@@ -1091,7 +1091,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-    if (testConfig.testNonRelays)
+      if (testConfig.testNonRelays)
       it("Can be closed", async function() {
         let err;
         let wallet;
@@ -1134,6 +1134,34 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // final cleanup
         await wallet.close();
         assert(await wallet.isClosed());
+        if (err) throw err;
+      });
+
+      if (false)
+      it("Does not leak memory", async function() {
+        let err;
+        try {
+          console.log("Infinite loop starting, monitor memory in OS process manager...");
+          let i = 0;
+          let closeWallet = false;
+          if (closeWallet) await that.wallet.close(true);
+          while (true) {
+            if (closeWallet) that.wallet = await TestUtils.getWalletFull();
+            await that.wallet.sync();
+            await that.wallet.getTxs();
+            await that.wallet.getTransfers();
+            await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false));
+            if (i % 1000) {
+              console.log("Iteration: " + i);
+            }
+            if (closeWallet) await that.wallet.close(true);
+          }
+        } catch (e) {
+          console.log(e);
+          err = e;
+        }
+        
+        // final cleanup
         if (err) throw err;
       });
     });
