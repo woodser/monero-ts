@@ -410,7 +410,8 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
         catch (e) { }
         
         // save and close participants
-        await TestUtils.stopWalletRpcProcess(participants[0]);
+        if (participants[0] instanceof monerojs.MoneroWalletRpc) await TestUtils.stopWalletRpcProcess(participants[0]);
+        else participants[0].close(true); // multisig tests might restore wallet from seed
         await TestUtils.stopWalletRpcProcess(participants[1]);
         await that.closeWallet(participants[2], true);
         if (err) throw err;
