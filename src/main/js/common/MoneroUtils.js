@@ -19,7 +19,7 @@ class MoneroUtils {
    * @return {string} the version of this monero-javascript library
    */
   static getVersion() {
-    return "0.8.0";
+    return "0.8.1";
   }
   
   /**
