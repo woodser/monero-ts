@@ -4754,12 +4754,13 @@ class TestMoneroWalletCommon {
     assert(seed.length > 0);
 
     // restore participant from multisig seed
-    // TODO: fix restoring from seed: https://github.com/monero-project/monero/pull/8942
-    // participant = await this.createWallet(new MoneroWalletConfig().setSeed(seed).setIsMultisig(true));
-    // await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
-    // assert.equal(await participant.getPrimaryAddress(), address);
-    // this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
-    // assert.equal(await participant.getSeed(), seed);
+    await this.closeWallet(participant);
+    participant = await this.createWallet(new MoneroWalletConfig().setSeed(seed).setIsMultisig(true));
+    await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+    assert.equal(await participant.getPrimaryAddress(), address);
+    this._testMultisigInfo(await participant.getMultisigInfo(), M, N);
+    assert.equal(await participant.getSeed(), seed);
+    participants[0] = participant;
     
     // test sending a multisig transaction if configured
     if (testTx) {
