@@ -75,11 +75,9 @@ class TestUtils {
     assert.equal(await TestUtils.walletRpc.getSeed(), TestUtils.SEED);
     assert.equal(await TestUtils.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
     
-    // sync and save the wallet
+    // sync and save wallet
     await TestUtils.walletRpc.sync();
     await TestUtils.walletRpc.save();
-    
-    // start background synchronizing with sync rate
     await TestUtils.walletRpc.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
     
     // return cached wallet rpc
@@ -174,18 +172,18 @@ class TestUtils {
         // create wallet with connection
         TestUtils.walletFull = await monerojs.createWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, seed: TestUtils.SEED, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
         assert.equal(await TestUtils.walletFull.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        await TestUtils.walletFull.sync(new WalletSyncPrinter());
-        await TestUtils.walletFull.save();
-        await TestUtils.walletFull.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       }
       
       // otherwise open existing wallet
       else {
         TestUtils.walletFull = await monerojs.openWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: TestUtils.getDefaultFs()});
-        await TestUtils.walletFull.sync(new WalletSyncPrinter());
-        await TestUtils.walletFull.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
       }
     }
+
+    // sync and save wallet
+    await TestUtils.walletFull.sync(new WalletSyncPrinter());
+    await TestUtils.walletFull.save();
+    await TestUtils.walletFull.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
     
     // ensure we're testing the right wallet
     assert.equal(await TestUtils.walletFull.getSeed(), TestUtils.SEED);
