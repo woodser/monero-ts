@@ -87,7 +87,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         if (!config.getServer()) config.setServer(await this.daemon.getRpcConnection());
 
         // create client connected to internal monero-wallet-rpc executable
-        let offline = TestUtils.OFFLINE_SERVER_URI === config.getServerUri();
+        let offline = config.getServerUri() === GenUtils.normalizeUri(TestUtils.OFFLINE_SERVER_URI);
         let wallet = await TestUtils.startWalletRpcProcess(offline);
 
         // create wallet

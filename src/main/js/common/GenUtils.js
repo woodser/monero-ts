@@ -1510,6 +1510,19 @@ class GenUtils {
       }
     });
   }
+
+  /**
+   * Normalize a URI.
+   * 
+   * @param {string} uri - the URI to normalize
+   * @return {string} the normalized URI
+   */
+  static normalizeUri(uri) {
+    if (!uri) throw Error("Must provide URI to normalize");
+    uri = uri.replace(/\/$/, ""); // strip trailing slash
+    if (!new RegExp("^\\w+://.+").test(uri)) uri= "http://" + uri; // assume http if protocol not given
+    return uri;
+  }
 }
 
 module.exports = GenUtils;
