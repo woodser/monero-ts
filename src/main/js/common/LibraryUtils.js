@@ -30,7 +30,7 @@ class LibraryUtils {
     assert(level === parseInt(level, 10) && level >= 0, "Log level must be an integer >= 0");
     LibraryUtils.LOG_LEVEL = level;
     if (LibraryUtils.WASM_MODULE) LibraryUtils.WASM_MODULE.set_log_level(level);
-    if (LibraryUtils.WORKER) await LibraryUtils.invokeWorker(GenUtils.getUUID(), "setLogLevel", [level]);
+    if (LibraryUtils.WORKER) await LibraryUtils.invokeWorker(undefined, "setLogLevel", [level]);
   }
   
   /**
@@ -49,7 +49,7 @@ class LibraryUtils {
    */
   static async getWasmMemoryUsed() {
     let total = 0;
-    if (LibraryUtils.WORKER) total += await LibraryUtils.invokeWorker(GenUtils.getUUID(), "getWasmMemoryUsed", []);
+    if (LibraryUtils.WORKER) total += await LibraryUtils.invokeWorker(undefined, "getWasmMemoryUsed", []);
     if (LibraryUtils.getWasmModule() && LibraryUtils.getWasmModule().HEAP8) total += LibraryUtils.getWasmModule().HEAP8.length;
     return total;
   }
@@ -198,20 +198,23 @@ class LibraryUtils {
   /**
    * Invoke a worker function and get the result with error handling.
    * 
-   * @param {objectId} identifies the worker object to invoke
+   * @param {string} objectId identifies the worker object to invoke (default random id)
    * @param {string} fnName is the name of the function to invoke
-   * @param {Object[]} args are function arguments to invoke with
+   * @param {any[]} args are function arguments to invoke with
    * @return {any} resolves with response payload from the worker or an error
    */
   static async invokeWorker(objectId, fnName, args) {
     assert(fnName.length >= 2);
     let worker = await LibraryUtils.getWorker();
+    let randomObject = objectId === undefined;
+    if (randomObject) objectId = GenUtils.getUUID();
     if (!LibraryUtils.WORKER_OBJECTS[objectId]) LibraryUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
     return await new Promise(function(resolve, reject) {
       let callbackId = GenUtils.getUUID();
       LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId] = function(resp) {  // TODO: this defines function once per callback
         resp ? (resp.error ? reject(LibraryUtils.deserializeError(resp.error)) : resolve(resp.result)) : resolve();
         delete LibraryUtils.WORKER_OBJECTS[objectId].callbacks[callbackId];
+        if (randomObject) delete LibraryUtils.WORKER_OBJECTS[objectId];
       };
       worker.postMessage([objectId, fnName, callbackId].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
