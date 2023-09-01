@@ -2043,10 +2043,10 @@ class MoneroWalletRpc extends MoneroWallet {
           if (txs[txIdx].getOutgoingTransfer() === undefined) txs[txIdx].setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(txs[txIdx]));
           txs[txIdx].getOutgoingTransfer().setDestinations([]);
           for (let amount of amountsByDest) {
-            txs[txIdx].getOutgoingTransfer().getDestinations().push(new MoneroDestination(config.getDestinations()[destinationIdx++].getAddress(), new BigInteger(amount)));
+            if (config.getDestinations().length === 1) txs[txIdx].getOutgoingTransfer().getDestinations().push(new MoneroDestination(config.getDestinations()[0].getAddress(), new BigInteger(amount))); // sweeping can create multiple txs with one address
+            else txs[txIdx].getOutgoingTransfer().getDestinations().push(new MoneroDestination(config.getDestinations()[destinationIdx++].getAddress(), new BigInteger(amount)));
           }
         }
-        assert(config.getDestinations().length, destinationIdx);
       }
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
