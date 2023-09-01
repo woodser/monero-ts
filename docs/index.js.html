@@ -61,6 +61,7 @@ module.exports.MoneroDaemonListener = require("./src/main/js/daemon/model/Monero
 module.exports.MoneroDaemonSyncInfo = require("./src/main/js/daemon/model/MoneroDaemonSyncInfo");
 module.exports.MoneroDaemonUpdateCheckResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateCheckResult");
 module.exports.MoneroDaemonUpdateDownloadResult = require("./src/main/js/daemon/model/MoneroDaemonUpdateDownloadResult");
+module.exports.MoneroFeeEstimate = require("./src/main/js/daemon/model/MoneroFeeEstimate");
 module.exports.MoneroHardForkInfo = require("./src/main/js/daemon/model/MoneroHardForkInfo");
 module.exports.MoneroKeyImage = require("./src/main/js/daemon/model/MoneroKeyImage");
 module.exports.MoneroKeyImageSpentStatus = require("./src/main/js/daemon/model/MoneroKeyImageSpentStatus");
@@ -232,11 +233,11 @@ module.exports.connectToWalletRpc = function() { return module.exports.MoneroWal
  * @param {string} config.language - language of the wallet's seed (defaults to "English" or auto-detected)
  * @param {number} config.accountLookahead -  number of accounts to scan (optional)
  * @param {number} config.subaddressLookahead - number of subaddresses to scan per account (optional)
+ * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
  * @param {string} config.serverUri - uri of the wallet's daemon (optional)
  * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
  * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
  * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
- * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
  * @param {boolean} config.proxyToWorker - proxies wallet operations to a web worker in order to not block the main thread (default true)
  * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
  * @return {MoneroWalletFull} the created wallet
@@ -272,11 +273,11 @@ module.exports.createWalletFull = function() { return module.exports.MoneroWalle
  * @param {string|number} configOrPath.networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
  * @param {Uint8Array} configOrPath.keysData - wallet keys data to open (optional if path provided)
  * @param {Uint8Array} configOrPath.cacheData - wallet cache data to open (optional)
+ * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
  * @param {string} configOrPath.serverUri - uri of the wallet's daemon (optional)
  * @param {string} configOrPath.serverUsername - username to authenticate with the daemon (optional)
  * @param {string} configOrPath.serverPassword - password to authenticate with the daemon (optional)
  * @param {boolean} configOrPath.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
- * @param {MoneroRpcConnection|object} configOrPath.server - MoneroRpcConnection or equivalent JS object configuring the daemon connection (optional)
  * @param {boolean} configOrPath.proxyToWorker - proxies wallet operations to a web worker in order to not block the main thread (default true)
  * @param {fs} configOrPath.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
  * @param {string} password - password of the wallet to open
