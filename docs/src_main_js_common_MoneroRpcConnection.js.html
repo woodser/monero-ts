@@ -86,10 +86,7 @@ class MoneroRpcConnection {
     this._config = Object.assign({}, MoneroRpcConnection.DEFAULT_CONFIG, this._config);
     
     // normalize uri
-    if (this._config.uri) {
-      this._config.uri = this._config.uri.replace(/\/$/, ""); // strip trailing slash
-      if (!new RegExp("^\\w+://.+").test(this._config.uri)) this._config.uri = "http://" + this._config.uri; // assume http if protocol not given
-    }
+    if (this._config.uri) this._config.uri = GenUtils.normalizeUri(this._config.uri);
     
     // fail with friendly message if using old api
     if (this._config.user || this._config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
@@ -395,6 +392,10 @@ class MoneroRpcConnection {
       if (err instanceof MoneroRpcError) throw err;
       else throw new MoneroRpcError(err, err.statusCode, path, params);
     }
+  }
+
+  toJson() {
+    return this._config;
   }
   
   toString() {

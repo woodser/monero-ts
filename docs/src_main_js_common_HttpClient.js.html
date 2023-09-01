@@ -66,7 +66,7 @@ class HttpClient {
     // proxy to worker if configured
     if (request.proxyToWorker) {
       try {
-        return await LibraryUtils.invokeWorker(GenUtils.getUUID(), "httpRequest", request);
+        return await LibraryUtils.invokeWorker(undefined, "httpRequest", request);
       } catch (err) {
         if (err.message.length > 0 &amp;&amp; err.message.charAt(0) === "{") {
           let parsed = JSON.parse(err.message);
