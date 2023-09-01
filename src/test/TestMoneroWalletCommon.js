@@ -422,14 +422,9 @@ class TestMoneroWalletCommon {
         try {
           
           // create random wallet with default daemon connection
-          wallet = await that.createWallet({serverUri: ""});
-          if (wallet instanceof MoneroWalletRpc) {
-            assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG));
-            assert.equal(await wallet.isConnectedToDaemon(), true);
-          } else {
-            assert.equal(await wallet.getDaemonConnection(), undefined);
-            assert(!await wallet.isConnectedToDaemon());
-          }
+          wallet = await that.createWallet();
+          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG));
+          assert.equal(await wallet.isConnectedToDaemon(), true);
           
           // set empty server uri
           await wallet.setDaemonConnection("");
@@ -3610,7 +3605,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let feeSum = new BigInteger(0);
         let outgoingSum = new BigInteger(0);
-        that._testTxsWallet(txs, ctx);
+        await that._testTxsWallet(txs, ctx);
         for (let tx of txs) {
           feeSum = feeSum.add(tx.getFee());
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
