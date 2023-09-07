@@ -1,6 +1,7 @@
 const assert = require("assert");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const BigInteger = require("../common/biginteger").BigInteger;
+const MoneroConnectionManagerListener = require("../common/MoneroConnectionManagerListener")
 const MoneroError = require("../common/MoneroError");
 const MoneroOutputQuery = require("./model/MoneroOutputQuery");
 const MoneroTransferQuery = require("./model/MoneroTransferQuery");
@@ -92,6 +93,34 @@ class MoneroWallet {
    */
   async getDaemonConnection() {
     throw new MoneroError("Not supported");
+  }
+
+  /**
+   * Set the wallet's daemon connection manager.
+   * 
+   * @param {MoneroConnectionManager} connectionManager manages connections to monerod
+   */
+  async setConnectionManager(connectionManager) {
+    if (this._connectionManager) this._connectionManager.removeListener(this._connectionManagerListener);
+    this._connectionManager = connectionManager;
+    if (!connectionManager) return;
+    let that = this;
+    if (!this._connectionManagerListener) this._connectionManagerListener = new class extends MoneroConnectionManagerListener {
+      async onConnectionChanged(connection) {
+        await that.setDaemonConnection(connection);
+      }
+    };
+    connectionManager.addListener(this._connectionManagerListener);
+    await this.setDaemonConnection(connectionManager.getConnection());
+  }
+
+  /**
+   * Get the wallet's daemon connection manager.
+   * 
+   * @return {MoneroConnectionManager} the wallet's daemon connection manager
+   */
+  getConnectionManager() {
+    return this._connectionManager;
   }
   
   /**
@@ -1276,7 +1305,9 @@ class MoneroWallet {
    * @param {boolean} save - specifies if the wallet should be saved before being closed (default false)
    */
   async close(save) {
-    throw new MoneroError("Not supported");
+    if (this._connectionManager) this._connectionManager.removeListener(this._connectionManagerListener);
+    this._connectionManager = undefined;
+    this._connectionManagerListener = undefined;
   }
   
   /**

@@ -97,7 +97,7 @@ class TestMoneroWalletFull extends TestMoneroWalletCommon {
     if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
-    if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
+    if (!config.getServer() && !config.getConnectionManager()) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     if (config.getFs() === undefined) config.setFs(TestUtils.getDefaultFs());
     

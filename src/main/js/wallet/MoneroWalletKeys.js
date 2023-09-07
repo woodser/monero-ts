@@ -301,11 +301,12 @@ class MoneroWalletKeys extends MoneroWallet {
   // decodeIntegratedAddress
   
   async close(save) {
+    await super.close(save);
     if (this._isClosed) return; // closing a closed wallet has no effect
     
     // save wallet if requested
     if (save) await this.save();
-    
+
     // queue task to use wasm module
     let that = this;
     return that._module.queueTask(async function() {

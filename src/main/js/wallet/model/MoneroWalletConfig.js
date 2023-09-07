@@ -29,6 +29,7 @@ class MoneroWalletConfig {
    * @param {string} config.serverUri - uri of the wallet's server (optional)
    * @param {string} config.serverUsername - username of the wallet's server (optional)
    * @param {string} config.serverPassword - password of the wallet's server (optional)
+   * @param {MoneroConnectionManager} config.connectionManager - manage connections to monerod (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (default true)
    * @param {Uint8Array} config.keysData - wallet keys data to open (optional)
    * @param {Uint8Array} config.cacheData - wallet cache data to open (optional)
@@ -42,7 +43,7 @@ class MoneroWalletConfig {
     
     // initialize internal config
     if (!config) config = {};
-    else if (config instanceof MoneroWalletConfig) config = config.toJson();
+    else if (config instanceof MoneroWalletConfig) config = Object.assign({}, config.config);
     else if (typeof config === "object") config = Object.assign({}, config);
     else throw new MoneroError("config must be a MoneroWalletConfig or JavaScript object");
     this.config = config;
@@ -66,13 +67,14 @@ class MoneroWalletConfig {
   }
 
   copy() {
-    return new MoneroWalletConfig(this.toJson());
+    return new MoneroWalletConfig(this);
   }
   
   toJson() {
     let json = Object.assign({}, this.config);
     if (json.server) json.server = json.server.toJson();
-    json.fs = undefined; // remove filesystem
+    json.fs = undefined;
+    json.connectionManager = undefined;
     return json;
   }
   
@@ -120,8 +122,11 @@ class MoneroWalletConfig {
   }
   
   setServerUri(serverUri) {
-    if (!this.config.server) this.setServer(new MoneroRpcConnection(serverUri));
-    else this.config.server.setUri(serverUri);
+    if (!serverUri) this.setServer(undefined);
+    else  {
+      if (!this.config.server) this.setServer(new MoneroRpcConnection(serverUri));
+      else this.config.server.setUri(serverUri);
+    }
     return this;
   }
   
@@ -142,6 +147,15 @@ class MoneroWalletConfig {
   setServerPassword(serverPassword) {
     this.config.serverPassword = serverPassword;
     if (this.config.serverUsername && this.config.serverPassword) this.config.server.setCredentials(this.config.serverUsername, this.config.serverPassword);
+    return this;
+  }
+
+  getConnectionManager() {
+    return this.config.connectionManager;
+  }
+  
+  setConnectionManager(connectionManager) {
+    this.config.connectionManager = connectionManager;
     return this;
   }
   
@@ -291,6 +305,6 @@ class MoneroWalletConfig {
   }
 }
 
-MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "server", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "seed", "seedOffset", "isMultisig", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
+MoneroWalletConfig.SUPPORTED_FIELDS = ["path", "password", "networkType", "server", "serverUri", "serverUsername", "serverPassword", "connectionManager", "rejectUnauthorized", "seed", "seedOffset", "isMultisig", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData", "accountLookahead", "subaddressLookahead"];
 
 module.exports = MoneroWalletConfig;
