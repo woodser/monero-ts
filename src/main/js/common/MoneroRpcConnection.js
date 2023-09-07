@@ -148,10 +148,11 @@ class MoneroRpcConnection {
   /**
    * Check the connection status to update isOnline, isAuthenticated, and response time.
    * 
-   * @param {int} timeoutInMs - maximum response time before considered offline
+   * @param {int} timeoutMs - maximum response time before considered offline
    * @return {Promise<boolean>} true if there is a change in status, false otherwise
    */
-  async checkConnection(timeoutInMs) {
+  async checkConnection(timeoutMs) {
+    await LibraryUtils.loadKeysModule(); // cache wasm for binary request
     let isOnlineBefore = this._isOnline;
     let isAuthenticatedBefore = this._isAuthenticated;
     let startTime = Date.now();
