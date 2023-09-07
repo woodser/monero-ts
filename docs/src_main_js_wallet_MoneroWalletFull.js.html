@@ -198,6 +198,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
    * @param {string} config.serverUri - uri of the wallet's daemon (optional)
    * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
+   * @param {MoneroConnectionManager} config.connectionManager - manage connections to monerod (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {boolean} config.proxyToWorker - proxies wallet operations to a worker in order to not block the main thread (default true)
    * @param {fs} config.fs - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
@@ -217,19 +218,28 @@ class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getPath() === undefined) config.setPath("");
     if (config.getPath() &amp;&amp; MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
     if (config.getPassword() === undefined) config.setPassword("");
+
+    // set server from connection manager if provided
+    if (config.getConnectionManager()) {
+      if (config.getServer()) throw new MoneroError("Wallet can be initialized with a server or connection manager but not both");
+      config.setServer(config.getConnectionManager().getConnection());
+    }
     
     // create wallet
+    let wallet;
     if (config.getSeed() !== undefined) {
       if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from seed");
-      return MoneroWalletFull._createWalletFromSeed(config);
+      wallet = await MoneroWalletFull._createWalletFromSeed(config);
     } else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return MoneroWalletFull._createWalletFromKeys(config);
+      wallet = await MoneroWalletFull._createWalletFromKeys(config);
     } else {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
-      return MoneroWalletFull._createWalletRandom(config);
+      wallet = await MoneroWalletFull._createWalletRandom(config);
     }
+    await wallet.setConnectionManager(config.getConnectionManager());
+    return wallet;
   }
   
   static async _createWalletFromSeed(config) {
