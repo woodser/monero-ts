@@ -1,0 +1,14 @@
+{
+  "include": ["src/**/*", "index.js"],
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "target": "es6",
+    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "outDir": "types",
+    "skipLibCheck": true,
+    "types": []
+  },
+  "exclude": ["src/test/**", "node_modules", "dist/*", "types", "biginteger.js"]
+}

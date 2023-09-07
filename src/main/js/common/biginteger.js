@@ -1632,5 +1632,5 @@ BigInteger.MAX_EXP = MAX_EXP;
 	})();
 })();
 
-exports.BigInteger = BigInteger;
+this.exports.BigInteger = BigInteger;
 })(typeof exports !== 'undefined' ? exports : this);
