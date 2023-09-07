@@ -4,6 +4,7 @@ const TestUtils = require("./utils/TestUtils");
 const monerojs = require("../../index");
 const Filter = monerojs.Filter; // TODO: don't export filter
 const LibraryUtils = monerojs.LibraryUtils;
+const MoneroConnectionManager = monerojs.MoneroConnectionManager;
 const MoneroError = monerojs.MoneroError;
 const MoneroTxPriority = monerojs.MoneroTxPriority;
 const MoneroWalletRpc = monerojs.MoneroWalletRpc;
@@ -384,7 +385,6 @@ class TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      
       if (testConfig.testNonRelays)
       it("Can get the wallet's version", async function() {
         let version = await that.wallet.getVersion();
@@ -476,7 +476,65 @@ class TestMoneroWalletCommon {
         }
         
         // close wallet and throw if error occurred
-        await that.closeWallet(wallet);
+        if (wallet) await that.closeWallet(wallet);
+        if (err) throw err;
+      });
+
+      if (testConfig.testNonRelays)
+      it("Can use a connection manager", async function() {
+        let err;
+        let wallet;
+        try {
+
+          // create connection manager with monerod connections
+          let connectionManager = new MoneroConnectionManager();
+          let connection1 = new MoneroRpcConnection(await that.daemon.getRpcConnection()).setPriority(1);
+          let connection2 = new MoneroRpcConnection("localhost:48081").setPriority(2);
+          await connectionManager.setConnection(connection1);
+          await connectionManager.addConnection(connection2);
+
+          // create wallet with connection manager
+          wallet = await that.createWallet(new MoneroWalletConfig().setServerUri("").setConnectionManager(connectionManager));
+          assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri());
+          assert(await wallet.isConnectedToDaemon());
+
+          // set manager's connection
+          await connectionManager.setConnection(connection2);
+          await GenUtils.waitFor(TestUtils.AUTO_CONNECT_TIMEOUT_MS);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), connection2.getUri());
+
+          // disconnect
+          await connectionManager.setConnection();
+          assert.equal(await wallet.getDaemonConnection(), undefined);
+          assert(!await wallet.isConnectedToDaemon());
+
+          // start polling connections
+          connectionManager.startPolling(TestUtils.SYNC_PERIOD_IN_MS);
+
+          // test that wallet auto connects
+          await GenUtils.waitFor(TestUtils.AUTO_CONNECT_TIMEOUT_MS);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), connection1.getUri());
+          assert(await wallet.isConnectedToDaemon());
+
+          // set to another connection manager
+          let connectionManager2 = new MoneroConnectionManager();
+          await connectionManager2.setConnection(connection2);
+          await wallet.setConnectionManager(connectionManager2);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), connection2.getUri());
+
+          // unset connection manager
+          await wallet.setConnectionManager();
+          assert.equal(await wallet.getConnectionManager(), undefined);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), connection2.getUri());
+
+          // stop polling and close
+          connectionManager.stopPolling();
+        } catch (e) {
+          err = e;
+        }
+        
+        // close wallet and throw if error occurred
+        if (wallet) await that.closeWallet(wallet);
         if (err) throw err;
       });
       

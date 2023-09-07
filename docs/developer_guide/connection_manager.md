@@ -21,6 +21,16 @@ connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); 
 // set current connection
 connectionManager.setConnection(new MoneroRpcConnection("http://foo.bar", "admin", "password")); // connection is added if new
 
+// create wallet with managed connections or set later
+let walletFull = await monerojs.createWalletFull({
+  path: "sample_wallet_full",
+  password: "supersecretpassword123",
+  networkType: "stagenet",
+  connectionManager: connectionManager,
+  seed: "hefty value scenic...",
+  restoreHeight: 573936,
+});
+
 // check connection status
 await connectionManager.checkConnection();
 console.log("Connection manager is connected: " + connectionManager.isConnected());
@@ -34,11 +44,8 @@ connectionManager.addListener(new class extends MoneroConnectionManagerListener 
   }
 });
 
-// check connection status every 10 seconds
-await connectionManager.startCheckingConnection(10000);
-
-// automatically switch to best available connection if disconnected
-connectionManager.setAutoSwitch(true);
+// check connections every 10 seconds (in order of priority) and switch to the best
+await connectionManager.startPolling(10000);
 
 // get best available connection in order of priority then response time
 let bestConnection = await connectionManager.getBestAvailableConnection();

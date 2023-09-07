@@ -315,6 +315,7 @@ TestUtils.WALLET_TX_TRACKER = new WalletTxTracker(); // used to track wallet txs
 TestUtils.PROXY_TO_WORKER = true;
 TestUtils.SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
 TestUtils.OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
+TestUtils.AUTO_CONNECT_TIMEOUT_MS = 1000;
 
 // monero-wallet-rpc process management
 TestUtils.WALLET_RPC_PORT_START = 28084;

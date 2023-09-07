@@ -293,9 +293,11 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
    * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
    * @param {string} config.language - language of the wallet's mnemonic phrase or seed (defaults to "English" or auto-detected)
+   * @param {MoneroRpcConnection} config.server - MoneroRpcConnection to a monero daemon (optional)<br>
    * @param {string} config.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
    * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
+   * @param {MoneroConnectionManager} config.connectionManager - manage connections to monerod (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
    * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {boolean} config.saveCurrent - specifies if the current RPC wallet should be saved before being closed (default true)
@@ -307,7 +309,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = new MoneroWalletConfig(config);
     if (config.getSeed() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
-      throw new MoneroError("Wallet may be initialized with a seed or keys but not both");
+      throw new MoneroError("Wallet can be initialized with a seed or keys but not both");
     }
     if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
     if (config.getAccountLookahead() !== undefined || config.getSubaddressLookahead() !== undefined) throw new MoneroError("monero-wallet-rpc does not support creating wallets with subaddress lookahead over rpc");
@@ -317,9 +319,15 @@ class MoneroWalletRpc extends MoneroWallet {
     if (config.getSeed() !== undefined) await this._createWalletFromSeed(config);
     else if (config.getPrivateSpendKey() !== undefined || config.getPrimaryAddress() !== undefined) await this._createWalletFromKeys(config);
     else await this._createWalletRandom(config);
+
+    // set daemon or connection manager
+    if (config.getConnectionManager()) {
+      if (config.getServer()) throw new MoneroError("Wallet can be initialized with a server or connection manager but not both");
+      await this.setConnectionManager(config.getConnectionManager());
+    } else if (config.getServer()) {
+      await this.setDaemonConnection(config.getServer());
+    }
     
-    // set daemon if provided
-    if (config.getServer()) return this.setDaemonConnection(config.getServer());
     return this;
   }
   
@@ -427,6 +435,7 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   async setDaemonConnection(uriOrRpcConnection, isTrusted, sslOptions) {
     let connection = !uriOrRpcConnection ? undefined : uriOrRpcConnection instanceof MoneroRpcConnection ? uriOrRpcConnection : new MoneroRpcConnection(uriOrRpcConnection);
+    if (connection) connection.setProxyToWorker(false);
     if (!sslOptions) sslOptions = new SslOptions();
     let params = {};
     params.address = connection ? connection.getUri() : "bad_uri"; // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
@@ -1506,6 +1515,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async close(save) {
+    await super.close(save);
     if (save === undefined) save = false;
     await this._clear();
     await this.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
