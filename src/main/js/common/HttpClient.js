@@ -170,7 +170,7 @@ class HttpClient {
   static _getHttpAgent() {
     if (!HttpClient.HTTP_AGENT) {
       let http = require('http');
-      HttpClient.HTTP_AGENT = new http.Agent({keepAlive: true});
+      HttpClient.HTTP_AGENT = new http.Agent({keepAlive: true, family: 4}); // use IPv4
     }
     return HttpClient.HTTP_AGENT;
   }
@@ -183,7 +183,7 @@ class HttpClient {
   static _getHttpsAgent() {
     if (!HttpClient.HTTPS_AGENT) {
       let https = require('https');
-      HttpClient.HTTPS_AGENT = new https.Agent({keepAlive: true});
+      HttpClient.HTTPS_AGENT = new https.Agent({keepAlive: true, family: 4}); // use IPv4
     }
     return HttpClient.HTTPS_AGENT;
   }
