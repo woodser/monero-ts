@@ -1,0 +1,21 @@
+"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /**
+ * Base class for results from checking a transaction or reserve proof.
+ */
+class MoneroCheck {
+
+
+
+  constructor(check) {
+    Object.assign(this, check);
+  }
+
+  getIsGood() {
+    return this.isGood;
+  }
+
+  setIsGood(isGood) {
+    this.isGood = isGood;
+    return this;
+  }
+}exports.default = MoneroCheck;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJNb25lcm9DaGVjayIsImNvbnN0cnVjdG9yIiwiY2hlY2siLCJPYmplY3QiLCJhc3NpZ24iLCJnZXRJc0dvb2QiLCJpc0dvb2QiLCJzZXRJc0dvb2QiLCJleHBvcnRzIiwiZGVmYXVsdCJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uL3NyYy9tYWluL3RzL3dhbGxldC9tb2RlbC9Nb25lcm9DaGVjay50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEJhc2UgY2xhc3MgZm9yIHJlc3VsdHMgZnJvbSBjaGVja2luZyBhIHRyYW5zYWN0aW9uIG9yIHJlc2VydmUgcHJvb2YuXG4gKi9cbmV4cG9ydCBkZWZhdWx0IGNsYXNzIE1vbmVyb0NoZWNrIHtcblxuICBpc0dvb2Q/OiBib29sZWFuO1xuICBcbiAgY29uc3RydWN0b3IoY2hlY2s/OiBQYXJ0aWFsPE1vbmVyb0NoZWNrPikge1xuICAgIE9iamVjdC5hc3NpZ24odGhpcywgY2hlY2spO1xuICB9XG5cbiAgZ2V0SXNHb29kKCk6IGJvb2xlYW4ge1xuICAgIHJldHVybiB0aGlzLmlzR29vZDtcbiAgfVxuXG4gIHNldElzR29vZChpc0dvb2Q6IGJvb2xlYW4pOiBNb25lcm9DaGVjayB7XG4gICAgdGhpcy5pc0dvb2QgPSBpc0dvb2Q7XG4gICAgcmV0dXJuIHRoaXM7XG4gIH1cbn1cbiJdLCJtYXBwaW5ncyI6InFHQUFBO0FBQ0E7QUFDQTtBQUNlLE1BQU1BLFdBQVcsQ0FBQzs7OztFQUkvQkMsV0FBV0EsQ0FBQ0MsS0FBNEIsRUFBRTtJQUN4Q0MsTUFBTSxDQUFDQyxNQUFNLENBQUMsSUFBSSxFQUFFRixLQUFLLENBQUM7RUFDNUI7O0VBRUFHLFNBQVNBLENBQUEsRUFBWTtJQUNuQixPQUFPLElBQUksQ0FBQ0MsTUFBTTtFQUNwQjs7RUFFQUMsU0FBU0EsQ0FBQ0QsTUFBZSxFQUFlO0lBQ3RDLElBQUksQ0FBQ0EsTUFBTSxHQUFHQSxNQUFNO0lBQ3BCLE9BQU8sSUFBSTtFQUNiO0FBQ0YsQ0FBQ0UsT0FBQSxDQUFBQyxPQUFBLEdBQUFULFdBQUEifQ==

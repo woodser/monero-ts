@@ -1,0 +1,28 @@
+"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
+
+/**
+ * Receives notifications as a daemon is updated.
+ */
+class MoneroDaemonListener {
+
+
+
+  /**
+   * Called when a new block is added to the chain.
+   * 
+   * @param {MoneroBlockHeader} header - the header of the block added to the chain
+   */
+  async onBlockHeader(header) {
+    this.lastHeader = header;
+  }
+
+  /**
+   * Get the last notified block header.
+   * 
+   * @return {MoneroBlockHeader} the last notified block header
+   */
+  getLastBlockHeader() {
+    return this.lastHeader;
+  }
+}exports.default = MoneroDaemonListener;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJNb25lcm9EYWVtb25MaXN0ZW5lciIsIm9uQmxvY2tIZWFkZXIiLCJoZWFkZXIiLCJsYXN0SGVhZGVyIiwiZ2V0TGFzdEJsb2NrSGVhZGVyIiwiZXhwb3J0cyIsImRlZmF1bHQiXSwic291cmNlcyI6WyIuLi8uLi8uLi8uLi8uLi8uLi9zcmMvbWFpbi90cy9kYWVtb24vbW9kZWwvTW9uZXJvRGFlbW9uTGlzdGVuZXIudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IE1vbmVyb0Jsb2NrSGVhZGVyIGZyb20gXCIuL01vbmVyb0Jsb2NrSGVhZGVyXCI7XG5cbi8qKlxuICogUmVjZWl2ZXMgbm90aWZpY2F0aW9ucyBhcyBhIGRhZW1vbiBpcyB1cGRhdGVkLlxuICovXG5leHBvcnQgZGVmYXVsdCBjbGFzcyBNb25lcm9EYWVtb25MaXN0ZW5lciB7XG5cbiAgcHJvdGVjdGVkIGxhc3RIZWFkZXI6IE1vbmVyb0Jsb2NrSGVhZGVyO1xuICBcbiAgLyoqXG4gICAqIENhbGxlZCB3aGVuIGEgbmV3IGJsb2NrIGlzIGFkZGVkIHRvIHRoZSBjaGFpbi5cbiAgICogXG4gICAqIEBwYXJhbSB7TW9uZXJvQmxvY2tIZWFkZXJ9IGhlYWRlciAtIHRoZSBoZWFkZXIgb2YgdGhlIGJsb2NrIGFkZGVkIHRvIHRoZSBjaGFpblxuICAgKi9cbiAgYXN5bmMgb25CbG9ja0hlYWRlcihoZWFkZXI6IE1vbmVyb0Jsb2NrSGVhZGVyKSB7XG4gICAgdGhpcy5sYXN0SGVhZGVyID0gaGVhZGVyO1xuICB9XG4gIFxuICAvKipcbiAgICogR2V0IHRoZSBsYXN0IG5vdGlmaWVkIGJsb2NrIGhlYWRlci5cbiAgICogXG4gICAqIEByZXR1cm4ge01vbmVyb0Jsb2NrSGVhZGVyfSB0aGUgbGFzdCBub3RpZmllZCBibG9jayBoZWFkZXJcbiAgICovXG4gIGdldExhc3RCbG9ja0hlYWRlcigpOiBNb25lcm9CbG9ja0hlYWRlciB7XG4gICAgcmV0dXJuIHRoaXMubGFzdEhlYWRlcjtcbiAgfVxufVxuIl0sIm1hcHBpbmdzIjoiOztBQUVBO0FBQ0E7QUFDQTtBQUNlLE1BQU1BLG9CQUFvQixDQUFDOzs7O0VBSXhDO0FBQ0Y7QUFDQTtBQUNBO0FBQ0E7RUFDRSxNQUFNQyxhQUFhQSxDQUFDQyxNQUF5QixFQUFFO0lBQzdDLElBQUksQ0FBQ0MsVUFBVSxHQUFHRCxNQUFNO0VBQzFCOztFQUVBO0FBQ0Y7QUFDQTtBQUNBO0FBQ0E7RUFDRUUsa0JBQWtCQSxDQUFBLEVBQXNCO0lBQ3RDLE9BQU8sSUFBSSxDQUFDRCxVQUFVO0VBQ3hCO0FBQ0YsQ0FBQ0UsT0FBQSxDQUFBQyxPQUFBLEdBQUFOLG9CQUFBIn0=
