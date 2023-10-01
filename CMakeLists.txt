@@ -280,7 +280,7 @@ EMCC_LINKER_FLAGS_BASE
 "-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
 --bind \
 -s MODULARIZE=1 \
--s 'EXPORT_NAME=\"monero_javascript\"' \
+-s 'EXPORT_NAME=\"monero_ts\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=0 \
 -s EXIT_RUNTIME=0 \
