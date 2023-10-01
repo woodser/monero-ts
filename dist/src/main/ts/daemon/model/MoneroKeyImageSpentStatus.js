@@ -1,0 +1,25 @@
+"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /**
+ * Enumerates connection types.
+ * 
+ * Based on enums.h in monero-project.
+ */var
+MoneroKeyImageSpentStatus = /*#__PURE__*/function (MoneroKeyImageSpentStatus) {MoneroKeyImageSpentStatus[MoneroKeyImageSpentStatus["NOT_SPENT"] = 0] = "NOT_SPENT";MoneroKeyImageSpentStatus[MoneroKeyImageSpentStatus["CONFIRMED"] = 1] = "CONFIRMED";MoneroKeyImageSpentStatus[MoneroKeyImageSpentStatus["TX_POOL"] = 2] = "TX_POOL";return MoneroKeyImageSpentStatus;}(MoneroKeyImageSpentStatus || {});var _default = exports.default =
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MoneroKeyImageSpentStatus;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJNb25lcm9LZXlJbWFnZVNwZW50U3RhdHVzIiwiX2RlZmF1bHQiLCJleHBvcnRzIiwiZGVmYXVsdCJdLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uL3NyYy9tYWluL3RzL2RhZW1vbi9tb2RlbC9Nb25lcm9LZXlJbWFnZVNwZW50U3RhdHVzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogRW51bWVyYXRlcyBjb25uZWN0aW9uIHR5cGVzLlxuICogXG4gKiBCYXNlZCBvbiBlbnVtcy5oIGluIG1vbmVyby1wcm9qZWN0LlxuICovXG5lbnVtIE1vbmVyb0tleUltYWdlU3BlbnRTdGF0dXMge1xuXG4gICAgLyoqXG4gICAgICogS2V5IGltYWdlIGlzIG5vdCBzcGVudCAodmFsdWU9MCkuXG4gICAgICovXG4gICAgTk9UX1NQRU5UID0gMCxcblxuICAgIC8qKlxuICAgICAqIEtleSBpbWFnZSBpcyBjb25maXJtZWQgKHZhbHVlPTEpLlxuICAgICAqL1xuICAgIENPTkZJUk1FRCA9IDEsXG5cbiAgICAvKipcbiAgICAgKiBLZXkgaW1hZ2UgaXMgaW4gdGhlIHBvb2wgKHZhbHVlPTIpLlxuICAgICAqL1xuICAgIFRYX1BPT0wgPSAyXG4gIH1cbiAgXG4gIGV4cG9ydCBkZWZhdWx0IE1vbmVyb0tleUltYWdlU3BlbnRTdGF0dXM7Il0sIm1hcHBpbmdzIjoicUdBQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQSxHQUpBO0FBS0tBLHlCQUF5QiwwQkFBekJBLHlCQUF5QixHQUF6QkEseUJBQXlCLENBQXpCQSx5QkFBeUIsaUNBQXpCQSx5QkFBeUIsQ0FBekJBLHlCQUF5QixpQ0FBekJBLHlCQUF5QixDQUF6QkEseUJBQXlCLG9DQUF6QkEseUJBQXlCLEdBQXpCQSx5QkFBeUIsWUFBQUMsUUFBQSxHQUFBQyxPQUFBLENBQUFDLE9BQUE7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQWtCYkgseUJBQXlCIn0=
