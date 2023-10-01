@@ -12,51 +12,49 @@ import MoneroRpcConnection from "./MoneroRpcConnection";
  * 
  * <code>
  * // imports<br>
- *  * const MoneroRpcConnection = MoneroRpcConnection;<br>
- * const MoneroConnectionManager = MoneroConnectionManager;<br>
- * const MoneroConnectionManagerListener = MoneroConnectionManagerListener;<br><br>
- * 
+ * import { MoneroRpcConnection, MoneroConnectionManager, MoneroConnectionManagerListener } from "monero-ts";<br>
+ * <br>
  * // create connection manager<br>
- * let connectionManager = new MoneroConnectionManager();<br><br>
- * 
+ * let connectionManager = new MoneroConnectionManager();<br>
+ * <br>
  * // add managed connections with priorities<br>
- * connectionManager.addConnection(new MoneroRpcConnection("http://localhost:38081").setPriority(1)); // use localhost as first priority<br>
- * connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); // default priority is prioritized last<br><br>
- * 
+ * await connectionManager.addConnection({uri: "http://localhost:38081", priority: 1}); // use localhost as first priority<br>
+ * await connectionManager.addConnection({uri: "http://example.com"}); // default priority is prioritized last<br>
+ * <br>
  * // set current connection<br>
- * connectionManager.setConnection(new MoneroRpcConnection("http://foo.bar", "admin", "password")); // connection is added if new<br><br>
- * 
+ * await connectionManager.setConnection({uri: "http://foo.bar", username: "admin", password: "password"}); // connection is added if new<br>
+ * <br>
  * // check connection status<br>
  * await connectionManager.checkConnection();<br>
  * console.log("Connection manager is connected: " + connectionManager.isConnected());<br>
  * console.log("Connection is online: " + connectionManager.getConnection().getIsOnline());<br>
- * console.log("Connection is authenticated: " + connectionManager.getConnection().getIsAuthenticated());<br><br>
- * 
+ * console.log("Connection is authenticated: " + connectionManager.getConnection().getIsAuthenticated());<br>
+ * <br> 
  * // receive notifications of any changes to current connection<br>
  * connectionManager.addListener(new class extends MoneroConnectionManagerListener {<br>
- * &nbsp;&nbsp; onConnectionChanged(connection) {<br>
+ * &nbsp;&nbsp; async onConnectionChanged(connection) {<br>
  * &nbsp;&nbsp;&nbsp;&nbsp; console.log("Connection changed to: " + connection);<br>
  * &nbsp;&nbsp; }<br>
- * });<br><br>
- *  
+ * });<br>
+ * <br>
  * // start polling for best connection every 10 seconds and automatically switch<br>
- * connectionManager.startPolling(10000);<br><br>
- * 
+ * connectionManager.startPolling(10000);<br>
+ * <br>
  * // automatically switch to best available connection if disconnected<br>
- * connectionManager.setAutoSwitch(true);<br><br>
- * 
+ * connectionManager.setAutoSwitch(true);<br>
+ * <br>
  * // get best available connection in order of priority then response time<br>
- * let bestConnection = await connectionManager.getBestAvailableConnection();<br><br>
- * 
+ * let bestConnection = await connectionManager.getBestAvailableConnection();<br>
+ * <br>
  * // check status of all connections<br>
- * await connectionManager.checkConnections();<br><br>
- * 
+ * await connectionManager.checkConnections();<br>
+ * <br>
  * // get connections in order of current connection, online status from last check, priority, and name<br>
- * let connections = connectionManager.getConnections();<br><br>
- * 
+ * let connections = connectionManager.getConnections();<br>
+ * <br>
  * // clear connection manager<br>
  * connectionManager.clear();
- * <code>
+ * </code>
  */
 export default class MoneroConnectionManager {
 
