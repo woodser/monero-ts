@@ -2,7 +2,7 @@
 
 The following code demonstrates how to use monero-ts's connection manager to manage daemon or wallet RPC endpoints.
 
-See [MoneroConnectionManager](https://moneroecosystem.org/monero-ts/MoneroConnectionManager.html) or [TestMoneroConnectionManager.js](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroConnectionManager.js) for more detail.
+See [MoneroConnectionManager](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroConnectionManager.html) or [TestMoneroConnectionManager.js](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroConnectionManager.js) for more detail.
 
 ```typescript
 // import monero-ts (or import types individually)
@@ -39,7 +39,7 @@ connectionManager.addListener(new class extends moneroTs.MoneroConnectionManager
 });
 
 // check connections every 10 seconds (in order of priority) and switch to the best
-await connectionManager.startPolling(10000);
+connectionManager.startPolling(10000);
 
 // get best available connection in order of priority then response time
 let bestConnection = await connectionManager.getBestAvailableConnection();

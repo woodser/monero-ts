@@ -5,7 +5,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 * Supports client-side wallets in Node.js and the browser using WebAssembly.
 * Supports wallet and daemon RPC clients.
 * Supports multisig, view-only, and offline wallets.
-* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-ts/MoneroWallet.html).
+* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html).
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
@@ -28,7 +28,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 
 <p align="center">
 	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
-	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-ts/MoneroWallet.html">MoneroWallet.ts</a>.</i>
+	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html">MoneroWallet.ts</a>.</i>
 </p>
 
 ## Sample code
@@ -105,7 +105,7 @@ await walletFull.close(true);
 
 ## Documentation
 
-* [TypeDocs](https://moneroecosystem.org/monero-ts/MoneroWallet.html)
+* [TypeDocs](https://moneroecosystem.org/monero-ts/typedocs/)
 * [API and model overview with visual diagrams](https://moneroecosystem.org/monero-java/monero-spec.pdf)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)

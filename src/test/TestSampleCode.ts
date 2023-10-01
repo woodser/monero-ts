@@ -151,7 +151,7 @@ export default class TestSampleCode {
         });
         
         // check connections every 10 seconds (in order of priority) and switch to the best
-        await connectionManager.startPolling(10000);
+        connectionManager.startPolling(10000);
         
         // get best available connection in order of priority then response time
         let bestConnection = await connectionManager.getBestAvailableConnection();
