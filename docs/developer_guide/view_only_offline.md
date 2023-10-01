@@ -17,13 +17,13 @@ To sign and submit transactions using view-only and offline wallets:
 
 The following code demonstrates creating, signing, and submitting transactions using view-only and offline wallets:
 
-```javascript
-const monerojs = require("monero-javascript");
+```typescript
+import * as moneroTs from "monero-ts";
 
 // create and sync view-only wallet without spend key
-let viewOnlyWallet = await monerojs.createWalletFull({
+let viewOnlyWallet = await moneroTs.createWalletFull({
   path: "my_view_only_wallet",
-  networkType: "stagenet",
+  networkType: moneroTs.MoneroNetworkType.STAGENET,
   primaryAddress: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
   privateViewKey: "03d463f03ae547b11dfdf194a07ff82c14a3c6a3de559bd89c9a5e8dc5e9ae02",
   restoreHeight: 573936,
@@ -32,9 +32,9 @@ let viewOnlyWallet = await monerojs.createWalletFull({
 await viewOnlyWallet.sync();
 
 // create offline wallet
-let offlineWallet = await monerojs.createWalletFull({
+let offlineWallet = await moneroTs.createWalletFull({
   path: "my_offline_wallet",
-  networkType: "stagenet",
+  networkType: moneroTs.MoneroNetworkType.STAGENET,
   seed: "spying swept ashtray going hence jester swagger cease spying unusual..."
 });
   
@@ -54,7 +54,7 @@ await viewOnlyWallet.importKeyImages(keyImages);
 let unsignedTx = await viewOnlyWallet.createTx({
   accountIndex: 0,
   address: "56j5AskbiNeeb2UAnS85qpey93GYs4VWB78hazZKGdsKCGHvEXUD6nuMQqXaiiY8SwMWsmtAEXS9kA2ko7hgNtGHKsEWyhv",
-  amount: "250000000000" // 0.25 XMR
+  amount: BigInt("250000000000") // 0.25 XMR
 });
 
 // describe unsigned tx set to confirm details

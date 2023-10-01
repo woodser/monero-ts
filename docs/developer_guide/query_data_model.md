@@ -4,21 +4,21 @@ Wallet [transactions, transfers, and outputs](data_model.md) can be queried by t
 
 ## Getting transactions with queries
 
-See [MoneroWallet.getTxs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTxs) for all query options.
+See [MoneroWallet.getTxs()](https://moneroecosystem.org/monero-ts/MoneroWallet.html#getTxs) for all query options.
 
-```javascript
+```typescript
 // get a transaction by hash
 let tx = await wallet.getTx("48db7afb1e9eecb11303d4f49c955ffdee2ffc2fa513b8f05da35ff537744096");
 ```
 
-```javascript
+```typescript
 // get unconfirmed transactions
 let txs = await wallet.getTxs({
   isConfirmed: false
 });
 ```
 
-```javascript
+```typescript
 // get transactions since height 582106 with incoming transfers to
 // account 0, subaddress 0
 let txs = await wallet.getTxs({
@@ -31,7 +31,7 @@ let txs = await wallet.getTxs({
 });
 ```
 
-```javascript
+```typescript
 // get transactions with available outputs
 let txs = await wallet.getTxs({
   isLocked: false,
@@ -43,14 +43,14 @@ let txs = await wallet.getTxs({
 
 ## Getting transfers with queries
 
-See [MoneroWallet.getTransfers()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getTransfers) for all query options.
+See [MoneroWallet.getTransfers()](https://moneroecosystem.org/monero-ts/MoneroWallet.html#getTransfers) for all query options.
 
-```javascript
+```typescript
 // get all transfers
 let transfers = await wallet.getTransfers();
 ```
 
-```javascript
+```typescript
 // get incoming transfers to account 0, subaddress 1
 let transfers = await wallet.getTransfers({
   isIncoming: true,
@@ -59,7 +59,7 @@ let transfers = await wallet.getTransfers({
 });
 ```
 
-```javascript
+```typescript
 // get transfers in the tx pool
 let transfers = await wallet.getTransfers({
   txQuery: {
@@ -68,10 +68,10 @@ let transfers = await wallet.getTransfers({
 });
 ```
 
-```javascript
+```typescript
 // get confirmed outgoing transfers since a block height
 let transfers = await wallet.getTransfers({
-  isOutgoing: true,
+  isIncoming: false,
   txQuery: {
     isConfirmed: true,
     minHeight: 582106,
@@ -81,14 +81,14 @@ let transfers = await wallet.getTransfers({
 
 ## Getting outputs with queries
 
-See [MoneroWallet.getOutputs()](https://moneroecosystem.org/monero-javascript/MoneroWallet.html#getOutputs) for all query options.
+See [MoneroWallet.getOutputs()](https://moneroecosystem.org/monero-ts/MoneroWallet.html#getOutputs) for all query options.
 
-```javascript
+```typescript
 // get all outputs
 let outputs = await wallet.getOutputs();
 ```
 
-```javascript
+```typescript
 // get outputs available to be spent
 let outputs = await wallet.getOutputs({
   isSpent: false,
@@ -98,14 +98,14 @@ let outputs = await wallet.getOutputs({
 });
 ```
 
-```javascript
+```typescript
 // get outputs by amount
 outputs = await wallet.getOutputs({
-  amount: "250000000000"
+  amount: BigInt()"250000000000")
 });
 ```
 
-```javascript
+```typescript
 // get outputs received to a specific subaddress
 let outputs = await wallet.getOutputs({
   accountIndex: 0,
@@ -113,7 +113,7 @@ let outputs = await wallet.getOutputs({
 });
 ```
 
-```javascript
+```typescript
 // get outputs by their key image hex
 let keyImage = outputs[0].getKeyImage().getHex();
 outputs = await wallet.getOutputs({

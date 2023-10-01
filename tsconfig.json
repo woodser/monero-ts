@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "target": "es2021",
+    "allowJs": true,
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "types": [
+      "mocha",
+      "node",
+      "jquery"
+    ],
+    "esModuleInterop": true,   
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": ["index.ts", "src/**/*"],
+  "exclude": ["node_modules", "dist/*", "types"]
+}

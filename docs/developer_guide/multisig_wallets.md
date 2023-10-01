@@ -2,21 +2,22 @@
 
 The following is an example of creating multisig wallets.
 
-For a full example of creating and sending funds from multisig wallets, see "Supports multisig wallets" in [TestMoneroWalletCommon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/test/TestMoneroWalletCommon.js).
+For a full example of creating and sending funds from multisig wallets, see "Supports multisig wallets" in [TestMoneroWalletCommon.js](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroWalletCommon.js).
 
-```javascript
+```typescript
+import * as moneroTs from "monero-ts";
+
 // create multisig wallets which require 3 out of 5 participants to send funds
 let M = 3;
 let N = 5;
 
 // create participating wallets using RPC or WebAssembly
-const monerojs = require("monero-javascript");
 let wallets = []
 for (let i = 0; i < N; i++) {
-  wallets.push(await monerojs.createWalletFull({
+  wallets.push(await moneroTs.createWalletFull({
     path: "./test_wallets/multisig_participant_" + (i + 1),
     password: "supersecretpassword123",
-    networkType: "stagenet"
+    networkType: moneroTs.MoneroNetworkType.STAGENET
   }));
 }
 
@@ -63,6 +64,6 @@ for (let wallet of wallets) {
   assert(info.isReady());
   assert.equal(info.getThreshold(), M);
   assert.equal(info.getNumParticipants(), N);
-  await wallet.close();
+  await wallet.close(true);
 }
 ```

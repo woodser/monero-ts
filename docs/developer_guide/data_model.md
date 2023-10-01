@@ -2,11 +2,11 @@
 
 ## Overview
 
-This section introduces the data model used in monero-javascript.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroTxWallet.html) for more information.
+This section introduces the data model used in monero-ts.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or [JSDocs](https://moneroecosystem.org/monero-ts/MoneroTxWallet.html) for more information.
 
 <p align="center">
 	<img width="65%" height="auto" src="../img/data_model.png"/><br>
-	<i><a href="https://moneroecosystem.org/monero-javascript/MoneroBlock.html">Blocks</a> have <a href="https://moneroecosystem.org/monero-javascript/MoneroTxWallet.html">transactions</a> which can have <a href="https://moneroecosystem.org/monero-javascript/MoneroIncomingTransfer.html">incoming transfers</a>, an <a href="https://moneroecosystem.org/monero-javascript/MoneroOutgoingTransfer.html">outgoing transfer</a>, and <a href="https://moneroecosystem.org/monero-javascript/MoneroOutputWallet.html">outputs</a>.</i>
+	<i><a href="https://moneroecosystem.org/monero-ts/MoneroBlock.html">Blocks</a> have <a href="https://moneroecosystem.org/monero-ts/MoneroTxWallet.html">transactions</a> which can have <a href="https://moneroecosystem.org/monero-ts/MoneroIncomingTransfer.html">incoming transfers</a>, an <a href="https://moneroecosystem.org/monero-ts/MoneroOutgoingTransfer.html">outgoing transfer</a>, and <a href="https://moneroecosystem.org/monero-ts/MoneroOutputWallet.html">outputs</a>.</i>
 </p>
 
 ## JSON

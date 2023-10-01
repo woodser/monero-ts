@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(monero-javascript-wasm)
+project(monero-ts-wasm)
 
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
@@ -151,7 +151,7 @@ set_target_properties(
 set(
     MONERO_WALLET_KEYS_SRC_FILES
     
-    # monero-javascript WASM bridge
+    # monero-ts WASM bridge
     src/main/cpp/index.cpp
     src/main/cpp/monero_wasm_bridge.cpp
     
@@ -226,7 +226,7 @@ set(
 set(
     MONERO_WALLET_FULL_SRC_FILES
     
-    # monero-javascript WASM bridge
+    # monero-ts WASM bridge
     src/main/cpp/http_client_wasm.cpp
     
     # monero-cpp (modified for WASM)
@@ -278,7 +278,8 @@ EMCC_LINKER_FLAGS_BASE
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
 "-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
---bind -s MODULARIZE=1 \
+--bind \
+-s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_javascript\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=0 \

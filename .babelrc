@@ -1,0 +1,26 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    "@babel/plugin-transform-runtime"
+  ],
+  "sourceType": "unambiguous",
+  "sourceMaps": "inline",
+  "retainLines": true,
+  "ignore": [
+    "node_modules",
+    "build",
+    "browser_build",
+    "dist",
+    "configs"
+  ]
+}
