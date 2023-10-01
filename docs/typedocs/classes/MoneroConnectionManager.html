@@ -22,49 +22,54 @@
 
 <code>
 // imports<br>
- * const MoneroRpcConnection = MoneroRpcConnection;<br>
-const MoneroConnectionManager = MoneroConnectionManager;<br>
-const MoneroConnectionManagerListener = MoneroConnectionManagerListener;<br><br>
-
-<p>// create connection manager<br>
-let connectionManager = new MoneroConnectionManager();<br><br></p>
-<p>// add managed connections with priorities<br>
-connectionManager.addConnection(new MoneroRpcConnection(&quot;<a href="http://localhost:38081%22).setPriority(1)">http://localhost:38081&quot;).setPriority(1)</a>); // use localhost as first priority<br>
-connectionManager.addConnection(new MoneroRpcConnection(&quot;<a href="http://example.com">http://example.com</a>&quot;)); // default priority is prioritized last<br><br></p>
-<p>// set current connection<br>
-connectionManager.setConnection(new MoneroRpcConnection(&quot;<a href="http://foo.bar">http://foo.bar</a>&quot;, &quot;admin&quot;, &quot;password&quot;)); // connection is added if new<br><br></p>
-<p>// check connection status<br>
+import { MoneroRpcConnection, MoneroConnectionManager, MoneroConnectionManagerListener } from "monero-ts";<br>
+<br>
+// create connection manager<br>
+let connectionManager = new MoneroConnectionManager();<br>
+<br>
+// add managed connections with priorities<br>
+await connectionManager.addConnection({uri: "http://localhost:38081", priority: 1}); // use localhost as first priority<br>
+await connectionManager.addConnection({uri: "http://example.com"}); // default priority is prioritized last<br>
+<br>
+// set current connection<br>
+await connectionManager.setConnection({uri: "http://foo.bar", username: "admin", password: "password"}); // connection is added if new<br>
+<br>
+// check connection status<br>
 await connectionManager.checkConnection();<br>
-console.log(&quot;Connection manager is connected: &quot; + connectionManager.isConnected());<br>
-console.log(&quot;Connection is online: &quot; + connectionManager.getConnection().getIsOnline());<br>
-console.log(&quot;Connection is authenticated: &quot; + connectionManager.getConnection().getIsAuthenticated());<br><br></p>
-<p>// receive notifications of any changes to current connection<br>
+console.log("Connection manager is connected: " + connectionManager.isConnected());<br>
+console.log("Connection is online: " + connectionManager.getConnection().getIsOnline());<br>
+console.log("Connection is authenticated: " + connectionManager.getConnection().getIsAuthenticated());<br>
+<br> 
+// receive notifications of any changes to current connection<br>
 connectionManager.addListener(new class extends MoneroConnectionManagerListener {<br>
-&nbsp;&nbsp; onConnectionChanged(connection) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp; console.log(&quot;Connection changed to: &quot; + connection);<br>
+&nbsp;&nbsp; async onConnectionChanged(connection) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp; console.log("Connection changed to: " + connection);<br>
 &nbsp;&nbsp; }<br>
-});<br><br></p>
-<p>// start polling for best connection every 10 seconds and automatically switch<br>
-connectionManager.startPolling(10000);<br><br></p>
-<p>// automatically switch to best available connection if disconnected<br>
-connectionManager.setAutoSwitch(true);<br><br></p>
-<p>// get best available connection in order of priority then response time<br>
-let bestConnection = await connectionManager.getBestAvailableConnection();<br><br></p>
-<p>// check status of all connections<br>
-await connectionManager.checkConnections();<br><br></p>
-<p>// get connections in order of current connection, online status from last check, priority, and name<br>
-let connections = connectionManager.getConnections();<br><br></p>
-<p>// clear connection manager<br>
+});<br>
+<br>
+// start polling for best connection every 10 seconds and automatically switch<br>
+connectionManager.startPolling(10000);<br>
+<br>
+// automatically switch to best available connection if disconnected<br>
+connectionManager.setAutoSwitch(true);<br>
+<br>
+// get best available connection in order of priority then response time<br>
+let bestConnection = await connectionManager.getBestAvailableConnection();<br>
+<br>
+// check status of all connections<br>
+await connectionManager.checkConnections();<br>
+<br>
+// get connections in order of current connection, online status from last check, priority, and name<br>
+let connections = connectionManager.getConnections();<br>
+<br>
+// clear connection manager<br>
 connectionManager.clear();
-<code></p>
-</div>
+</code></div>
 <div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
-<li><span class="target">MoneroConnectionManager</span></li></ul></section><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L61">src/main/ts/common/MoneroConnectionManager.ts:61</a></li></ul></aside>
+<li><span class="target">MoneroConnectionManager</span></li></ul></section>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -148,71 +153,45 @@ connectionManager.clear();
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4>
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L95">src/main/ts/common/MoneroConnectionManager.ts:95</a></li></ul></aside></li></ul></section></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="autoSwitch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>auto<wbr/>Switch</span><a href="#autoSwitch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">auto<wbr/>Switch</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L72">src/main/ts/common/MoneroConnectionManager.ts:72</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">auto<wbr/>Switch</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="connections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>connections</span><a href="#connections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">connections</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L73">src/main/ts/common/MoneroConnectionManager.ts:73</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">connections</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="currentConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>current<wbr/>Connection</span><a href="#currentConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">current<wbr/>Connection</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L76">src/main/ts/common/MoneroConnectionManager.ts:76</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">current<wbr/>Connection</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="listeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>listeners</span><a href="#listeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">listeners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L75">src/main/ts/common/MoneroConnectionManager.ts:75</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">listeners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="poller" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>poller</span><a href="#poller" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">poller</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L77">src/main/ts/common/MoneroConnectionManager.ts:77</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">poller</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="proxyToWorker" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>proxy<wbr/>To<wbr/>Worker</span><a href="#proxyToWorker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">proxy<wbr/>To<wbr/>Worker</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L70">src/main/ts/common/MoneroConnectionManager.ts:70</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">proxy<wbr/>To<wbr/>Worker</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="responseTimes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>response<wbr/>Times</span><a href="#responseTimes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">response<wbr/>Times</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L74">src/main/ts/common/MoneroConnectionManager.ts:74</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">response<wbr/>Times</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="timeoutMs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>timeout<wbr/>Ms</span><a href="#timeoutMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">timeout<wbr/>Ms</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L71">src/main/ts/common/MoneroConnectionManager.ts:71</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">timeout<wbr/>Ms</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member"><a id="DEFAULT_AUTO_SWITCH" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>DEFAULT_<wbr/>AUTO_<wbr/>SWITCH</span><a href="#DEFAULT_AUTO_SWITCH" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>AUTO_<wbr/>SWITCH</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L66">src/main/ts/common/MoneroConnectionManager.ts:66</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>AUTO_<wbr/>SWITCH</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div></section>
 <section class="tsd-panel tsd-member"><a id="DEFAULT_POLL_PERIOD" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>DEFAULT_<wbr/>POLL_<wbr/>PERIOD</span><a href="#DEFAULT_POLL_PERIOD" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>POLL_<wbr/>PERIOD</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 20000</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L65">src/main/ts/common/MoneroConnectionManager.ts:65</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>POLL_<wbr/>PERIOD</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 20000</span></div></section>
 <section class="tsd-panel tsd-member"><a id="DEFAULT_TIMEOUT" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>DEFAULT_<wbr/>TIMEOUT</span><a href="#DEFAULT_TIMEOUT" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>TIMEOUT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 5000</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L64">src/main/ts/common/MoneroConnectionManager.ts:64</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>TIMEOUT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 5000</span></div></section>
 <section class="tsd-panel tsd-member"><a id="MIN_BETTER_RESPONSES" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>MIN_<wbr/>BETTER_<wbr/>RESPONSES</span><a href="#MIN_BETTER_RESPONSES" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">MIN_<wbr/>BETTER_<wbr/>RESPONSES</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L67">src/main/ts/common/MoneroConnectionManager.ts:67</a></li></ul></aside></section>
+<div class="tsd-signature"><span class="tsd-kind-property">MIN_<wbr/>BETTER_<wbr/>RESPONSES</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></div></section>
 <section class="tsd-panel tsd-member"><a id="PollType" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>Poll<wbr/>Type</span><a href="#PollType" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">Poll<wbr/>Type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">ALL</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">CURRENT</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">PRIORITIZED</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = ...</span></div>
@@ -228,9 +207,7 @@ connectionManager.clear();
 <h5><span class="tsd-kind-property">CURRENT</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">PRIORITIZED</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li></ul></div>
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L84">src/main/ts/common/MoneroConnectionManager.ts:84</a></li></ul></aside></section></section>
+<div class="tsd-comment tsd-typography"></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="addConnection" class="tsd-anchor"></a>
@@ -250,9 +227,7 @@ connectionManager.clear();
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L151">src/main/ts/common/MoneroConnectionManager.ts:151</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="addListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Listener</span><a href="#addListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -270,9 +245,7 @@ connectionManager.clear();
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L110">src/main/ts/common/MoneroConnectionManager.ts:110</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="checkConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>check<wbr/>Connection</span><a href="#checkConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -282,9 +255,7 @@ connectionManager.clear();
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L325">src/main/ts/common/MoneroConnectionManager.ts:325</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="checkConnectionPromises" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>check<wbr/>Connection<wbr/>Promises</span><a href="#checkConnectionPromises" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -295,9 +266,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><p>a promise for each connection in the order of getConnections().</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L359">src/main/ts/common/MoneroConnectionManager.ts:359</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="checkConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>check<wbr/>Connections</span><a href="#checkConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -307,9 +276,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L348">src/main/ts/common/MoneroConnectionManager.ts:348</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="checkConnectionsAux" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>check<wbr/>Connections<wbr/>Aux</span><a href="#checkConnectionsAux" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -322,9 +289,7 @@ Does not auto switch if disconnected.</p>
 <h5><span class="tsd-kind-parameter">connections</span>: <span class="tsd-signature-type">any</span></h5></li>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">excludedConnections</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L569">src/main/ts/common/MoneroConnectionManager.ts:569</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="checkPrioritizedConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>check<wbr/>Prioritized<wbr/>Connections</span><a href="#checkPrioritizedConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -335,9 +300,7 @@ Does not auto switch if disconnected.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">excludedConnections</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L562">src/main/ts/common/MoneroConnectionManager.ts:562</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="clear" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clear</span><a href="#clear" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -347,9 +310,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L473">src/main/ts/common/MoneroConnectionManager.ts:473</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="compareConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>compare<wbr/>Connections</span><a href="#compareConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -362,9 +323,7 @@ Does not auto switch if disconnected.</p>
 <h5><span class="tsd-kind-parameter">c1</span>: <span class="tsd-signature-type">any</span></h5></li>
 <li>
 <h5><span class="tsd-kind-parameter">c2</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L517">src/main/ts/common/MoneroConnectionManager.ts:517</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="disconnect" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>disconnect</span><a href="#disconnect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -374,9 +333,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L463">src/main/ts/common/MoneroConnectionManager.ts:463</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getAutoSwitch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Auto<wbr/>Switch</span><a href="#getAutoSwitch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -386,9 +343,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if auto switch enabled, false otherwise</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L425">src/main/ts/common/MoneroConnectionManager.ts:425</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getBestAvailableConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Best<wbr/>Available<wbr/>Connection</span><a href="#getBestAvailableConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -406,9 +361,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">&gt;</span></h4><p>the best available connection in order of priority then response time, undefined if no connections available</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L381">src/main/ts/common/MoneroConnectionManager.ts:381</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Connection</span><a href="#getConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -418,9 +371,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>the current connection or undefined if no connection set</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L227">src/main/ts/common/MoneroConnectionManager.ts:227</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getConnectionByUri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Connection<wbr/>By<wbr/>Uri</span><a href="#getConnectionByUri" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -438,9 +389,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>the connection with the URI or undefined if no connection with the URI exists</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L247">src/main/ts/common/MoneroConnectionManager.ts:247</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Connections</span><a href="#getConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -450,17 +399,13 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">[]</span></h4><p>the list of sorted connections</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L257">src/main/ts/common/MoneroConnectionManager.ts:257</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="getConnectionsInAscendingPriority" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>get<wbr/>Connections<wbr/>In<wbr/>Ascending<wbr/>Priority</span><a href="#getConnectionsInAscendingPriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="getConnectionsInAscendingPriority.getConnectionsInAscendingPriority-1"><span class="tsd-kind-call-signature">get<wbr/>Connections<wbr/>In<wbr/>Ascending<wbr/>Priority</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><a href="#getConnectionsInAscendingPriority.getConnectionsInAscendingPriority-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L504">src/main/ts/common/MoneroConnectionManager.ts:504</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Listeners</span><a href="#getListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -470,9 +415,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManagerListener.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManagerListener</a><span class="tsd-signature-symbol">[]</span></h4><p>all listeners</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L141">src/main/ts/common/MoneroConnectionManager.ts:141</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getPeerConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Peer<wbr/>Connections</span><a href="#getPeerConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -482,9 +425,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>connectable peers</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L454">src/main/ts/common/MoneroConnectionManager.ts:454</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Timeout</span><a href="#getTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -494,9 +435,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>the request timeout before a connection is considered offline</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L445">src/main/ts/common/MoneroConnectionManager.ts:445</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="hasConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Connection</span><a href="#hasConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -514,9 +453,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if this manager has a connection with the given URI, false otherwise</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L237">src/main/ts/common/MoneroConnectionManager.ts:237</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="isConnected" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Connected</span><a href="#isConnected" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -526,9 +463,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if the current connection is set, online, and not unauthenticated, undefined if unknown, false otherwise</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L268">src/main/ts/common/MoneroConnectionManager.ts:268</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="onConnectionChanged" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>on<wbr/>Connection<wbr/>Changed</span><a href="#onConnectionChanged" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -539,9 +474,7 @@ Does not auto switch if disconnected.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">connection</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L498">src/main/ts/common/MoneroConnectionManager.ts:498</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="processResponses" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>process<wbr/>Responses</span><a href="#processResponses" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -552,9 +485,7 @@ Does not auto switch if disconnected.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">responses</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L602">src/main/ts/common/MoneroConnectionManager.ts:602</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="removeConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Connection</span><a href="#removeConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -572,9 +503,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L167">src/main/ts/common/MoneroConnectionManager.ts:167</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="removeListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Listener</span><a href="#removeListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -592,9 +521,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L121">src/main/ts/common/MoneroConnectionManager.ts:121</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="removeListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Listeners</span><a href="#removeListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -604,9 +531,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L131">src/main/ts/common/MoneroConnectionManager.ts:131</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="reset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reset</span><a href="#reset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -616,9 +541,7 @@ Does not auto switch if disconnected.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L487">src/main/ts/common/MoneroConnectionManager.ts:487</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setAutoSwitch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Auto<wbr/>Switch</span><a href="#setAutoSwitch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -636,9 +559,7 @@ Does not auto switch if disconnected.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L415">src/main/ts/common/MoneroConnectionManager.ts:415</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Connection</span><a href="#setConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -660,9 +581,7 @@ Does not check the connection.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a><span class="tsd-signature-symbol">&gt;</span></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L189">src/main/ts/common/MoneroConnectionManager.ts:189</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Timeout</span><a href="#setTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -680,9 +599,7 @@ Does not check the connection.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L435">src/main/ts/common/MoneroConnectionManager.ts:435</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="startPolling" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>start<wbr/>Polling</span><a href="#startPolling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -720,9 +637,7 @@ Does not check the connection.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L283">src/main/ts/common/MoneroConnectionManager.ts:283</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="startPollingConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>start<wbr/>Polling<wbr/>Connection</span><a href="#startPollingConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -733,9 +648,7 @@ Does not check the connection.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">periodMs</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L535">src/main/ts/common/MoneroConnectionManager.ts:535</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="startPollingConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>start<wbr/>Polling<wbr/>Connections</span><a href="#startPollingConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -746,9 +659,7 @@ Does not check the connection.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">periodMs</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L544">src/main/ts/common/MoneroConnectionManager.ts:544</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="startPollingPrioritizedConnections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>start<wbr/>Polling<wbr/>Prioritized<wbr/>Connections</span><a href="#startPollingPrioritizedConnections" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -761,9 +672,7 @@ Does not check the connection.</p>
 <h5><span class="tsd-kind-parameter">periodMs</span>: <span class="tsd-signature-type">any</span></h5></li>
 <li>
 <h5><span class="tsd-kind-parameter">excludedConnections</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L553">src/main/ts/common/MoneroConnectionManager.ts:553</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="stopPolling" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>stop<wbr/>Polling</span><a href="#stopPolling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -773,9 +682,7 @@ Does not check the connection.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroConnectionManager.html" class="tsd-signature-type tsd-kind-class">MoneroConnectionManager</a></h4><p>this connection manager for chaining</p>
 
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L314">src/main/ts/common/MoneroConnectionManager.ts:314</a></li></ul></aside></li></ul></section>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="updateBestConnectionFromResponses" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>update<wbr/>Best<wbr/>Connection<wbr/>From<wbr/>Responses</span><a href="#updateBestConnectionFromResponses" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -786,17 +693,13 @@ Does not check the connection.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">responses</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L628">src/main/ts/common/MoneroConnectionManager.ts:628</a></li></ul></aside></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="updateBestConnectionInPriority" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>update<wbr/>Best<wbr/>Connection<wbr/>In<wbr/>Priority</span><a href="#updateBestConnectionInPriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="updateBestConnectionInPriority.updateBestConnectionInPriority-1"><span class="tsd-kind-call-signature">update<wbr/>Best<wbr/>Connection<wbr/>In<wbr/>Priority</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#updateBestConnectionInPriority.updateBestConnectionInPriority-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/woodser/monero-javascript/blob/9fe4e249/src/main/ts/common/MoneroConnectionManager.ts#L621">src/main/ts/common/MoneroConnectionManager.ts:621</a></li></ul></aside></li></ul></section></section></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
