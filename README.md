@@ -1,11 +1,11 @@
-# Monero JavaScript Library
+# Monero TypeScript Library
 
-A JavaScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.2.2 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.2.2).
+A TypeScript library for creating Monero applications using RPC and WebAssembly bindings to [monero v0.18.2.2 'Flourine Fermie'](https://github.com/monero-project/monero/tree/v0.18.2.2).
 
 * Supports client-side wallets in Node.js and the browser using WebAssembly.
 * Supports wallet and daemon RPC clients.
 * Supports multisig, view-only, and offline wallets.
-* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-javascript/MoneroWallet.html).
+* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-ts/MoneroWallet.html).
 * Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
@@ -17,7 +17,7 @@ A JavaScript library for creating Monero applications using RPC and WebAssembly 
 * [Architecture](#architecture)
 * [Sample code](#sample-code)
 * [Documentation](#documentation)
-* [Using monero-javascript in your project](#using-monero-javascript-in-your-project)
+* [Using monero-ts in your project](#using-monero-ts-in-your-project)
 * [Building WebAssembly binaries from source](#building-webassembly-binaries-from-source)
 * [Running tests](#running-tests)
 * [Related projects](#related-projects)
@@ -28,66 +28,68 @@ A JavaScript library for creating Monero applications using RPC and WebAssembly 
 
 <p align="center">
 	<img width="85%" height="auto" src="docs/img/architecture.png"/><br>
-	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-javascript/MoneroWallet.html">MoneroWallet.js</a>.</i>
+	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-ts/MoneroWallet.html">MoneroWallet.ts</a>.</i>
 </p>
 
 ## Sample code
 
-```js
-// import library
-const monerojs = require("monero-javascript");
+```typescript
+// import monero-ts (or import types individually)
+import * as moneroTs from "monero-ts";
 
 // connect to daemon
-let daemon = await monerojs.connectToDaemonRpc("http://localhost:38081", "superuser", "abctesting123");
-let height = await daemon.getHeight();            // 1523651
-let txsInPool = await daemon.getTxPool();         // get transactions in the pool
+let daemon = await moneroTs.connectToDaemonRpc("http://localhost:28081");
+let height = await daemon.getHeight();        // 1523651
+let txsInPool = await daemon.getTxPool();     // get transactions in the pool
 
-// open wallet on monero-wallet-rpc
-let walletRpc = await monerojs.connectToWalletRpc("http://localhost:38084", "rpc_user", "abc123");
-await walletRpc.openWallet("sample_wallet_rpc", "supersecretpassword123");
-let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
-let balance = await walletRpc.getBalance();               // 533648366742
-let txs = await walletRpc.getTxs();                       // get transactions containing transfers to/from the wallet
-
-// create wallet from seed phrase using WebAssembly bindings to monero-project
-let walletFull = await monerojs.createWalletFull({
-  path: "sample_wallet_full",
+// create wallet from mnemonic phrase using WebAssembly bindings to monero-project
+let walletFull = await moneroTs.createWalletFull({
+  path: "sample_wallet_full"
   password: "supersecretpassword123",
-  networkType: "stagenet",
-  serverUri: "http://localhost:38081",
-  serverUsername: "superuser",
-  serverPassword: "abctesting123",
+  networkType: moneroTs.MoneroNetworkType.TESTNET,
   seed: "hefty value scenic...",
   restoreHeight: 573936,
+  server: { // provide url or MoneroRpcConnection
+    uri: "http://localhost:28081",
+    username: "superuser",
+    password: "abctesting123"
+  }
 });
 
 // synchronize with progress notifications
-await walletFull.sync(new class extends monerojs.MoneroWalletListener {
-  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+await walletFull.sync(new class extends moneroTs.MoneroWalletListener {
+  async onSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string) {
     // feed a progress bar?
   }
-});
+} as moneroTs.MoneroWalletListener);
 
 // synchronize in the background every 5 seconds
 await walletFull.startSyncing(5000);
 
 // receive notifications when funds are received, confirmed, and unlocked
 let fundsReceived = false;
-await walletFull.addListener(new class extends monerojs.MoneroWalletListener {
-  onOutputReceived(output) {
+await walletFull.addListener(new class extends moneroTs.MoneroWalletListener {
+  async onOutputReceived(output: moneroTs.MoneroOutputWallet) {
     let amount = output.getAmount();
     let txHash = output.getTx().getHash();
-    let isConfirmed = output.getTx().isConfirmed();
-    let isLocked = output.getTx().isLocked();
+    let isConfirmed = output.getTx().getIsConfirmed();
+    let isLocked = output.getTx().getIsLocked();
     fundsReceived = true;
   }
 });
+
+// connect to wallet RPC endpoint and open wallet
+let walletRpc = await moneroTs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
+await walletRpc.openWallet("sample_wallet_rpc", "supersecretpassword123");
+let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
+let balance = await walletRpc.getBalance();   // 533648366742
+let txs = await walletRpc.getTxs();           // get transactions containing transfers to/from the wallet
 
 // send funds from RPC wallet to WebAssembly wallet
 let createdTx = await walletRpc.createTx({
   accountIndex: 0,
   address: await walletFull.getAddress(1, 0),
-  amount: "250000000000", // send 0.25 XMR (denominated in atomic units)
+  amount: BigInt("250000000000"), // send 0.25 XMR (denominated in atomic units)
   relay: false // create transaction and relay to the network if true
 });
 let fee = createdTx.getFee(); // "Are you sure you want to send... ?"
@@ -103,12 +105,8 @@ await walletFull.close(true);
 
 ## Documentation
 
-* [JSDocs](https://moneroecosystem.org/monero-javascript/MoneroWallet.html)
+* [TypeDocs](https://moneroecosystem.org/monero-ts/MoneroWallet.html)
 * [API and model overview with visual diagrams](https://moneroecosystem.org/monero-java/monero-spec.pdf)
-* [Mocha tests](src/test)
-* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
-* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
-* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
 * [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
@@ -117,12 +115,16 @@ await walletFull.close(true);
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 * [Connection manager](docs/developer_guide/connection_manager.md)
 * [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
+* [Mocha tests](src/test)
+* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
+* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
+* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
 
-## Using monero-javascript in your project
+## Using monero-ts in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
-2. `npm install monero-javascript@0.9.0`
-3. Add `require("monero-javascript")` to your application code.
+2. `npm install monero-ts@0.9.0`
+3. Add `require("monero-ts")` to your application code.
 
 #### Running in Node.js
 
@@ -148,8 +150,8 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	2. `cd emsdk`
 	3. `git pull && ./emsdk install 3.1.10 && ./emsdk activate 3.1.10 && source ./emsdk_env.sh`
 	4. `export EMSCRIPTEN=path/to/emsdk/upstream/emscripten` (change for your system)
-2. Clone monero-javascript repository: `git clone --recursive https://github.com/monero-ecosystem/monero-javascript.git`
-3. `cd monero-javascript`
+2. Clone monero-ts repository: `git clone --recursive https://github.com/monero-ecosystem/monero-ts.git`
+3. `cd monero-ts`
 4. `./bin/update_submodules.sh`
 5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
 6. [Download and install](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) unbound 1.17.0 to your home directory (`~`).
@@ -157,13 +159,13 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## Running tests
 
-1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
-2. `cd monero-javascript`
+1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-ts.git`
+2. `cd monero-ts`
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 	2. Start monerod, e.g.: `./monerod --testnet` (or use a remote daemon).
 	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./`
-4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.js](src/test/utils/TestUtils.js) (e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`).
+4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.ts](src/test/utils/TestUtils.ts) (e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`).
 
 #### Running tests in Node.js
 
@@ -180,7 +182,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-cpp](https://github.com/monero-ecosystem/monero-cpp)
-* [xmr-sample-app](https://github.com/woodser/xmr-sample-app) - sample web application using monero-javascript
+* [xmr-sample-app](https://github.com/woodser/xmr-sample-app) - sample web application using monero-ts
 * [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - repeatedly sends txs to self to stress test the network (under development)
 * [monero-deposit-scanner](https://github.com/woodser/monero-deposit-scanner) - scan for incoming deposits to an address using a view key (under development)
 * [monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)

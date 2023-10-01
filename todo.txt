@@ -6,7 +6,7 @@ support strings in queries, etc
 wallet.waitForTxsToClearPool()?
 http request timeout
 run testSendToMultiple() a few times to start wallet or send to random subaddress
-monerowalletrpc.js/java can use subaddr_indices_all instead of manually setting all indices (wallet_rpc_server.cpp:1420)
+monerowalletrpc.ts/java can use subaddr_indices_all instead of manually setting all indices (wallet_rpc_server.cpp:1420)
 simplify getting available outputs - alias isLocked? isAvailable?
 support sign(msg, accountIndex, subaddressIndex) default 0s
 support create_subaddress count up to 64 at a time
@@ -56,7 +56,7 @@ namespace exported types to object instead of this.?
 "Can update a locked tx sent from/to the same account as blocks are added to the chain" sometimes gets stuck waiting for updates, possibly because tx was rejected with double spend? 
 daemon rpc getTxs() does not return tx blocks
 overload toJson() model protos and use JSON.stringify() instead of class toJsons()
-master sort MoneroWallet.js with top level methods
+master sort MoneroWallet.ts with top level methods
 monero_wallet_full get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 overload create_wallet_* instead of http_client=null?
 compare sync speeds with and without notifications

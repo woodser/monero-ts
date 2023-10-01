@@ -1,24 +1,27 @@
 {
-  "name": "monero-javascript",
-  "description": "A JavaScript library for using Monero",
+  "name": "monero-ts",
+  "description": "A TypeScript library for using Monero",
   "version": "0.9.0",
   "license": "MIT",
-  "repository": "https://github.com/monero-ecosystem/monero-javascript",
+  "repository": "https://github.com/monero-ecosystem/monero-ts",
   "private": false,
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "todo",
     "build_web_worker": "webpack --config ./webpack.worker.js",
     "build_web_tests": "webpack --config ./webpack.tests.js",
-    "test": "node --no-experimental-fetch --experimental-wasm-threads node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 900000000 --exit",
-    "jsdoc": "jsdoc -r -c ./configs/jsdoc_config.js -d ./docs"
+    "test": "npm run build_commonjs && node --enable-source-maps --no-experimental-fetch --experimental-wasm-threads node_modules/mocha/bin/_mocha --require @babel/register 'dist/src/test/TestAll' --timeout 900000000 --exit",
+    "typedoc": "typedoc ./index.ts --out ./docs/typedocs --excludePrivate",
+    "build_commonjs": "babel ./src  --extensions '.js,.ts' --out-dir ./dist/src && babel ./index.ts  --extensions '.ts' --out-dir ./dist && mkdir -p dist/dist && cp dist/*.js dist/dist && cp dist/*.js.map dist/dist && cp dist/*.wasm dist/dist",
+    "check_babel_version": "babel -V"
   },
   "build": {
     "publish": [
       {
         "provider": "github",
         "owner": "woodser",
-        "repo": "monero-javascript"
+        "repo": "monero-ts"
       }
     ]
   },
@@ -26,6 +29,7 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "@types/node": "^20.6.0",
     "ajv": "^6.12.6",
     "async": "2.6.4",
     "crypto-js": "^4.0.0",
@@ -37,20 +41,34 @@
     "serialize-javascript": "^3.1.0",
     "text-encoding": "^0.7.0",
     "tls": "0.0.1",
-    "web-worker": "^1.0.0"
+    "uuid": "3.3.2",
+    "web-worker": "^1.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.0",
-    "assert": "^2.0.0",
-    "babel-loader": "8.0.2",
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.22.17",
+    "@babel/node": "^7.18.10",
+    "@babel/plugin-transform-runtime": "^7.18.10",
+    "@babel/preset-env": "^7.22.15",
+    "@babel/preset-typescript": "^7.22.15",
+    "@babel/register": "^7.22.15",
+    "@types/jquery": "^3.5.19",
+    "@types/mocha": "^9.1.1",
+    "@typescript-eslint/eslint-plugin": "5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "assert": "^2.1.0",
+    "babel-loader": "^9.1.3",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
-    "eslint": "^8.0.1",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
     "https-browserify": "^1.0.0",
-    "jsdoc": "^4.0.0",
-    "memfs": "^3.2.0",
-    "minimist": "^1.2.5",
+    "jquery-csv": "^1.0.21",
+    "memfs": "^4.2.1",
     "mocha": "^9.1.3",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
@@ -58,12 +76,14 @@
     "querystring-es3": "^0.2.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "url": "^0.11.0",
-    "util": "^0.12.4",
-    "webpack": "^5.76.0",
-    "webpack-cli": "^4.8.0",
-    "webpack-merge": "4.1.4",
-    "worker-loader": "2.0.0",
-    "yargs-parser": "^18.1.3"
+    "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
+    "typedoc": "^0.25.1",
+    "typescript": "^5.2.2",
+    "url": "^0.11.2",
+    "util": "^0.12.5",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.9.0"
   }
 }

@@ -1,45 +1,39 @@
 # Connection Manager
 
-The following code demonstrates how to use monero-javascript's connection manager to manage daemon or wallet RPC endpoints.
+The following code demonstrates how to use monero-ts's connection manager to manage daemon or wallet RPC endpoints.
 
-See [MoneroConnectionManager](https://moneroecosystem.org/monero-javascript/MoneroConnectionManager.html) or [TestMoneroConnectionManager.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/test/TestMoneroConnectionManager.js) for more detail.
+See [MoneroConnectionManager](https://moneroecosystem.org/monero-ts/MoneroConnectionManager.html) or [TestMoneroConnectionManager.js](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroConnectionManager.js) for more detail.
 
-```javascript
-// imports
-const monerojs = require("monero-javascript");
-const MoneroRpcConnection = monerojs.MoneroRpcConnection;
-const MoneroConnectionManager = monerojs.MoneroConnectionManager;
-const MoneroConnectionManagerListener = monerojs.MoneroConnectionManagerListener;
+```typescript
+// import monero-ts (or import types individually)
+import * as moneroTs from "monero-ts";
 
 // create connection manager
-let connectionManager = new MoneroConnectionManager();
+let connectionManager = new moneroTs.MoneroConnectionManager();
 
 // add managed connections with priorities
-connectionManager.addConnection(new MoneroRpcConnection("http://localhost:38081").setPriority(1)); // use localhost as first priority
-connectionManager.addConnection(new MoneroRpcConnection("http://example.com")); // default priority is prioritized last
+await connectionManager.addConnection({uri: "http://localhost:28081", priority: 1}); // use localhost as first priority
+await connectionManager.addConnection("http://example.com"); // default priority is prioritized last
 
 // set current connection
-connectionManager.setConnection(new MoneroRpcConnection("http://foo.bar", "admin", "password")); // connection is added if new
+await connectionManager.setConnection({uri: "http://foo.bar", username: "admin", password: "password"}); // connection is added if new
 
-// create wallet with managed connections or set later
-let walletFull = await monerojs.createWalletFull({
-  path: "sample_wallet_full",
+// create wallet governed by connection manager
+let walletFull = await moneroTs.createWalletFull({
+  path: "sample_wallet_full"
   password: "supersecretpassword123",
-  networkType: "stagenet",
+  networkType: moneroTs.MoneroNetworkType.TESTNET,
   connectionManager: connectionManager,
   seed: "hefty value scenic...",
-  restoreHeight: 573936,
+  restoreHeight: 573936
 });
 
 // check connection status
 await connectionManager.checkConnection();
-console.log("Connection manager is connected: " + connectionManager.isConnected());
-console.log("Connection is online: " + connectionManager.getConnection().isOnline());
-console.log("Connection is authenticated: " + connectionManager.getConnection().isAuthenticated());
 
 // receive notifications of any changes to current connection
-connectionManager.addListener(new class extends MoneroConnectionManagerListener {
-  onConnectionChanged(connection) {
+connectionManager.addListener(new class extends moneroTs.MoneroConnectionManagerListener {
+  async onConnectionChanged(connection: moneroTs.MoneroRpcConnection) {
     console.log("Connection changed to: " + connection);
   }
 });
@@ -57,5 +51,5 @@ await connectionManager.checkConnections();
 let connections = connectionManager.getConnections();
 
 // clear connection manager
-connectionManager.clear();
+await connectionManager.clear();
 ```

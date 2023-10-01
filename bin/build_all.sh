@@ -18,18 +18,17 @@ HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 
 make release-static -j$HOST_NCORES		# don't exit because this will build translations directory even if build fails
 cd ../../../../ || exit 1
 
+# install node modules
+npm install || exit 1
+
 # build boost
 ./bin/build_boost_emscripten.sh || exit 1
 
 # build openssl
 ./bin/build_openssl_emscripten.sh || exit 1
 
-# build webassembly for distribution
-./bin/build_wasm_emscripten.sh || exit 1
-
-# build web worker
-npm install --force || exit 1
-./bin/build_web_worker.sh || exit 1
+# build dist (wasm, commonjs , web worker)
+./bin/build_dist.sh || exit 1
 
 # build browser tests
 ./bin/build_browser_tests.sh || exit 1
