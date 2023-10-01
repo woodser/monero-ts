@@ -124,7 +124,7 @@ await walletFull.close(true);
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
 2. `npm install monero-ts@0.9.0`
-3. Add `require("monero-ts")` to your application code.
+3. Add `import * as moneroTs from "monero-ts"` in your application code (or import types individually).
 
 #### Running in Node.js
 
