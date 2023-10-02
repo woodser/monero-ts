@@ -438,20 +438,6 @@ export default class GenUtils {
      */
     static deleteProperties(obj: any): void;
     /**
-     * Converts a CSV string to a 2-dimensional array of strings.
-     *
-     * @param csv is the CSV string to convert
-     * @return a 2-dimensional array of strings
-     */
-    static csvToArr(csv: any): any;
-    /**
-     * Converts the given array to a CSV string.
-     *
-     * @param arr is a 2-dimensional array of strings
-     * @return the CSV string
-     */
-    static arrToCsv(arr: any): any;
-    /**
      * Indicates if the given string contains whitespace.
      *
      * @param str is the string to test
@@ -558,13 +544,6 @@ export default class GenUtils {
      * @return true if the given file is a json file, false otherwise
      */
     static isJsonFile(file: any): any;
-    /**
-     * Determines if the given file is a csv file.
-     *
-     * @param file is a file
-     * @return true if the given file is a csv file, false otherwise
-     */
-    static isCsvFile(file: any): any;
     /**
      * Determines if the given file is a txt file.
      *
