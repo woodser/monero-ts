@@ -1,6 +1,5 @@
 import assert from "assert";
 import async from "async";
-import * as csv from 'jquery-csv';
 import { ChildProcess } from "child_process";
 
 /**
@@ -787,26 +786,6 @@ export default class GenUtils {
   }
 
   /**
-   * Converts a CSV string to a 2-dimensional array of strings.
-   * 
-   * @param csv is the CSV string to convert
-   * @return a 2-dimensional array of strings
-   */
-  static csvToArr(csv) {
-    return csv.toArrays(csv);
-  }
-
-  /**
-   * Converts the given array to a CSV string.
-   * 
-   * @param arr is a 2-dimensional array of strings
-   * @return the CSV string
-   */
-  static arrToCsv(arr) {
-    return csv.fromObjects(arr, {headers: false});
-  }
-
-  /**
    * Indicates if the given string contains whitespace.
    * 
    * @param str is the string to test
@@ -1055,16 +1034,6 @@ export default class GenUtils {
    */
   static isJsonFile(file) {
     return file.name.endsWith(".json") || file.type === 'application/json';
-  }
-
-  /**
-   * Determines if the given file is a csv file.
-   * 
-   * @param file is a file
-   * @return true if the given file is a csv file, false otherwise
-   */
-  static isCsvFile(file) {
-    return file.name.endsWith(".csv") || file.type === 'text/csv';
   }
 
   /**
