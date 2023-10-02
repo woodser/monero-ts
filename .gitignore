@@ -8,5 +8,4 @@ test_products
 /test_wallets/
 /build
 /browser_build/
-/dist/dist/
 /dist/src/test/
