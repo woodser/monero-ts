@@ -778,7 +778,7 @@ export default class MoneroWallet {
    * @param {number[]} [config.subaddressIndices] - source subaddress indices to transfer funds from (optional)
    * @param {boolean} [config.relay] - relay the transaction to peers to commit to the blockchain (default false)
    * @param {MoneroTxPriority} [config.priority] - transaction priority (default MoneroTxPriority.NORMAL)
-   * @param {MoneroDestination[] | MoneroDestinationModel[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
+   * @param {MoneroDestination[]} config.destinations - addresses and amounts in a multi-destination tx (required unless `address` and `amount` provided)
    * @param {number[]} [config.subtractFeeFrom] - list of destination indices to split the transaction fee (optional)
    * @param {string} [config.paymentId] - transaction payment ID (optional)
    * @param {bigint|string} [config.unlockTime] - minimum height or timestamp for the transaction to unlock (default 0)
