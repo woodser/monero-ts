@@ -65,7 +65,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   /**
    * Internal constructor which is given the memory address of a C++ wallet instance.
    * 
-   * This constructor should not be called through static wallet creation utilities in this class.
+   * This constructor should be called through static wallet creation utilities in this class.
    * 
    * @param {number} cppAddress - address of the wallet instance in C++
    * @param {string} path - path of the wallet instance

@@ -1,5 +1,5 @@
 // import test types
-import {LibraryUtils} from "../../index.js";
+import {LibraryUtils} from "../../index";
 import TestSampleCode from "./TestSampleCode";
 import TestMoneroUtils from "./TestMoneroUtils";
 import TestMoneroDaemonRpc from "./TestMoneroDaemonRpc";

@@ -94,9 +94,9 @@ async function main() {
   console.log("View key: " + await walletKeys.getPrivateViewKey());
 }
 ```
-Save the file as "offline_wallet_generator.js" and run the program with Node.js:
+Save the file as "offline_wallet_generator.ts" and run the program with Node.js:
 
-`node offline_wallet_generator.js`
+`node offline_wallet_generator.ts`
 
 The output should look similar to the following:
 ```

@@ -1,5 +1,5 @@
 import assert from "assert";
-import TestUtils from "./utils/TestUtils.js";
+import TestUtils from "./utils/TestUtils";
 import * as moneroTs from "../../index";
 
 /**

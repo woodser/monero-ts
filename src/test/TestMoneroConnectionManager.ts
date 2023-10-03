@@ -6,7 +6,7 @@ import {
   MoneroConnectionManager,
   MoneroConnectionManagerListener,
   MoneroRpcConnection
-} from "../../index.js";
+} from "../../index";
 
 /**
  * Test the Monero RPC connection manager.
