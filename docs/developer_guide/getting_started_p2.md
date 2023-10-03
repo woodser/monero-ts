@@ -32,7 +32,7 @@ A script is available to automatically download, build, and launch sample monero
 Alternatively, you can [manually download](https://raw.githubusercontent.com/woodser/xmr-sample-app/master/bin/web_template_script.sh) the script then run it.
 
 The script configures a project folder and serves sample web applications on port 9100. Open a web browser and navigate to http://localhost:9100 for links to the applications:
-* "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application, see "src/offline_wallet_generator.html" and "src/offline_wallet_generator.js".
+* "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application, see "src/offline_wallet_generator.html" and "src/offline_wallet_generator.ts".
 * "Sample code" demonstrates a handful of common monero-ts operations. Open the developer console to see the application's output.
 
 _Note: In order for the server to reflect changes to source files, you need to stop it by pressing "ctrl-c" in the terminal where the server is running and then rebuild the application and restart the server by typing: `./bin/build_browser_app.sh`._
@@ -40,7 +40,7 @@ _Note: In order for the server to reflect changes to source files, you need to s
 ## Modifying the offline wallet generator to display in a browser
 
 1. Navigate to the "./src/" directory.
-2. Delete the files "offline_wallet_generator.html" and "offline_wallet_generator.js". We'll be rewriting them from scratch.
+2. Delete the files "offline_wallet_generator.html" and "offline_wallet_generator.ts". We'll be rewriting them from scratch.
 3. Create the file "offline_wallet_generator.html" and insert the following:
     ```html
     <!DOCTYPE html>
@@ -56,10 +56,10 @@ _Note: In order for the server to reflect changes to source files, you need to s
     </html>
     ```
     Take note of the line with the `<script>` element:
-    `<script type="text/javascript" src="offline_wallet_generator.js"></script>`
+    `<script type="text/javascript" src="offline_wallet_generator.ts"></script>`
     This line will tell the browser to run your offline wallet generator program.
 4. Save the file.
-5. While still in the "src" directory, create the file "offline_wallet_generator.js" and insert the following from [part 1 of this guide](getting_started_p1.md):
+5. While still in the "src" directory, create the file "offline_wallet_generator.ts" and insert the following from [part 1 of this guide](getting_started_p1.md):
 	```typescript
   import * as moneroTs from "monero-ts";
 	
@@ -100,7 +100,7 @@ Add "div" elements between the opening and closing "body" tags to display each w
 
 ### Assigning wallet attributes to display in the browser
 
-Open offline_wallet_generator.js and find the lines that the print the wallet attributes to the console:
+Open offline_wallet_generator.ts and find the lines that the print the wallet attributes to the console:
 
 ```typescript
 console.log("Seed phrase: " + await walletKeys.getSeed());
@@ -141,7 +141,7 @@ The final HTML and JavaScript files should match the following:
 </html>
 ```
 
-### offline_wallet_generator.js
+### offline_wallet_generator.ts
 
 ```typescript
 import * as moneroTs from "monero-ts";

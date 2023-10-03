@@ -35,7 +35,7 @@ import {Filter,
         MoneroTx,
         MoneroMessageSignatureType,
         MoneroMessageSignatureResult,
-        MoneroCheckReserve} from "../../index.js";
+        MoneroCheckReserve} from "../../index";
 
 // test constants
 const SEND_DIVISOR = BigInt(10);
