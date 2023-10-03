@@ -68,6 +68,15 @@ export default class MoneroWallet {
   // state variables
   protected connectionManager: MoneroConnectionManager;
   protected connectionManagerListener: MoneroConnectionManagerListener;
+
+  /**
+   * Hidden constructor.
+   * 
+   * @private
+   */
+  constructor() {
+    // no code needed
+  }
   
   /**
    * Register a listener to receive wallet notifications.
