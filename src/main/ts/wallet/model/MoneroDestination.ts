@@ -6,7 +6,10 @@ import MoneroError from "../../common/MoneroError";
  */
 export default class MoneroDestination {
 
+  /** Destination address to send funds to. */
   address: string;
+
+  /** Amount to send to destination address. */
   amount: bigint;
 
   /**
