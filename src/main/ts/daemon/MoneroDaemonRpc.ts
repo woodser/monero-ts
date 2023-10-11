@@ -938,7 +938,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       config = new MoneroDaemonConfig({server: new MoneroRpcConnection(uriOrConfig as Partial<MoneroRpcConnection>)});
 
       // transfer worker proxy setting from rpc connection to daemon config
-      config.setProxyToWorker(config.proxyToWorker);
+      config.setProxyToWorker((uriOrConfig as Partial<MoneroRpcConnection>).proxyToWorker);
       config.getServer().setProxyToWorker(MoneroRpcConnection.DEFAULT_CONFIG.proxyToWorker);
     } else if (GenUtils.isArray(uriOrConfig)) {
       config = new MoneroDaemonConfig({cmd: uriOrConfig as string[]});
