@@ -1443,7 +1443,7 @@ export default class MoneroWallet {
     assert.equal(config.getBelowAmount(), undefined);
     assert.equal(config.getCanSplit(), undefined, "Cannot split transactions when sweeping an output");
     if (!config.getDestinations() || config.getDestinations().length !== 1 || !config.getDestinations()[0].getAddress()) throw new MoneroError("Must provide exactly one destination address to sweep output to");
-    if (config.getSubtractFeeFrom() && config.getSubtractFeeFrom().length > 0) throw new MoneroError("Sweep transfers do not support subtracting fees from destinations");
+    if (config.getSubtractFeeFrom() && config.getSubtractFeeFrom().length > 0) throw new MoneroError("Sweep transactions do not support subtracting fees from destinations");
     return config;  
   }
   
@@ -1456,6 +1456,7 @@ export default class MoneroWallet {
     if (config.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
     if (config.getSubaddressIndices() !== undefined && config.getSubaddressIndices().length === 0) config.setSubaddressIndices(undefined);
     if (config.getAccountIndex() === undefined && config.getSubaddressIndices() !== undefined) throw new MoneroError("Must provide account index if subaddress indices are provided");
+    if (config.getSubtractFeeFrom() && config.getSubtractFeeFrom().length > 0) throw new MoneroError("Sweep transactions do not support subtracting fees from destinations");
     return config;
   }
 }
