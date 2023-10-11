@@ -5,9 +5,16 @@ import MoneroRpcConnection from "../../common/MoneroRpcConnection";
  */
 export default class MoneroDaemonConfig {
 
+  /** Server config to monerod. */
   server: string | Partial<MoneroRpcConnection>;
+
+  /** Proxy requests to monerod to a worker (default true). */
   proxyToWorker: boolean;
+
+  /** Command to start monerod as a child process. */
   cmd: string[];
+
+  /** Interval in milliseconds to poll the daemon for updates (default 20000). */
   pollInterval: number;
   
   /**

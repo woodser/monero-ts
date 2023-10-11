@@ -1,6 +1,6 @@
 # Sending funds
 
-The following are examples of sending funds using monero-ts.
+The following are examples of sending funds using monero-ts.  See [MoneroTxConfig](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroTxConfig.html) for all options.
 
 ```typescript
 // create a transaction to send funds to an address, but do not relay

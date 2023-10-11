@@ -8,26 +8,67 @@ import MoneroUtils from "../../common/MoneroUtils";
  */
 export default class MoneroWalletConfig {
 
+  /** Path to the wallet to open or create. */
   path: string;
+
+  /** Password of the wallet to open or create. */
   password: string;
+
+  /** Network type of the wallet to open or create. */
   networkType: MoneroNetworkType;
+
+  /** Server config to monerod or monero-wallet-rpc. */
   server: string | Partial<MoneroRpcConnection>;
+
+  /** Govern the wallet's server connection. */
   connectionManager: MoneroConnectionManager;
+
+  /** Seed of the wallet to ceate (random wallet created if neither seed nor keys given). */
   seed: string;
+
+  /** Offset to derive a new seed from the given seed to recover a secret wallet. */
   seedOffset: string;
+
+  /** Indicates if the wallet seed is multisig. */
   isMultisig: boolean;
+
+  /** Primary address of the wallet to create (only provide if restoring from keys). */
   primaryAddress: string;
+
+  /** Private view key of the wallet to create. */
   privateViewKey: string;
+
+  /** Private spend key of the wallet to create. */
   privateSpendKey: string;
+
+  /** Block height to start scanning from (defaults to 0 unless generating random wallet). */
   restoreHeight: number;
+
+  /** Language of the wallet's seed phrase (defaults to "English" or auto-detected). */
   language: string;
+
+  /** Specifies if the currently open RPC wallet should be saved before being closed. */
   saveCurrent: boolean;
+
+  /** Proxies wallet operations to a worker in order to not block the main thread (default true). */
   proxyToWorker: boolean;
+
+  /** Node.js compatible file system to use (defaults to disk or in-memory FS if browser). */
   fs: any;
+
+  /** Wallet keys data to open. */
   keysData: Uint8Array;
+
+  /** Wallet cache data to open. */
   cacheData: Uint8Array;
+
+  /** Number of accounts to scan (optional). */
   accountLookahead: number;
+
+  /** Number of subaddresses to scan per account (optional). */
   subaddressLookahead: number;
+
+  /** Command to start monero-wallet-rpc as a child process. */
   cmd: string[];
   
   /**

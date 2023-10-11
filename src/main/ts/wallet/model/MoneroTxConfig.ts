@@ -1,29 +1,65 @@
 import assert from "assert";
 import MoneroDestination from "./MoneroDestination";
 import MoneroError from "../../common/MoneroError";
+import MoneroTxPriority from "./MoneroTxPriority";
 
 /**
  * Configures a transaction to send, sweep, or create a payment URI.
  */
 export default class MoneroTxConfig {
 
+  /** Single destination address (required unless `destinations` provided). */
   address: string;
+
+  /** Single destination amount (required unless `destinations provided). */
   amount: bigint;
+
+  /** Source account index to transfer funds from (required unless sweeping key image). */
   accountIndex: number;
+
+  /** Source subaddress index to send funds from (default all). */
   subaddressIndex: number;
+
+  /** Source subaddresses to send funds from (default all). */
   subaddressIndices: number[];
+
+  /** Relay the transaction to peers to commit to the blockchain if true (default false). */
   relay: boolean;
-  priority: number;
+
+  /** Transaction priority to adjust the miner fee (default MoneroTxPriority.NORMAL). */
+  priority: MoneroTxPriority;
+
+  /** Multiple destinations to send funds to, if applicable. */
   destinations: Partial<MoneroDestination>[];
+
+  /** List of destination indices to split the miner fee (optional). */
   subtractFeeFrom: number[];
+
+  /** Payment ID for the transaction. */
   paymentId: string;
+
+  /** Minimum height or timestamp for the transaction to unlock (default 0). */
   unlockTime: bigint;
+
+  /** Miner fee (calculated automatically). */
   fee: bigint;
+
+  /** Transaction note saved locally with the wallet (optional). */
   note: string;
+
+  /** Recipient name saved locally with the wallet (optional). */
   recipientName: string;
+
+  /** Allow funds to be transferred using multiple transactions if necessary (default false). */
   canSplit: boolean;
+
+  /** For sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds. */
   belowAmount: bigint;
+
+  /** For sweep requests, sweep each subaddress individually instead of together if true. */
   sweepEachSubaddress: boolean;
+
+  /** For sweep requests, key image of the output to sweep. */
   keyImage: string;
   
   /**
@@ -158,7 +194,7 @@ export default class MoneroTxConfig {
     return (this.destinations[0] as MoneroDestination).getAmount();
   }
   
-  addDestination(destinationOrAddress: MoneroDestination | string, amount?: bigint) {
+  addDestination(destinationOrAddress: MoneroDestination | string, amount?: bigint): MoneroTxConfig {
     if (typeof destinationOrAddress === "string") return this.addDestination(new MoneroDestination(destinationOrAddress, amount));
     assert(destinationOrAddress instanceof MoneroDestination);
     if (this.destinations === undefined) this.destinations = [];
