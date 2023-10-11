@@ -4336,7 +4336,7 @@ export default class TestMoneroWalletCommon {
       let subtractFeeFromDestinations = ctx.config.getSubtractFeeFrom() && ctx.config.getSubtractFeeFrom().length > 0;
       for (let tx of txs) {
 
-        // TODO: remove this after >18.2.2 when amounts_by_dest_list is official
+        // TODO: remove this after >18.3.1 when amounts_by_dest_list is official
         if (tx.getOutgoingTransfer().getDestinations() === undefined) {
           console.warn("Tx missing destinations");
           return;
@@ -4560,7 +4560,7 @@ export default class TestMoneroWalletCommon {
       // test destinations of sent tx
       if (tx.getOutgoingTransfer().getDestinations() === undefined) {
         assert(config.getCanSplit());
-        console.warn("Destinations not returned from split transactions"); // TODO: remove this after >18.2.2 when amounts_by_dest_list official
+        console.warn("Destinations not returned from split transactions"); // TODO: remove this after >18.3.1 when amounts_by_dest_list official
       } else {
         assert(tx.getOutgoingTransfer().getDestinations());
         assert(tx.getOutgoingTransfer().getDestinations().length > 0);

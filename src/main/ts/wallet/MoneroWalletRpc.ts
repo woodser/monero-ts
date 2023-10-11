@@ -1911,7 +1911,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a sent transaction.
    * 
-   * TODO: remove copyDestinations after >18.2.2 when subtractFeeFrom fully supported
+   * TODO: remove copyDestinations after >18.3.1 when subtractFeeFrom fully supported
    * 
    * @param {MoneroTxConfig} config - send config
    * @param {MoneroTxWallet} [tx] - existing transaction to initialize (optional)
@@ -2200,7 +2200,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       if (isOutgoing) {
         tx.setIsOutgoing(true);
         if (tx.getOutgoingTransfer()) {
-          if (transfer.getDestinations()) tx.getOutgoingTransfer().setDestinations(undefined); // overwrite to avoid reconcile error TODO: remove after >18.2.2 when amounts_by_dest supported
+          if (transfer.getDestinations()) tx.getOutgoingTransfer().setDestinations(undefined); // overwrite to avoid reconcile error TODO: remove after >18.3.1 when amounts_by_dest supported
           tx.getOutgoingTransfer().merge(transfer);
         }
         else tx.setOutgoingTransfer(transfer);
