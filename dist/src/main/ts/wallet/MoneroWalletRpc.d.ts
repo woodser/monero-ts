@@ -323,7 +323,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     /**
      * Initializes a sent transaction.
      *
-     * TODO: remove copyDestinations after >18.2.2 when subtractFeeFrom fully supported
+     * TODO: remove copyDestinations after >18.3.1 when subtractFeeFrom fully supported
      *
      * @param {MoneroTxConfig} config - send config
      * @param {MoneroTxWallet} [tx] - existing transaction to initialize (optional)
