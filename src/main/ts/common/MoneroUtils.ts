@@ -23,7 +23,7 @@ export default class MoneroUtils {
    * @return {string} the version of this monero-ts library
    */
   static getVersion() {
-    return "0.9.2";
+    return "0.9.3";
   }
   
   /**
