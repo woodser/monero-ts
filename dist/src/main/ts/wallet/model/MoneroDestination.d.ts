@@ -2,7 +2,9 @@
  * Models an outgoing transfer destination.
  */
 export default class MoneroDestination {
+    /** Destination address to send funds to. */
     address: string;
+    /** Amount to send to destination address. */
     amount: bigint;
     /**
      * Construct a destination to send funds to.

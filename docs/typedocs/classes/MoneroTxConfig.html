@@ -129,64 +129,118 @@ let config1 = new MoneroTxConfig({<br>
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="accountIndex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>account<wbr/>Index</span><a href="#accountIndex" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">account<wbr/>Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">account<wbr/>Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Source account index to transfer funds from (required unless sweeping key image).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="address" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>address</span><a href="#address" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">address</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">address</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Single destination address (required unless <code>destinations</code> provided).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="amount" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>amount</span><a href="#amount" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">amount</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">amount</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div>
+<div class="tsd-comment tsd-typography"><p>Single destination amount (required unless `destinations provided).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="belowAmount" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>below<wbr/>Amount</span><a href="#belowAmount" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">below<wbr/>Amount</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">below<wbr/>Amount</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div>
+<div class="tsd-comment tsd-typography"><p>For sweep requests, include outputs below this amount when sweeping wallet, account, subaddress, or all unlocked funds.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="canSplit" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>can<wbr/>Split</span><a href="#canSplit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">can<wbr/>Split</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">can<wbr/>Split</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Allow funds to be transferred using multiple transactions if necessary (default false).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="destinations" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>destinations</span><a href="#destinations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">destinations</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroDestination.html" class="tsd-signature-type tsd-kind-class">MoneroDestination</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">destinations</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroDestination.html" class="tsd-signature-type tsd-kind-class">MoneroDestination</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Multiple destinations to send funds to, if applicable.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="fee" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>fee</span><a href="#fee" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">fee</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">fee</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div>
+<div class="tsd-comment tsd-typography"><p>Miner fee (calculated automatically).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="keyImage" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>key<wbr/>Image</span><a href="#keyImage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">key<wbr/>Image</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">key<wbr/>Image</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>For sweep requests, key image of the output to sweep.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="note" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>note</span><a href="#note" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">note</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">note</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Transaction note saved locally with the wallet (optional).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="paymentId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>payment<wbr/>Id</span><a href="#paymentId" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">payment<wbr/>Id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">payment<wbr/>Id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Payment ID for the transaction.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="priority" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>priority</span><a href="#priority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">:</span> <a href="../enums/MoneroTxPriority.html" class="tsd-signature-type tsd-kind-enum">MoneroTxPriority</a></div>
+<div class="tsd-comment tsd-typography"><p>Transaction priority to adjust the miner fee (default MoneroTxPriority.NORMAL).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="recipientName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>recipient<wbr/>Name</span><a href="#recipientName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">recipient<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">recipient<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Recipient name saved locally with the wallet (optional).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="relay" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>relay</span><a href="#relay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">relay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">relay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Relay the transaction to peers to commit to the blockchain if true (default false).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="subaddressIndex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>subaddress<wbr/>Index</span><a href="#subaddressIndex" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">subaddress<wbr/>Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">subaddress<wbr/>Index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Source subaddress index to send funds from (default all).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="subaddressIndices" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>subaddress<wbr/>Indices</span><a href="#subaddressIndices" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">subaddress<wbr/>Indices</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">subaddress<wbr/>Indices</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>Source subaddresses to send funds from (default all).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="subtractFeeFrom" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>subtract<wbr/>Fee<wbr/>From</span><a href="#subtractFeeFrom" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">subtract<wbr/>Fee<wbr/>From</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">subtract<wbr/>Fee<wbr/>From</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-comment tsd-typography"><p>List of destination indices to split the miner fee (optional).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="sweepEachSubaddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sweep<wbr/>Each<wbr/>Subaddress</span><a href="#sweepEachSubaddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">sweep<wbr/>Each<wbr/>Subaddress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">sweep<wbr/>Each<wbr/>Subaddress</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>For sweep requests, sweep each subaddress individually instead of together if true.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="unlockTime" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>unlock<wbr/>Time</span><a href="#unlockTime" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">unlock<wbr/>Time</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div></section></section>
+<div class="tsd-signature"><span class="tsd-kind-property">unlock<wbr/>Time</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">bigint</span></div>
+<div class="tsd-comment tsd-typography"><p>Minimum height or timestamp for the transaction to unlock (default 0).</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="addDestination" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Destination</span><a href="#addDestination" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="addDestination.addDestination-1"><span class="tsd-kind-call-signature">add<wbr/>Destination</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">destinationOrAddress</span>, <span class="tsd-kind-parameter">amount</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#addDestination.addDestination-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="addDestination.addDestination-1"><span class="tsd-kind-call-signature">add<wbr/>Destination</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">destinationOrAddress</span>, <span class="tsd-kind-parameter">amount</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroTxConfig.html" class="tsd-signature-type tsd-kind-class">MoneroTxConfig</a><a href="#addDestination.addDestination-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -195,7 +249,7 @@ let config1 = new MoneroTxConfig({<br>
 <h5><span class="tsd-kind-parameter">destinationOrAddress</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="MoneroDestination.html" class="tsd-signature-type tsd-kind-class">MoneroDestination</a></h5></li>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">bigint</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></li></ul></section>
+<h4 class="tsd-returns-title">Returns <a href="MoneroTxConfig.html" class="tsd-signature-type tsd-kind-class">MoneroTxConfig</a></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="copy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>copy</span><a href="#copy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
