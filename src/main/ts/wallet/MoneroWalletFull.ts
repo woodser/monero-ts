@@ -1049,11 +1049,11 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async signTxs(unsignedTxHex: string): Promise<string> {
+  async signTxs(unsignedTxHex: string): Promise<MoneroTxSet> {
     if (this.getWalletProxy()) return this.getWalletProxy().signTxs(unsignedTxHex);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { return this.module.sign_txs(this.cppAddress, unsignedTxHex); }
+      try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBigInts(this.module.sign_txs(this.cppAddress, unsignedTxHex)))); }
       catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
     });
   }
@@ -2138,7 +2138,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async signTxs(unsignedTxHex) {
-    return this.invokeWorker("signTxs", Array.from(arguments));
+    return new MoneroTxSet(await this.invokeWorker("signTxs", Array.from(arguments)));
   }
   
   async submitTxs(signedTxHex) {

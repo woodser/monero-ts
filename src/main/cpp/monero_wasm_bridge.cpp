@@ -888,12 +888,17 @@ string monero_wasm_bridge::describe_tx_set(int handle, const string& tx_set_str)
   monero_wallet* wallet = (monero_wallet*) handle;
   monero_tx_set tx_set = monero_tx_set::deserialize(tx_set_str);
   monero_tx_set described_tx_set = wallet->describe_tx_set(tx_set);
-  return described_tx_set.serialize();
+  std::string monero_tx_set_json = described_tx_set.serialize();
+  monero_utils::free(described_tx_set.m_txs);
+  return monero_tx_set_json;
 }
 
 string monero_wasm_bridge::sign_txs(int handle, const string& unsigned_tx_hex) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->sign_txs(unsigned_tx_hex);
+  monero_tx_set signed_tx_set = wallet->sign_txs(unsigned_tx_hex);
+  std::string monero_tx_set_json = signed_tx_set.serialize();
+  monero_utils::free(signed_tx_set.m_txs);
+  return monero_tx_set_json;
 }
 
 void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback) {

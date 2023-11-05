@@ -5042,7 +5042,7 @@ export default class TestMoneroWalletCommon {
     assert.equal(info.getNumParticipants(), N);
   }
   
-  protected async testViewOnlyAndOfflineWallets(viewOnlyWallet, offlineWallet) {
+  protected async testViewOnlyAndOfflineWallets(viewOnlyWallet: MoneroWallet, offlineWallet: MoneroWallet) {
     
     // wait for txs to confirm and for sufficient unlocked balance
     await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
@@ -5112,8 +5112,10 @@ export default class TestMoneroWalletCommon {
     assert(unsignedTx.getTxSet().getUnsignedTxHex());
     
     // sign tx using offline wallet
-    let signedTxHex = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
-    assert(signedTxHex.length > 0);
+    let signedTxSet = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
+    assert(signedTxSet.getSignedTxHex().length > 0);
+    assert.equal(signedTxSet.getTxs().length, 1);
+    assert(signedTxSet.getTxs()[0].getHash().length > 0);
     
     // parse or "describe" unsigned tx set
     let describedTxSet = await offlineWallet.describeUnsignedTxSet(unsignedTx.getTxSet().getUnsignedTxHex());
@@ -5121,7 +5123,7 @@ export default class TestMoneroWalletCommon {
     
     // submit signed tx using view-only wallet
     if (this.testConfig.testRelays) {
-      let txHashes = await viewOnlyWallet.submitTxs(signedTxHex);
+      let txHashes = await viewOnlyWallet.submitTxs(signedTxSet.getSignedTxHex());
       assert.equal(txHashes.length, 1);
       assert.equal(txHashes[0].length, 64);
       await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(viewOnlyWallet); // wait for confirmation for other tests
