@@ -47,7 +47,7 @@ get_boost_github() {
   [ -d ${SDK_PATH} ] || { echo "get_boost_github: Missing directory: ${SDK_PATH}"; return 1; }
 
   echo "Downloading boost from GitHub..."
-  git clone --recursive https://github.com/boostorg/boost.git --branch "boost-1.76.0" "${SDK_PATH}/boost-sdk" \
+  git clone --recursive https://github.com/boostorg/boost.git --branch "boost-1.83.0" "${SDK_PATH}/boost-sdk" \
   || {
     echo "Download failed"
     return 1
@@ -147,8 +147,8 @@ get_boost_source() {
   [ -d ${SDK_PATH} ] || { echo "get_boost_source: Missing directory: ${SDK_PATH}"; return 1; }
 
   # Github source is missing stuff
-  local DL_URL="https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/"
-  local DL_FILE="boost_1_76_0.tar.gz"
+  local DL_URL="https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/"
+  local DL_FILE="boost_1_83_0.tar.gz"
 
   check_archive "${SDK_PATH}/${DL_FILE}" \
   && {
