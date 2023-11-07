@@ -3,14 +3,12 @@
 . $(dirname $0)/download_deps.sh
 [ -f $(dirname $0)/colors.sh ] && . $(dirname $0)/colors.sh
 
-PLATFORM="emscripten"
-
 SRC_DIR="external/monero-cpp/external/boost-sdk"
 INSTALL_DIR="build/boost"
 
 SRC_PATH="$(pwd)/$SRC_DIR"
 INSTALL_PATH="$(pwd)/$INSTALL_DIR"
-JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
+JAM_CONFIG_PATH="$(pwd)/configs/emscripten.jam"
 
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
