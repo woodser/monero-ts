@@ -38,7 +38,7 @@ The keys-only wallet has a file size just under 1/5 that of a standard Wasm wall
 Open your preferred text editor or IDE and copy the following code to a new, blank file:
 
 ```typescript
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 main();
 async function main() {
@@ -48,7 +48,7 @@ async function main() {
 
 Note the program's two components:
 1. An "import" statement to import the monero-ts library:
-`import * as moneroTs from "monero-ts";`
+`import moneroTs from "monero-ts";`
 2. An asynchronous "main" function so that calls to monero-ts can be "awaited" (most calls are asynchronous):
 `async function main() {}`
 
@@ -57,7 +57,7 @@ Note the program's two components:
 monero-javscript implements keys-only wallets in the [MoneroWalletKeys](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
 ```typescript
 // create a random keys-only (offline) stagenet wallet
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 let keysOnlyWallet = await moneroTs.createWalletKeys({networkType: moneroTs.MoneroNetworkType.STAGENET, language: "English"});
 ```
 
@@ -79,7 +79,7 @@ console.log("View key: " + await walletKeys.getPrivateViewKey());
 
 The finished program should match the following:
 ```typescript
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 main();
 async function main() {
