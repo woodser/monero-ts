@@ -141,7 +141,7 @@ Node.js 18 LTS is recommended and requires using the `--no-experimental-fetch` f
 
 ## Building WebAssembly binaries from source
 
-This project uses WebAssembly to package and execute Monero's source code for use in a browser or other WebAssembly-supported environment.
+This project uses WebAssembly to package and execute Monero's source code for a browser or other WebAssembly-supported environment.
 
 Compiled WebAssembly binaries are committed to ./dist for convenience, but these files can be built independently from source code:
 
