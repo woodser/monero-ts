@@ -44,7 +44,7 @@ export default class TestSampleCode {
       it("Sample code demonstration", async function() {
         
         // import monero-ts (or import as needed)
-        // import * as moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
+        // import moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
 
         // connect to daemon
         let daemon = await moneroTs.connectToDaemonRpc("http://localhost:28081");
@@ -63,7 +63,8 @@ export default class TestSampleCode {
             uri: "http://localhost:28081",
             username: "superuser",
             password: "abctesting123"
-          }
+          },
+          proxyToWorker: false
         });
 
         // synchronize with progress notifications
@@ -117,7 +118,7 @@ export default class TestSampleCode {
       it("Connection manager demonstration", async function() {
 
         // import monero-ts (or import types individually)
-        // import * as moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
+        // import moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
         
         // create connection manager
         let connectionManager = new moneroTs.MoneroConnectionManager();

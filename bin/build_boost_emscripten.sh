@@ -3,14 +3,12 @@
 . $(dirname $0)/download_deps.sh
 [ -f $(dirname $0)/colors.sh ] && . $(dirname $0)/colors.sh
 
-PLATFORM="emscripten"
-
 SRC_DIR="external/monero-cpp/external/boost-sdk"
 INSTALL_DIR="build/boost"
 
 SRC_PATH="$(pwd)/$SRC_DIR"
 INSTALL_PATH="$(pwd)/$INSTALL_DIR"
-JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
+JAM_CONFIG_PATH="$(pwd)/configs/emscripten.jam"
 
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
@@ -101,11 +99,11 @@ cat "$JAM_CONFIG_PATH" >> project-config.jam
 # Clean 
 rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
+./b2 --clean
 
 
 HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
-
-./b2 -q -a -j $HOST_NCORES    \
+./b2 --without-thread -q -a -j $HOST_NCORES    \
   toolset=clang-emscripten    \
   threading=single            \
   link=static                 \

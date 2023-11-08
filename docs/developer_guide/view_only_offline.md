@@ -18,7 +18,7 @@ To sign and submit transactions using view-only and offline wallets:
 The following code demonstrates creating, signing, and submitting transactions using view-only and offline wallets:
 
 ```typescript
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 // create and sync view-only wallet without spend key
 let viewOnlyWallet = await moneroTs.createWalletFull({
@@ -62,8 +62,8 @@ let describedTxSet = await offlineWallet.describeTxSet(unsignedTx.getTxSet());
 let fee = describedTxSet.getTxs()[0].getFee();	// "Are you sure you want to send... ?"
   
 // sign tx using offline wallet
-let signedTxHex = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
+let signedTxSet = await offlineWallet.signTxs(unsignedTx.getTxSet().getUnsignedTxHex());
 
 // submit signed tx using view-only wallet
-let txHashes = await viewOnlyWallet.submitTxs(signedTxHex);
+let txHashes = await viewOnlyWallet.submitTxs(signedTxSet.getSignedTxHex());
 ```

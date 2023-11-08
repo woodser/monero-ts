@@ -911,9 +911,9 @@ export default class MoneroWallet {
    * Sign unsigned transactions from a view-only wallet.
    * 
    * @param {string} unsignedTxHex - unsigned transaction hex from when the transactions were created
-   * @return {Promise<string>} the signed transaction hex
+   * @return {Promise<MoneroTxSet>} the signed transaction set
    */
-  async signTxs(unsignedTxHex: string): Promise<string> {
+  async signTxs(unsignedTxHex: string): Promise<MoneroTxSet> {
     throw new MoneroError("Not supported");
   }
   

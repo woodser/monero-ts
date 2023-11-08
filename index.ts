@@ -6,6 +6,8 @@
  * See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
  */
 
+var asyncifyStubs = {};
+
 // import common models
 import GenUtils from "./src/main/ts/common/GenUtils";
 import Filter from "./src/main/ts/common/Filter";
@@ -94,6 +96,7 @@ import ThreadPool from "./src/main/ts/common/ThreadPool";
 
 // export types
 export {
+  asyncifyStubs,
   GenUtils,
   Filter,
   MoneroError,

@@ -1074,13 +1074,13 @@ export default class MoneroWalletRpc extends MoneroWallet {
     return MoneroWalletRpc.convertRpcDescribeTransfer(resp.result);
   }
   
-  async signTxs(unsignedTxHex: string): Promise<string> {
+  async signTxs(unsignedTxHex: string): Promise<MoneroTxSet> {
     let resp = await this.config.getServer().sendJsonRequest("sign_transfer", {
       unsigned_txset: unsignedTxHex,
       export_raw: false
     });
     await this.poll();
-    return resp.result.signed_txset
+    return MoneroWalletRpc.convertRpcSentTxsToTxSet(resp.result);
   }
   
   async submitTxs(signedTxHex: string): Promise<string[]> {
@@ -1979,9 +1979,9 @@ export default class MoneroWalletRpc extends MoneroWallet {
     
     // build shared tx set
     let txSet = MoneroWalletRpc.convertRpcTxSet(rpcTxs);
-    
+
     // get number of txs
-    let numTxs = rpcTxs.fee_list ? rpcTxs.fee_list.length : 0;
+    let numTxs = rpcTxs.fee_list ? rpcTxs.fee_list.length : rpcTxs.tx_hash_list ? rpcTxs.tx_hash_list.length : 0;
     
     // done if rpc response contains no txs
     if (numTxs === 0) {
@@ -1989,7 +1989,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       return txSet;
     }
     
-    // pre-initialize txs if none given
+    // initialize txs if none given
     if (txs) txSet.setTxs(txs);
     else {
       txs = [];
