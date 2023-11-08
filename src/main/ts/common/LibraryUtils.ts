@@ -270,6 +270,7 @@ export default class LibraryUtils {
   protected static initWasmModule(wasmModule) {
     wasmModule.taskQueue = new ThreadPool(1);
     wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
+    wasmModule.asyncifyStubs = {};
   }
   
   protected static prefixWindowsPath(path) {
