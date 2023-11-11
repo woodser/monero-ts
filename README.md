@@ -35,7 +35,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 
 ```typescript
 // import monero-ts (or import types individually)
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 // connect to daemon
 let daemon = await moneroTs.connectToDaemonRpc("http://localhost:28081");

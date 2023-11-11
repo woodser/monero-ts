@@ -61,7 +61,7 @@ _Note: In order for the server to reflect changes to source files, you need to s
 4. Save the file.
 5. While still in the "src" directory, create the file "offline_wallet_generator.ts" and insert the following from [part 1 of this guide](getting_started_p1.md):
 	```typescript
-  import * as moneroTs from "monero-ts";
+  import moneroTs from "monero-ts";
 	
 	main();
 	async function main() {
@@ -144,7 +144,7 @@ The final HTML and JavaScript files should match the following:
 ### offline_wallet_generator.ts
 
 ```typescript
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 main();
 async function main() {
