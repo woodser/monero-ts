@@ -4726,7 +4726,7 @@ export default class TestMoneroWalletCommon {
         throw new Error("Should have thrown error making wallet multisig with bad input");
       } catch (err: any) {
         if (!(err instanceof MoneroError)) throw err;
-        assert.equal(err.message, "basic_string"); // TODO (monero-project): improve error message https://github.com/monero-project/monero/issues/8493
+        assert.equal(err.message, "Kex message unexpectedly small.");
       }
       
       // make the wallet multisig
