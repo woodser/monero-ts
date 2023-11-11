@@ -642,9 +642,9 @@ export default class MoneroWallet {
      * Sign unsigned transactions from a view-only wallet.
      *
      * @param {string} unsignedTxHex - unsigned transaction hex from when the transactions were created
-     * @return {Promise<string>} the signed transaction hex
+     * @return {Promise<MoneroTxSet>} the signed transaction set
      */
-    signTxs(unsignedTxHex: string): Promise<string>;
+    signTxs(unsignedTxHex: string): Promise<MoneroTxSet>;
     /**
      * Submit signed transactions from a view-only wallet.
      *

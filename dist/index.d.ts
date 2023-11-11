@@ -1,8 +1,3 @@
-/**
- * Import and export all library types.
- *
- * See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
- */
 import GenUtils from "./src/main/ts/common/GenUtils";
 import Filter from "./src/main/ts/common/Filter";
 import MoneroError from "./src/main/ts/common/MoneroError";
@@ -79,13 +74,12 @@ import { MoneroWalletKeys } from "./src/main/ts/wallet/MoneroWalletKeys";
 import MoneroWalletFull from "./src/main/ts/wallet/MoneroWalletFull";
 import MoneroUtils from "./src/main/ts/common/MoneroUtils";
 import ThreadPool from "./src/main/ts/common/ThreadPool";
-export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool };
 /**
  * <p>Get the version of the monero-ts library.<p>
  *
  * @return {string} the version of this monero-ts library
  */
-export declare function getVersion(): string;
+declare function getVersion(): string;
 /**
  * <p>Create a client connected to monerod.<p>
  *
@@ -115,7 +109,7 @@ export declare function getVersion(): string;
  * @param {string} [password] - password to authenticate with monerod
  * @return {Promise<MoneroDaemonRpc>} the daemon RPC client
  */
-export declare function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroDaemonConfig> | string[], username?: string, password?: string): Promise<MoneroDaemonRpc>;
+declare function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroDaemonConfig> | string[], username?: string, password?: string): Promise<MoneroDaemonRpc>;
 /**
  * <p>Create a client connected to monero-wallet-rpc.</p>
  *
@@ -149,7 +143,7 @@ export declare function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroR
  * @param {string} [password] - password to authenticate with monero-wallet-rpc
  * @return {Promise<MoneroWalletRpc>} the wallet RPC client
  */
-export declare function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroWalletConfig> | string[], username?: string, password?: string): Promise<MoneroWalletRpc>;
+declare function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroWalletConfig> | string[], username?: string, password?: string): Promise<MoneroWalletRpc>;
 /**
  * <p>Create a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
  *
@@ -203,7 +197,7 @@ export declare function connectToWalletRpc(uriOrConfig: string | Partial<MoneroR
  * @param {any} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
  * @return {Promise<MoneroWalletFull>} the created wallet
  */
-export declare function createWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;
+declare function createWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;
 /**
  * <p>Open an existing Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
  *
@@ -233,7 +227,7 @@ export declare function createWalletFull(config: Partial<MoneroWalletConfig>): P
  * @param {any} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
  * @return {Promise<MoneroWalletFull>} the opened wallet
  */
-export declare function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;
+declare function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;
 /**
  * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
  *
@@ -257,4 +251,5 @@ export declare function openWalletFull(config: Partial<MoneroWalletConfig>): Pro
  * @param {string} [config.language] - language of the wallet's seed (defaults to "English" or auto-detected)
  * @return {Promise<MoneroWalletKeys>} the created wallet
  */
-export declare function createWalletKeys(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletKeys>;
+declare function createWalletKeys(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletKeys>;
+export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool, getVersion, connectToDaemonRpc, connectToWalletRpc, createWalletFull, openWalletFull, createWalletKeys };

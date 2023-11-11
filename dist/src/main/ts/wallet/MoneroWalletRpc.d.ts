@@ -232,7 +232,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     sweepDust(relay?: boolean): Promise<MoneroTxWallet[]>;
     relayTxs(txsOrMetadatas: (MoneroTxWallet | string)[]): Promise<string[]>;
     describeTxSet(txSet: MoneroTxSet): Promise<MoneroTxSet>;
-    signTxs(unsignedTxHex: string): Promise<string>;
+    signTxs(unsignedTxHex: string): Promise<MoneroTxSet>;
     submitTxs(signedTxHex: string): Promise<string[]>;
     signMessage(message: string, signatureType?: MoneroMessageSignatureType, accountIdx?: number, subaddressIdx?: number): Promise<string>;
     verifyMessage(message: string, address: string, signature: string): Promise<MoneroMessageSignatureResult>;
