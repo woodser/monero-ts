@@ -172,7 +172,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     sweepDust(relay?: boolean): Promise<MoneroTxWallet[]>;
     relayTxs(txsOrMetadatas: (MoneroTxWallet | string)[]): Promise<string[]>;
     describeTxSet(txSet: MoneroTxSet): Promise<MoneroTxSet>;
-    signTxs(unsignedTxHex: string): Promise<string>;
+    signTxs(unsignedTxHex: string): Promise<MoneroTxSet>;
     submitTxs(signedTxHex: string): Promise<string[]>;
     signMessage(message: string, signatureType?: MoneroMessageSignatureType, accountIdx?: number, subaddressIdx?: number): Promise<string>;
     verifyMessage(message: string, address: string, signature: string): Promise<MoneroMessageSignatureResult>;
@@ -316,7 +316,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     sweepDust(relay: any): Promise<MoneroTxWallet[]>;
     relayTxs(txsOrMetadatas: any): Promise<any>;
     describeTxSet(txSet: any): Promise<MoneroTxSet>;
-    signTxs(unsignedTxHex: any): Promise<any>;
+    signTxs(unsignedTxHex: any): Promise<MoneroTxSet>;
     submitTxs(signedTxHex: any): Promise<any>;
     signMessage(message: any, signatureType: any, accountIdx: any, subaddressIdx: any): Promise<any>;
     verifyMessage(message: any, address: any, signature: any): Promise<MoneroMessageSignatureResult>;
