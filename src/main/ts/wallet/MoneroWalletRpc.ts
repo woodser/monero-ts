@@ -2507,6 +2507,7 @@ class WalletPoller {
       } catch (err: any) {
         that.numPolling--;
         console.error("Failed to background poll " + await that.wallet.getPath());
+        console.error(err);
       }
     });
   }
@@ -2526,14 +2527,26 @@ class WalletPoller {
           .setSubaddressIndex(tx.getOutgoingTransfer().getSubaddressIndices().length === 1 ? tx.getOutgoingTransfer().getSubaddressIndices()[0] : undefined) // initialize if transfer sourced from single subaddress
           .setTx(tx);
       tx.setInputs([output]);
-      for (let listener of this.wallet.getListeners()) await listener.onOutputSpent(output);
+      for (let listener of this.wallet.getListeners())  {
+        try {
+          await listener.onOutputSpent(output);
+        } catch (err: any) {
+          console.error("onOutputSpent caught", err);
+        }
+      }
     }
     
     // notify received outputs
     if (tx.getIncomingTransfers() !== undefined) {
       if (tx.getOutputs() !== undefined && tx.getOutputs().length > 0) { // TODO (monero-project): outputs only returned for confirmed txs
         for (let output of tx.getOutputs()) {
-          for (let listener of this.wallet.getListeners()) await listener.onOutputReceived(output);
+          for (let listener of this.wallet.getListeners()) {
+            try {
+              await listener.onOutputReceived(output);
+            } catch (err: any) {
+              console.error("onOutputReceived caught", err);
+            }
+          }
         }
       } else { // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using incoming transfer values
         let outputs = [];
@@ -2546,7 +2559,13 @@ class WalletPoller {
         }
         tx.setOutputs(outputs);
         for (let listener of this.wallet.getListeners()) {
-          for (let output of tx.getOutputs()) await listener.onOutputReceived(output);
+          for (let output of tx.getOutputs()) {
+            try {
+              await listener.onOutputReceived(output);
+            } catch (err: any) {
+              console.error("onOutputReceived caught", err);
+            }
+          }
         }
       }
     }
