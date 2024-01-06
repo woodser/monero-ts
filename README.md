@@ -154,7 +154,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 3. `cd monero-ts`
 4. `./bin/update_submodules.sh`
 5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
-6. [Download and install](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) unbound 1.17.0 to your home directory (`~`).
+6. [Download and install](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) unbound 1.19.0 to your home directory (`~/unbound-1.19.0`).
 7. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
