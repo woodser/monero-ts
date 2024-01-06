@@ -128,7 +128,7 @@ await walletFull.close(true);
 
 #### Running in Node.js
 
-Node.js 18 LTS is recommended and requires using the `--no-experimental-fetch` flag. Alternatively, Node.js 16 LTS works.
+Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the `--experimental-wasm-threads` flag.
 
 #### Building a browser application
 1. Bundle your application code for a browser. See [xmr-sample-app](https://github.com/woodser/xmr-sample-app) for an example project using webpack.
