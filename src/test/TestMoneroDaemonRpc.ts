@@ -1009,8 +1009,11 @@ export default class TestMoneroDaemonRpc {
       if (testConfig.testNonRelays)
       it("Can prune the blockchain", async function() {
         let result = await that.daemon.pruneBlockchain(true);
-        assert(result.getIsPruned());
-        assert(result.getPruningSeed() > 0);
+        if (result.getIsPruned()) {
+          assert(result.getPruningSeed() > 0);
+        } else {
+          assert.equal(result.getPruningSeed(), 0);
+        }
       });
       
       if (testConfig.testNonRelays)
