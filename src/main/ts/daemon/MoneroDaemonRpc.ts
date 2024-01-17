@@ -863,71 +863,75 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // return promise which resolves after starting monerod
     let uri;
     let output = "";
-    return new Promise(function(resolve, reject) {
+    try {
+      return await new Promise(function(resolve, reject) {
       
-      // handle stdout
-      process.stdout.on('data', async function(data) {
-        let line = data.toString();
-        LibraryUtils.log(2, line);
-        output += line + '\n'; // capture output in case of error
+        // handle stdout
+        process.stdout.on('data', async function(data) {
+          let line = data.toString();
+          LibraryUtils.log(2, line);
+          output += line + '\n'; // capture output in case of error
+          
+          // extract uri from e.g. "I Binding on 127.0.0.1 (IPv4):38085"
+          let uriLineContains = "Binding on ";
+          let uriLineContainsIdx = line.indexOf(uriLineContains);
+          if (uriLineContainsIdx >= 0) {
+            let host = line.substring(uriLineContainsIdx + uriLineContains.length, line.lastIndexOf(' '));
+            let unformattedLine = line.replace(/\u001b\[.*?m/g, '').trim(); // remove color formatting
+            let port = unformattedLine.substring(unformattedLine.lastIndexOf(':') + 1);
+            let sslIdx = config.cmd.indexOf("--rpc-ssl");
+            let sslEnabled = sslIdx >= 0 ? "enabled" == config.cmd[sslIdx + 1].toLowerCase() : false;
+            uri = (sslEnabled ? "https" : "http") + "://" + host + ":" + port;
+          }
+          
+          // read success message
+          if (line.indexOf("core RPC server started ok") >= 0) {
+            
+            // get username and password from params
+            let userPassIdx = config.cmd.indexOf("--rpc-login");
+            let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
+            let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
+            let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
+            
+            // create client connected to internal process
+            config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
+            config.setProxyToWorker(config.proxyToWorker);
+            config.cmd = undefined
+            let daemon = await MoneroDaemonRpc.connectToDaemonRpc(config);
+            daemon.process = process;
+            
+            // resolve promise with client connected to internal process 
+            this.isResolved = true;
+            resolve(daemon);
+          }
+        });
         
-        // extract uri from e.g. "I Binding on 127.0.0.1 (IPv4):38085"
-        let uriLineContains = "Binding on ";
-        let uriLineContainsIdx = line.indexOf(uriLineContains);
-        if (uriLineContainsIdx >= 0) {
-          let host = line.substring(uriLineContainsIdx + uriLineContains.length, line.lastIndexOf(' '));
-          let unformattedLine = line.replace(/\u001b\[.*?m/g, '').trim(); // remove color formatting
-          let port = unformattedLine.substring(unformattedLine.lastIndexOf(':') + 1);
-          let sslIdx = config.cmd.indexOf("--rpc-ssl");
-          let sslEnabled = sslIdx >= 0 ? "enabled" == config.cmd[sslIdx + 1].toLowerCase() : false;
-          uri = (sslEnabled ? "https" : "http") + "://" + host + ":" + port;
-        }
+        // handle stderr
+        process.stderr.on('data', function(data) {
+          if (LibraryUtils.getLogLevel() >= 2) console.error(data);
+        });
         
-        // read success message
-        if (line.indexOf("core RPC server started ok") >= 0) {
-          
-          // get username and password from params
-          let userPassIdx = config.cmd.indexOf("--rpc-login");
-          let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
-          let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
-          let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
-          
-          // create client connected to internal process
-          config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
-          config.setProxyToWorker(config.proxyToWorker);
-          config.cmd = undefined
-          let daemon = await MoneroDaemonRpc.connectToDaemonRpc(config);
-          daemon.process = process;
-          
-          // resolve promise with client connected to internal process 
-          this.isResolved = true;
-          resolve(daemon);
-        }
+        // handle exit
+        process.on("exit", function(code) {
+          if (!this.isResolved) reject(new Error("monerod process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
+        });
+        
+        // handle error
+        process.on("error", function(err) {
+          if (err.message.indexOf("ENOENT") >= 0) reject(new Error("monerod does not exist at path '" + config.cmd[0] + "'"));
+          if (!this.isResolved) reject(err);
+        });
+        
+        // handle uncaught exception
+        process.on("uncaughtException", function(err, origin) {
+          console.error("Uncaught exception in monerod process: " + err.message);
+          console.error(origin);
+          if (!this.isResolved) reject(err);
+        });
       });
-      
-      // handle stderr
-      process.stderr.on('data', function(data) {
-        if (LibraryUtils.getLogLevel() >= 2) console.error(data);
-      });
-      
-      // handle exit
-      process.on("exit", function(code) {
-        if (!this.isResolved) reject(new Error("monerod process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
-      });
-      
-      // handle error
-      process.on("error", function(err) {
-        if (err.message.indexOf("ENOENT") >= 0) reject(new Error("monerod does not exist at path '" + config.cmd[0] + "'"));
-        if (!this.isResolved) reject(err);
-      });
-      
-      // handle uncaught exception
-      process.on("uncaughtException", function(err, origin) {
-        console.error("Uncaught exception in monerod process: " + err.message);
-        console.error(origin);
-        reject(err);
-      });
-    });
+    } catch (err: any) {
+      throw new MoneroError(err.message);
+    }
   }
   
   protected static normalizeConfig(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroDaemonConfig> | string[], username?: string, password?: string): MoneroDaemonConfig {
