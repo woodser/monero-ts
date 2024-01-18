@@ -19,8 +19,9 @@ export default class LibraryUtils {
   static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
 
     // get worker path in dist (assumes library is running from src or dist)
-    let curPath = __dirname;
-    if (curPath.indexOf("monero-ts/dist") === -1) curPath = path.join(curPath, "../../../../dist/src/main/js/common");
+    let curPath = path.normalize(__dirname);
+    const targetPath = path.join('monero-ts', 'dist');
+    if (!curPath.includes(targetPath)) curPath = path.join(curPath, "../../../../dist/src/main/js/common");
     return LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
   }();
   static WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
