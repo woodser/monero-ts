@@ -10,7 +10,7 @@ Three types of wallets can be created:
 
 This example creates a client connected to monero-wallet-rpc then creates a wallet.
 
-See [MoneroWalletRpc.createWallet()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletRpc.html#createWallet) for all options.
+See [MoneroWalletRpc.createWallet()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWalletRpc.html#createWallet) for all options.
 
 ```typescript
 // create a client connected to monero-wallet-rpc
@@ -29,7 +29,7 @@ await walletRpc.createWallet({
 
 This example creates a wallet using WebAssembly bindings to [wallet2.h](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
-See [MoneroWalletFull.createWallet()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletFull.html#createWallet) for all options.
+See [MoneroWalletFull.createWallet()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWalletFull.html#createWallet) for all options.
 
 ```typescript
 // create wallet using WebAssembly
@@ -51,7 +51,7 @@ let wallet = await moneroTs.createWalletFull({
 
 This example creates a keys-only wallet using WebAssembly bindings to monero-project/monero.
 
-See [MoneroWalletKeys.createWallet()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletKeys.html#createWallet) for all options.
+See [MoneroWalletKeys.createWallet()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWalletKeys.html#createWallet) for all options.
 
 ```typescript
 // create keys-only wallet

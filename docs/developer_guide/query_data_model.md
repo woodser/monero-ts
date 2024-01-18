@@ -4,7 +4,7 @@ Wallet [transactions, transfers, and outputs](data_model.md) can be queried by t
 
 ## Getting transactions with queries
 
-See [MoneroWallet.getTxs()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html#getTxs) for all query options.
+See [MoneroWallet.getTxs()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html#getTxs) for all query options.
 
 ```typescript
 // get a transaction by hash
@@ -43,7 +43,7 @@ let txs = await wallet.getTxs({
 
 ## Getting transfers with queries
 
-See [MoneroWallet.getTransfers()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html#getTransfers) for all query options.
+See [MoneroWallet.getTransfers()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html#getTransfers) for all query options.
 
 ```typescript
 // get all transfers
@@ -81,7 +81,7 @@ let transfers = await wallet.getTransfers({
 
 ## Getting outputs with queries
 
-See [MoneroWallet.getOutputs()](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html#getOutputs) for all query options.
+See [MoneroWallet.getOutputs()](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html#getOutputs) for all query options.
 
 ```typescript
 // get all outputs

@@ -2,7 +2,7 @@
 
 ## What is monero-ts?
 
-monero-ts is a TypeScript library for producing Monero applications. The library conforms to a [model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) which aims to be an intuitive and robust interface to [monero-project/monero](https://github.com/monero-project/monero).
+monero-ts is a TypeScript library for producing Monero applications. The library conforms to a [model and API specification](https://woodser.github.io/monero-java/monero-spec.pdf) which aims to be an intuitive and robust interface to [monero-project/monero](https://github.com/monero-project/monero).
 
 In addition to RPC wallet and daemon server queries, monero-ts can perform native wallet operations through WebAssembly (Wasm). The Wasm wallet enables developers to build trustless, client-side applications by eliminating the need to communicate with a RPC wallet server intermediary.
 
@@ -54,14 +54,14 @@ Note the program's two components:
 
 ### Building a keys-only wallet
 
-monero-javscript implements keys-only wallets in the [MoneroWalletKeys](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
+monero-javscript implements keys-only wallets in the [MoneroWalletKeys](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWalletKeys.html) class. You can create a random keys-only wallet as follows:
 ```typescript
 // create a random keys-only (offline) stagenet wallet
 import * as moneroTs from "monero-ts";
 let keysOnlyWallet = await moneroTs.createWalletKeys({networkType: moneroTs.MoneroNetworkType.STAGENET, language: "English"});
 ```
 
-Wallets are created with a [MoneroWalletConfig](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWalletConfig) or equivalent JSON object.  The monero-ts library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-ts generates a new, random wallet rather than restoring an existing wallet.
+Wallets are created with a [MoneroWalletConfig](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWalletConfig) or equivalent JSON object.  The monero-ts library will create or restore a wallet based on attributes defined in the configuration or throw an error if any attributes are invalid.  For example, a configuration that defines a view key but not a spend key will prompt the library to create a view-only wallet. The configuration object in the offline wallet generator code above contains no keys, so monero-ts generates a new, random wallet rather than restoring an existing wallet.
 
 The offline wallet generator displays four basic wallet attributes:
 * The seed phrase
