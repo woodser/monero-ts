@@ -3,7 +3,7 @@
   "description": "A TypeScript library for using Monero",
   "version": "0.9.5",
   "license": "MIT",
-  "repository": "https://github.com/monero-ecosystem/monero-ts",
+  "repository": "https://github.com/woodser/monero-ts",
   "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
