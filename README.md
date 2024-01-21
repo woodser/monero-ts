@@ -150,16 +150,16 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 	2. `cd emsdk`
 	3. `git pull && ./emsdk install 3.1.10 && ./emsdk activate 3.1.10 && source ./emsdk_env.sh`
 	4. `export EMSCRIPTEN=path/to/emsdk/upstream/emscripten` (change for your system)
-2. Clone monero-ts repository: `git clone --recursive https://github.com/monero-ecosystem/monero-ts.git`
+2. Clone monero-ts repository: `git clone --recursive https://github.com/woodser/monero-ts.git`
 3. `cd monero-ts`
 4. `./bin/update_submodules.sh`
-5. Build the monero-cpp submodule (located at ./external/monero-cpp) by following [instructions](https://github.com/monero-ecosystem/monero-cpp#using-monero-cpp-in-your-project) for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (`~/unbound-1.19.0`).
+5. Build the monero-cpp submodule (located at ./external/monero-cpp) by following [instructions](https://github.com/woodser/monero-cpp#using-monero-cpp-in-your-project) for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (`~/unbound-1.19.0`).
 6. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
 7. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
 
-1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-ts.git`
+1. Clone the project repository: `git clone https://github.com/woodser/monero-ts.git`
 2. `cd monero-ts`
 3. Start RPC servers:
 	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
@@ -180,8 +180,8 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## Related projects
 
-* [monero-java](https://github.com/monero-ecosystem/monero-java)
-* [monero-cpp](https://github.com/monero-ecosystem/monero-cpp)
+* [monero-java](https://github.com/woodser/monero-java)
+* [monero-cpp](https://github.com/woodser/monero-cpp)
 * [haveno-ts](https://github.com/haveno-dex/haveno-ts)
 * [xmr-sample-app](https://github.com/woodser/xmr-sample-app) - sample web application using monero-ts
 
