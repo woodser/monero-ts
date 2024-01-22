@@ -165,7 +165,7 @@ export default class MoneroUtils {
     if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadKeysModule();
     
     // get integrated address in queue
-    return LibraryUtils.getWasmModule().queueTask(async function() {
+    return LibraryUtils.getWasmModule().queueTask(async () => {
       let integratedAddressJson = LibraryUtils.getWasmModule().get_integrated_address_util(networkType, standardAddress, paymentId ? paymentId : "");
       if (integratedAddressJson.charAt(0) !== '{') throw new MoneroError(integratedAddressJson);
       return new MoneroIntegratedAddress(JSON.parse(integratedAddressJson));

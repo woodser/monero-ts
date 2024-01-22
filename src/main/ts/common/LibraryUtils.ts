@@ -86,16 +86,11 @@ export default class LibraryUtils {
     if (LibraryUtils.WASM_MODULE) return LibraryUtils.WASM_MODULE;
     
     // load module
-    delete LibraryUtils.WASM_MODULE;
-    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_keys")();
-    return new Promise(function(resolve, reject) {
-      LibraryUtils.WASM_MODULE.then(module => {
-        LibraryUtils.WASM_MODULE = module
-        delete LibraryUtils.WASM_MODULE.then;
-        LibraryUtils.initWasmModule(LibraryUtils.WASM_MODULE);
-        resolve(LibraryUtils.WASM_MODULE);
-      });
-    });
+    let module = await require("../../../../dist/monero_wallet_keys")();
+    LibraryUtils.WASM_MODULE = module
+    delete LibraryUtils.WASM_MODULE.then;
+    LibraryUtils.initWasmModule(LibraryUtils.WASM_MODULE);
+    return module;
   }
   
   /**
@@ -111,17 +106,12 @@ export default class LibraryUtils {
     if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
-    delete LibraryUtils.WASM_MODULE;
-    LibraryUtils.WASM_MODULE = require("../../../../dist/monero_wallet_full")();
-    return new Promise(function(resolve, reject) {
-      LibraryUtils.WASM_MODULE.then(module => {
-        LibraryUtils.WASM_MODULE = module;
-        delete LibraryUtils.WASM_MODULE.then;
-        LibraryUtils.FULL_LOADED = true;
-        LibraryUtils.initWasmModule(LibraryUtils.WASM_MODULE);
-        resolve(LibraryUtils.WASM_MODULE);
-      });
-    });
+    let module = await require("../../../../dist/monero_wallet_full")();
+    LibraryUtils.WASM_MODULE = module
+    delete LibraryUtils.WASM_MODULE.then;
+    LibraryUtils.FULL_LOADED = true;
+    LibraryUtils.initWasmModule(LibraryUtils.WASM_MODULE);
+    return module;
   }
   
   /**
