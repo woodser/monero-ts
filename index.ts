@@ -2,7 +2,7 @@
 
 // --------------------------------- IMPORTS ----------------------------------
 
-// See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
+// See the full model specification: https://woodser.github.io/monero-java/monero-spec.pdf
 
 // import common models
 import GenUtils from "./src/main/ts/common/GenUtils";
@@ -379,7 +379,7 @@ export {
   createWalletKeys
 };
 
-// Aggregate all exports into a single object
+// export default object with aggregate of all exports
 const moneroTs = {
   GenUtils,
   Filter,
@@ -466,15 +466,12 @@ const moneroTs = {
   openWalletFull,
   createWalletKeys
 }
-
-// Default export
 export default moneroTs;
 
-// Augment the global scope with a namespace that matches the name of the default-exported object
+// augment global scope with same namespace as default export
 declare global {
   namespace moneroTs {
-    // Create a type alias for each class
-    type GenUtils = InstanceType<typeof import("./index").GenUtils>; // Create a type alias for the class
+    type GenUtils = InstanceType<typeof import("./index").GenUtils>;
     type Filter = InstanceType<typeof import("./index").Filter>;
     type MoneroError = InstanceType<typeof import("./index").MoneroError>;
     type HttpClient = InstanceType<typeof import("./index").HttpClient>;
@@ -483,7 +480,7 @@ declare global {
     type MoneroRpcError = InstanceType<typeof import("./index").MoneroRpcError>;
     type SslOptions = InstanceType<typeof import("./index").SslOptions>;
     type TaskLooper = InstanceType<typeof import("./index").TaskLooper>;
-    type ConnectionType = import("./index").ConnectionType; // Create a type alias for the enum
+    type ConnectionType = import("./index").ConnectionType; // type alias for enum
     type MoneroAltChain = InstanceType<typeof import("./index").MoneroAltChain>;
     type MoneroBan = InstanceType<typeof import("./index").MoneroBan>;
     type MoneroBlockHeader = InstanceType<typeof import("./index").MoneroBlockHeader>;
