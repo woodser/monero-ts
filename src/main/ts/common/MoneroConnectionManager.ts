@@ -325,7 +325,7 @@ export default class MoneroConnectionManager {
     let connection = this.getConnection();
     if (connection) {
       if (await connection.checkConnection(this.timeoutMs)) connectionChanged = true;
-      await this.processResponses([connection]);
+      if (await this.processResponses([connection]) !== undefined) return this; // done if connection set from responses
     }
     if (this.autoSwitch && !this.isConnected()) {
       let bestConnection = await this.getBestAvailableConnection([connection]);
@@ -521,13 +521,20 @@ export default class MoneroConnectionManager {
       // order by availability then priority then by name
       if (c1.getIsOnline() === c2.getIsOnline()) {
         if (c1.getPriority() === c2.getPriority()) return c1.getUri().localeCompare(c2.getUri());
-        else return c1.getPriority() == 0 ? 1 : c2.getPriority() == 0 ? -1 : c1.getPriority() - c2.getPriority();
+        return this.comparePriorities(c1.getPriority(), c2.getPriority()) * -1 // order by priority in descending order
       } else {
         if (c1.getIsOnline()) return -1;
         else if (c2.getIsOnline()) return 1;
         else if (c1.getIsOnline() === undefined) return -1;
         else return 1; // c1 is offline
       }
+  }
+
+  protected comparePriorities(p1, p2) {
+    if (p1 == p2) return 0;
+    if (p1 == 0) return -1;
+    if (p2 == 0) return 1;
+    return p2 - p1;
   }
 
   protected startPollingConnection(periodMs) {
@@ -597,9 +604,9 @@ export default class MoneroConnectionManager {
     }
   }
 
-  protected async processResponses(responses) {
+  protected async processResponses(responses): Promise<MoneroRpcConnection> {
 
-    // add non-existing connections
+    // add new connections
     for (let connection of responses) {
       if (!this.responseTimes.has(connection.getUri())) this.responseTimes.set(connection.getUri(), []);
     }
@@ -613,40 +620,58 @@ export default class MoneroConnectionManager {
     });
 
     // update best connection based on responses and priority
-    await this.updateBestConnectionInPriority();
+    return await this.updateBestConnectionInPriority();
   }
 
-  protected async updateBestConnectionInPriority() {
-    if (!this.autoSwitch) return;
+  protected async updateBestConnectionInPriority(): Promise<MoneroRpcConnection> {
+    if (!this.autoSwitch) return undefined;
     for (let prioritizedConnections of this.getConnectionsInAscendingPriority()) {
-      if (await this.updateBestConnectionFromResponses(prioritizedConnections)) break;
+      let bestConnectionFromResponses = await this.getBestConnectionFromPrioritizedResponses(prioritizedConnections);
+      if (bestConnectionFromResponses) {
+        await this.setConnection(bestConnectionFromResponses);
+        return bestConnectionFromResponses;
+      }
     }
+    return undefined;
   }
 
- protected async updateBestConnectionFromResponses(responses) {
-    let bestConnection = this.isConnected() ? this.getConnection() : undefined;
-    if (bestConnection && (!this.responseTimes.has(bestConnection.getUri()) || this.responseTimes.get(bestConnection.getUri()).length < MoneroConnectionManager.MIN_BETTER_RESPONSES)) return bestConnection;
-    if (this.isConnected()) {
+  /**
+   * Get the best connection from the given responses.
+   * 
+   * @param {MoneroRpcConnection[]} responses connection responses to update from
+   * @return {MoneroRpcConnection} the best response among the given responses or undefined if none are best
+   */
+  protected async getBestConnectionFromPrioritizedResponses(responses): Promise<MoneroRpcConnection> {
 
-      // check if connection is consistently better
-      for (let connection of responses) {
-        if (connection === bestConnection) continue;
-        if (!this.responseTimes.has(connection.getUri()) || this.responseTimes.get(connection.getUri()).length < MoneroConnectionManager.MIN_BETTER_RESPONSES) continue;
-        let better = true;
-        for (let i = 0; i < MoneroConnectionManager.MIN_BETTER_RESPONSES; i++) {
-          if (this.responseTimes.get(connection.getUri())[i] === undefined || this.responseTimes.get(connection.getUri())[i] >= this.responseTimes.get(bestConnection.getUri())[i]) {
-            better = false;
-            break;
-          }
-        }
-        if (better) bestConnection = connection;
-      }
-    } else {
-      for (let connection of responses) {
-        if (connection.isConnected() && (!bestConnection || connection.getResponseTime() < bestConnection.getResponseTime())) bestConnection = connection;
-      }
+    // get best response
+    let bestResponse = undefined;
+    for (let connection of responses) {
+      if (connection.isConnected() === true && (!bestResponse || connection.getResponseTime() < bestResponse.getResponseTime())) bestResponse = connection;
     }
-    if (bestConnection) await this.setConnection(bestConnection);
+
+    // no update if no responses
+    if (!bestResponse) return undefined;
+
+    // use best response if disconnected
+    let bestConnection = await this.getConnection();
+    if (!bestConnection || bestConnection.isConnected() !== true) return bestResponse;
+
+    // use best response if different priority (assumes being called in descending priority)
+    if (this.comparePriorities(bestResponse.getPriority(), bestConnection.getPriority()) !== 0) return bestResponse;
+
+    // check if connection is consistently better
+    for (let connection of responses) {
+      if (connection === bestConnection) continue;
+      if (!this.responseTimes.has(connection.getUri()) || this.responseTimes.get(connection.getUri()).length < MoneroConnectionManager.MIN_BETTER_RESPONSES) continue;
+      let better = true;
+      for (let i = 0; i < MoneroConnectionManager.MIN_BETTER_RESPONSES; i++) {
+        if (this.responseTimes.get(connection.getUri())[i] === undefined || this.responseTimes.get(bestConnection.getUri())[i] || this.responseTimes.get(connection.getUri())[i] > this.responseTimes.get(bestConnection.getUri())[i]) {
+          better = false;
+          break;
+        }
+      }
+      if (better) bestConnection = connection;
+    }
     return bestConnection;
   }
 }

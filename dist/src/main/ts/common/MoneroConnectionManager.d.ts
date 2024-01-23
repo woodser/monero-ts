@@ -259,12 +259,19 @@ export default class MoneroConnectionManager {
     protected onConnectionChanged(connection: any): Promise<any[]>;
     protected getConnectionsInAscendingPriority(): any[];
     protected compareConnections(c1: any, c2: any): any;
+    protected comparePriorities(p1: any, p2: any): number;
     protected startPollingConnection(periodMs: any): this;
     protected startPollingConnections(periodMs: any): this;
     protected startPollingPrioritizedConnections(periodMs: any, excludedConnections: any): this;
     checkPrioritizedConnections(excludedConnections: any): Promise<void>;
     protected checkConnectionsAux(connections: any, excludedConnections?: any): Promise<boolean>;
-    protected processResponses(responses: any): Promise<void>;
-    protected updateBestConnectionInPriority(): Promise<void>;
-    protected updateBestConnectionFromResponses(responses: any): Promise<MoneroRpcConnection>;
+    protected processResponses(responses: any): Promise<MoneroRpcConnection>;
+    protected updateBestConnectionInPriority(): Promise<MoneroRpcConnection>;
+    /**
+     * Get the best connection from the given responses.
+     *
+     * @param {MoneroRpcConnection[]} responses connection responses to update from
+     * @return {MoneroRpcConnection} the best response among the given responses or undefined if none are best
+     */
+    protected getBestConnectionFromPrioritizedResponses(responses: any): Promise<MoneroRpcConnection>;
 }

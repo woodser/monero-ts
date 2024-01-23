@@ -2,11 +2,11 @@
 
 ## Overview
 
-This section introduces the data model used in monero-ts.  Refer to the [API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) or [JSDocs](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroTxWallet.html) for more information.
+This section introduces the data model used in monero-ts.  Refer to the [API specification](https://woodser.github.io/monero-java/monero-spec.pdf) or [JSDocs](https://woodser.github.io/monero-ts/typedocs/classes/MoneroTxWallet.html) for more information.
 
 <p align="center">
 	<img width="65%" height="auto" src="../img/data_model.png"/><br>
-	<i><a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroBlock.html">Blocks</a> have <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroTxWallet.html">transactions</a> which can have <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroIncomingTransfer.html">incoming transfers</a>, an <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroOutgoingTransfer.html">outgoing transfer</a>, and <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroOutputWallet.html">outputs</a>.</i>
+	<i><a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroBlock.html">Blocks</a> have <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroTxWallet.html">transactions</a> which can have <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroIncomingTransfer.html">incoming transfers</a>, an <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroOutgoingTransfer.html">outgoing transfer</a>, and <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroOutputWallet.html">outputs</a>.</i>
 </p>
 
 ## JSON

@@ -5,8 +5,8 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 * Supports client-side wallets in Node.js and the browser using WebAssembly.
 * Supports wallet and daemon RPC clients.
 * Supports multisig, view-only, and offline wallets.
-* Wallet types are interchangeable by conforming to a [common interface](https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html).
-* Uses a clearly defined [data model and API specification](https://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive and robust.
+* Wallet types are interchangeable by conforming to a [common interface](https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html).
+* Uses a clearly defined [data model and API specification](https://woodser.github.io/monero-java/monero-spec.pdf) intended to be intuitive and robust.
 * [Query wallet transactions, transfers, and outputs](docs/developer_guide/query_data_model.md) by their properties.
 * Fetch and process binary data from the daemon (e.g. raw blocks).
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
@@ -28,7 +28,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 
 <p align="center">
 	<img width="85%" height="auto" src="https://raw.githubusercontent.com/monero-ecosystem/monero-ts/master/docs/img/architecture.png"/><br>
-	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://moneroecosystem.org/monero-ts/typedocs/classes/MoneroWallet.html">MoneroWallet.ts</a>.</i>
+	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html">MoneroWallet.ts</a>.</i>
 </p>
 
 ## Sample code
@@ -105,8 +105,8 @@ await walletFull.close(true);
 
 ## Documentation
 
-* [TypeDocs](https://moneroecosystem.org/monero-ts/typedocs/)
-* [API and model overview with visual diagrams](https://moneroecosystem.org/monero-java/monero-spec.pdf)
+* [TypeDocs](https://woodser.github.io/monero-ts/typedocs/)
+* [API and model overview with visual diagrams](https://woodser.github.io/monero-java/monero-spec.pdf)
 * [Creating wallets](docs/developer_guide/creating_wallets.md)
 * [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
 * [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
@@ -128,7 +128,7 @@ await walletFull.close(true);
 
 #### Running in Node.js
 
-Node.js 18 LTS is recommended and requires using the `--no-experimental-fetch` flag. Alternatively, Node.js 16 LTS works.
+Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the `--experimental-wasm-threads` flag.
 
 #### Building a browser application
 1. Bundle your application code for a browser. See [xmr-sample-app](https://github.com/woodser/xmr-sample-app) for an example project using webpack.
@@ -153,8 +153,8 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 2. Clone monero-ts repository: `git clone --recursive https://github.com/monero-ecosystem/monero-ts.git`
 3. `cd monero-ts`
 4. `./bin/update_submodules.sh`
-5. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
-6. [Download and install](https://unbound.docs.nlnetlabs.nl/en/latest/getting-started/installation.html) unbound 1.17.0 to your home directory (`~`).
+5. Build the monero-cpp submodule (located at ./external/monero-cpp) by following [instructions](https://github.com/monero-ecosystem/monero-cpp#using-monero-cpp-in-your-project) for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (`~/unbound-1.19.0`).
+6. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
 7. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
@@ -182,10 +182,8 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 * [monero-java](https://github.com/monero-ecosystem/monero-java)
 * [monero-cpp](https://github.com/monero-ecosystem/monero-cpp)
+* [haveno-ts](https://github.com/haveno-dex/haveno-ts)
 * [xmr-sample-app](https://github.com/woodser/xmr-sample-app) - sample web application using monero-ts
-* [monerostresstester.com](https://github.com/woodser/monerostresstester.com) - repeatedly sends txs to self to stress test the network (under development)
-* [monero-deposit-scanner](https://github.com/woodser/monero-deposit-scanner) - scan for incoming deposits to an address using a view key (under development)
-* [monerowebwallet.com](https://github.com/woodser/monerowebwallet.com) - open-source, client-side web wallet (under development)
 
 ## License
 

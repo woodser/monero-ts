@@ -516,7 +516,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     
     // update sync period for poller
     this.syncPeriodInMs = syncPeriodInSeconds * 1000;
-    if (this.walletPoller !== undefined) this.walletPoller.setPeriodInMs(syncPeriodInMs);
+    if (this.walletPoller !== undefined) this.walletPoller.setPeriodInMs(this.syncPeriodInMs);
     
     // poll if listening
     await this.poll();
