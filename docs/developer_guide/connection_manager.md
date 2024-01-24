@@ -1,6 +1,8 @@
 # Connection Manager
 
-The following code demonstrates how to use monero-ts's connection manager to manage daemon or wallet RPC endpoints.
+Wallets can connect to a single Monero daemon or use a connection manager to automatically select the best connection among multiple daemons. Using a connection manager, wallets can automatically switch to a better connection if the current connection becomes disconnected or slow.
+
+The following code demonstrates how to use monero-ts's connection manager to manage daemon or wallet RPC connections.
 
 See [MoneroConnectionManager](https://woodser.github.io/monero-ts/typedocs/classes/MoneroConnectionManager.html) or [TestMoneroConnectionManager.ts](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroConnectionManager.ts) for more detail.
 
@@ -18,14 +20,14 @@ await connectionManager.addConnection("http://example.com"); // default priority
 // set current connection
 await connectionManager.setConnection({uri: "http://foo.bar", username: "admin", password: "password"}); // connection is added if new
 
-// create wallet governed by connection manager
+// create or open wallet governed by connection manager
 let walletFull = await moneroTs.createWalletFull({
-  path: "sample_wallet_full"
+  path: "sample_wallet_full",
   password: "supersecretpassword123",
   networkType: moneroTs.MoneroNetworkType.TESTNET,
-  connectionManager: connectionManager,
   seed: "hefty value scenic...",
-  restoreHeight: 573936
+  restoreHeight: 573936,
+  connectionManager: connectionManager
 });
 
 // check connection status
