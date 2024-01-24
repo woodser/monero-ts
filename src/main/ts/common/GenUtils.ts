@@ -1480,5 +1480,30 @@ export default class GenUtils {
     }
     return undefined;
   }
+
+  /**
+   * Resolve the given promise with a timeout.
+   * 
+   * @param promise the promise to resolve within the timeout
+   * @param timeoutMs the timeout in milliseconds to resolve the promise
+   * @return the result of the promise unless error thrown
+   */
+  static async executeWithTimeout(promise, timeoutMs): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject('Execution timed out in ' + timeoutMs + ' milliseconds')
+      }, timeoutMs);
+      promise.then(
+        (result) => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        },
+        (error) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        }
+      );
+    });
+  }
 }
 
