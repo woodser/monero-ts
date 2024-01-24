@@ -164,7 +164,7 @@ export default class MoneroRpcConnection {
       if (this.fakeDisconnected) throw new Error("Connection is fake disconnected");
       let heights = [];
       for (let i = 0; i < 100; i++) heights.push(i);
-      await this.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights}); // assume daemon connection
+      await this.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights}, timeoutMs); // assume daemon connection
       this.isOnline = true;
       this.isAuthenticated = true;
     } catch (err) {
