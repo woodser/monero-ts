@@ -92,13 +92,7 @@ export default class HttpClient {
     // request using fetch or xhr with timeout
     let timeout = request.timeout === undefined ? HttpClient.DEFAULT_TIMEOUT : request.timeout === 0 ? HttpClient.MAX_TIMEOUT : request.timeout;
     let requestPromise = request.requestApi === "fetch" ? HttpClient.requestFetch(request) : HttpClient.requestXhr(request);
-    let timeoutPromise = new Promise((resolve, reject) => {
-      let id = setTimeout(() => {
-        clearTimeout(id);
-        reject('Request timed out in '+ timeout + ' milliseconds')
-      }, timeout);
-    });
-    return Promise.race([requestPromise, timeoutPromise]);
+    return GenUtils.executeWithTimeout(requestPromise, timeout);
   }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
