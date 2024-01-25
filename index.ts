@@ -2,7 +2,7 @@
 
 // --------------------------------- IMPORTS ----------------------------------
 
-// See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
+// See the full model specification: https://woodser.github.io/monero-java/monero-spec.pdf
 
 // import common models
 import GenUtils from "./src/main/ts/common/GenUtils";
@@ -94,7 +94,7 @@ import ThreadPool from "./src/main/ts/common/ThreadPool";
 
 /**
  * <p>Get the version of the monero-ts library.<p>
- * 
+ *
  * @return {string} the version of this monero-ts library
  */
 function getVersion() {
@@ -103,9 +103,9 @@ function getVersion() {
 
 /**
  * <p>Create a client connected to monerod.<p>
- * 
+ *
  * <p>Examples:<p>
- * 
+ *
  * <code>
  * let daemon = await moneroTs.connectToDaemonRpc("http://localhost:38081");<br>
  * </code><br>
@@ -124,7 +124,7 @@ function getVersion() {
  * &nbsp;&nbsp; cmd: ["path/to/monerod", ...params...],<br>
  * });
  * </code>
- * 
+ *
  * @param {string|Partial<MoneroRpcConnection>|Partial<MoneroDaemonConfig>|string[]} uriOrConfig - uri or rpc connection or config or terminal parameters to connect to monerod
  * @param {string} [username] - username to authenticate with monerod
  * @param {string} [password] - password to authenticate with monerod
@@ -136,9 +136,9 @@ function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
 
 /**
  * <p>Create a client connected to monero-wallet-rpc.</p>
- * 
+ *
  * <p>Examples:</p>
- * 
+ *
  * <code>
  * let walletRpc = await moneroTs.connectToWalletRpc({<br>
  * &nbsp;&nbsp; uri: "http://localhost:38081",<br>
@@ -161,7 +161,7 @@ function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
  * &nbsp;&nbsp; "--rpc-access-control-origins", "http://localhost:8080"<br>
  * &nbsp;]});
  * </code>
- * 
+ *
  * @param {string|Partial<MoneroRpcConnection>|Partial<MoneroWalletConfig>|string[]} uriOrConfig - uri or rpc connection or config or terminal parameters to connect to monero-wallet-rpc
  * @param {string} [username] - username to authenticate with monero-wallet-rpc
  * @param {string} [password] - password to authenticate with monero-wallet-rpc
@@ -170,12 +170,12 @@ function connectToDaemonRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
 function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> | Partial<MoneroWalletConfig> | string[], username?: string, password?: string): Promise<MoneroWalletRpc> {
   return MoneroWalletRpc.connectToWalletRpc(uriOrConfig, username, password);
 }
-  
+
 /**
  * <p>Create a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
- * 
+ *
  * <p>Example:</p>
- * 
+ *
  * <code>
  * const wallet = await moneroTs.createWalletFull({<br>
  * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
@@ -202,7 +202,7 @@ function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
  * &nbsp;&nbsp; }<br>
  * });
  * </code>
- * 
+ *
  * @param {Partial<MoneroWalletConfig>} config - MoneroWalletConfig or equivalent config object
  * @param {string} [config.path] - path of the wallet to create (optional, in-memory wallet if not given)
  * @param {string} [config.password] - password of the wallet to create
@@ -230,22 +230,22 @@ function createWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWa
 
 /**
  * <p>Open an existing Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.<p>
- * 
+ *
  * <p>Example:<p>
- * 
+ *
  * <code>
  * const wallet = await moneroTs.openWalletFull({<br>
  * &nbsp;&nbsp; path: "./wallets/wallet1",<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: moneroTs.MoneroNetworkType.STAGENET,<br>
-* &nbsp;&nbsp; server: { // daemon configuration<br>
+ * &nbsp;&nbsp; server: { // daemon configuration<br>
  * &nbsp;&nbsp;&nbsp;&nbsp; uri: "http://localhost:38081",<br>
  * &nbsp;&nbsp;&nbsp;&nbsp; username: "superuser",<br>
  * &nbsp;&nbsp;&nbsp;&nbsp; password: "abctesting123"<br>
  * &nbsp;&nbsp; }<br>
  * });
  * </code>
- * 
+ *
  * @param {Partial<MoneroWalletConfig>} config - config to open a full wallet
  * @param {string} [config.path] - path of the wallet to open (optional if 'keysData' provided)
  * @param {string} [config.password] - password of the wallet to open
@@ -263,9 +263,9 @@ function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWall
 
 /**
  * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
- * 
+ *
  * <p>Example:</p>
- * 
+ *
  * <code>
  * const wallet = await moneroTs.createWalletKeys({<br>
  * &nbsp;&nbsp; password: "abc123",<br>
@@ -273,7 +273,7 @@ function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWall
  * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon..."<br>
  * });
  * </code>
- * 
+ *
  * @param {Partial<MoneroWalletConfig>} config - MoneroWalletConfig or equivalent config object
  * @param {string|number} config.networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
  * @param {string} [config.seed] - seed of the wallet to create (optional, random wallet created if neither seed nor keys given)
