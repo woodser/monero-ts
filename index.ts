@@ -378,3 +378,174 @@ export {
   openWalletFull,
   createWalletKeys
 };
+
+// export default object with aggregate of all exports
+const moneroTs = {
+  GenUtils,
+  Filter,
+  MoneroError,
+  HttpClient,
+  LibraryUtils,
+  MoneroRpcConnection,
+  MoneroRpcError,
+  SslOptions,
+  TaskLooper,
+  ConnectionType,
+  MoneroAltChain,
+  MoneroBan,
+  MoneroBlockHeader,
+  MoneroBlock,
+  MoneroBlockTemplate,
+  MoneroConnectionSpan,
+  MoneroDaemonConfig,
+  MoneroDaemonInfo,
+  MoneroDaemonListener,
+  MoneroDaemonSyncInfo,
+  MoneroDaemonUpdateCheckResult,
+  MoneroDaemonUpdateDownloadResult,
+  MoneroFeeEstimate,
+  MoneroHardForkInfo,
+  MoneroKeyImage,
+  MoneroKeyImageSpentStatus,
+  MoneroMinerTxSum,
+  MoneroMiningStatus,
+  MoneroNetworkType,
+  MoneroOutput,
+  MoneroOutputHistogramEntry,
+  MoneroSubmitTxResult,
+  MoneroTx,
+  MoneroTxPoolStats,
+  MoneroVersion,
+  MoneroPeer,
+  MoneroPruneResult,
+  MoneroAccount,
+  MoneroAccountTag,
+  MoneroAddressBookEntry,
+  MoneroCheck,
+  MoneroCheckReserve,
+  MoneroCheckTx,
+  MoneroDestination,
+  MoneroIntegratedAddress,
+  MoneroKeyImageImportResult,
+  MoneroMultisigInfo,
+  MoneroMultisigInitResult,
+  MoneroMultisigSignResult,
+  MoneroOutputWallet,
+  MoneroOutputQuery,
+  MoneroTxPriority,
+  MoneroTxConfig,
+  MoneroSubaddress,
+  MoneroSyncResult,
+  MoneroTransfer,
+  MoneroIncomingTransfer,
+  MoneroOutgoingTransfer,
+  MoneroTransferQuery,
+  MoneroTxSet,
+  MoneroTxWallet,
+  MoneroTxQuery,
+  MoneroWalletListener,
+  MoneroWalletConfig,
+  MoneroMessageSignatureType,
+  MoneroMessageSignatureResult,
+  MoneroConnectionManagerListener,
+  MoneroConnectionManager,
+  MoneroDaemon,
+  MoneroWallet,
+  MoneroDaemonRpc,
+  MoneroWalletRpc,
+  MoneroWalletKeys,
+  MoneroWalletFull,
+  MoneroUtils,
+  ThreadPool,
+
+  // global functions
+  getVersion,
+  connectToDaemonRpc,
+  connectToWalletRpc,
+  createWalletFull,
+  openWalletFull,
+  createWalletKeys
+}
+export default moneroTs;
+
+// augment global scope with same namespace as default export
+declare global {
+  namespace moneroTs {
+    type GenUtils = InstanceType<typeof import("./index").GenUtils>;
+    type Filter = InstanceType<typeof import("./index").Filter>;
+    type MoneroError = InstanceType<typeof import("./index").MoneroError>;
+    type HttpClient = InstanceType<typeof import("./index").HttpClient>;
+    type LibraryUtils = InstanceType<typeof import("./index").LibraryUtils>;
+    type MoneroRpcConnection = InstanceType<typeof import("./index").MoneroRpcConnection>;
+    type MoneroRpcError = InstanceType<typeof import("./index").MoneroRpcError>;
+    type SslOptions = InstanceType<typeof import("./index").SslOptions>;
+    type TaskLooper = InstanceType<typeof import("./index").TaskLooper>;
+    type ConnectionType = import("./index").ConnectionType; // type alias for enum
+    type MoneroAltChain = InstanceType<typeof import("./index").MoneroAltChain>;
+    type MoneroBan = InstanceType<typeof import("./index").MoneroBan>;
+    type MoneroBlockHeader = InstanceType<typeof import("./index").MoneroBlockHeader>;
+    type MoneroBlock = InstanceType<typeof import("./index").MoneroBlock>;
+    type MoneroBlockTemplate = InstanceType<typeof import("./index").MoneroBlockTemplate>;
+    type MoneroConnectionSpan = InstanceType<typeof import("./index").MoneroConnectionSpan>;
+    type MoneroDaemonConfig = InstanceType<typeof import("./index").MoneroDaemonConfig>;
+    type MoneroDaemonInfo = InstanceType<typeof import("./index").MoneroDaemonInfo>;
+    type MoneroDaemonListener = InstanceType<typeof import("./index").MoneroDaemonListener>;
+    type MoneroDaemonSyncInfo = InstanceType<typeof import("./index").MoneroDaemonSyncInfo>;
+    type MoneroDaemonUpdateCheckResult = InstanceType<typeof import("./index").MoneroDaemonUpdateCheckResult>;
+    type MoneroDaemonUpdateDownloadResult = InstanceType<typeof import("./index").MoneroDaemonUpdateDownloadResult>;
+    type MoneroFeeEstimate = InstanceType<typeof import("./index").MoneroFeeEstimate>;
+    type MoneroHardForkInfo = InstanceType<typeof import("./index").MoneroHardForkInfo>;
+    type MoneroKeyImage = InstanceType<typeof import("./index").MoneroKeyImage>;
+    type MoneroKeyImageSpentStatus = import("./index").MoneroKeyImageSpentStatus;
+    type MoneroMinerTxSum = InstanceType<typeof import("./index").MoneroMinerTxSum>;
+    type MoneroMiningStatus = InstanceType<typeof import("./index").MoneroMiningStatus>;
+    type MoneroNetworkType = InstanceType<typeof import("./index").MoneroNetworkType>;
+    type MoneroOutput = InstanceType<typeof import("./index").MoneroOutput>;
+    type MoneroOutputHistogramEntry = InstanceType<typeof import("./index").MoneroOutputHistogramEntry>;
+    type MoneroSubmitTxResult = InstanceType<typeof import("./index").MoneroSubmitTxResult>;
+    type MoneroTx = InstanceType<typeof import("./index").MoneroTx>;
+    type MoneroTxPoolStats = InstanceType<typeof import("./index").MoneroTxPoolStats>;
+    type MoneroVersion = InstanceType<typeof import("./index").MoneroVersion>;
+    type MoneroPeer = InstanceType<typeof import("./index").MoneroPeer>;
+    type MoneroPruneResult = InstanceType<typeof import("./index").MoneroPruneResult>;
+    type MoneroAccount = InstanceType<typeof import("./index").MoneroAccount>;
+    type MoneroAccountTag = InstanceType<typeof import("./index").MoneroAccountTag>;
+    type MoneroAddressBookEntry = InstanceType<typeof import("./index").MoneroAddressBookEntry>;
+    type MoneroCheck = InstanceType<typeof import("./index").MoneroCheck>;
+    type MoneroCheckReserve = InstanceType<typeof import("./index").MoneroCheckReserve>;
+    type MoneroCheckTx = InstanceType<typeof import("./index").MoneroCheckTx>;
+    type MoneroDestination = InstanceType<typeof import("./index").MoneroDestination>;
+    type MoneroIntegratedAddress = InstanceType<typeof import("./index").MoneroIntegratedAddress>;
+    type MoneroKeyImageImportResult = InstanceType<typeof import("./index").MoneroKeyImageImportResult>;
+    type MoneroMultisigInfo = InstanceType<typeof import("./index").MoneroMultisigInfo>;
+    type MoneroMultisigInitResult = InstanceType<typeof import("./index").MoneroMultisigInitResult>;
+    type MoneroMultisigSignResult = InstanceType<typeof import("./index").MoneroMultisigSignResult>;
+    type MoneroOutputWallet = InstanceType<typeof import("./index").MoneroOutputWallet>;
+    type MoneroOutputQuery = InstanceType<typeof import("./index").MoneroOutputQuery>;
+    type MoneroTxPriority = import("./index").MoneroTxPriority;
+    type MoneroTxConfig = InstanceType<typeof import("./index").MoneroTxConfig>;
+    type MoneroSubaddress = InstanceType<typeof import("./index").MoneroSubaddress>;
+    type MoneroSyncResult = InstanceType<typeof import("./index").MoneroSyncResult>;
+    type MoneroTransfer = InstanceType<typeof import("./index").MoneroTransfer>;
+    type MoneroIncomingTransfer = InstanceType<typeof import("./index").MoneroIncomingTransfer>;
+    type MoneroOutgoingTransfer = InstanceType<typeof import("./index").MoneroOutgoingTransfer>;
+    type MoneroTransferQuery = InstanceType<typeof import("./index").MoneroTransferQuery>;
+    type MoneroTxSet = InstanceType<typeof import("./index").MoneroTxSet>;
+    type MoneroTxWallet = InstanceType<typeof import("./index").MoneroTxWallet>;
+    type MoneroTxQuery = InstanceType<typeof import("./index").MoneroTxQuery>;
+    type MoneroWalletListener = InstanceType<typeof import("./index").MoneroWalletListener>;
+    type MoneroWalletConfig = InstanceType<typeof import("./index").MoneroWalletConfig>;
+    type MoneroMessageSignatureType = import("./index").MoneroMessageSignatureType;
+    type MoneroMessageSignatureResult = InstanceType<typeof import("./index").MoneroMessageSignatureResult>;
+    type MoneroConnectionManagerListener = InstanceType<typeof import("./index").MoneroConnectionManagerListener>;
+    type MoneroConnectionManager = InstanceType<typeof import("./index").MoneroConnectionManager>;
+    type MoneroDaemon = InstanceType<typeof import("./index").MoneroDaemon>;
+    type MoneroWallet = InstanceType<typeof import("./index").MoneroWallet>;
+    type MoneroDaemonRpc = InstanceType<typeof import("./index").MoneroDaemonRpc>;
+    type MoneroWalletRpc = InstanceType<typeof import("./index").MoneroWalletRpc>;
+    type MoneroWalletKeys = InstanceType<typeof import("./index").MoneroWalletKeys>;
+    type MoneroWalletFull = InstanceType<typeof import("./index").MoneroWalletFull>;
+    type MoneroUtils = InstanceType<typeof import("./index").MoneroUtils>;
+    type ThreadPool = InstanceType<typeof import("./index").ThreadPool>;
+  }
+}
