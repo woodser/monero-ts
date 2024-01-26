@@ -179,14 +179,6 @@ export class MoneroWalletKeys extends MoneroWallet {
     }
   }
   
-  async addListener(listener: MoneroWalletListener): Promise<void> {
-    throw new MoneroError("MoneroWalletKeys does not support adding listeners");
-  }
-  
-  async removeListener(listener): Promise<void> {
-    throw new MoneroError("MoneroWalletKeys does not support removing listeners");
-  }
-  
   async isViewOnly(): Promise<boolean> {
     if (this.getWalletProxy()) return this.getWalletProxy().isViewOnly();
     return this.module.queueTask(async () => {

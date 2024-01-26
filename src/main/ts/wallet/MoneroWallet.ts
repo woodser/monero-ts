@@ -68,6 +68,7 @@ export default class MoneroWallet {
   // state variables
   protected connectionManager: MoneroConnectionManager;
   protected connectionManagerListener: MoneroConnectionManagerListener;
+  protected listeners: MoneroWalletListener[];
 
   /**
    * Hidden constructor.
@@ -85,7 +86,8 @@ export default class MoneroWallet {
    * @return {Promise<void>}
    */
   async addListener(listener: MoneroWalletListener): Promise<void> {
-    throw new Error("Not supported");
+    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
+    this.listeners.push(listener);
   }
   
   /**
@@ -95,7 +97,9 @@ export default class MoneroWallet {
    * @return {Promise<void>}
    */
   async removeListener(listener): Promise<void> {
-    throw new Error("Not supported");
+    let idx = this.listeners.indexOf(listener);
+    if (idx > -1) this.listeners.splice(idx, 1);
+    else throw new MoneroError("Listener is not registered with wallet");
   }
   
   /**
@@ -1389,6 +1393,71 @@ export default class MoneroWallet {
   }
   
   // -------------------------------- PRIVATE ---------------------------------
+
+  /**
+   * @private
+   */
+  async announceSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string): Promise<void> {
+    for (let listener of this.listeners) {
+      try {
+        await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+      } catch (err) {
+        console.error("Error calling listener on sync progress", err);
+      }
+    }
+  }
+
+  /**
+   * @private
+   */
+  async announceNewBlock(height: number): Promise<void> {
+    for (let listener of this.listeners) {
+      try {
+        await listener.onNewBlock(height);
+      } catch (err) {
+        console.error("Error calling listener on new block", err);
+      }
+    }
+  }
+
+  /**
+   * @private
+   */
+  async announceBalancesChanged(newBalance: bigint, newUnlockedBalance: bigint): Promise<void> {
+    for (let listener of this.listeners) {
+      try {
+        await listener.onBalancesChanged(newBalance, newUnlockedBalance);
+      } catch (err) {
+        console.error("Error calling listener on balances changed", err);
+      }
+    }
+  }
+
+  /**
+   * @private
+   */
+  async announceOutputReceived(output: MoneroOutputWallet): Promise<void> {
+    for (let listener of this.listeners) {
+      try {
+        await listener.onOutputReceived(output);
+      } catch (err) {
+        console.error("Error calling listener on output received", err);
+      }
+    }
+  }
+
+  /**
+   * @private
+   */
+  async announceOutputSpent(output: MoneroOutputWallet): Promise<void> {
+    for (let listener of this.listeners) {
+      try {
+        await listener.onOutputSpent(output);
+      } catch (err) {
+        console.error("Error calling listener on output spent", err);
+      }
+    }
+  }
   
   protected static normalizeTxQuery(query) {
     if (query instanceof MoneroTxQuery) query = query.copy();

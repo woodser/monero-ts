@@ -1904,13 +1904,21 @@ class DaemonPoller {
       // compare header to last
       if (header.getHash() !== this.lastHeader.getHash()) {
         this.lastHeader = header;
-        for (let listener of await this.daemon.getListeners()) {
-          await listener.onBlockHeader(header); // notify listener
-        }
+        await this.announceBlockHeader(header);
       }
     } catch (err) {
       console.error("Failed to background poll daemon header");
       console.error(err);
+    }
+  }
+
+  protected async announceBlockHeader(header: MoneroBlockHeader) {
+    for (let listener of await this.daemon.getListeners()) {
+      try {
+        await listener.onBlockHeader(header); // notify listener
+      } catch (err) {
+        console.error("Error calling listener on block header", err);
+      }
     }
   }
 }
@@ -1939,7 +1947,7 @@ class DaemonWorkerListener {
   }
   
   async onBlockHeader(headerJson) {
-    return this.listener.onBlockHeader(new MoneroBlockHeader(headerJson));
+    this.listener.onBlockHeader(new MoneroBlockHeader(headerJson));
   }
 }
 

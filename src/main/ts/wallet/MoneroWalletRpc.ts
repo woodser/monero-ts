@@ -368,15 +368,12 @@ export default class MoneroWalletRpc extends MoneroWallet {
   // -------------------------- COMMON WALLET METHODS -------------------------
   
   async addListener(listener: MoneroWalletListener): Promise<void> {
-    assert(listener instanceof MoneroWalletListener, "Listener must be instance of MoneroWalletListener");
-    this.listeners.push(listener);
+    await super.addListener(listener);
     this.refreshListening();
   }
   
   async removeListener(listener): Promise<void> {
-    let idx = this.listeners.indexOf(listener);
-    if (idx > -1) this.listeners.splice(idx, 1);
-    else throw new MoneroError("Listener is not registered with wallet");
+    await super.removeListener(listener);
     this.refreshListening();
   }
   
@@ -2510,13 +2507,13 @@ class WalletPoller {
         that.numPolling--;
       } catch (err: any) {
         that.numPolling--;
-        console.error("Failed to background poll " + await that.wallet.getPath());
+        console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message);
       }
     });
   }
   
   protected async onNewBlock(height) {
-    for (let listener of this.wallet.getListeners()) await listener.onNewBlock(height);
+    await this.wallet.announceNewBlock(height);
   }
   
   protected async notifyOutputs(tx) {
@@ -2530,14 +2527,14 @@ class WalletPoller {
           .setSubaddressIndex(tx.getOutgoingTransfer().getSubaddressIndices().length === 1 ? tx.getOutgoingTransfer().getSubaddressIndices()[0] : undefined) // initialize if transfer sourced from single subaddress
           .setTx(tx);
       tx.setInputs([output]);
-      for (let listener of this.wallet.getListeners()) await listener.onOutputSpent(output);
+      await this.wallet.announceOutputSpent(output);
     }
     
     // notify received outputs
     if (tx.getIncomingTransfers() !== undefined) {
       if (tx.getOutputs() !== undefined && tx.getOutputs().length > 0) { // TODO (monero-project): outputs only returned for confirmed txs
         for (let output of tx.getOutputs()) {
-          for (let listener of this.wallet.getListeners()) await listener.onOutputReceived(output);
+          await this.wallet.announceOutputReceived(output);
         }
       } else { // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using incoming transfer values
         let outputs = [];
@@ -2549,8 +2546,8 @@ class WalletPoller {
               .setTx(tx));
         }
         tx.setOutputs(outputs);
-        for (let listener of this.wallet.getListeners()) {
-          for (let output of tx.getOutputs()) await listener.onOutputReceived(output);
+        for (let output of tx.getOutputs()) {
+          await this.wallet.announceOutputReceived(output);
         }
       }
     }
@@ -2565,7 +2562,7 @@ class WalletPoller {
     let balances = await this.wallet.getBalances();
     if (balances[0] !== this.prevBalances[0] || balances[1] !== this.prevBalances[1]) {
       this.prevBalances = balances;
-      for (let listener of await this.wallet.getListeners()) await listener.onBalancesChanged(balances[0], balances[1]);
+      await this.wallet.announceBalancesChanged(balances[0], balances[1]);
       return true;
     }
     return false;
