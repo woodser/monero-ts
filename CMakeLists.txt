@@ -270,6 +270,7 @@ set(
 #-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 #-s ALLOW_MEMORY_GROWTH=0 \
 #-s INITIAL_MEMORY=1536MB \
+#-s MALLOC=emmalloc \
 
 set (
 EMCC_LINKER_FLAGS_BASE
@@ -283,6 +284,7 @@ EMCC_LINKER_FLAGS_BASE
 -s 'EXPORT_NAME=\"monero_ts\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=0 \
+-s MALLOC=emmalloc \
 -s EXIT_RUNTIME=0 \
 -s PRECISE_F32=1 \
 -s EXCEPTION_DEBUG=0 \
