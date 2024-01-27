@@ -23,6 +23,7 @@ import MoneroTxConfig from "./model/MoneroTxConfig";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxSet from "./model/MoneroTxSet";
 import MoneroTxWallet from "./model/MoneroTxWallet";
+import MoneroWallet from "./MoneroWallet";
 import MoneroWalletConfig from "./model/MoneroWalletConfig";
 import { MoneroWalletKeys, MoneroWalletKeysProxy } from "./MoneroWalletKeys";
 import MoneroWalletListener from "./model/MoneroWalletListener";
@@ -39,8 +40,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     protected password: string;
     protected listeners: MoneroWalletListener[];
     protected fs: any;
-    protected fullListener: WalletFullListener;
-    protected fullListenerHandle: number;
+    protected wasmListener: WalletWasmListener;
+    protected wasmListenerHandle: number;
     protected rejectUnauthorized: boolean;
     protected rejectUnauthorizedConfigId: string;
     protected syncPeriodInMs: number;
@@ -366,8 +367,8 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
  *
  * @private
  */
-declare class WalletFullListener {
-    protected wallet: any;
+declare class WalletWasmListener {
+    protected wallet: MoneroWallet;
     constructor(wallet: any);
     onSyncProgress(height: any, startHeight: any, endHeight: any, percentDone: any, message: any): Promise<void>;
     onNewBlock(height: any): Promise<void>;

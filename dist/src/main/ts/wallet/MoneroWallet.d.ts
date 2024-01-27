@@ -58,6 +58,8 @@ export default class MoneroWallet {
     static readonly DEFAULT_LANGUAGE = "English";
     protected connectionManager: MoneroConnectionManager;
     protected connectionManagerListener: MoneroConnectionManagerListener;
+    protected listeners: MoneroWalletListener[];
+    protected _isClosed: boolean;
     /**
      * Hidden constructor.
      *
@@ -982,6 +984,26 @@ export default class MoneroWallet {
      * @return {Promise<boolean>} true if the wallet is closed, false otherwise
      */
     isClosed(): Promise<boolean>;
+    /**
+     * @private
+     */
+    announceSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string): Promise<void>;
+    /**
+     * @private
+     */
+    announceNewBlock(height: number): Promise<void>;
+    /**
+     * @private
+     */
+    announceBalancesChanged(newBalance: bigint, newUnlockedBalance: bigint): Promise<void>;
+    /**
+     * @private
+     */
+    announceOutputReceived(output: MoneroOutputWallet): Promise<void>;
+    /**
+     * @private
+     */
+    announceOutputSpent(output: MoneroOutputWallet): Promise<void>;
     protected static normalizeTxQuery(query: any): any;
     protected static normalizeTransferQuery(query: any): any;
     protected static normalizeOutputQuery(query: any): any;

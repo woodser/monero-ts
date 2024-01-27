@@ -733,4 +733,12 @@ export default class GenUtils {
      * @return {string | undefined} the enum key name
      */
     static getEnumKeyByValue(enumType: any, enumValue: any): string | undefined;
+    /**
+     * Resolve the given promise with a timeout.
+     *
+     * @param promise the promise to resolve within the timeout
+     * @param timeoutMs the timeout in milliseconds to resolve the promise
+     * @return the result of the promise unless error thrown
+     */
+    static executeWithTimeout(promise: any, timeoutMs: any): Promise<any>;
 }

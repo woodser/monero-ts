@@ -178,7 +178,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
     getBalances(accountIdx?: number, subaddressIdx?: number): Promise<bigint[]>;
     addListener(listener: MoneroWalletListener): Promise<void>;
     removeListener(listener: any): Promise<void>;
-    getListeners(): MoneroWalletListener[];
     isConnectedToDaemon(): Promise<boolean>;
     getVersion(): Promise<MoneroVersion>;
     getPath(): Promise<string>;
