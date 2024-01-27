@@ -35,7 +35,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 
 ```typescript
 // import monero-ts (or import types individually)
-import * as moneroTs from "monero-ts";
+import moneroTs from "monero-ts";
 
 // connect to daemon
 let daemon = await moneroTs.connectToDaemonRpc("http://localhost:28081");
@@ -124,7 +124,7 @@ await walletFull.close(true);
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
 2. `npm install monero-ts`
-3. Add `import * as moneroTs from "monero-ts"` in your application code (or import types individually).
+3. Add `import moneroTs from "monero-ts"` in your application code (or import types individually).
 
 #### Running in Node.js
 
