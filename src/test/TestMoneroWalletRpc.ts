@@ -58,7 +58,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // assign defaults
         config = new MoneroWalletConfig(config);
         if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
-        if (!config.getServer()) config.setServer(await this.daemon.getRpcConnection());
+        if (!config.getServer() && !config.getConnectionManager()) config.setServer(await this.daemon.getRpcConnection());
 
         // create client connected to internal monero-wallet-rpc executable
         let offline = config.getServer() && config.getServer().getUri() === TestUtils.OFFLINE_SERVER_URI;

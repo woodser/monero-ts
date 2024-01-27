@@ -91,7 +91,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
     this.config = config;
     this.addressCache = {}; // avoid unecessary requests for addresses
     this.syncPeriodInMs = MoneroWalletRpc.DEFAULT_SYNC_PERIOD_IN_MS;
-    this.listeners = [];
   }
   
   // --------------------------- RPC WALLET METHODS ---------------------------
@@ -162,9 +161,15 @@ export default class MoneroWalletRpc extends MoneroWallet {
     await this.config.getServer().sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
     await this.clear();
     this.path = config.getPath();
+
+    // set connection manager or server
+    if (config.getConnectionManager() != null) {
+      if (config.getServer()) throw new MoneroError("Wallet can be opened with a server or connection manager but not both");
+      await this.setConnectionManager(config.getConnectionManager());
+    } else if (config.getServer() != null) {
+      await this.setDaemonConnection(config.getServer());
+    }
     
-    // set daemon if provided
-    if (config.getServer()) await this.setDaemonConnection(config.getServer());
     return this;
   }
   
@@ -219,14 +224,19 @@ export default class MoneroWalletRpc extends MoneroWallet {
     if (configNormalized.getAccountLookahead() !== undefined || configNormalized.getSubaddressLookahead() !== undefined) throw new MoneroError("monero-wallet-rpc does not support creating wallets with subaddress lookahead over rpc");
     if (configNormalized.getPassword() === undefined) configNormalized.setPassword("");
 
+    // set server from connection manager if provided
+    if (configNormalized.getConnectionManager()) {
+      if (configNormalized.getServer()) throw new MoneroError("Wallet can be created with a server or connection manager but not both");
+      configNormalized.setServer(config.getConnectionManager().getConnection());
+    }
+
     // create wallet
     if (configNormalized.getSeed() !== undefined) await this.createWalletFromSeed(configNormalized);
     else if (configNormalized.getPrivateSpendKey() !== undefined || configNormalized.getPrimaryAddress() !== undefined) await this.createWalletFromKeys(configNormalized);
     else await this.createWalletRandom(configNormalized);
 
-    // set daemon or connection manager
+    // set connection manager or server
     if (configNormalized.getConnectionManager()) {
-      if (configNormalized.getServer()) throw new MoneroError("Wallet can be initialized with a server or connection manager but not both");
       await this.setConnectionManager(configNormalized.getConnectionManager());
     } else if (configNormalized.getServer()) {
       await this.setDaemonConnection(configNormalized.getServer());
@@ -375,10 +385,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async removeListener(listener): Promise<void> {
     await super.removeListener(listener);
     this.refreshListening();
-  }
-  
-  getListeners(): MoneroWalletListener[] {
-    return this.listeners;
   }
   
   async isConnectedToDaemon(): Promise<boolean> {
@@ -1560,7 +1566,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   protected async clear() {
-    this.listeners.splice(0, this.listeners.length);
     this.refreshListening();
     delete this.addressCache;
     this.addressCache = {};

@@ -514,6 +514,13 @@ export default class TestMoneroWalletCommon {
           await GenUtils.waitFor(TestUtils.AUTO_CONNECT_TIMEOUT_MS);
           assert.equal((await wallet.getDaemonConnection()).getUri(), connection2.getUri());
 
+          // reopen wallet with connection manager
+          let path = await wallet.getPath();
+          await that.closeWallet(wallet);
+          wallet = undefined;
+          wallet = await that.openWallet(new MoneroWalletConfig().setServer("").setConnectionManager(connectionManager).setPath(path));
+          assert.equal((await wallet.getDaemonConnection()).getUri(), connection2.getUri());
+
           // disconnect
           await connectionManager.setConnection(undefined);
           assert.equal(await wallet.getDaemonConnection(), undefined);
