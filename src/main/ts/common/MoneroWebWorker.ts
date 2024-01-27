@@ -994,9 +994,10 @@ self.changePassword = async function(walletId, oldPassword, newPassword) {
 }
 
 self.isClosed = async function(walletId) {
-  return self.WORKER_OBJECTS[walletId].isClosed();
+  return !self.WORKER_OBJECTS[walletId] || self.WORKER_OBJECTS[walletId].isClosed();
 }
 
 self.close = async function(walletId, save) {
-  return self.WORKER_OBJECTS[walletId].close(save); // TODO: remove listeners and delete wallet from WORKER_OBJECTS
+  return self.WORKER_OBJECTS[walletId].close(save);
+  delete self.WORKER_OBJECTS[walletId];
 }
