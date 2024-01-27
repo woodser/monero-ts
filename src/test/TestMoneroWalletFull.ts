@@ -81,7 +81,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
     if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
-    if (config.getServer() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
+    if (config.getServer() === undefined && !config.getConnectionManager()) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getFs() === undefined) config.setFs(await TestUtils.getDefaultFs());
     
     // open wallet

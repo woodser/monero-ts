@@ -129,7 +129,7 @@ export default class TestSampleCode {
         // set current connection
         await connectionManager.setConnection({uri: "http://foo.bar", username: "admin", password: "password"}); // connection is added if new
 
-        // create wallet governed by connection manager
+        // create or open wallet governed by connection manager
         let walletFull = await moneroTs.createWalletFull({
           path: "./test_wallets/" + moneroTs.GenUtils.getUUID(), // *** CHANGE README TO "sample_wallet_full"
           password: "supersecretpassword123",

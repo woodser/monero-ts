@@ -68,7 +68,7 @@ export default class MoneroWallet {
   // state variables
   protected connectionManager: MoneroConnectionManager;
   protected connectionManagerListener: MoneroConnectionManagerListener;
-  protected listeners: MoneroWalletListener[];
+  protected listeners: MoneroWalletListener[] = [];
 
   /**
    * Hidden constructor.
@@ -108,7 +108,7 @@ export default class MoneroWallet {
    * @return {MoneroWalletListener[]} the registered listeners
    */
   getListeners(): MoneroWalletListener[] {
-    throw new Error("Not supported");
+    return this.listeners;
   }
   
   /**
@@ -1381,6 +1381,7 @@ export default class MoneroWallet {
     if (this.connectionManager) this.connectionManager.removeListener(this.connectionManagerListener);
     this.connectionManager = undefined;
     this.connectionManagerListener = undefined;
+    this.listeners.splice(0, this.listeners.length);
   }
   
   /**

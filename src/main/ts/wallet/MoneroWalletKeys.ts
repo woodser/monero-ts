@@ -306,6 +306,7 @@ export class MoneroWalletKeys extends MoneroWallet {
     if (this._isClosed) return; // no effect if closed
     if (this.getWalletProxy()) {
       await this.getWalletProxy().close(save);
+      await super.close();
       this._isClosed = true;
       return;
     }
@@ -315,6 +316,7 @@ export class MoneroWalletKeys extends MoneroWallet {
 
     // close super
     await super.close();
+    this._isClosed = true;
 
     // queue task to use wasm module
     return this.module.queueTask(async () => {
@@ -455,8 +457,7 @@ export class MoneroWalletKeysProxy extends MoneroWallet {
   }
 
   async close(save) {
-    if (save) throw new MoneroError("Cannot save keys-only wallet");
-    await this.invokeWorker("close");
+    await this.invokeWorker("close", Array.from(arguments));
     LibraryUtils.removeWorkerObject(this.walletId);
   }
   

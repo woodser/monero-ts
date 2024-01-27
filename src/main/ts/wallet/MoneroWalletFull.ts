@@ -125,7 +125,13 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getLanguage() !== undefined) throw new MoneroError("Cannot specify language when opening wallet");
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when opening full wallet");
 
-    // read wallet data from disk if not given
+    // set server from connection manager if provided
+    if (config.getConnectionManager()) {
+      if (config.getServer()) throw new MoneroError("Wallet can be opened with a server or connection manager but not both");
+      config.setServer(config.getConnectionManager().getConnection());
+    }
+
+    // read wallet data from disk unless provided
     if (!config.getKeysData()) {
       let fs = config.getFs() ? config.getFs() : MoneroWalletFull.getFs();
       if (!fs) throw new MoneroError("Must provide file system to read wallet data from");
@@ -135,7 +141,11 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     }
 
     // open wallet from data
-    return MoneroWalletFull.openWalletData(config);
+    const wallet = await MoneroWalletFull.openWalletData(config);
+
+    // set connection manager
+    await wallet.setConnectionManager(config.getConnectionManager());
+    return wallet;
   }
   
   static async createWallet(config: MoneroWalletConfig): Promise<MoneroWalletFull> {
@@ -152,7 +162,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
 
     // set server from connection manager if provided
     if (config.getConnectionManager()) {
-      if (config.getServer()) throw new MoneroError("Wallet can be initialized with a server or connection manager but not both");
+      if (config.getServer()) throw new MoneroError("Wallet can be created with a server or connection manager but not both");
       config.setServer(config.getConnectionManager().getConnection());
     }
 
@@ -176,7 +186,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       }
     }
     
-    // set wallet's connection manager
+    // set connection manager
     await wallet.setConnectionManager(config.getConnectionManager());
     return wallet;
   }
@@ -1559,17 +1569,17 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async close(save = false): Promise<void> {
     if (this._isClosed) return; // no effect if closed
+    if (save) await this.save();
     if (this.getWalletProxy()) {
-      await this.getWalletProxy().close(save);
-      this._isClosed = true;
+      await this.getWalletProxy().close(false);
+      await super.close();
       return;
     }
     await this.refreshListening();
     await this.stopSyncing();
-    await super.close(save);
+    await super.close();
     delete this.path;
     delete this.password;
-    delete this.listeners;
     delete this.wasmListener;
     LibraryUtils.setRejectUnauthorizedFn(this.rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
   }
@@ -1588,7 +1598,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   // ---------------------------- PRIVATE HELPERS ----------------------------
 
   protected static async openWalletData(config: Partial<MoneroWalletConfig>) {
-    if (config.proxyToWorker) return MoneroWalletFullProxy.openWalletData(config);
+    if (config.proxyToWorker) {
+      let walletProxy = await MoneroWalletFullProxy.openWalletData(config);
+      return new MoneroWalletFull(undefined, undefined, undefined, undefined, undefined, undefined, walletProxy);
+    }
     
     // validate and normalize parameters
     if (config.networkType === undefined) throw new MoneroError("Must provide the wallet's network type");
@@ -2316,6 +2329,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
 
   async close(save) {
+    if (await this.isClosed()) return;
     if (save) await this.save();
     while (this.wrappedListeners.length) await this.removeListener(this.wrappedListeners[0].getListener());
     await super.close(false);
