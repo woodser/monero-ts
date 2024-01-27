@@ -27,7 +27,7 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 ## Architecture
 
 <p align="center">
-	<img width="85%" height="auto" src="https://raw.githubusercontent.com/monero-ecosystem/monero-ts/master/docs/img/architecture.png"/><br>
+	<img width="85%" height="auto" src="https://raw.githubusercontent.com/woodser/monero-ts/master/docs/img/architecture.png"/><br>
 	<i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html">MoneroWallet.ts</a>.</i>
 </p>
 

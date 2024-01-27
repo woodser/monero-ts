@@ -2,7 +2,7 @@
 
 The following is an example of creating multisig wallets.
 
-For a full example of creating and sending funds from multisig wallets, see "Supports multisig wallets" in [TestMoneroWalletCommon.ts](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroWalletCommon.ts).
+For a full example of creating and sending funds from multisig wallets, see "Supports multisig wallets" in [TestMoneroWalletCommon.ts](https://github.com/woodser/monero-ts/blob/master/src/test/TestMoneroWalletCommon.ts).
 
 ```typescript
 import moneroTs from "monero-ts";
