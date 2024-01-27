@@ -38,8 +38,6 @@
 <a href="MoneroWalletFull.html#connectionManagerListener" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>connection<wbr/>Manager<wbr/>Listener</span></a>
 <a href="MoneroWalletFull.html#cppAddress" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cpp<wbr/>Address</span></a>
 <a href="MoneroWalletFull.html#fs" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>fs</span></a>
-<a href="MoneroWalletFull.html#fullListener" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>full<wbr/>Listener</span></a>
-<a href="MoneroWalletFull.html#fullListenerHandle" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>full<wbr/>Listener<wbr/>Handle</span></a>
 <a href="MoneroWalletFull.html#listeners" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>listeners</span></a>
 <a href="MoneroWalletFull.html#module" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>module</span></a>
 <a href="MoneroWalletFull.html#password" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>password</span></a>
@@ -49,6 +47,8 @@
 <a href="MoneroWalletFull.html#syncLooper" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>sync<wbr/>Looper</span></a>
 <a href="MoneroWalletFull.html#syncPeriodInMs" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>sync<wbr/>Period<wbr/>In<wbr/>Ms</span></a>
 <a href="MoneroWalletFull.html#walletProxy" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wallet<wbr/>Proxy</span></a>
+<a href="MoneroWalletFull.html#wasmListener" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wasm<wbr/>Listener</span></a>
+<a href="MoneroWalletFull.html#wasmListenerHandle" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wasm<wbr/>Listener<wbr/>Handle</span></a>
 <a href="MoneroWalletFull.html#DEFAULT_LANGUAGE" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>LANGUAGE</span></a>
 <a href="MoneroWalletFull.html#DEFAULT_SYNC_PERIOD_IN_MS" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>SYNC_<wbr/>PERIOD_<wbr/>IN_<wbr/>MS</span></a>
 <a href="MoneroWalletFull.html#FS-1" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>FS</span></a>
@@ -209,7 +209,7 @@
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="_isClosed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_is<wbr/>Closed</span><a href="#_isClosed" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">_is<wbr/>Closed</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
+<div class="tsd-signature"><span class="tsd-kind-property">_is<wbr/>Closed</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="MoneroWalletKeys.html">MoneroWalletKeys</a>.<a href="MoneroWalletKeys.html#_isClosed">_isClosed</a></p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="browserMainPath" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>browser<wbr/>Main<wbr/>Path</span><a href="#browserMainPath" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
@@ -229,15 +229,10 @@
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="fs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>fs</span><a href="#fs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">fs</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="fullListener" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>full<wbr/>Listener</span><a href="#fullListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">full<wbr/>Listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">WalletFullListener</span></div></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="fullListenerHandle" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>full<wbr/>Listener<wbr/>Handle</span><a href="#fullListenerHandle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">full<wbr/>Listener<wbr/>Handle</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="listeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>listeners</span><a href="#listeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">listeners</span><span class="tsd-signature-symbol">:</span> <a href="MoneroWalletListener.html" class="tsd-signature-type tsd-kind-class">MoneroWalletListener</a><span class="tsd-signature-symbol">[]</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">listeners</span><span class="tsd-signature-symbol">:</span> <a href="MoneroWalletListener.html" class="tsd-signature-type tsd-kind-class">MoneroWalletListener</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<p>Overrides <a href="MoneroWalletKeys.html">MoneroWalletKeys</a>.<a href="MoneroWalletKeys.html#listeners">listeners</a></p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="module" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>module</span><a href="#module" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">module</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
@@ -264,6 +259,12 @@
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>wallet<wbr/>Proxy</span><a href="#walletProxy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">wallet<wbr/>Proxy</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">MoneroWalletKeysProxy</span></div><aside class="tsd-sources">
 <p>Inherited from <a href="MoneroWalletKeys.html">MoneroWalletKeys</a>.<a href="MoneroWalletKeys.html#walletProxy">walletProxy</a></p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="wasmListener" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>wasm<wbr/>Listener</span><a href="#wasmListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">wasm<wbr/>Listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">WalletWasmListener</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="wasmListenerHandle" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>wasm<wbr/>Listener<wbr/>Handle</span><a href="#wasmListenerHandle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">wasm<wbr/>Listener<wbr/>Handle</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="DEFAULT_LANGUAGE" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>DEFAULT_<wbr/>LANGUAGE</span><a href="#DEFAULT_LANGUAGE" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>LANGUAGE</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;English&quot;</span><span class="tsd-signature-symbol"> = &quot;English&quot;</span></div><aside class="tsd-sources">
@@ -2873,8 +2874,6 @@ let wallet = await MoneroWalletKeys.createWallet({<br>
 <li><a href="#connectionManagerListener" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>connection<wbr/>Manager<wbr/>Listener</span></a></li>
 <li><a href="#cppAddress" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cpp<wbr/>Address</span></a></li>
 <li><a href="#fs" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>fs</span></a></li>
-<li><a href="#fullListener" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>full<wbr/>Listener</span></a></li>
-<li><a href="#fullListenerHandle" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>full<wbr/>Listener<wbr/>Handle</span></a></li>
 <li><a href="#listeners" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>listeners</span></a></li>
 <li><a href="#module" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>module</span></a></li>
 <li><a href="#password" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>password</span></a></li>
@@ -2884,6 +2883,8 @@ let wallet = await MoneroWalletKeys.createWallet({<br>
 <li><a href="#syncLooper" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>sync<wbr/>Looper</span></a></li>
 <li><a href="#syncPeriodInMs" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>sync<wbr/>Period<wbr/>In<wbr/>Ms</span></a></li>
 <li><a href="#walletProxy" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wallet<wbr/>Proxy</span></a></li>
+<li><a href="#wasmListener" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wasm<wbr/>Listener</span></a></li>
+<li><a href="#wasmListenerHandle" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>wasm<wbr/>Listener<wbr/>Handle</span></a></li>
 <li><a href="#DEFAULT_LANGUAGE" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>LANGUAGE</span></a></li>
 <li><a href="#DEFAULT_SYNC_PERIOD_IN_MS" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>SYNC_<wbr/>PERIOD_<wbr/>IN_<wbr/>MS</span></a></li>
 <li><a href="#FS-1" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>FS</span></a></li>
