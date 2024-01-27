@@ -4,7 +4,6 @@ import MoneroSubaddress from "./model/MoneroSubaddress";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import MoneroWallet from "./MoneroWallet";
 import MoneroWalletConfig from "./model/MoneroWalletConfig";
-import MoneroWalletListener from "./model/MoneroWalletListener";
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  */
@@ -12,7 +11,6 @@ export declare class MoneroWalletKeys extends MoneroWallet {
     protected cppAddress: string;
     protected module: any;
     protected walletProxy: MoneroWalletKeysProxy;
-    protected _isClosed: boolean;
     /**
      * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
      *
@@ -54,8 +52,6 @@ export declare class MoneroWalletKeys extends MoneroWallet {
      * @private
      */
     constructor(cppAddress: any, walletProxy?: MoneroWalletKeysProxy);
-    addListener(listener: MoneroWalletListener): Promise<void>;
-    removeListener(listener: any): Promise<void>;
     isViewOnly(): Promise<boolean>;
     isConnectedToDaemon(): Promise<boolean>;
     getVersion(): Promise<MoneroVersion>;
