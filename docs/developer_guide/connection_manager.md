@@ -4,7 +4,7 @@ Wallets can connect to a single Monero daemon or use a connection manager to aut
 
 The following code demonstrates how to use monero-ts's connection manager to manage daemon or wallet RPC connections.
 
-See [MoneroConnectionManager](https://woodser.github.io/monero-ts/typedocs/classes/MoneroConnectionManager.html) or [TestMoneroConnectionManager.ts](https://github.com/monero-ecosystem/monero-ts/blob/master/src/test/TestMoneroConnectionManager.ts) for more detail.
+See [MoneroConnectionManager](https://woodser.github.io/monero-ts/typedocs/classes/MoneroConnectionManager.html) or [TestMoneroConnectionManager.ts](https://github.com/woodser/monero-ts/blob/master/src/test/TestMoneroConnectionManager.ts) for more detail.
 
 ```typescript
 // import monero-ts (or import types individually)
