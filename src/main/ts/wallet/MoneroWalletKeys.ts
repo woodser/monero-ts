@@ -20,7 +20,6 @@ export class MoneroWalletKeys extends MoneroWallet {
   protected cppAddress: string;
   protected module: any;
   protected walletProxy: MoneroWalletKeysProxy;
-  protected _isClosed: boolean;
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -169,7 +168,6 @@ export class MoneroWalletKeys extends MoneroWallet {
    */
   constructor(cppAddress, walletProxy?: MoneroWalletKeysProxy) {
     super();
-    this._isClosed = false;
     if (!cppAddress && !walletProxy) throw new MoneroError("Must provide cppAddress or walletProxy");
     if (walletProxy) this.walletProxy = walletProxy;
     else {

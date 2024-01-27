@@ -69,6 +69,7 @@ export default class MoneroWallet {
   protected connectionManager: MoneroConnectionManager;
   protected connectionManagerListener: MoneroConnectionManagerListener;
   protected listeners: MoneroWalletListener[] = [];
+  protected _isClosed = false;
 
   /**
    * Hidden constructor.
@@ -1382,6 +1383,7 @@ export default class MoneroWallet {
     this.connectionManager = undefined;
     this.connectionManagerListener = undefined;
     this.listeners.splice(0, this.listeners.length);
+    this._isClosed = true;
   }
   
   /**
@@ -1390,7 +1392,7 @@ export default class MoneroWallet {
    * @return {Promise<boolean>} true if the wallet is closed, false otherwise
    */
   async isClosed(): Promise<boolean> {
-    throw new MoneroError("Not supported");
+    return this._isClosed;
   }
   
   // -------------------------------- PRIVATE ---------------------------------
