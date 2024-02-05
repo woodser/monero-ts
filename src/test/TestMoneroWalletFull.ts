@@ -709,7 +709,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         try {
           assert.notEqual(await wallet.getSeed(), undefined);
           assert.equal(await wallet.getHeight(), 1);
-          assert.equal(await wallet.getBalance(), BigInt("0"));
+          assert.equal(await wallet.getBalance(), 0n);
           await wallet.startSyncing();
         } catch (e1: any) {  // first error is expected
           try {
@@ -1295,8 +1295,8 @@ class WalletSyncTester extends SyncProgressTester {
     super(wallet, startHeight, endHeight);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
-    this.incomingTotal = BigInt("0");
-    this.outgoingTotal = BigInt("0");
+    this.incomingTotal = 0n;
+    this.outgoingTotal = 0n;
   }
   
   async onNewBlock(height) {

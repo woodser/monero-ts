@@ -100,7 +100,7 @@ export default class TestSampleCode {
         let createdTx = await walletRpc.createTx({
           accountIndex: 0,
           address: await walletFull.getAddress(1, 0),
-          amount: BigInt("250000000000"), // send 0.25 XMR (denominated in atomic units)
+          amount: 250000000000n, // send 0.25 XMR (denominated in atomic units)
           relay: false // create transaction and relay to the network if true
         });
         let fee = createdTx.getFee(); // "Are you sure you want to send... ?"
@@ -335,7 +335,7 @@ export default class TestSampleCode {
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
             address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
-            amount: BigInt("1000000000000") // send 1 XMR (denominated in atomic units)
+            amount: 1000000000000n // send 1 XMR (denominated in atomic units)
           });
           
           // can confirm with the user
@@ -353,7 +353,7 @@ export default class TestSampleCode {
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
             address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
-            amount: BigInt("1000000000000"), // send 1 XMR (denominated in atomic units)
+            amount: 1000000000000n, // send 1 XMR (denominated in atomic units)
             relay: true // relay the transaction to the network
           });
         } catch (err: any) {
@@ -369,10 +369,10 @@ export default class TestSampleCode {
             subaddressIndex: 1, // source subaddress to send funds from
             destinations: [{
                 address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
-                amount: BigInt("500000000000"), // send 0.5 XMR (denominated in atomic units)
+                amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
               }, {
                 address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
-                amount: BigInt("500000000000"), // send 0.5 XMR (denominated in atomic units)
+                amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
               }],
             priority: moneroTs.MoneroTxPriority.ELEVATED,
             relay: true // relay the transaction to the network

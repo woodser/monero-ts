@@ -48,7 +48,7 @@ export default class TestUtils {
   static WALLET_RPC_LOCAL_PATH = TestUtils.MONERO_BINS_DIR + "/monero-wallet-rpc";
   static WALLET_RPC_LOCAL_WALLET_DIR = TestUtils.MONERO_BINS_DIR;
   static WALLET_RPC_ACCESS_CONTROL_ORIGINS = "http://localhost:8080"; // cors access from web browser
-  static MAX_FEE = BigInt("7500000") * BigInt("10000");
+  static MAX_FEE = 7500000n * 10000n;
   static WALLET_TX_TRACKER = new WalletTxTracker(); // used to track wallet txs for tests
   static WALLET_RPC_CONFIG = {
     uri: "localhost:28084",

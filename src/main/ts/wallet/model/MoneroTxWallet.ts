@@ -146,7 +146,7 @@ export default class MoneroTxWallet extends MoneroTx {
    */
   getIncomingAmount(): bigint {
     if (this.getIncomingTransfers() === undefined) return undefined;
-    let incomingAmt = BigInt("0");
+    let incomingAmt = 0n;
     for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt + transfer.getAmount();
     return incomingAmt;
   }
