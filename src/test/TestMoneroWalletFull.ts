@@ -1011,6 +1011,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       it("Can export and import wallet files", async function() {
         let err;
         let wallet
+        let wallet2;
         try {
           
           // create random wallet
@@ -1023,9 +1024,16 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           let walletData = await wallet.getData();
           let keysData = walletData[0];
           let cacheData = walletData[1];
+
+          // import keys file without cache
+          wallet2 = await openWalletFull({
+            networkType: MoneroNetworkType.MAINNET,
+            password: "password123",
+            keysData: keysData
+          });
           
           // import wallet files
-          let wallet2 = await openWalletFull({
+          wallet2 = await openWalletFull({
             networkType: MoneroNetworkType.MAINNET,
             password: "password123",
             keysData: keysData,
@@ -1041,6 +1049,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // finally
         if (wallet) await wallet.close();
+        if (wallet2) await wallet2.close();
         if (err) throw err;
       });
       
