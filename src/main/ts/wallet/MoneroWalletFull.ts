@@ -1624,7 +1624,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         LibraryUtils.setRejectUnauthorizedFn(rejectUnauthorizedFnId, () => rejectUnauthorized);
       
         // create wallet in wasm which invokes callback when done
-        module.open_wallet_full(config.password, config.networkType, config.keysData, config.cacheData, daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, (cppAddress) => {
+        module.open_wallet_full(config.password, config.networkType, config.keysData ?? "", config.cacheData ?? "", daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, (cppAddress) => {
           if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
           else resolve(new MoneroWalletFull(cppAddress, config.path, config.password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
         });
