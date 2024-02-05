@@ -111,7 +111,7 @@ export default class WalletTxTracker {
   }
   
   async waitForUnlockedBalance(wallet, accountIndex, subaddressIndex, minAmount) {
-    if (!minAmount) minAmount = BigInt("0");
+    if (!minAmount) minAmount = 0n;
     
     // check if wallet has balance
     if (await wallet.getBalance(accountIndex, subaddressIndex) < minAmount) throw new Error("Wallet does not have enough balance to wait for");

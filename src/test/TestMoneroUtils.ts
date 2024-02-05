@@ -244,22 +244,22 @@ export default class TestMoneroUtils {
       }
       
       it("Can convert between XMR and atomic units", function() {
-        assert.equal(MoneroUtils.xmrToAtomicUnits(1).toString(), BigInt("1000000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1000000000000")), 1);
-        assert.equal(MoneroUtils.xmrToAtomicUnits(0.001).toString(), BigInt("1000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1000000000")), .001);
-        assert.equal(MoneroUtils.xmrToAtomicUnits(.25).toString(), BigInt("250000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("250000000000")), .25);
-        assert.equal(MoneroUtils.xmrToAtomicUnits(1.25).toString(), BigInt("1250000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1250000000000")), 1.25);
-        assert.equal(MoneroUtils.xmrToAtomicUnits("1").toString(), BigInt("1000000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1000000000000")), 1);
-        assert.equal(MoneroUtils.xmrToAtomicUnits("0.001").toString(), BigInt("1000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1000000000")), .001);
-        assert.equal(MoneroUtils.xmrToAtomicUnits(".25").toString(), BigInt("250000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("250000000000")), .25);
-        assert.equal(MoneroUtils.xmrToAtomicUnits("1.25").toString(), BigInt("1250000000000").toString());
-        assert.equal(MoneroUtils.atomicUnitsToXmr(BigInt("1250000000000")), 1.25);
+        assert.equal(MoneroUtils.xmrToAtomicUnits(1).toString(), 1000000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1000000000000n), 1);
+        assert.equal(MoneroUtils.xmrToAtomicUnits(0.001).toString(), 1000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1000000000n), .001);
+        assert.equal(MoneroUtils.xmrToAtomicUnits(.25).toString(), 250000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(250000000000n), .25);
+        assert.equal(MoneroUtils.xmrToAtomicUnits(1.25).toString(), 1250000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1250000000000n), 1.25);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("1").toString(), 1000000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1000000000000n), 1);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("0.001").toString(), 1000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1000000000n), .001);
+        assert.equal(MoneroUtils.xmrToAtomicUnits(".25").toString(), 250000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(250000000000n), .25);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("1.25").toString(), 1250000000000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(1250000000000n), 1.25);
       });
     })
   }

@@ -89,7 +89,7 @@ let txs = await walletRpc.getTxs();           // get transactions containing tra
 let createdTx = await walletRpc.createTx({
   accountIndex: 0,
   address: await walletFull.getAddress(1, 0),
-  amount: BigInt("250000000000"), // send 0.25 XMR (denominated in atomic units)
+  amount: 250000000000n, // send 0.25 XMR (denominated in atomic units)
   relay: false // create transaction and relay to the network if true
 });
 let fee = createdTx.getFee(); // "Are you sure you want to send... ?"

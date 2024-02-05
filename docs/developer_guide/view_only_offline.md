@@ -54,7 +54,7 @@ await viewOnlyWallet.importKeyImages(keyImages);
 let unsignedTx = await viewOnlyWallet.createTx({
   accountIndex: 0,
   address: "56j5AskbiNeeb2UAnS85qpey93GYs4VWB78hazZKGdsKCGHvEXUD6nuMQqXaiiY8SwMWsmtAEXS9kA2ko7hgNtGHKsEWyhv",
-  amount: BigInt("250000000000") // 0.25 XMR
+  amount: 250000000000n // 0.25 XMR
 });
 
 // describe unsigned tx set to confirm details

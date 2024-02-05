@@ -7,7 +7,7 @@ The following are examples of sending funds using monero-ts.  See [MoneroTxConfi
 let tx = await wallet.createTx({
   accountIndex: 0,  // source account to send funds from
   address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-  amount: BigInt("1000000000000") // send 1 XMR (denominated in atomic units)
+  amount: 1000000000000n // send 1 XMR (denominated in atomic units)
 });
 
 // can confirm with the user
@@ -22,7 +22,7 @@ let hash = await wallet.relayTx(tx);
 let tx = await wallet.createTx({
   accountIndex: 0,  // source account to send funds from
   address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-  amount: BigInt("1000000000000"), // send 1 XMR (denominated in atomic units)
+  amount: 1000000000000n, // send 1 XMR (denominated in atomic units)
   relay: true // relay the transaction to the network
 });
 ```
@@ -35,10 +35,10 @@ let txs = await wallet.createTxs({
   subaddressIndex: 1, // source subaddress to send funds from
   destinations: [{
       address: "55bcxMRhBWea6xxsot8moF1rdPprjJR2x4mfnNnTGgBJFgXa4gWXmWAYdUBKiRcJxy9AUAGJEg28DejvWdJU2VgUDrUvCHG",
-      amount: BigInt("500000000000"), // send 0.5 XMR (denominated in atomic units)
+      amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
     }, {
       address: "52f7hei1UMrbvYUNtDMKZJMQjcfVyufYnezER8wVK271VmGbzE2kN7cMMG6qFjrb6Ub6qPkNt815a98kJmo874qG9GYZKD5",
-      amount: BigInt("500000000000"), // send 0.5 XMR (denominated in atomic units)
+      amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
     }],
   priority: MoneroTxPriority.IMPORTANT,
   relay: true // relay the transaction to the network

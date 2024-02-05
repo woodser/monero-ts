@@ -2494,7 +2494,7 @@ export default class TestMoneroWalletCommon {
         
         // test with subaddress and all fields
         config1.getDestinations()[0].setAddress((await that.wallet.getSubaddress(0, 1)).getAddress());
-        config1.getDestinations()[0].setAmount(BigInt("425000000000"));
+        config1.getDestinations()[0].setAmount(425000000000n);
         config1.setRecipientName("John Doe");
         config1.setNote("OMZG XMR FTW");
         uri = await that.wallet.getPaymentUri(config1.toJson());
@@ -2661,7 +2661,7 @@ export default class TestMoneroWalletCommon {
         
         // wait for unlocked funds in source account
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(sender);
-        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (BigInt("10")));
+        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (10n));
         
         // get balances to compare after sending
         let senderBalanceBefore = await sender.getBalance();
@@ -2685,7 +2685,7 @@ export default class TestMoneroWalletCommon {
         if (sweepOutput) {
           ctx.isSweepResponse = true;
           ctx.isSweepOutputResponse = true;
-          let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE * (BigInt("5")), txQuery: {isLocked: false}});
+          let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE * (5n), txQuery: {isLocked: false}});
           if (outputs.length === 0) {
             issues.push("ERROR: No outputs available to sweep from account 0");
             return issues;
@@ -2721,7 +2721,7 @@ export default class TestMoneroWalletCommon {
           if (senderTx.getIncomingAmount() !== undefined) issues.push("ERROR: tx incoming amount should be undefined"); // TODO: should be 0? then can remove undefined checks in this method
         }
         senderTx = (await sender.getTxs(new MoneroTxQuery().setHash(senderTx.getHash()).setIncludeOutputs(true)))[0];
-        if (await sender.getBalance() !== senderBalanceBefore - (senderTx.getFee()) - (senderTx.getOutgoingAmount()) + (senderTx.getIncomingAmount() === undefined ? BigInt("0") : senderTx.getIncomingAmount())) issues.push("ERROR: sender balance after send != balance before - tx fee - outgoing amount + incoming amount (" + await sender.getBalance() + " != " + senderBalanceBefore + " - " + senderTx.getFee() + " - " + senderTx.getOutgoingAmount() + " + " + senderTx.getIncomingAmount() + ")");
+        if (await sender.getBalance() !== senderBalanceBefore - (senderTx.getFee()) - (senderTx.getOutgoingAmount()) + (senderTx.getIncomingAmount() === undefined ? 0n : senderTx.getIncomingAmount())) issues.push("ERROR: sender balance after send != balance before - tx fee - outgoing amount + incoming amount (" + await sender.getBalance() + " != " + senderBalanceBefore + " - " + senderTx.getFee() + " - " + senderTx.getOutgoingAmount() + " + " + senderTx.getIncomingAmount() + ")");
         if (await sender.getUnlockedBalance() >= senderUnlockedBalanceBefore) issues.push("ERROR: sender unlocked balance should have decreased after sending");
         if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not notify balance change after sending");
         else {
@@ -2738,9 +2738,9 @@ export default class TestMoneroWalletCommon {
           if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount() + ")");
           else issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount()) + ")";
         }
-        if (await receiver.getBalance() !== receiverBalanceBefore + (receiverTx.getIncomingAmount() === undefined ? BigInt("0") : receiverTx.getIncomingAmount()) - (receiverTx.getOutgoingAmount() === undefined ? BigInt("0") : receiverTx.getOutgoingAmount()) - (sameWallet ? receiverTx.getFee() : BigInt("0"))) {
-          if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : BigInt("0")).toString() + ")");
-          else issues.push("ERROR: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : BigInt("0")).toString() + ")");
+        if (await receiver.getBalance() !== receiverBalanceBefore + (receiverTx.getIncomingAmount() === undefined ? 0n : receiverTx.getIncomingAmount()) - (receiverTx.getOutgoingAmount() === undefined ? 0n : receiverTx.getOutgoingAmount()) - (sameWallet ? receiverTx.getFee() : 0n)) {
+          if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
+          else issues.push("ERROR: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
         }
         if (!sameWallet && await receiver.getUnlockedBalance() !== receiverUnlockedBalanceBefore) issues.push("ERROR: receiver unlocked balance should not have changed after sending");
         if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not notify balance change when funds received");
@@ -2806,7 +2806,7 @@ export default class TestMoneroWalletCommon {
                 
                 // if same wallet, net amount spent = tx fee = outputs spent - outputs received
                 if (sameWallet) {
-                  let netAmount = BigInt("0");
+                  let netAmount = 0n;
                   for (let outputSpent of senderNotificationCollector.getOutputsSpent(confirmedQuery)) netAmount = netAmount + (outputSpent.getAmount());
                   for (let outputReceived of senderNotificationCollector.getOutputsReceived(confirmedQuery)) netAmount = netAmount - (outputReceived.getAmount());
                   if (tx.getFee() !== netAmount) {
@@ -3022,7 +3022,7 @@ export default class TestMoneroWalletCommon {
         // wait for txs to confirm and for sufficient unlocked balance
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         assert(!config.getSubaddressIndices());
-        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, config.getAccountIndex(), undefined, TestUtils.MAX_FEE * (BigInt("2")));
+        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, config.getAccountIndex(), undefined, TestUtils.MAX_FEE * (2n));
         
         // this test starts and stops mining, so it's wrapped in order to stop mining if anything fails
         let err;
@@ -3171,7 +3171,7 @@ export default class TestMoneroWalletCommon {
           
           // wait for txs to confirm and for sufficient unlocked balance
           await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-          let amount = TestUtils.MAX_FEE * (BigInt("3"));
+          let amount = TestUtils.MAX_FEE * (3n);
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, amount);
           
           // collect sender balances before
@@ -3209,7 +3209,7 @@ export default class TestMoneroWalletCommon {
           
           // wait for txs to confirm and for sufficient unlocked balance
           await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-          let amount = TestUtils.MAX_FEE * (BigInt("3"));
+          let amount = TestUtils.MAX_FEE * (3n);
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, amount);
           
           // create recipient wallet
@@ -3582,7 +3582,7 @@ export default class TestMoneroWalletCommon {
         // get amount to send total and per subaddress
         let sendAmount;
         if (sendAmountPerSubaddress === undefined) {
-          sendAmount = TestUtils.MAX_FEE * BigInt("5") * BigInt(totalSubaddresses);
+          sendAmount = TestUtils.MAX_FEE * 5n * BigInt(totalSubaddresses);
           sendAmountPerSubaddress = sendAmount / BigInt(totalSubaddresses);
         } else {
           sendAmount = sendAmountPerSubaddress * (BigInt(totalSubaddresses));
@@ -4196,8 +4196,8 @@ export default class TestMoneroWalletCommon {
         let tx = await that.wallet.createTx(new MoneroTxConfig()
                 .setAccountIndex(0)
                  .addDestination(address1, TestUtils.MAX_FEE)
-                 .addDestination(address2, TestUtils.MAX_FEE * (BigInt("2")))
-                 .addDestination(address3, TestUtils.MAX_FEE * (BigInt("3"))));
+                 .addDestination(address2, TestUtils.MAX_FEE * (2n))
+                 .addDestination(address3, TestUtils.MAX_FEE * (3n)));
         
         // submit tx to daemon but do not relay
         let result = await that.daemon.submitTxHex(tx.getFullHex(), true);
@@ -4225,7 +4225,7 @@ export default class TestMoneroWalletCommon {
         assert.equal(check.getIsGood(), true);
         assert.equal(check.getInTxPool(), true);
         assert.equal(check.getNumConfirmations(), 0);
-        assert.equal(check.getReceivedAmount().toString(), (TestUtils.MAX_FEE * BigInt("3")).toString());
+        assert.equal(check.getReceivedAmount().toString(), (TestUtils.MAX_FEE * 3n).toString());
         
         // cleanup
         await that.daemon.flushTxPool(tx.getHash());
@@ -4828,7 +4828,7 @@ export default class TestMoneroWalletCommon {
       
       // wait for txs to confirm and for sufficient unlocked balance
       await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
-      await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (BigInt("20"))); 
+      await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (20n)); 
       
       // send funds from the main test wallet to destinations in the first multisig wallet
       assert(await this.wallet.getBalance() > 0n);
@@ -5053,7 +5053,7 @@ export default class TestMoneroWalletCommon {
     
     // wait for txs to confirm and for sufficient unlocked balance
     await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
-    await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (BigInt("4")));
+    await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (4n));
     
     // test getting txs, transfers, and outputs from view-only wallet
     assert((await viewOnlyWallet.getTxs()).length, "View-only wallet has no transactions");
@@ -5114,7 +5114,7 @@ export default class TestMoneroWalletCommon {
     assert.equal((await viewOnlyWallet.getBalance()).toString(), (await this.wallet.getBalance()).toString());
     
     // create unsigned tx using view-only wallet
-    let unsignedTx = await viewOnlyWallet.createTx({accountIndex: 0, address: primaryAddress, amount: TestUtils.MAX_FEE * (BigInt("3"))});
+    let unsignedTx = await viewOnlyWallet.createTx({accountIndex: 0, address: primaryAddress, amount: TestUtils.MAX_FEE * (3n)});
     assert.equal(typeof unsignedTx.getTxSet().getUnsignedTxHex(), "string");
     assert(unsignedTx.getTxSet().getUnsignedTxHex());
     

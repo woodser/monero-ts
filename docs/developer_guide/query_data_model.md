@@ -101,7 +101,7 @@ let outputs = await wallet.getOutputs({
 ```typescript
 // get outputs by amount
 outputs = await wallet.getOutputs({
-  amount: BigInt()"250000000000")
+  amount: 250000000000n
 });
 ```
 
