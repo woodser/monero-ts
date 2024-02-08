@@ -10,13 +10,13 @@ local EMSCRIPTEN = [ os.environ EMSCRIPTEN ] ;
 
 using clang : emscripten
 :
-	emcc -v -s USE_ZLIB=1 -s USE_PTHREADS=0
+	emcc -v -s USE_ZLIB=1 -s USE_PTHREADS=1
 :
 	<root>$(EMSCRIPTEN)
 	<archiver>$(EMSCRIPTEN)/emar
 	<ranlib>$(EMSCRIPTEN)/emranlib
 	<linker>$(EMSCRIPTEN)/emlink
-	<cxxflags>-std=c++11
+	<cxxflags>-std=c++11 -pthread
 ;
 
 
