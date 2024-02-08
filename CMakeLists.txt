@@ -283,6 +283,7 @@ EMCC_LINKER_FLAGS_BASE
 "-Wall -Wno-error=warning-type -Wl,--allow-undefined -std=c++11 -Oz \
 --bind \
 -s MODULARIZE=1 \
+-s WASM_BIGINT=1 \
 -s USE_PTHREADS=0 \
 -s 'EXPORT_NAME=\"monero_ts\"' \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
