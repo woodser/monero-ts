@@ -4127,7 +4127,7 @@ export default class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Provides key images of spent outputs", async function() {
         let accountIndex = 0;
-        let subaddressIndex = 0;
+        let subaddressIndex = (await that.wallet.getSubaddresses(0)).length > 1 ? 1 : 0; // TODO: avoid subaddress 0 which is more likely to fail transaction sanity check
       
         // test unrelayed single transaction
         testSpendTx(await that.wallet.createTx(new MoneroTxConfig().addDestination(await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE).setAccountIndex(accountIndex)));
