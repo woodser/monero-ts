@@ -106,7 +106,10 @@ export default class LibraryUtils {
     if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
-    let module = await require("../../../../dist/monero_wallet_full")();
+    const tmp = await require("../../../../dist/monero_wallet_full");
+    console.log(JSON.stringify(tmp));
+    tmp.asyncifyStubs = {};
+    let module = tmp();
     LibraryUtils.WASM_MODULE = module
     delete LibraryUtils.WASM_MODULE.then;
     LibraryUtils.FULL_LOADED = true;
@@ -261,6 +264,7 @@ export default class LibraryUtils {
   protected static initWasmModule(wasmModule) {
     wasmModule.taskQueue = new ThreadPool(1);
     wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
+    wasmModule.asyncifyStubs = {};
   }
   
   protected static prefixWindowsPath(path) {
