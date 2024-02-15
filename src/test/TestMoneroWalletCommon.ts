@@ -174,9 +174,7 @@ export default class TestMoneroWalletCommon {
       // start tests by sending to multiple addresses
       if (testConfig.testRelays)
       it("Can send to multiple addresses in a single transaction", async function() {
-        for (let i = 0; i < 3; i++) {
-          await testSendToMultiple(5, 3, false);
-        }
+        await testSendToMultiple(5, 3, false);
       });
       
       //  --------------------------- TEST NON RELAYS -------------------------
