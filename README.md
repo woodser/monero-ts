@@ -154,8 +154,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 3. `cd monero-ts`
 4. `./bin/update_submodules.sh`
 5. Build the monero-cpp submodule (located at ./external/monero-cpp) by following [instructions](https://github.com/woodser/monero-cpp#using-monero-cpp-in-your-project) for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (`~/unbound-1.19.0`).
-6. Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from `set(MONERO_WALLET_CRYPTO_LIBRARY "auto" ...` to `set(MONERO_WALLET_CRYPTO_LIBRARY "cn" ...`.
-7. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
+6. `./bin/build_all.sh` (install [monero-project dependencies](https://github.com/monero-project/monero#dependencies) as needed for your system)
 
 ## Running tests
 
