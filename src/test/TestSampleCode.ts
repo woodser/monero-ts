@@ -88,7 +88,7 @@ export default class TestSampleCode {
           }
         });
 
-        // connect to wallet RPC endpoint and open wallet
+        // connect to wallet RPC and open wallet
         let walletRpc = await moneroTs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
