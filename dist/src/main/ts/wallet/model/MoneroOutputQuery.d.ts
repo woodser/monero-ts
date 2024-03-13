@@ -21,7 +21,7 @@ export default class MoneroOutputQuery extends MoneroOutputWallet {
      * &nbsp;&nbsp; isSpent: false,<br>
      * &nbsp;&nbsp; isLocked: false,<br>
      * &nbsp;&nbsp; accountIndex: 0,<br>
-     * &nbsp;&nbsp; minAmount: BigInt("750000")<br>
+     * &nbsp;&nbsp; minAmount: 750000n<br>
      * });
      * </code>
      *
