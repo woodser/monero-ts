@@ -130,6 +130,13 @@ await walletFull.close(true);
 
 Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the `--experimental-wasm-threads` flag.
 
+To avoid the error "Failed to parse URL from /path/to/file.wasm" on Node.js >16:
+
+1. Pass the `--no-experimental-fetch` flag to `node`.
+2. Set OpenSSL legacy provider:
+    - Unix: `export NODE_OPTIONS=--openssl-legacy-provider`
+    - Windows: `set NODE_OPTIONS=--openssl-legacy-provider`
+
 If using Node >16, use the `--no-experimental-fetch` flag to avoid the error "Failed to parse URL from /path/to/file.wasm".
 
 #### Building a browser application
