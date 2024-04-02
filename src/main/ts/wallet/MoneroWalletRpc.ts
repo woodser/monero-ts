@@ -351,11 +351,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
 
   /**
-   * Get the locked and unlocked balances in a single request.
+   * Get the total and unlocked balances in a single request.
    * 
    * @param {number} [accountIdx] account index
    * @param {number} [subaddressIdx] subaddress index
-   * @return {Promise<bigint[]>} is the locked and unlocked balances in an array, respectively
+   * @return {Promise<bigint[]>} is the total and unlocked balances in an array, respectively
    */
   async getBalances(accountIdx?: number, subaddressIdx?: number): Promise<bigint[]> {
     if (accountIdx === undefined) {
