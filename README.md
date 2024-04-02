@@ -12,18 +12,6 @@ A TypeScript library for creating Monero applications using RPC and WebAssembly 
 * Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.
 * Over 300 passing Mocha tests.
 
-## Table of contents
-
-* [Architecture](#architecture)
-* [Sample code](#sample-code)
-* [Documentation](#documentation)
-* [Using monero-ts in your project](#using-monero-ts-in-your-project)
-* [Building WebAssembly binaries from source](#building-webassembly-binaries-from-source)
-* [Running tests](#running-tests)
-* [Related projects](#related-projects)
-* [License](#license)
-* [Donations](#donations)
-
 ## Architecture
 
 <p align="center">
@@ -103,23 +91,6 @@ assert(fundsReceived);
 await walletFull.close(true);
 ```
 
-## Documentation
-
-* [TypeDocs](https://woodser.github.io/monero-ts/typedocs/)
-* [API and model overview with visual diagrams](https://woodser.github.io/monero-java/monero-spec.pdf)
-* [Creating wallets](docs/developer_guide/creating_wallets.md)
-* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
-* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
-* [Sending funds](docs/developer_guide/sending_funds.md)
-* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
-* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
-* [Connection manager](docs/developer_guide/connection_manager.md)
-* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
-* [Mocha tests](src/test)
-* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
-* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
-* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
-
 ## Using monero-ts in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
@@ -137,8 +108,6 @@ To avoid the error "Failed to parse URL from /path/to/file.wasm" on Node.js >16:
     - Unix: `export NODE_OPTIONS=--openssl-legacy-provider`
     - Windows: `set NODE_OPTIONS=--openssl-legacy-provider`
 
-If using Node >16, use the `--no-experimental-fetch` flag to avoid the error "Failed to parse URL from /path/to/file.wasm".
-
 #### Building a browser application
 1. Bundle your application code for a browser. See [xmr-sample-app](https://github.com/woodser/xmr-sample-app) for an example project using webpack.
 2. Copy assets from ./dist to your web app's build directory.
@@ -147,6 +116,23 @@ If using Node >16, use the `--no-experimental-fetch` flag to avoid the error "Fa
 1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
 2. Start monerod, e.g.: `./monerod --stagenet` (or use a remote daemon).
 3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38084 --rpc-login rpc_user:abc123 --wallet-dir ./`
+
+## Documentation
+
+* [TypeDocs](https://woodser.github.io/monero-ts/typedocs/)
+* [API and model overview with visual diagrams](https://woodser.github.io/monero-java/monero-spec.pdf)
+* [Creating wallets](docs/developer_guide/creating_wallets.md)
+* [The data model: blocks, transactions, transfers, and outputs](docs/developer_guide/data_model.md)
+* [Getting transactions, transfers, and outputs](docs/developer_guide/query_data_model.md)
+* [Sending funds](docs/developer_guide/sending_funds.md)
+* [Multisig wallets](docs/developer_guide/multisig_wallets.md)
+* [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
+* [Connection manager](docs/developer_guide/connection_manager.md)
+* [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
+* [Mocha tests](src/test)
+* [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
+* [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
+* [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
 
 ## Building WebAssembly binaries from source
 
