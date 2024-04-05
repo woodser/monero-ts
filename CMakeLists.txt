@@ -279,7 +279,7 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
+"-Wall -Wl,--allow-undefined -std=c++14 -Oz \
 --bind \
 -s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_ts\"' \
