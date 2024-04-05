@@ -27,7 +27,7 @@ npm install || exit 1
 # build openssl
 ./bin/build_openssl_emscripten.sh || exit 1
 
-# build dist (wasm, commonjs , web worker)
+# build dist (wasm, commonjs, web worker)
 ./bin/build_dist.sh || exit 1
 
 # build browser tests

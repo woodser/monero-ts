@@ -63,7 +63,8 @@ export default class TestSampleCode {
             uri: "http://localhost:28081",
             username: "superuser",
             password: "abctesting123"
-          }
+          },
+          proxyToWorker: false
         });
 
         // synchronize with progress notifications

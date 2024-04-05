@@ -92,6 +92,8 @@ import ThreadPool from "./src/main/ts/common/ThreadPool";
 
 // ---------------------------- GLOBAL FUNCTIONS ------------------------------
 
+const asyncifyStubs = {};
+
 /**
  * <p>Get the version of the monero-ts library.<p>
  *
@@ -371,6 +373,7 @@ export {
   ThreadPool,
 
   // global functions
+  asyncifyStubs,
   getVersion,
   connectToDaemonRpc,
   connectToWalletRpc,
@@ -459,6 +462,7 @@ const moneroTs = {
   ThreadPool,
 
   // global functions
+  asyncifyStubs,
   getVersion,
   connectToDaemonRpc,
   connectToWalletRpc,
@@ -471,6 +475,7 @@ export default moneroTs;
 // augment global scope with same namespace as default export
 declare global {
   namespace moneroTs {
+    type asyncifyStubs = {};
     type GenUtils = InstanceType<typeof import("./index").GenUtils>;
     type Filter = InstanceType<typeof import("./index").Filter>;
     type MoneroError = InstanceType<typeof import("./index").MoneroError>;

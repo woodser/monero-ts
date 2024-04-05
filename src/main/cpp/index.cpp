@@ -4,6 +4,8 @@
 
 #include "monero_wasm_bridge.h"
 
+int main() { return 0; }
+
 // register bindings from JS to C++ using emscripten
 EMSCRIPTEN_BINDINGS(module)
 {
@@ -127,9 +129,11 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
   emscripten::function("get_keys_file_buffer", &monero_wasm_bridge::get_keys_file_buffer);
   emscripten::function("get_cache_file_buffer", &monero_wasm_bridge::get_cache_file_buffer);
-  emscripten::function("change_wallet_password", &monero_wasm_bridge::change_wallet_password);
+  emscripten::function("asyncifyStubs", &monero_wasm_bridge::change_wallet_password);
   emscripten::function("close", &monero_wasm_bridge::close);
 }
 extern "C"
 {
+  // add stub for asyncify
+  void EMSCRIPTEN_KEEPALIVE asyncifyStubs() {}
 }
