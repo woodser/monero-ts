@@ -105,11 +105,11 @@ HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2
 
 ./b2 -q -a -j $HOST_NCORES    \
   toolset=clang-emscripten    \
-  threading=single            \
+  threading=multi             \
   link=static                 \
   optimization=space          \
   variant=release             \
-  cxxflags=-no-pthread        \
+  cxxflags=-pthread        \
   stage                       \
   --stagedir="$INSTALL_PATH"  \
   2>&1
