@@ -28,7 +28,7 @@ let configBase = {
       ]
     },
     devtool: 'source-map',
-    externals: ['worker_threads','ws','perf_hooks', 'child_process'], // exclude nodejs
+    externals: ['worker_threads', 'ws', 'perf_hooks', 'child_process', 'web-worker'], // exclude nodejs dependencies
     plugins: [
       new webpack.ProvidePlugin({
         process: 'process/browser',
