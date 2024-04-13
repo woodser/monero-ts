@@ -2459,7 +2459,7 @@ class WalletPoller {
         }
         
         // take initial snapshot
-        if (that.prevHeight === undefined) {
+        if (that.prevBalances === undefined) {
           that.prevHeight = await that.wallet.getHeight();
           that.prevLockedTxs = await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
           that.prevBalances = await that.wallet.getBalances();
