@@ -270,7 +270,7 @@ export default class MoneroRpcConnection {
       }
       
       // check rpc response for errors
-      MoneroRpcConnection.validateRpcResponse(resp, method, params);
+      this.validateRpcResponse(resp, method, params);
       return resp;
     } catch (err: any) {
       if (err instanceof MoneroRpcError) throw err;
@@ -321,7 +321,7 @@ export default class MoneroRpcConnection {
       }
       
       // check rpc response for errors
-      MoneroRpcConnection.validateRpcResponse(resp, path, params);
+      this.validateRpcResponse(resp, path, params);
       return resp;
     } catch (err: any) {
       if (err instanceof MoneroRpcError) throw err;
@@ -410,8 +410,10 @@ export default class MoneroRpcConnection {
     }
   }
   
-  protected static validateRpcResponse(resp, method, params) {
-    if (!resp.error) return;
+  protected validateRpcResponse(resp, method, params) {
+    if (resp.error === undefined) return;
+    let errorMsg = resp.error.message;
+    if (errorMsg === "") errorMsg = "Received error response from RPC request with method '" + method + "' to " + this.getUri(); // TODO (monero-project): response sometimes has empty error message
     throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
   }
 }
