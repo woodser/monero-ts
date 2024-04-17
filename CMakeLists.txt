@@ -295,6 +295,7 @@ EMCC_LINKER_FLAGS_BASE
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"getTempRet0\",\"addFunction\"]' \
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
+-s EXPORTED_FUNCTIONS='[_free, _malloc]' \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
