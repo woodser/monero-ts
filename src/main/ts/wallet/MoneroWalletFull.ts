@@ -102,11 +102,11 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
    * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
-  static walletExists(path, fs) {
+  static async walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = MoneroWalletFull.getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
-    let exists = fs.existsSync(path + ".keys");
+    const exists = await fs.exists(path + ".keys");
     LibraryUtils.log(1, "Wallet exists at " + path + ": " + exists);
     return exists;
   }
@@ -135,9 +135,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!config.getKeysData()) {
       let fs = config.getFs() ? config.getFs() : MoneroWalletFull.getFs();
       if (!fs) throw new MoneroError("Must provide file system to read wallet data from");
-      if (!this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
-      config.setKeysData(fs.readFileSync(config.getPath() + ".keys"));
-      config.setCacheData(fs.existsSync(config.getPath()) ? fs.readFileSync(config.getPath()) : "");
+      if (!(await this.walletExists(config.getPath(), fs))) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
+      config.setKeysData(await fs.readFile(config.getPath() + ".keys"));
+      config.setCacheData(await fs.exists(config.getPath()) ? await fs.readFile(config.getPath()) : "");
     }
 
     // open wallet from data
@@ -157,7 +157,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     MoneroNetworkType.validate(config.getNetworkType());
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating full WASM wallet");
     if (config.getPath() === undefined) config.setPath("");
-    if (config.getPath() && MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
+    if (config.getPath() && await MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
     if (config.getPassword() === undefined) config.setPassword("");
 
     // set server from connection manager if provided
@@ -298,7 +298,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
 
   static getFs() {
-    if (!MoneroWalletFull.FS) MoneroWalletFull.FS = GenUtils.isBrowser() ? undefined : fs;
+    if (!MoneroWalletFull.FS) MoneroWalletFull.FS = fs;
     return MoneroWalletFull.FS;
   }
   
@@ -1780,24 +1780,24 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     
     // create destination directory if it doesn't exist
     let walletDir = Path.dirname(path);
-    if (!wallet.fs.existsSync(walletDir)) {
-      try { wallet.fs.mkdirSync(walletDir); }
+    if (!await wallet.fs.exists(walletDir)) {
+      try { await wallet.fs.mkdir(walletDir); }
       catch (err: any) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
     }
     
     // write wallet files
     let data = await wallet.getData();
-    wallet.fs.writeFileSync(path + ".keys", data[0], "binary");
-    wallet.fs.writeFileSync(path, data[1], "binary");
-    wallet.fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
+    await wallet.fs.writeFile(path + ".keys", data[0], "binary");
+    await wallet.fs.writeFile(path, data[1], "binary");
+    await wallet.fs.writeFile(path + ".address.txt", await wallet.getPrimaryAddress());
     let oldPath = wallet.path;
     wallet.path = path;
     
     // delete old wallet files
     if (oldPath) {
-      wallet.fs.unlinkSync(oldPath + ".address.txt");
-      wallet.fs.unlinkSync(oldPath + ".keys");
-      wallet.fs.unlinkSync(oldPath);
+      await wallet.fs.unlink(oldPath + ".address.txt");
+      await wallet.fs.unlink(oldPath + ".keys");
+      await wallet.fs.unlink(oldPath);
     }
   }
   
@@ -1811,14 +1811,14 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     // write wallet files to *.new
     let pathNew = path + ".new";
     let data = await wallet.getData();
-    wallet.fs.writeFileSync(pathNew + ".keys", data[0], "binary");
-    wallet.fs.writeFileSync(pathNew, data[1], "binary");
-    wallet.fs.writeFileSync(pathNew + ".address.txt", await wallet.getPrimaryAddress());
+    await wallet.fs.writeFile(pathNew + ".keys", data[0], "binary");
+    await wallet.fs.writeFile(pathNew, data[1], "binary");
+    await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
     
     // replace old wallet files with new
-    wallet.fs.renameSync(pathNew + ".keys", path + ".keys");
-    wallet.fs.renameSync(pathNew, path, path + ".keys");
-    wallet.fs.renameSync(pathNew + ".address.txt", path + ".address.txt", path + ".keys");
+    await wallet.fs.rename(pathNew + ".keys", path + ".keys");
+    await wallet.fs.rename(pathNew, path, path + ".keys");
+    await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt", path + ".keys");
   }
 }
 
@@ -1847,7 +1847,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   static async createWallet(config) {
-    if (config.getPath() && MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
+    if (config.getPath() && await MoneroWalletFull.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet already exists: " + config.getPath());
     let walletId = GenUtils.getUUID();
     await LibraryUtils.invokeWorker(walletId, "createWalletFull", [config.toJson()]);
     let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), config.getPath(), config.getFs());
