@@ -39,7 +39,7 @@ import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import fs from "fs";
-import { Mutex } from "async-mutex";
+import ThreadPool from "../common/ThreadPool";
 
 /**
  * Implements a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.
@@ -62,7 +62,6 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   protected syncPeriodInMs: number;
   protected syncLooper: TaskLooper;
   protected browserMainPath: string;
-  private mutex: Mutex = new Mutex();
 
   /**
    * Internal constructor which is given the memory address of a C++ wallet instance.
@@ -410,7 +409,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
    * @return {Promise<void>}
    */
   async moveTo(path: string): Promise<void> {
-    await this.mutex.runExclusive(async () => {
+    await this.module.queueTask(async () => {
       if (this.getWalletProxy()) return this.getWalletProxy().moveTo(path);
       return MoneroWalletFull.moveTo(path, this);
     });
@@ -1567,7 +1566,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   async save(): Promise<void> {
-    await this.mutex.runExclusive(async () => {
+    await this.module.queueTask(async () => {
       if (this.getWalletProxy()) return this.getWalletProxy().save();
       return MoneroWalletFull.save(this);
     });
@@ -1844,7 +1843,6 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   protected path: any;
   protected fs: any;
   protected wrappedListeners: any;
-  private mutex: Mutex = new Mutex();
 
   // -------------------------- WALLET STATIC UTILS ---------------------------
   
@@ -2328,7 +2326,10 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async moveTo(path) {
-    return MoneroWalletFull.moveTo(path, this);
+    const pool = new ThreadPool(1);
+    await pool.submit(async () => {
+      return MoneroWalletFull.moveTo(path, this);
+    });
   }
   
   async changePassword(oldPassword, newPassword) {
@@ -2337,7 +2338,8 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async save() {
-    await this.mutex.runExclusive(async () => {
+    const pool = new ThreadPool(1);
+    await pool.submit(async () => {
       return MoneroWalletFull.save(this);
     });
   }

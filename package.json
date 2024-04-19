@@ -33,7 +33,6 @@
     "@types/node": "^20.6.0",
     "ajv": "^6.12.6",
     "async": "2.6.4",
-    "async-mutex": "^0.5.0",
     "crypto-js": "^4.0.0",
     "indexeddb-fs": "^2.1.5",
     "net": "^1.0.2",
