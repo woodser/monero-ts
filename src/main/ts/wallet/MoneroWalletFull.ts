@@ -2325,7 +2325,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async moveTo(path) {
-    LibraryUtils.queueTask(async () => {
+    await LibraryUtils.queueTask(async () => {
       return MoneroWalletFull.moveTo(path, this);
     });
   }
@@ -2336,7 +2336,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async save() {
-    LibraryUtils.queueTask(async () => {
+    await LibraryUtils.queueTask(async () => {
       return MoneroWalletFull.save(this);
     });
   }
