@@ -39,7 +39,6 @@ import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import fs from "fs";
-import ThreadPool from "../common/ThreadPool";
 
 /**
  * Implements a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.
@@ -2326,8 +2325,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async moveTo(path) {
-    const pool = new ThreadPool(1);
-    await pool.submit(async () => {
+    LibraryUtils.queueTask(async () => {
       return MoneroWalletFull.moveTo(path, this);
     });
   }
@@ -2338,8 +2336,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async save() {
-    const pool = new ThreadPool(1);
-    await pool.submit(async () => {
+    LibraryUtils.queueTask(async () => {
       return MoneroWalletFull.save(this);
     });
   }
