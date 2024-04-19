@@ -1565,10 +1565,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   async save(): Promise<void> {
-    await this.module.queueTask(async () => {
-      if (this.getWalletProxy()) return this.getWalletProxy().save();
-      return MoneroWalletFull.save(this);
-    });
+    if (this.getWalletProxy()) return this.getWalletProxy().save();
+    return MoneroWalletFull.save(this);
   }
   
   async close(save = false): Promise<void> {
@@ -1773,61 +1771,65 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async moveTo(path, wallet) {
-    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
-    if (!path) throw new MoneroError("Must provide path of destination wallet");
-    
-    // save and return if same path
-    if (Path.normalize(wallet.path) === Path.normalize(path)) {
-      await wallet.save();
-      return;
-    }
-    
-    // create destination directory if it doesn't exist
-    let walletDir = Path.dirname(path);
-    if (!await wallet.fs.exists(walletDir)) {
-      try { await wallet.fs.mkdir(walletDir); }
-      catch (err: any) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
-    }
-    
-    // write wallet files
-    let data = await wallet.getData();
-    await wallet.fs.writeFile(path + ".keys", data[0], "binary");
-    await wallet.fs.writeFile(path, data[1], "binary");
-    await wallet.fs.writeFile(path + ".address.txt", await wallet.getPrimaryAddress());
-    let oldPath = wallet.path;
-    wallet.path = path;
-    
-    // delete old wallet files
-    if (oldPath) {
-      await wallet.fs.unlink(oldPath + ".address.txt");
-      await wallet.fs.unlink(oldPath + ".keys");
-      await wallet.fs.unlink(oldPath);
-    }
+    await LibraryUtils.queueTask(async () => {
+      if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+      if (!path) throw new MoneroError("Must provide path of destination wallet");
+
+      // save and return if same path
+      if (Path.normalize(wallet.path) === Path.normalize(path)) {
+        await wallet.save();
+        return;
+      }
+
+      // create destination directory if it doesn't exist
+      let walletDir = Path.dirname(path);
+      if (!await wallet.fs.exists(walletDir)) {
+        try { await wallet.fs.mkdir(walletDir); }
+        catch (err: any) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
+      }
+
+      // write wallet files
+      let data = await wallet.getData();
+      await wallet.fs.writeFile(path + ".keys", data[0], "binary");
+      await wallet.fs.writeFile(path, data[1], "binary");
+      await wallet.fs.writeFile(path + ".address.txt", await wallet.getPrimaryAddress());
+      let oldPath = wallet.path;
+      wallet.path = path;
+
+      // delete old wallet files
+      if (oldPath) {
+        await wallet.fs.unlink(oldPath + ".address.txt");
+        await wallet.fs.unlink(oldPath + ".keys");
+        await wallet.fs.unlink(oldPath);
+      }
+    });
   }
   
   static async save(wallet: any) {
-    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
-        
-    // path must be set
-    let path = await wallet.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write wallet files to *.new
-    let pathNew = path + ".new";
-    let data = await wallet.getData();
-    await wallet.fs.writeFile(pathNew + ".keys", data[0], "binary");
-    await wallet.fs.writeFile(pathNew, data[1], "binary");
-    await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
-    
-    // remove old wallet files
-    await wallet.fs.unlink(path + ".keys");
-    await wallet.fs.unlink(path);
-    await wallet.fs.unlink(path + ".address.txt");
+    await LibraryUtils.queueTask(async () => {
+      if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
 
-    // replace old wallet files with new
-    await wallet.fs.rename(pathNew + ".keys", path + ".keys");
-    await wallet.fs.rename(pathNew, path);
-    await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt");
+      // path must be set
+      let path = await wallet.getPath();
+      if (!path) throw new MoneroError("Cannot save wallet because path is not set");
+
+      // write wallet files to *.new
+      let pathNew = path + ".new";
+      let data = await wallet.getData();
+      await wallet.fs.writeFile(pathNew + ".keys", data[0], "binary");
+      await wallet.fs.writeFile(pathNew, data[1], "binary");
+      await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
+
+      // remove old wallet files
+      await wallet.fs.unlink(path + ".keys");
+      await wallet.fs.unlink(path);
+      await wallet.fs.unlink(path + ".address.txt");
+
+      // replace old wallet files with new
+      await wallet.fs.rename(pathNew + ".keys", path + ".keys");
+      await wallet.fs.rename(pathNew, path);
+      await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt");
+    });
   }
 }
 
@@ -2325,9 +2327,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async moveTo(path) {
-    await LibraryUtils.queueTask(async () => {
-      return MoneroWalletFull.moveTo(path, this);
-    });
+    return MoneroWalletFull.moveTo(path, this);
   }
   
   async changePassword(oldPassword, newPassword) {
@@ -2336,9 +2336,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async save() {
-    await LibraryUtils.queueTask(async () => {
-      return MoneroWalletFull.save(this);
-    });
+    return MoneroWalletFull.save(this);
   }
 
   async close(save) {
