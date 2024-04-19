@@ -39,6 +39,7 @@ import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import fs from "fs";
+import { Mutex } from "async-mutex";
 
 /**
  * Implements a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.
@@ -61,6 +62,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   protected syncPeriodInMs: number;
   protected syncLooper: TaskLooper;
   protected browserMainPath: string;
+  private mutex: Mutex = new Mutex();
 
   /**
    * Internal constructor which is given the memory address of a C++ wallet instance.
@@ -408,8 +410,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
    * @return {Promise<void>}
    */
   async moveTo(path: string): Promise<void> {
-    if (this.getWalletProxy()) return this.getWalletProxy().moveTo(path);
-    return MoneroWalletFull.moveTo(path, this);
+    await this.mutex.runExclusive(async () => {
+      if (this.getWalletProxy()) return this.getWalletProxy().moveTo(path);
+      return MoneroWalletFull.moveTo(path, this);
+    });
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -1563,8 +1567,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   async save(): Promise<void> {
-    if (this.getWalletProxy()) return this.getWalletProxy().save();
-    return MoneroWalletFull.save(this);
+    await this.mutex.runExclusive(async () => {
+      if (this.getWalletProxy()) return this.getWalletProxy().save();
+      return MoneroWalletFull.save(this);
+    });
   }
   
   async close(save = false): Promise<void> {
@@ -1815,10 +1821,15 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     await wallet.fs.writeFile(pathNew, data[1], "binary");
     await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
     
+    // remove old wallet files
+    await wallet.fs.unlink(path + ".keys");
+    await wallet.fs.unlink(path);
+    await wallet.fs.unlink(path + ".address.txt");
+
     // replace old wallet files with new
     await wallet.fs.rename(pathNew + ".keys", path + ".keys");
-    await wallet.fs.rename(pathNew, path, path + ".keys");
-    await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt", path + ".keys");
+    await wallet.fs.rename(pathNew, path);
+    await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt");
   }
 }
 
@@ -1833,7 +1844,8 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   protected path: any;
   protected fs: any;
   protected wrappedListeners: any;
-  
+  private mutex: Mutex = new Mutex();
+
   // -------------------------- WALLET STATIC UTILS ---------------------------
   
   static async openWalletData(config: Partial<MoneroWalletConfig>) {
@@ -2325,7 +2337,9 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async save() {
-    return MoneroWalletFull.save(this);
+    await this.mutex.runExclusive(async () => {
+      return MoneroWalletFull.save(this);
+    });
   }
 
   async close(save) {
