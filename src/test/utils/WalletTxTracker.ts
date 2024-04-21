@@ -57,7 +57,6 @@ export default class WalletTxTracker {
     // loop until all wallet txs clear from pool
     let isFirst = true;
     let miningStarted = false;
-    //import TestUtils from "./TestUtils"; // to avoid circular reference
     let daemon = await TestUtils.getDaemonRpc();
     while (true) {
       

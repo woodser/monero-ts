@@ -98,18 +98,18 @@ cat "$JAM_CONFIG_PATH" >> project-config.jam
 # ---
 # Clean 
 rm -rf "$INSTALL_PATH"
-mkdir "$INSTALL_PATH"
+mkdir -p "$INSTALL_PATH"
 
 
 HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
 ./b2 -q -a -j $HOST_NCORES    \
   toolset=clang-emscripten    \
-  threading=single            \
+  threading=multi             \
   link=static                 \
   optimization=space          \
   variant=release             \
-  cxxflags=-no-pthread        \
+  cxxflags=-pthread        \
   stage                       \
   --stagedir="$INSTALL_PATH"  \
   2>&1
