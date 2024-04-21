@@ -241,7 +241,6 @@ set(
     ${MONERO_PROJECT_SRC}/wallet/message_store.cpp
     ${MONERO_PROJECT_SRC}/wallet/message_transporter.cpp
     ${MONERO_PROJECT_SRC}/wallet/node_rpc_proxy.cpp
-    ${MONERO_PROJECT_SRC}/wallet/wallet_rpc_payments.cpp
     #${MONERO_PROJECT_SRC}/blockchain_db/lmdb/db_lmdb.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
     ${MONERO_PROJECT_SRC}/checkpoints/checkpoints.cpp
@@ -280,7 +279,7 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
+"-Wall -Wl,--allow-undefined -std=c++14 -Oz \
 --bind \
 -s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_ts\"' \
