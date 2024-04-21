@@ -143,7 +143,7 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 1. Install and activate emscripten.
 	1. Clone emscripten repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
-	3. `git pull && ./emsdk install 3.1.10 && ./emsdk activate 3.1.10 && source ./emsdk_env.sh`
+	3. `git pull && ./emsdk install 3.1.26 && ./emsdk activate 3.1.26 && source ./emsdk_env.sh`
 	4. `export EMSCRIPTEN=path/to/emsdk/upstream/emscripten` (change for your system)
 2. Clone monero-ts repository: `git clone --recursive https://github.com/woodser/monero-ts.git`
 3. `cd monero-ts`
