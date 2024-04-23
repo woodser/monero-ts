@@ -659,6 +659,9 @@ export default class MoneroConnectionManager {
     // use best response if different priority (assumes being called in descending priority)
     if (this.comparePriorities(bestResponse.getPriority(), bestConnection.getPriority()) !== 0) return bestResponse;
 
+    // keep best connection if not enough data
+    if (!this.responseTimes.has(bestConnection.getUri())) return bestConnection;
+
     // check if connection is consistently better
     for (let connection of responses) {
       if (connection === bestConnection) continue;
