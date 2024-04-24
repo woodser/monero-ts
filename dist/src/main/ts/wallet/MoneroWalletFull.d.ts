@@ -70,7 +70,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
      * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
      * @return {boolean} true if a wallet exists at the given path, false otherwise
      */
-    static walletExists(path: any, fs: any): any;
+    static walletExists(path: any, fs: any): Promise<any>;
     static openWallet(config: Partial<MoneroWalletConfig>): Promise<any>;
     static createWallet(config: MoneroWalletConfig): Promise<MoneroWalletFull>;
     protected static createWalletFromSeed(config: MoneroWalletConfig): Promise<MoneroWalletFull>;
