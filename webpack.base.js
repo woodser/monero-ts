@@ -38,7 +38,7 @@ let configBase = {
     resolve: {
       extensions: ['.js', '.ts'],
       alias: {
-        "fs": "indexeddb-fs",
+        "fs": "@mainnet-pat/indexeddb-fs",
         ['~']: path.resolve(__dirname + '/app')
       },
       extensions: ['.js', '.jsx', '.css', '.json', 'otf', 'ttf', 'eot', 'svg', '.ts', '.tsx'],

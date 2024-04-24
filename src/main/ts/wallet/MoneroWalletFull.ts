@@ -1820,11 +1820,6 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       await wallet.fs.writeFile(pathNew, data[1], "binary");
       await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
 
-      // remove old wallet files
-      await wallet.fs.unlink(path + ".keys");
-      await wallet.fs.unlink(path);
-      await wallet.fs.unlink(path + ".address.txt");
-
       // replace old wallet files with new
       await wallet.fs.rename(pathNew + ".keys", path + ".keys");
       await wallet.fs.rename(pathNew, path);
