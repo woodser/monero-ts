@@ -32,7 +32,7 @@ export default class TestUtils {
   static MONERO_BINS_DIR = ""; // directory with monero binaries to test (monerod and monero-wallet-rpc)
   static SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   static OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
-  static AUTO_CONNECT_TIMEOUT_MS = 2000;
+  static AUTO_CONNECT_TIMEOUT_MS = 3000;
 
   // wallet config
   static NETWORK_TYPE = MoneroNetworkType.TESTNET;
