@@ -4802,7 +4802,7 @@ export default class TestMoneroWalletCommon {
 
     // restore participant from multisig seed
     await this.closeWallet(participant);
-    participant = await this.createWallet(new MoneroWalletConfig().setSeed(seed).setIsMultisig(true));
+    participant = await this.createWallet(new MoneroWalletConfig().setRestoreHeight(await this.daemon.getHeight()).setSeed(seed).setIsMultisig(true));
     await MoneroUtils.validateAddress(await participant.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
     assert.equal(await participant.getPrimaryAddress(), address);
     this.testMultisigInfo(await participant.getMultisigInfo(), M, N);
