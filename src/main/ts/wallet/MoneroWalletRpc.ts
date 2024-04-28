@@ -497,7 +497,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async sync(listenerOrStartHeight?: MoneroWalletListener | number, startHeight?: number): Promise<MoneroSyncResult> {
     assert(!(listenerOrStartHeight instanceof MoneroWalletListener), "Monero Wallet RPC does not support reporting sync progress");
     try {
-      let resp = await this.config.getServer().sendJsonRequest("refresh", {start_height: startHeight}, 0);
+      let resp = await this.config.getServer().sendJsonRequest("refresh", {start_height: startHeight});
       await this.poll();
       return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
     } catch (err: any) {
@@ -540,11 +540,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent(): Promise<void> {
-    await this.config.getServer().sendJsonRequest("rescan_spent", undefined, 0);
+    await this.config.getServer().sendJsonRequest("rescan_spent", undefined);
   }
   
   async rescanBlockchain(): Promise<void> {
-    await this.config.getServer().sendJsonRequest("rescan_blockchain", undefined, 0);
+    await this.config.getServer().sendJsonRequest("rescan_blockchain", undefined);
   }
   
   async getBalance(accountIdx?: number, subaddressIdx?: number): Promise<bigint> {
