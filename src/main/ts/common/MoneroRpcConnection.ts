@@ -17,6 +17,7 @@ export default class MoneroRpcConnection {
   rejectUnauthorized: boolean;
   proxyToWorker: boolean;
   priority: number;
+  timeoutMs: number;
 
   // private instance variables
   protected isOnline: boolean;
@@ -33,7 +34,8 @@ export default class MoneroRpcConnection {
     password: undefined,
     rejectUnauthorized: true, // reject self-signed certificates if true
     proxyToWorker: false,
-    priority: 0
+    priority: 0,
+    timeoutMs: undefined
   }
 
   /**
@@ -122,9 +124,6 @@ export default class MoneroRpcConnection {
     return this.proxyToWorker;
   }
   
-  getPriority() {
-    return this.priority; 
-  }
   
   /**
    * Set the connection's priority relative to other connections. Priority 1 is highest,
@@ -137,6 +136,25 @@ export default class MoneroRpcConnection {
     if (!(priority >= 0)) throw new MoneroError("Priority must be >= 0");
     this.priority = priority;
     return this;
+  }
+
+  getPriority() {
+    return this.priority; 
+  }
+
+  /**
+   * Set the RPC request timeout in milliseconds.
+   * 
+   * @param {number} timeoutMs is the timeout in milliseconds, 0 to disable timeout, or undefined to use default
+   * @return {MoneroRpcConnection} this connection
+   */
+  setTimeout(timeoutMs: number) {
+    this.timeoutMs = timeoutMs;
+    return this;
+  }
+
+  getTimeout() {
+    return this.timeoutMs;
   }
   
   setAttribute(key, value) {
@@ -227,10 +245,10 @@ export default class MoneroRpcConnection {
    * 
    * @param {string} method - JSON RPC method to invoke
    * @param {object} params - request parameters
-   * @param {number} timeoutInMs - request timeout in milliseconds
+   * @param {number} [timeoutMs] - overrides the request timeout in milliseconds
    * @return {object} is the response map
    */
-  async sendJsonRequest(method, params?, timeoutInMs?): Promise<any> {
+  async sendJsonRequest(method, params?, timeoutMs?): Promise<any> {
     try {
       
       // build request body
@@ -252,7 +270,7 @@ export default class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: body,
-        timeout: timeoutInMs,
+        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
         proxyToWorker: this.proxyToWorker
@@ -285,10 +303,10 @@ export default class MoneroRpcConnection {
    * 
    * @param {string} path - JSON RPC path to invoke
    * @param {object} params - request parameters
-   * @param {number} timeoutInMs - request timeout in milliseconds
+   * @param {number} [timeoutMs] - overrides the request timeout in milliseconds
    * @return {object} is the response map
    */
-  async sendPathRequest(path, params?, timeoutInMs?): Promise<any> {
+  async sendPathRequest(path, params?, timeoutMs?): Promise<any> {
     try {
 
       // logging
@@ -302,7 +320,7 @@ export default class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
-        timeout: timeoutInMs,
+        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
         proxyToWorker: this.proxyToWorker
@@ -334,10 +352,10 @@ export default class MoneroRpcConnection {
    * 
    * @param {string} path - path of the binary RPC method to invoke
    * @param {object} [params] - request parameters
-   * @param {number} [timeoutInMs] - request timeout in milliseconds
+   * @param {number} [timeoutMs] - request timeout in milliseconds
    * @return {Uint8Array} the binary response
    */
-  async sendBinaryRequest(path, params?, timeoutInMs?): Promise<any> {
+  async sendBinaryRequest(path, params?, timeoutMs?): Promise<any> {
     
     // serialize params
     let paramsBin = await MoneroUtils.jsonToBinary(params);
@@ -354,7 +372,7 @@ export default class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: paramsBin,
-        timeout: timeoutInMs,
+        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
         proxyToWorker: this.proxyToWorker
@@ -384,7 +402,8 @@ export default class MoneroRpcConnection {
       password: this.password,
       rejectUnauthorized: this.rejectUnauthorized,
       proxyToWorker: this.proxyToWorker,
-      priority: this.priority
+      priority: this.priority,
+      timeoutMs: this.timeoutMs
     };
   }
 
@@ -393,7 +412,7 @@ export default class MoneroRpcConnection {
   }
   
   toString() {
-    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
+    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + " timeoutMs=" + this.getTimeout() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
   }
 
   setFakeDisconnected(fakeDisconnected) { // used to test connection manager
