@@ -92,7 +92,6 @@ export default class TestMoneroDaemonRpc {
             "--rpc-bind-port", "58081",
             "--rpc-login", "superuser:abctesting123",
             "--zmq-rpc-bind-port", "58082",
-            "--log-level", "4",
         );
         // start monerod process from command
         let daemon = await connectToDaemonRpc(cmd);
