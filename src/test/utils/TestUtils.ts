@@ -15,11 +15,15 @@ import {LibraryUtils,
         createWalletKeys,
         MoneroWalletFull,
         MoneroWalletKeys} from "../../../index";
+import ChildProcess from "child_process";
+
+const USE_DOCKER = !!process?.env?.USE_DOCKER ?? false;
 
 /**
  * Collection of test utilities and configurations.
  */
 export default class TestUtils {
+  static useDocker: boolean = USE_DOCKER;
 
   // classes to test
   static daemonRpc: MoneroDaemonRpc;
@@ -29,7 +33,7 @@ export default class TestUtils {
 
   // common config
   static PROXY_TO_WORKER = true;
-  static MONERO_BINS_DIR = ""; // directory with monero binaries to test (monerod and monero-wallet-rpc)
+  static MONERO_BINS_DIR = USE_DOCKER ? ".localnet" : ""; // directory with monero binaries to test (monerod and monero-wallet-rpc)
   static SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
   static OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
   static AUTO_CONNECT_TIMEOUT_MS = 2000;
@@ -38,7 +42,7 @@ export default class TestUtils {
   static NETWORK_TYPE = MoneroNetworkType.TESTNET;
   static SEED = "silk mocked cucumber lettuce hope adrenalin aching lush roles fuel revamp baptism wrist long tender teardrop midst pastry pigment equip frying inbound pinched ravine frying";
   static ADDRESS = "A1y9sbVt8nqhZAVm3me1U18rUVXcjeNKuBd1oE2cTs8biA9cozPMeyYLhe77nPv12JA3ejJN3qprmREriit2fi6tJDi99RR";
-  static FIRST_RECEIVE_HEIGHT = 171; // NOTE: this value must be the height of the wallet's first tx for tests
+  static FIRST_RECEIVE_HEIGHT = USE_DOCKER ? 1 : 171; // NOTE: this value must be the height of the wallet's first tx for tests
   static WALLET_NAME = "test_wallet_1";
   static WALLET_PASSWORD = "supersecretpassword123";
   static TEST_WALLETS_DIR = "./test_wallets";
@@ -65,6 +69,16 @@ export default class TestUtils {
     password: "",
     rejectUnauthorized: true // reject self-signed certificates if true
   };
+  static DOCKER_DAEMON_RPC_CONFIG = {
+    uri: "monerod:28081",
+    username: "",
+    password: "",
+    rejectUnauthorized: true // reject self-signed certificates if true
+  };
+
+  static GET_RPC_CONFIG() {
+    return TestUtils.useDocker ? TestUtils.DOCKER_DAEMON_RPC_CONFIG : TestUtils.DAEMON_RPC_CONFIG
+  }
   
   /**
    * Get a default file system.  Uses an in-memory file system if running in the browser.
@@ -155,18 +169,31 @@ export default class TestUtils {
       let uri = TestUtils.WALLET_RPC_CONFIG.uri.substring(0, TestUtils.WALLET_RPC_CONFIG.uri.lastIndexOf(":")) + ":" + (TestUtils.WALLET_RPC_PORT_START + portOffset);
       wallet = await connectToWalletRpc(uri, TestUtils.WALLET_RPC_CONFIG.username, TestUtils.WALLET_RPC_CONFIG.password);
     } else {
-        
       // create command to start client with internal monero-wallet-rpc process
-      let cmd = [
-          TestUtils.WALLET_RPC_LOCAL_PATH,
-          "--" + GenUtils.getEnumKeyByValue(MoneroNetworkType, TestUtils.NETWORK_TYPE)!.toLowerCase(),
-          "--rpc-bind-port", "" + (TestUtils.WALLET_RPC_PORT_START + portOffset),
-          "--rpc-login", TestUtils.WALLET_RPC_CONFIG.username + ":" + TestUtils.WALLET_RPC_CONFIG.password,
-          "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR,
-          "--rpc-access-control-origins", TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS
-      ];
+      let cmd: string[];
+      if (TestUtils.useDocker) {
+        const port = TestUtils.WALLET_RPC_PORT_START + portOffset;
+        cmd = ["docker-compose", "run", "--rm", "-p", `127.0.0.1:${port}:${port}`, "--name", `monero-wallet-rpc-${port}`, "monero-wallet-rpc", "monero-wallet-rpc",
+          "--rpc-bind-ip", "0.0.0.0",
+          "--confirm-external-bind",
+          "--daemon-host", "monerod",
+          "--daemon-port", "28081",
+          "--trusted-daemon",
+        ];
+      } else {
+        cmd = [TestUtils.WALLET_RPC_LOCAL_PATH];
+      }
+
+      cmd.push(
+        "--" + GenUtils.getEnumKeyByValue(MoneroNetworkType, TestUtils.NETWORK_TYPE)!.toLowerCase(),
+        "--rpc-bind-port", "" + (TestUtils.WALLET_RPC_PORT_START + portOffset),
+        "--rpc-login", TestUtils.WALLET_RPC_CONFIG.username + ":" + TestUtils.WALLET_RPC_CONFIG.password,
+        "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR,
+        "--rpc-access-control-origins", TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS
+      );
+      
       if (offline) cmd.push("--offline");
-      else cmd.push("--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri);
+      else if (!USE_DOCKER) cmd.push("--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri);
       if (TestUtils.DAEMON_RPC_CONFIG.username) cmd.push("--daemon-login", TestUtils.DAEMON_RPC_CONFIG.username + ":" + TestUtils.DAEMON_RPC_CONFIG.password);
       
       // TODO: include zmq params when supported and enabled
@@ -200,7 +227,16 @@ export default class TestUtils {
     
     // unregister wallet with port offset
     delete TestUtils.WALLET_PORT_OFFSETS[portOffset];
-    if (!GenUtils.isBrowser()) await walletRpc.stopProcess();
+    if (!GenUtils.isBrowser()) {
+      if (TestUtils.useDocker) {
+        const result = ChildProcess.spawnSync("docker", ["kill", "-s", "SIGKILL", `monero-wallet-rpc-${TestUtils.WALLET_RPC_PORT_START+Number(portOffset)}`]);
+        if (result.stderr.toString()) {
+          throw new Error(result.stderr.toString());
+        }
+      } else {
+        await walletRpc.stopProcess();
+      }
+    }
   }
   
   /**

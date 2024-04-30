@@ -9,3 +9,4 @@ test_products
 /build
 /browser_build/
 /dist/src/test/
+.localnet

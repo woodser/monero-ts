@@ -368,7 +368,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let feeEstimate = new MoneroFeeEstimate();
     feeEstimate.setFee(BigInt(resp.result.fee));
     let fees = [];
-    for (let i = 0; i < resp.result.fees.length; i++) fees.push(BigInt(resp.result.fees[i]));
+    // if there are only mined blocks lately, fees array is empty (not present)
+    for (let i = 0; i < resp.result.fees?.length; i++) fees.push(BigInt(resp.result.fees[i]));
     feeEstimate.setFees(fees);
     feeEstimate.setQuantizationMask(BigInt(resp.result.quantization_mask));
     return feeEstimate;

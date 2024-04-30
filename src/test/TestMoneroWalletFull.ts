@@ -336,6 +336,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await walletRpc.close(true);
         
         // open as full wallet
+        console.log(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName, TestUtils.WALLET_PASSWORD)
         let walletFull = await openWalletFull(new MoneroWalletConfig().setPath(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.sync();
         assert.equal(TestUtils.SEED, await walletFull.getSeed());

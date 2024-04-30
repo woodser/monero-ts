@@ -84,7 +84,13 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         if (!config.getPath()) config.setPath(GenUtils.getUUID());
         if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
         if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
-        if (!config.getServer() && !config.getConnectionManager()) config.setServer(await this.daemon.getRpcConnection());
+        if (!config.getServer() && !config.getConnectionManager()) {
+            if (!TestUtils.useDocker) {
+                config.setServer(await this.daemon.getRpcConnection());
+            } else {
+                config.setServer(TestUtils.DOCKER_DAEMON_RPC_CONFIG.uri);
+            }
+        }
 
         // create client connected to internal monero-wallet-rpc executable
         let offline = config.getServer() && config.getServer().getUri() === GenUtils.normalizeUri(TestUtils.OFFLINE_SERVER_URI);
@@ -93,7 +99,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // create wallet
         try {
             await wallet.createWallet(config);
-            await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
+            if (!TestUtils.useDocker) await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
             if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
             return wallet;
         } catch (err) {

@@ -1,0 +1,13 @@
+diff --git a/src/rpc/core_rpc_server.cpp b/src/rpc/core_rpc_server.cpp
+index 826cb63..acde873 100644
+--- a/src/rpc/core_rpc_server.cpp
++++ b/src/rpc/core_rpc_server.cpp
+@@ -2215,7 +2215,7 @@ namespace cryptonote
+     
+     res.status = CORE_RPC_STATUS_OK;
+ 
+-    if(m_core.get_nettype() != FAKECHAIN)
++    if(false && m_core.get_nettype() != FAKECHAIN)
+     {
+       error_resp.code = CORE_RPC_ERROR_CODE_REGTEST_REQUIRED;
+       error_resp.message = "Regtest required when generating blocks";      
