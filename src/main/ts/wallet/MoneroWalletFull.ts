@@ -107,7 +107,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!fs) fs = MoneroWalletFull.getFs();
     if (!fs) throw new MoneroError("Must provide file system to check if wallet exists");
     let exists = fs.existsSync(path + ".keys");
-    LibraryUtils.log(1, "Wallet exists at " + path + ": " + exists);
+    LibraryUtils.log(2, "Wallet exists at " + path + ": " + exists);
     return exists;
   }
   

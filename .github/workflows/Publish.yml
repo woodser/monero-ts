@@ -1,0 +1,38 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  # Publish mainnet-js package on npm
+  # Requires NPM_TOKEN github secret to be set
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      # Build project
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm run build_commonjs && npm run build_web_worker
+
+      # Setup environment
+      - name: Check if NPM_TOKEN is set
+        run: |
+            if [ -n $NPM_TOKEN ]; then HAS_NPM_TOKEN='true' ; fi
+            echo "HAS_NPM_TOKEN=${HAS_NPM_TOKEN}" >> $GITHUB_ENV
+
+      # Actual job
+      - if: env.HAS_NPM_TOKEN == false
+        run: echo "NPM_TOKEN secret not set, skipping publishing"
+      - if: env.HAS_NPM_TOKEN
+        name: Publish to npm
+        run: npm publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
