@@ -3,6 +3,7 @@ services:
   monerod:
     image: mainnetpat/monerod:v0.18.3.2
     entrypoint: [""]
+    user: root
     command: monerod --testnet --log-level=0 --no-igd --fixed-difficulty=1 --data-dir .localnet/xmr_local/node1 --disable-rpc-ban --db-sync-mode=safe --no-zmq --non-interactive --rpc-bind-ip=0.0.0.0 --rpc-bind-port=28081 --p2p-bind-ip=0.0.0.0 --p2p-bind-port=28080 --confirm-external-bind --rpc-ssl=disabled --rpc-access-control-origins="*" --add-exclusive-node monerod-peer:48080 --allow-local-ip
     ports:
       - '127.0.0.1:28081:28081'
@@ -13,6 +14,7 @@ services:
   monerod-peer:
     image: mainnetpat/monerod:v0.18.3.2
     entrypoint: [""]
+    user: root
     command: monerod --testnet --log-level=0 --no-igd --fixed-difficulty=1 --data-dir .localnet/xmr_local/node2 --disable-rpc-ban --db-sync-mode=safe --no-zmq --non-interactive --rpc-bind-ip=0.0.0.0 --rpc-bind-port=48081 --p2p-bind-ip=0.0.0.0 --p2p-bind-port=48080 --confirm-external-bind --rpc-ssl=disabled --rpc-access-control-origins="*" --add-exclusive-node monerod:28080 --allow-local-ip
     ports:
       - '127.0.0.1:48081:48081'
@@ -23,6 +25,7 @@ services:
   monero-wallet-rpc:
     image: mainnetpat/monerod:v0.18.3.2
     entrypoint: [""]
+    user: root
     command: monero-wallet-rpc --testnet --daemon-host=monerod --daemon-port=28081 --trusted-daemon --disable-rpc-ban --rpc-bind-ip=0.0.0.0 --rpc-bind-port=28084 --rpc-login=rpc_user:abc123  --confirm-external-bind --non-interactive --rpc-ssl=disabled --daemon-ssl=disabled --wallet-dir ./.localnet --rpc-access-control-origins="*"
     ports:
       - '127.0.0.1:28084:28084'
