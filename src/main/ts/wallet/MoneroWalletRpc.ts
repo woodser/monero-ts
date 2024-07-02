@@ -351,11 +351,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
 
   /**
-   * Get the locked and unlocked balances in a single request.
+   * Get the total and unlocked balances in a single request.
    * 
    * @param {number} [accountIdx] account index
    * @param {number} [subaddressIdx] subaddress index
-   * @return {Promise<bigint[]>} is the locked and unlocked balances in an array, respectively
+   * @return {Promise<bigint[]>} is the total and unlocked balances in an array, respectively
    */
   async getBalances(accountIdx?: number, subaddressIdx?: number): Promise<bigint[]> {
     if (accountIdx === undefined) {
@@ -497,7 +497,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async sync(listenerOrStartHeight?: MoneroWalletListener | number, startHeight?: number): Promise<MoneroSyncResult> {
     assert(!(listenerOrStartHeight instanceof MoneroWalletListener), "Monero Wallet RPC does not support reporting sync progress");
     try {
-      let resp = await this.config.getServer().sendJsonRequest("refresh", {start_height: startHeight}, 0);
+      let resp = await this.config.getServer().sendJsonRequest("refresh", {start_height: startHeight});
       await this.poll();
       return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
     } catch (err: any) {
@@ -540,11 +540,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent(): Promise<void> {
-    await this.config.getServer().sendJsonRequest("rescan_spent", undefined, 0);
+    await this.config.getServer().sendJsonRequest("rescan_spent", undefined);
   }
   
   async rescanBlockchain(): Promise<void> {
-    await this.config.getServer().sendJsonRequest("rescan_blockchain", undefined, 0);
+    await this.config.getServer().sendJsonRequest("rescan_blockchain", undefined);
   }
   
   async getBalance(accountIdx?: number, subaddressIdx?: number): Promise<bigint> {
@@ -2459,7 +2459,7 @@ class WalletPoller {
         }
         
         // take initial snapshot
-        if (that.prevHeight === undefined) {
+        if (that.prevBalances === undefined) {
           that.prevHeight = await that.wallet.getHeight();
           that.prevLockedTxs = await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
           that.prevBalances = await that.wallet.getBalances();

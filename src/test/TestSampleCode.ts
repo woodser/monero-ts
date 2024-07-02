@@ -97,6 +97,7 @@ export default class TestSampleCode {
 
         // send funds from RPC wallet to WebAssembly wallet
         await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
+        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(walletRpc, 0, undefined, 250000000000n); // *** REMOVE FROM README SAMPLE ***
         let createdTx = await walletRpc.createTx({
           accountIndex: 0,
           address: await walletFull.getAddress(1, 0),

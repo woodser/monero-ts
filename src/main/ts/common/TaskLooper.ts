@@ -3,19 +3,21 @@
  */
 export default class TaskLooper {
 
-  // instance variables
-  protected task: any;
-  protected periodInMs: any;
-  protected _isStarted: any;
-  protected isLooping: any;
+  _fn: () => Promise<void>;
+  _isStarted: boolean;
+  _isLooping: boolean;
+  _periodInMs: number;
+  _timeout: NodeJS.Timeout | undefined;
   
   /**
    * Build the looper with a function to invoke on a fixed period loop.
    * 
-   * @param {function} task - the task function to invoke
+   * @param {function} fn - the async function to invoke
    */
-  constructor(task) {
-    this.task = task;
+  constructor(fn: () => Promise<void>) {
+    this._fn = fn;
+    this._isStarted = false;
+    this._isLooping = false;
   }
 
   /**
@@ -24,23 +26,22 @@ export default class TaskLooper {
    * @return {function} the task function
    */
   getTask() {
-    return this.task;
+    return this._fn;
   }
   
   /**
    * Start the task loop.
    * 
    * @param {number} periodInMs the loop period in milliseconds
-   * @return {TaskLooper} this class for chaining
+   * @param {boolean} targetFixedPeriod specifies if the task should target a fixed period by accounting for run time (default false)
+   * @return {TaskLooper} this instance for chaining
    */
-  start(periodInMs) {
+  start(periodInMs: number, targetFixedPeriod?: boolean) {
+    if (periodInMs <= 0) throw new Error("Looper period must be greater than 0 ms");
     this.setPeriodInMs(periodInMs);
-    if (this._isStarted) return this;
+    if (this._isStarted) return;
     this._isStarted = true;
-    
-    // start looping
-    this.runLoop();
-    return this;
+    this._runLoop(targetFixedPeriod);
   }
 
   /**
@@ -57,27 +58,28 @@ export default class TaskLooper {
    */
   stop() {
     this._isStarted = false;
+    clearTimeout(this._timeout!);
+    this._timeout = undefined;
   }
-  
+
   /**
    * Set the loop period in milliseconds.
    * 
    * @param {number} periodInMs the loop period in milliseconds
    */
-  setPeriodInMs(periodInMs) {
-    if (periodInMs <= 0) throw new Error("Looper period must be greater than 0 ms");
-    this.periodInMs = periodInMs;
-  }
-  
-  protected async runLoop() {
-    if (this.isLooping) return;
-    this.isLooping = true;
-    let that = this;
-    while (this._isStarted) {
-      let startTime = Date.now();
-      await this.task();
-      if (this._isStarted) await new Promise(function(resolve) { setTimeout(resolve, that.periodInMs - (Date.now() - startTime)); });
+    setPeriodInMs(periodInMs) {
+      if (periodInMs <= 0) throw new Error("Looper period must be greater than 0 ms");
+      this._periodInMs = periodInMs;
     }
-    this.isLooping = false;
+  
+  async _runLoop(targetFixedPeriod: boolean) {
+    this._isLooping = true;
+    while (this._isStarted) {
+      const startTime = Date.now();
+      await this._fn();
+      let that = this;
+      if (this._isStarted) await new Promise((resolve) => { this._timeout = setTimeout(resolve, that._periodInMs - (targetFixedPeriod ? (Date.now() - startTime) : 0)); });
+    }
+    this._isLooping = false;
   }
 }
