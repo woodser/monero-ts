@@ -43,6 +43,7 @@
 <a href="MoneroRpcConnection.html#proxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroRpcConnection.html#rejectUnauthorized" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>reject<wbr/>Unauthorized</span></a>
 <a href="MoneroRpcConnection.html#responseTime" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>response<wbr/>Time</span></a>
+<a href="MoneroRpcConnection.html#timeoutMs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>timeout<wbr/>Ms</span></a>
 <a href="MoneroRpcConnection.html#uri" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>uri</span></a>
 <a href="MoneroRpcConnection.html#username" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>username</span></a>
 </div></section>
@@ -58,6 +59,7 @@
 <a href="MoneroRpcConnection.html#getProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroRpcConnection.html#getRejectUnauthorized" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Reject<wbr/>Unauthorized</span></a>
 <a href="MoneroRpcConnection.html#getResponseTime" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Response<wbr/>Time</span></a>
+<a href="MoneroRpcConnection.html#getTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Timeout</span></a>
 <a href="MoneroRpcConnection.html#getUri" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Uri</span></a>
 <a href="MoneroRpcConnection.html#getUsername" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Username</span></a>
 <a href="MoneroRpcConnection.html#isConnected" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Connected</span></a>
@@ -69,10 +71,11 @@
 <a href="MoneroRpcConnection.html#setFakeDisconnected" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Fake<wbr/>Disconnected</span></a>
 <a href="MoneroRpcConnection.html#setPriority" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Priority</span></a>
 <a href="MoneroRpcConnection.html#setProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
+<a href="MoneroRpcConnection.html#setTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Timeout</span></a>
 <a href="MoneroRpcConnection.html#toJson" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Json</span></a>
 <a href="MoneroRpcConnection.html#toString" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>String</span></a>
-<a href="MoneroRpcConnection.html#validateHttpResponse" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Http<wbr/>Response</span></a>
 <a href="MoneroRpcConnection.html#validateRpcResponse" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Rpc<wbr/>Response</span></a>
+<a href="MoneroRpcConnection.html#validateHttpResponse" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Http<wbr/>Response</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -146,6 +149,9 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="responseTime" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>response<wbr/>Time</span><a href="#responseTime" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">response<wbr/>Time</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<section class="tsd-panel tsd-member"><a id="timeoutMs" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>timeout<wbr/>Ms</span><a href="#timeoutMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">timeout<wbr/>Ms</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
 <section class="tsd-panel tsd-member"><a id="uri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>uri</span><a href="#uri" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
@@ -186,9 +192,9 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <section class="tsd-panel tsd-member"><a id="getConfig" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Config</span><a href="#getConfig" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="getConfig.getConfig-1"><span class="tsd-kind-call-signature">get<wbr/>Config</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">proxyToWorker</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">username</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#getConfig.getConfig-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getConfig.getConfig-1"><span class="tsd-kind-call-signature">get<wbr/>Config</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">proxyToWorker</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">timeoutMs</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">username</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#getConfig.getConfig-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">proxyToWorker</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">username</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">priority</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">proxyToWorker</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">timeoutMs</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">username</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
@@ -198,6 +204,8 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <h5><span class="tsd-kind-property">proxy<wbr/>To<wbr/>Worker</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">reject<wbr/>Unauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">timeout<wbr/>Ms</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">uri</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
 <li class="tsd-parameter">
@@ -254,6 +262,12 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <li class="tsd-signature tsd-anchor-link" id="getResponseTime.getResponseTime-1"><span class="tsd-kind-call-signature">get<wbr/>Response<wbr/>Time</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#getResponseTime.getResponseTime-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="getTimeout" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Timeout</span><a href="#getTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="getTimeout.getTimeout-1"><span class="tsd-kind-call-signature">get<wbr/>Timeout</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#getTimeout.getTimeout-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getUri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Uri</span><a href="#getUri" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -280,7 +294,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <section class="tsd-panel tsd-member"><a id="sendBinaryRequest" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>Binary<wbr/>Request</span><a href="#sendBinaryRequest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="sendBinaryRequest.sendBinaryRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Binary<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutInMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendBinaryRequest.sendBinaryRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="sendBinaryRequest.sendBinaryRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Binary<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendBinaryRequest.sendBinaryRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Send a binary RPC request.</p>
 </div>
@@ -298,7 +312,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutInMs</span>: <span class="tsd-signature-type">any</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutMs</span>: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>request timeout in milliseconds</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
@@ -308,7 +322,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <section class="tsd-panel tsd-member"><a id="sendJsonRequest" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>Json<wbr/>Request</span><a href="#sendJsonRequest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="sendJsonRequest.sendJsonRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Json<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutInMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendJsonRequest.sendJsonRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="sendJsonRequest.sendJsonRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Json<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendJsonRequest.sendJsonRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Send a JSON RPC request.</p>
 </div>
@@ -326,8 +340,8 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutInMs</span>: <span class="tsd-signature-type">any</span></h5>
-<div class="tsd-comment tsd-typography"><p>request timeout in milliseconds</p>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutMs</span>: <span class="tsd-signature-type">any</span></h5>
+<div class="tsd-comment tsd-typography"><p>overrides the request timeout in milliseconds</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><p>is the response map</p>
@@ -336,7 +350,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <section class="tsd-panel tsd-member"><a id="sendPathRequest" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>Path<wbr/>Request</span><a href="#sendPathRequest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="sendPathRequest.sendPathRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Path<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutInMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendPathRequest.sendPathRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="sendPathRequest.sendPathRequest-1"><span class="tsd-kind-call-signature">send<wbr/>Path<wbr/>Request</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">timeoutMs</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendPathRequest.sendPathRequest-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Send a RPC request to the given path and with the given paramters.</p>
 <p>E.g. &quot;/get_transactions&quot; with params</p>
@@ -355,8 +369,8 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutInMs</span>: <span class="tsd-signature-type">any</span></h5>
-<div class="tsd-comment tsd-typography"><p>request timeout in milliseconds</p>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">timeoutMs</span>: <span class="tsd-signature-type">any</span></h5>
+<div class="tsd-comment tsd-typography"><p>overrides the request timeout in milliseconds</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><p>is the response map</p>
@@ -429,6 +443,24 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li>
 <h5><span class="tsd-kind-parameter">proxyToWorker</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="setTimeout" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Timeout</span><a href="#setTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="setTimeout.setTimeout-1"><span class="tsd-kind-call-signature">set<wbr/>Timeout</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">timeoutMs</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><a href="#setTimeout.setTimeout-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the RPC request timeout in milliseconds.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">timeoutMs</span>: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>is the timeout in milliseconds, 0 to disable timeout, or undefined to use default</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>this connection</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="toJson" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>to<wbr/>Json</span><a href="#toJson" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -441,19 +473,8 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li class="tsd-signature tsd-anchor-link" id="toString.toString-1"><span class="tsd-kind-call-signature">to<wbr/>String</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#toString.toString-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="validateHttpResponse" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>validate<wbr/>Http<wbr/>Response</span><a href="#validateHttpResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="validateHttpResponse.validateHttpResponse-1"><span class="tsd-kind-call-signature">validate<wbr/>Http<wbr/>Response</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">resp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#validateHttpResponse.validateHttpResponse-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5><span class="tsd-kind-parameter">resp</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="validateRpcResponse" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>validate<wbr/>Rpc<wbr/>Response</span><a href="#validateRpcResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>validate<wbr/>Rpc<wbr/>Response</span><a href="#validateRpcResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="validateRpcResponse.validateRpcResponse-1"><span class="tsd-kind-call-signature">validate<wbr/>Rpc<wbr/>Response</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">resp</span>, <span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#validateRpcResponse.validateRpcResponse-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
@@ -466,6 +487,17 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <h5><span class="tsd-kind-parameter">method</span>: <span class="tsd-signature-type">any</span></h5></li>
 <li>
 <h5><span class="tsd-kind-parameter">params</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="validateHttpResponse" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>validate<wbr/>Http<wbr/>Response</span><a href="#validateHttpResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-protected">
+<li class="tsd-signature tsd-anchor-link" id="validateHttpResponse.validateHttpResponse-1"><span class="tsd-kind-call-signature">validate<wbr/>Http<wbr/>Response</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">resp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#validateHttpResponse.validateHttpResponse-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">resp</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
@@ -495,6 +527,7 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li><a href="#proxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#rejectUnauthorized" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>reject<wbr/>Unauthorized</span></a></li>
 <li><a href="#responseTime" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>response<wbr/>Time</span></a></li>
+<li><a href="#timeoutMs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>timeout<wbr/>Ms</span></a></li>
 <li><a href="#uri" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>uri</span></a></li>
 <li><a href="#username" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>username</span></a></li>
 <li><a href="#checkConnection" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Connection</span></a></li>
@@ -507,6 +540,7 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li><a href="#getProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#getRejectUnauthorized" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Reject<wbr/>Unauthorized</span></a></li>
 <li><a href="#getResponseTime" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Response<wbr/>Time</span></a></li>
+<li><a href="#getTimeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Timeout</span></a></li>
 <li><a href="#getUri" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Uri</span></a></li>
 <li><a href="#getUsername" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Username</span></a></li>
 <li><a href="#isConnected" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Connected</span></a></li>
@@ -518,10 +552,11 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li><a href="#setFakeDisconnected" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Fake<wbr/>Disconnected</span></a></li>
 <li><a href="#setPriority" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Priority</span></a></li>
 <li><a href="#setProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
+<li><a href="#setTimeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Timeout</span></a></li>
 <li><a href="#toJson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Json</span></a></li>
 <li><a href="#toString" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>String</span></a></li>
-<li><a href="#validateHttpResponse" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Http<wbr/>Response</span></a></li>
-<li><a href="#validateRpcResponse" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Rpc<wbr/>Response</span></a></li></ul></div></details></div>
+<li><a href="#validateRpcResponse" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Rpc<wbr/>Response</span></a></li>
+<li><a href="#validateHttpResponse" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Http<wbr/>Response</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>monero-ts</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="..">

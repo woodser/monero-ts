@@ -1021,7 +1021,7 @@ await walletRpc.createWallet({<br>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="getBalances.getBalances-1"><span class="tsd-kind-call-signature">get<wbr/>Balances</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">accountIdx</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">subaddressIdx</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#getBalances.getBalances-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Get the locked and unlocked balances in a single request.</p>
+<div class="tsd-comment tsd-typography"><p>Get the total and unlocked balances in a single request.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -1036,7 +1036,7 @@ await walletRpc.createWallet({<br>
 <div class="tsd-comment tsd-typography"><p>subaddress index</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>is the locked and unlocked balances in an array, respectively</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>is the total and unlocked balances in an array, respectively</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="getConnectionManager" class="tsd-anchor"></a>
@@ -1195,7 +1195,7 @@ Generates a random payment ID if a payment ID is not given.</p>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="getNumBlocksToUnlock.getNumBlocksToUnlock-1"><span class="tsd-kind-call-signature">get<wbr/>Num<wbr/>Blocks<wbr/>To<wbr/>Unlock</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#getNumBlocksToUnlock.getNumBlocksToUnlock-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Get the number of blocks until the next and last funds unlock.</p>
+<div class="tsd-comment tsd-typography"><p>Get the number of blocks until the next and last funds unlock. Ignores txs with unlock time as timestamp.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance</p>
 

@@ -24,17 +24,6 @@
 <li>Receive notifications when blocks are added to the chain or when wallets sync, send, or receive.</li>
 <li>Over 300 passing Mocha tests.</li>
 </ul>
-<a id="md:table-of-contents" class="tsd-anchor"></a><h2><a href="#md:table-of-contents">Table of contents</a></h2><ul>
-<li><a href="#architecture">Architecture</a></li>
-<li><a href="#sample-code">Sample code</a></li>
-<li><a href="#documentation">Documentation</a></li>
-<li><a href="#using-monero-ts-in-your-project">Using monero-ts in your project</a></li>
-<li><a href="#building-webassembly-binaries-from-source">Building WebAssembly binaries from source</a></li>
-<li><a href="#running-tests">Running tests</a></li>
-<li><a href="#related-projects">Related projects</a></li>
-<li><a href="#license">License</a></li>
-<li><a href="#donations">Donations</a></li>
-</ul>
 <a id="md:architecture" class="tsd-anchor"></a><h2><a href="#md:architecture">Architecture</a></h2><p align="center">
     <img width="85%" height="auto" src="https://raw.githubusercontent.com/woodser/monero-ts/master/docs/img/architecture.png"/><br>
     <i>Build browser or Node.js applications using RPC or WebAssembly bindings to <a href="https://github.com/monero-project/monero">monero-project/monero</a>.  Wallet implementations are interchangeable by conforming to a common interface, <a href="https://woodser.github.io/monero-ts/typedocs/classes/MoneroWallet.html">MoneroWallet.ts</a>.</i>
@@ -64,7 +53,15 @@
 <li>Add <code>import moneroTs from &quot;monero-ts&quot;</code> in your application code (or import types individually).</li>
 </ol>
 <a id="md:running-in-nodejs" class="tsd-anchor"></a><h4><a href="#md:running-in-nodejs">Running in Node.js</a></h4><p>Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the <code>--experimental-wasm-threads</code> flag.</p>
-<p>If using Node &gt;16, use the <code>--no-experimental-fetch</code> flag to avoid the error &quot;Failed to parse URL from /path/to/file.wasm&quot;.</p>
+<p>To avoid the error &quot;Failed to parse URL from /path/to/file.wasm&quot; on Node.js &gt;16:</p>
+<ol>
+<li>Pass the <code>--no-experimental-fetch</code> flag to <code>node</code>.</li>
+<li>Set OpenSSL legacy provider:<ul>
+<li>Unix: <code>export NODE_OPTIONS=--openssl-legacy-provider</code></li>
+<li>Windows: <code>set NODE_OPTIONS=--openssl-legacy-provider</code></li>
+</ul>
+</li>
+</ol>
 <a id="md:building-a-browser-application" class="tsd-anchor"></a><h4><a href="#md:building-a-browser-application">Building a browser application</a></h4><ol>
 <li>Bundle your application code for a browser. See <a href="https://github.com/woodser/xmr-sample-app">xmr-sample-app</a> for an example project using webpack.</li>
 <li>Copy assets from ./dist to your web app&#39;s build directory.</li>
@@ -87,6 +84,7 @@
 <li>Clone monero-ts repository: <code>git clone --recursive https://github.com/woodser/monero-ts.git</code></li>
 <li><code>cd monero-ts</code></li>
 <li><code>./bin/update_submodules.sh</code></li>
+<li>Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from <code>set(MONERO_WALLET_CRYPTO_LIBRARY &quot;auto&quot; ...</code> to <code>set(MONERO_WALLET_CRYPTO_LIBRARY &quot;cn&quot; ...</code>.</li>
 <li>Build the monero-cpp submodule (located at ./external/monero-cpp) by following <a href="https://github.com/woodser/monero-cpp#using-monero-cpp-in-your-project">instructions</a> for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (<code>~/unbound-1.19.0</code>).</li>
 <li><code>./bin/build_all.sh</code> (install <a href="https://github.com/monero-project/monero#dependencies">monero-project dependencies</a> as needed for your system)</li>
 </ol>
@@ -145,7 +143,6 @@
 <li><a href="#md:monero-typescript-library"><span>Monero <wbr/>Type<wbr/>Script <wbr/>Library</span></a></li>
 <li>
 <ul>
-<li><a href="#md:table-of-contents"><span>Table of contents</span></a></li>
 <li><a href="#md:architecture"><span>Architecture</span></a></li>
 <li><a href="#md:sample-code"><span>Sample code</span></a></li>
 <li><a href="#md:documentation"><span>Documentation</span></a></li>
