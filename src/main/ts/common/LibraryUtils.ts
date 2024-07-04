@@ -16,6 +16,8 @@ export default class LibraryUtils {
   static WORKER_OBJECTS: any;
   static FULL_LOADED: any;
   static REJECT_UNAUTHORIZED_FNS: any;
+  static readonly MUTEX = new ThreadPool(1);
+
   static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
 
     // get worker path in dist (assumes library is running from src or dist)
@@ -272,5 +274,9 @@ export default class LibraryUtils {
   protected static prefixWindowsPath(path) {
     if (/^[A-Z]:/.test(path) && path.indexOf("file://") == -1) path = "file://" + path; // prepend e.g. C: paths with file://
     return path;
+  }
+
+  static async queueTask<T>(asyncFn: () => Promise<T>): Promise<T> {
+    return LibraryUtils.MUTEX.submit(asyncFn);
   }
 }
