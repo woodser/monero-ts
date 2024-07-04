@@ -48,6 +48,7 @@
 <a href="MoneroUtils.html#getLastTxPubKey" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Last<wbr/>Tx<wbr/>Pub<wbr/>Key</span></a>
 <a href="MoneroUtils.html#getVersion" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Version</span></a>
 <a href="MoneroUtils.html#isHex64" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Hex64</span></a>
+<a href="MoneroUtils.html#isTimestamp" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Timestamp</span></a>
 <a href="MoneroUtils.html#isValidAddress" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Address</span></a>
 <a href="MoneroUtils.html#isValidPaymentId" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Payment<wbr/>Id</span></a>
 <a href="MoneroUtils.html#isValidPrivateSpendKey" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Private<wbr/>Spend<wbr/>Key</span></a>
@@ -210,6 +211,24 @@ returns the last tx pub key.</p>
 <li>
 <h5><span class="tsd-kind-parameter">str</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="isTimestamp" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Timestamp</span><a href="#isTimestamp" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="isTimestamp.isTimestamp-1"><span class="tsd-kind-call-signature">is<wbr/>Timestamp</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">unlockTime</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#isTimestamp.isTimestamp-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Determine if the given unlock time is a timestamp or block height.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">unlockTime</span>: <span class="tsd-signature-type">bigint</span></h5>
+<div class="tsd-comment tsd-typography"><p>is the unlock time to check</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if the unlock time is a timestamp, false if a block height</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="isValidAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Valid<wbr/>Address</span><a href="#isValidAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -578,6 +597,7 @@ returns the last tx pub key.</p>
 <li><a href="#getLastTxPubKey" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Last<wbr/>Tx<wbr/>Pub<wbr/>Key</span></a></li>
 <li><a href="#getVersion" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Version</span></a></li>
 <li><a href="#isHex64" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Hex64</span></a></li>
+<li><a href="#isTimestamp" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Timestamp</span></a></li>
 <li><a href="#isValidAddress" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Address</span></a></li>
 <li><a href="#isValidPaymentId" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Payment<wbr/>Id</span></a></li>
 <li><a href="#isValidPrivateSpendKey" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Private<wbr/>Spend<wbr/>Key</span></a></li>
