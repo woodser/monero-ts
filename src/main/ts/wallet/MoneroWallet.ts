@@ -30,6 +30,7 @@ import MoneroTxConfig from "./model/MoneroTxConfig";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxWallet from "./model/MoneroTxWallet";
 import MoneroTxSet from "./model/MoneroTxSet";
+import MoneroUtils from "../common/MoneroUtils";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import MoneroWalletListener from "./model/MoneroWalletListener";
 
@@ -425,7 +426,7 @@ export default class MoneroWallet {
   }
   
   /**
-   * Get the number of blocks until the next and last funds unlock.
+   * Get the number of blocks until the next and last funds unlock. Ignores txs with unlock time as timestamp.
    * 
    * @return {Promise<number[]>} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
    */
@@ -437,15 +438,16 @@ export default class MoneroWallet {
     let unlockedBalance = await this.getUnlockedBalance();
     
     // compute number of blocks until next funds available
-    let txs;
-    let height;
+    let txs: MoneroTxWallet[];
+    let height: number;
     let numBlocksToNextUnlock = undefined;
     if (unlockedBalance > 0n) numBlocksToNextUnlock = 0;
     else {
       txs = await this.getTxs({isLocked: true}); // get locked txs
       height = await this.getHeight(); // get most recent height
       for (let tx of txs) {
-        let numBlocksToUnlock = Math.max((tx.getIsConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockTime()) - height;
+        if (!tx.getIsConfirmed() && MoneroUtils.isTimestamp(tx.getUnlockTime())) continue;
+        let numBlocksToUnlock = Math.max((tx.getIsConfirmed() ? tx.getHeight() : height) + 10, Number(tx.getUnlockTime())) - height;
         numBlocksToNextUnlock = numBlocksToNextUnlock === undefined ? numBlocksToUnlock : Math.min(numBlocksToNextUnlock, numBlocksToUnlock);
       }
     }
@@ -460,7 +462,8 @@ export default class MoneroWallet {
         height = await this.getHeight(); // get most recent height
       }
       for (let tx of txs) {
-        let numBlocksToUnlock = Math.max((tx.getIsConfirmed() ? tx.getHeight() : height) + 10, tx.getUnlockTime()) - height;
+        if (!tx.getIsConfirmed() && MoneroUtils.isTimestamp(tx.getUnlockTime())) continue;
+        let numBlocksToUnlock = Math.max((tx.getIsConfirmed() ? tx.getHeight() : height) + 10, Number(tx.getUnlockTime())) - height;
         numBlocksToLastUnlock = numBlocksToLastUnlock === undefined ? numBlocksToUnlock : Math.max(numBlocksToLastUnlock, numBlocksToUnlock);
       }
     }
