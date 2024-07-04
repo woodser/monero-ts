@@ -1,36 +1,39 @@
+/// <reference types="node" />
 /**
  * Run a task in a fixed period loop.
  */
 export default class TaskLooper {
-    protected task: any;
-    protected periodInMs: any;
-    protected _isStarted: any;
-    protected isLooping: any;
+    _fn: () => Promise<void>;
+    _isStarted: boolean;
+    _isLooping: boolean;
+    _periodInMs: number;
+    _timeout: NodeJS.Timeout | undefined;
     /**
      * Build the looper with a function to invoke on a fixed period loop.
      *
-     * @param {function} task - the task function to invoke
+     * @param {function} fn - the async function to invoke
      */
-    constructor(task: any);
+    constructor(fn: () => Promise<void>);
     /**
      * Get the task function to invoke on a fixed period loop.
      *
      * @return {function} the task function
      */
-    getTask(): any;
+    getTask(): () => Promise<void>;
     /**
      * Start the task loop.
      *
      * @param {number} periodInMs the loop period in milliseconds
-     * @return {TaskLooper} this class for chaining
+     * @param {boolean} targetFixedPeriod specifies if the task should target a fixed period by accounting for run time (default false)
+     * @return {TaskLooper} this instance for chaining
      */
-    start(periodInMs: any): this;
+    start(periodInMs: number, targetFixedPeriod?: boolean): void;
     /**
      * Indicates if looping.
      *
      * @return {boolean} true if looping, false otherwise
      */
-    isStarted(): any;
+    isStarted(): boolean;
     /**
      * Stop the task loop.
      */
@@ -41,5 +44,5 @@ export default class TaskLooper {
      * @param {number} periodInMs the loop period in milliseconds
      */
     setPeriodInMs(periodInMs: any): void;
-    protected runLoop(): Promise<void>;
+    _runLoop(targetFixedPeriod: boolean): Promise<void>;
 }

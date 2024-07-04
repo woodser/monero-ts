@@ -8,6 +8,7 @@ export default class MoneroRpcConnection {
     rejectUnauthorized: boolean;
     proxyToWorker: boolean;
     priority: number;
+    timeoutMs: number;
     protected isOnline: boolean;
     protected isAuthenticated: boolean;
     protected attributes: any;
@@ -49,7 +50,6 @@ export default class MoneroRpcConnection {
     getRejectUnauthorized(): boolean;
     setProxyToWorker(proxyToWorker: any): this;
     getProxyToWorker(): boolean;
-    getPriority(): number;
     /**
      * Set the connection's priority relative to other connections. Priority 1 is highest,
      * then priority 2, etc. The default priority of 0 is lowest priority.
@@ -58,6 +58,15 @@ export default class MoneroRpcConnection {
      * @return {MoneroRpcConnection} this connection
      */
     setPriority(priority: any): this;
+    getPriority(): number;
+    /**
+     * Set the RPC request timeout in milliseconds.
+     *
+     * @param {number} timeoutMs is the timeout in milliseconds, 0 to disable timeout, or undefined to use default
+     * @return {MoneroRpcConnection} this connection
+     */
+    setTimeout(timeoutMs: number): this;
+    getTimeout(): number;
     setAttribute(key: any, value: any): this;
     getAttribute(key: any): any;
     /**
@@ -97,10 +106,10 @@ export default class MoneroRpcConnection {
      *
      * @param {string} method - JSON RPC method to invoke
      * @param {object} params - request parameters
-     * @param {number} timeoutInMs - request timeout in milliseconds
+     * @param {number} [timeoutMs] - overrides the request timeout in milliseconds
      * @return {object} is the response map
      */
-    sendJsonRequest(method: any, params?: any, timeoutInMs?: any): Promise<any>;
+    sendJsonRequest(method: any, params?: any, timeoutMs?: any): Promise<any>;
     /**
      * Send a RPC request to the given path and with the given paramters.
      *
@@ -108,19 +117,19 @@ export default class MoneroRpcConnection {
      *
      * @param {string} path - JSON RPC path to invoke
      * @param {object} params - request parameters
-     * @param {number} timeoutInMs - request timeout in milliseconds
+     * @param {number} [timeoutMs] - overrides the request timeout in milliseconds
      * @return {object} is the response map
      */
-    sendPathRequest(path: any, params?: any, timeoutInMs?: any): Promise<any>;
+    sendPathRequest(path: any, params?: any, timeoutMs?: any): Promise<any>;
     /**
      * Send a binary RPC request.
      *
      * @param {string} path - path of the binary RPC method to invoke
      * @param {object} [params] - request parameters
-     * @param {number} [timeoutInMs] - request timeout in milliseconds
+     * @param {number} [timeoutMs] - request timeout in milliseconds
      * @return {Uint8Array} the binary response
      */
-    sendBinaryRequest(path: any, params?: any, timeoutInMs?: any): Promise<any>;
+    sendBinaryRequest(path: any, params?: any, timeoutMs?: any): Promise<any>;
     getConfig(): {
         uri: string;
         username: string;
@@ -128,10 +137,11 @@ export default class MoneroRpcConnection {
         rejectUnauthorized: boolean;
         proxyToWorker: boolean;
         priority: number;
+        timeoutMs: number;
     };
     toJson(): {} & this;
     toString(): string;
     setFakeDisconnected(fakeDisconnected: any): void;
     protected static validateHttpResponse(resp: any): void;
-    protected static validateRpcResponse(resp: any, method: any, params: any): void;
+    protected validateRpcResponse(resp: any, method: any, params: any): void;
 }
