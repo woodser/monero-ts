@@ -158,7 +158,7 @@ export default class MoneroTx {
     /**
      * Get the minimum height or timestamp for the transactions to unlock.
      *
-     * @return {bigint} the minimum height or timestamp for the transactin to unlock
+     * @return {bigint} the minimum height or timestamp for the transaction to unlock
      */
     getUnlockTime(): bigint;
     setUnlockTime(unlockTime: bigint | string | number | undefined): MoneroTx;

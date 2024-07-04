@@ -299,7 +299,7 @@ export default class MoneroWallet {
      */
     getUnlockedBalance(accountIdx?: number, subaddressIdx?: number): Promise<bigint>;
     /**
-     * Get the number of blocks until the next and last funds unlock.
+     * Get the number of blocks until the next and last funds unlock. Ignores txs with unlock time as timestamp.
      *
      * @return {Promise<number[]>} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
      */

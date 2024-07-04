@@ -181,4 +181,11 @@ export default class MoneroUtils {
      */
     static atomicUnitsToXmr(amountAtomicUnits: bigint | string): number;
     protected static isHex64(str: any): boolean;
+    /**
+     * Determine if the given unlock time is a timestamp or block height.
+     *
+     * @param unlockTime is the unlock time to check
+     * @return {boolean} true if the unlock time is a timestamp, false if a block height
+     */
+    static isTimestamp(unlockTime: bigint): boolean;
 }

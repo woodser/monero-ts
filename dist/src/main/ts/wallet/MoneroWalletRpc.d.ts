@@ -169,11 +169,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
     setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
     /**
-     * Get the locked and unlocked balances in a single request.
+     * Get the total and unlocked balances in a single request.
      *
      * @param {number} [accountIdx] account index
      * @param {number} [subaddressIdx] subaddress index
-     * @return {Promise<bigint[]>} is the locked and unlocked balances in an array, respectively
+     * @return {Promise<bigint[]>} is the total and unlocked balances in an array, respectively
      */
     getBalances(accountIdx?: number, subaddressIdx?: number): Promise<bigint[]>;
     addListener(listener: MoneroWalletListener): Promise<void>;
