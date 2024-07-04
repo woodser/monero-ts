@@ -446,5 +446,20 @@ export default class MoneroUtils {
   protected static isHex64(str) {
     return typeof str === "string" && str.length === 64 && GenUtils.isHex(str);
   }
+
+  /**
+   * Determine if the given unlock time is a timestamp or block height.
+   * 
+   * @param unlockTime is the unlock time to check
+   * @return {boolean} true if the unlock time is a timestamp, false if a block height
+   */
+  static isTimestamp(unlockTime: bigint) {
+      
+    // threshold for distinguishing between timestamp and block height
+    // current block height is around 3 million, current unix timestamp is around 1.7 billion
+    const threshold = 500000000n;
+
+    return unlockTime >= threshold;
+  }
 }
 
