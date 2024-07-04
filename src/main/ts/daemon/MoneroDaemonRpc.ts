@@ -856,9 +856,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     assert(GenUtils.isArray(config.cmd), "Must provide string array with command line parameters");
     
     // start process
-    let process = require('child_process').spawn(config.cmd[0], config.cmd.slice(1), {});
-    process.stdout.setEncoding('utf8');
-    process.stderr.setEncoding('utf8');
+    let childProcess = require('child_process').spawn(config.cmd[0], config.cmd.slice(1), {
+      env: { ...process.env, LANG: 'en_US.UTF-8' } // scrape output in english
+    });
+    childProcess.stdout.setEncoding('utf8');
+    childProcess.stderr.setEncoding('utf8');
     
     // return promise which resolves after starting monerod
     let uri;
@@ -867,7 +869,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       return await new Promise(function(resolve, reject) {
       
         // handle stdout
-        process.stdout.on('data', async function(data) {
+        childProcess.stdout.on('data', async function(data) {
           let line = data.toString();
           LibraryUtils.log(2, line);
           output += line + '\n'; // capture output in case of error
@@ -898,7 +900,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
             config.setProxyToWorker(config.proxyToWorker);
             config.cmd = undefined
             let daemon = await MoneroDaemonRpc.connectToDaemonRpc(config);
-            daemon.process = process;
+            daemon.process = childProcess;
             
             // resolve promise with client connected to internal process 
             this.isResolved = true;
@@ -907,23 +909,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
         });
         
         // handle stderr
-        process.stderr.on('data', function(data) {
+        childProcess.stderr.on('data', function(data) {
           if (LibraryUtils.getLogLevel() >= 2) console.error(data);
         });
         
         // handle exit
-        process.on("exit", function(code) {
+        childProcess.on("exit", function(code) {
           if (!this.isResolved) reject(new Error("monerod process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
         });
         
         // handle error
-        process.on("error", function(err) {
+        childProcess.on("error", function(err) {
           if (err.message.indexOf("ENOENT") >= 0) reject(new Error("monerod does not exist at path '" + config.cmd[0] + "'"));
           if (!this.isResolved) reject(err);
         });
         
         // handle uncaught exception
-        process.on("uncaughtException", function(err, origin) {
+        childProcess.on("uncaughtException", function(err, origin) {
           console.error("Uncaught exception in monerod process: " + err.message);
           console.error(origin);
           if (!this.isResolved) reject(err);

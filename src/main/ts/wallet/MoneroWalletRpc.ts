@@ -1487,9 +1487,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
     
     // start process
     let child_process = await import("child_process");
-    const process = child_process.spawn(config.cmd[0], config.cmd.slice(1), {});
-    process.stdout.setEncoding('utf8');
-    process.stderr.setEncoding('utf8');
+    const childProcess = child_process.spawn(config.cmd[0], config.cmd.slice(1), {
+      env: { ...process.env, LANG: 'en_US.UTF-8' } // scrape output in english
+    });
+    childProcess.stdout.setEncoding('utf8');
+    childProcess.stderr.setEncoding('utf8');
     
     // return promise which resolves after starting monero-wallet-rpc
     let uri;
@@ -1499,7 +1501,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       return await new Promise(function(resolve, reject) {
       
         // handle stdout
-        process.stdout.on('data', async function(data) {
+        childProcess.stdout.on('data', async function(data) {
           let line = data.toString();
           LibraryUtils.log(2, line);
           output += line + '\n'; // capture output in case of error
@@ -1529,7 +1531,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
             config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
             config.cmd = undefined;
             let wallet = await MoneroWalletRpc.connectToWalletRpc(config);
-            wallet.process = process;
+            wallet.process = childProcess;
             
             // resolve promise with client connected to internal process 
             this.isResolved = true;
@@ -1538,23 +1540,23 @@ export default class MoneroWalletRpc extends MoneroWallet {
         });
         
         // handle stderr
-        process.stderr.on('data', function(data) {
+        childProcess.stderr.on('data', function(data) {
           if (LibraryUtils.getLogLevel() >= 2) console.error(data);
         });
         
         // handle exit
-        process.on("exit", function(code) {
+        childProcess.on("exit", function(code) {
           if (!this.isResolved) reject(new MoneroError("monero-wallet-rpc process terminated with exit code " + code + (output ? ":\n\n" + output : "")));
         });
         
         // handle error
-        process.on("error", function(err) {
+        childProcess.on("error", function(err) {
           if (err.message.indexOf("ENOENT") >= 0) reject(new MoneroError("monero-wallet-rpc does not exist at path '" + config.cmd[0] + "'"));
           if (!this.isResolved) reject(err);
         });
         
         // handle uncaught exception
-        process.on("uncaughtException", function(err, origin) {
+        childProcess.on("uncaughtException", function(err, origin) {
           console.error("Uncaught exception in monero-wallet-rpc process: " + err.message);
           console.error(origin);
           if (!this.isResolved) reject(err);
