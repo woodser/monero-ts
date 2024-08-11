@@ -280,7 +280,7 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -Wl,--allow-undefined -std=c++14 -Oz \
+"-Wall -Werror -Wno-js-compiler -Wl,--allow-undefined -std=c++14 -Oz \
 --bind \
 -s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_ts\"' \
@@ -296,6 +296,7 @@ EMCC_LINKER_FLAGS_BASE
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"getTempRet0\",\"addFunction\"]' \
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
+-s WASM_BIGINT=1 \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
