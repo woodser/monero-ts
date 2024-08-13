@@ -266,6 +266,15 @@ export default class LibraryUtils {
   static async queueTask<T>(asyncFn: () => Promise<T>): Promise<T> {
     return LibraryUtils.MUTEX.submit(asyncFn);
   }
+
+  static async exists(fs: any, path: string): Promise<boolean> {
+    try {
+      await fs.access(path);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
   
   // ------------------------------ PRIVATE HELPERS ---------------------------
   
