@@ -16,6 +16,7 @@ export default class LibraryUtils {
   static WORKER_OBJECTS: any;
   static FULL_LOADED: any;
   static REJECT_UNAUTHORIZED_FNS: any;
+  static readonly MUTEX = new ThreadPool(1);
   static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
 
     // get worker path in dist (assumes library is running from src or dist)
@@ -260,6 +261,10 @@ export default class LibraryUtils {
     err.name = serializedErr.name;
     err.stack = err.stack + "\nWorker error: " + serializedErr.stack;
     return err;
+  }
+
+  static async queueTask<T>(asyncFn: () => Promise<T>): Promise<T> {
+    return LibraryUtils.MUTEX.submit(asyncFn);
   }
   
   // ------------------------------ PRIVATE HELPERS ---------------------------

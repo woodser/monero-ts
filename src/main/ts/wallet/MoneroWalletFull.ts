@@ -1769,56 +1769,64 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async moveTo(path, wallet) {
-    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
-    if (!path) throw new MoneroError("Must provide path of destination wallet");
-    
+
     // save and return if same path
     if (Path.normalize(wallet.path) === Path.normalize(path)) {
-      await wallet.save();
-      return;
+      return wallet.save();
     }
-    
-    // create destination directory if it doesn't exist
-    let walletDir = Path.dirname(path);
-    if (!wallet.fs.existsSync(walletDir)) {
-      try { wallet.fs.mkdirSync(walletDir); }
-      catch (err: any) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
-    }
-    
-    // write wallet files
-    let data = await wallet.getData();
-    wallet.fs.writeFileSync(path + ".keys", data[0], "binary");
-    wallet.fs.writeFileSync(path, data[1], "binary");
-    wallet.fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
-    let oldPath = wallet.path;
-    wallet.path = path;
-    
-    // delete old wallet files
-    if (oldPath) {
-      wallet.fs.unlinkSync(oldPath + ".address.txt");
-      wallet.fs.unlinkSync(oldPath + ".keys");
-      wallet.fs.unlinkSync(oldPath);
-    }
+
+    return LibraryUtils.queueTask(async () => {
+      if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+      if (!path) throw new MoneroError("Must provide path of destination wallet");
+
+      // create destination directory if it doesn't exist
+      let walletDir = Path.dirname(path);
+      if (!wallet.fs.existsSync(walletDir)) {
+        try { wallet.fs.mkdirSync(walletDir); }
+        catch (err: any) { throw new MoneroError("Destination path " + path + " does not exist and cannot be created: " + err.message); }
+      }
+
+      // get wallet data
+      const data = await wallet.getData();
+
+      // write wallet files
+      wallet.fs.writeFileSync(path + ".keys", data[0], "binary");
+      wallet.fs.writeFileSync(path, data[1], "binary");
+      wallet.fs.writeFileSync(path + ".address.txt", await wallet.getPrimaryAddress());
+      let oldPath = wallet.path;
+      wallet.path = path;
+
+      // delete old wallet files
+      if (oldPath) {
+        wallet.fs.unlinkSync(oldPath + ".address.txt");
+        wallet.fs.unlinkSync(oldPath + ".keys");
+        wallet.fs.unlinkSync(oldPath);
+      }
+    });
   }
   
   static async save(wallet: any) {
-    if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
-        
-    // path must be set
-    let path = await wallet.getPath();
-    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-    
-    // write wallet files to *.new
-    let pathNew = path + ".new";
-    let data = await wallet.getData();
-    wallet.fs.writeFileSync(pathNew + ".keys", data[0], "binary");
-    wallet.fs.writeFileSync(pathNew, data[1], "binary");
-    wallet.fs.writeFileSync(pathNew + ".address.txt", await wallet.getPrimaryAddress());
-    
-    // replace old wallet files with new
-    wallet.fs.renameSync(pathNew + ".keys", path + ".keys");
-    wallet.fs.renameSync(pathNew, path, path + ".keys");
-    wallet.fs.renameSync(pathNew + ".address.txt", path + ".address.txt", path + ".keys");
+    return LibraryUtils.queueTask(async () => {
+      if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
+
+      // path must be set
+      let path = await wallet.getPath();
+      if (!path) throw new MoneroError("Cannot save wallet because path is not set");
+
+      // get wallet data
+      const data = await wallet.getData();
+
+      // write wallet files to *.new
+      let pathNew = path + ".new";
+      wallet.fs.writeFileSync(pathNew + ".keys", data[0], "binary");
+      wallet.fs.writeFileSync(pathNew, data[1], "binary");
+      wallet.fs.writeFileSync(pathNew + ".address.txt", await wallet.getPrimaryAddress());
+
+      // replace old wallet files with new
+      wallet.fs.renameSync(pathNew + ".keys", path + ".keys");
+      wallet.fs.renameSync(pathNew, path);
+      wallet.fs.renameSync(pathNew + ".address.txt", path + ".address.txt");
+    });
   }
 }
 
