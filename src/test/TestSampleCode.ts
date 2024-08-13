@@ -22,12 +22,14 @@ export default class TestSampleCode {
           // create rpc test wallet
           let walletRpc = await TestUtils.getWalletRpc();
           await walletRpc.close();
+
           // create directory for test wallets if it doesn't exist
           let fs = await TestUtils.getDefaultFs();
-          if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-            if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-            fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+          if (!await moneroTs.LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR)) {
+            if (!await moneroTs.LibraryUtils.exists(fs, process.cwd())) await fs.mkdir(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+            await fs.mkdir(TestUtils.TEST_WALLETS_DIR);
           }
+
           // create full test wallet
           wallet = await TestUtils.getWalletFull();
 
@@ -37,6 +39,7 @@ export default class TestSampleCode {
           throw e;
         }
       });
+      
       after(async function() {
         if (wallet) await wallet.close(true);
       });

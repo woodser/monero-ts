@@ -52,7 +52,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
     
     // remove non-whitelisted wallets
     let whitelist = [TestUtils.WALLET_NAME, "ground_truth", "moved"];
-    let items = (await TestUtils.getDefaultFs()).readdirSync(TestUtils.TEST_WALLETS_DIR, "buffer");
+    let items = await (await TestUtils.getDefaultFs()).readdir(TestUtils.TEST_WALLETS_DIR, "buffer");
     for (let item of items) {
       item = item + ""; // get filename as string
       let found = false;
@@ -62,7 +62,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           break;
         }
       }
-      if (!found) (await TestUtils.getDefaultFs()).unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+      if (!found) await (await TestUtils.getDefaultFs()).unlink(TestUtils.TEST_WALLETS_DIR + "/" + item);
     }
   }
   
@@ -354,7 +354,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await walletFull.close(true);
         
         // rebuild wallet cache using full wallet
-        (await TestUtils.getDefaultFs()).unlinkSync(path);
+        await (await TestUtils.getDefaultFs()).unlink(path);
         walletFull = await openWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.close(true);
         
@@ -1070,9 +1070,9 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           
           // move wallet from memory to disk
           let path1 = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
-          assert(!MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
+          assert(!(await MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs())));
           await wallet.moveTo(path1);
-          assert(MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
+          assert(await MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
           assert.equal(await wallet.getSeed(), mnemonic);
           assert.equal("myval1", await wallet.getAttribute("mykey"));
           
@@ -1080,7 +1080,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           await wallet.setAttribute("mykey", "myval2");
           await wallet.moveTo(path1);
           await wallet.close();
-          assert(MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
+          assert(await MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
           wallet = await that.openWallet(new MoneroWalletConfig().setPath(path1).setPassword(password2));
           assert.equal(await wallet.getSeed(), mnemonic);
           assert.equal("myval2", await wallet.getAttribute("mykey"));
@@ -1089,8 +1089,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           let path2 = TestUtils.TEST_WALLETS_DIR + "/moved/" + GenUtils.getUUID();
           await wallet.setAttribute("mykey", "myval3");
           await wallet.moveTo(path2);
-          assert(!MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
-          assert(MoneroWalletFull.walletExists(path2, await TestUtils.getDefaultFs()));
+          assert(!await MoneroWalletFull.walletExists(path1, await TestUtils.getDefaultFs()));
+          assert(await MoneroWalletFull.walletExists(path2, await TestUtils.getDefaultFs()));
           assert.equal(await wallet.getSeed(), mnemonic);
           
           // re-open and test wallet

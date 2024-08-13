@@ -72,7 +72,7 @@ export default class TestUtils {
    * @return {any} nodejs-compatible file system
    */
   static async getDefaultFs(): Promise<any> {
-    return GenUtils.isBrowser() ? (await import('memfs')).fs : await import('fs');
+    return GenUtils.isBrowser() ? (await import('memfs')).fs.promises : (await import('fs')).promises;
   }
   
   /**
@@ -215,10 +215,10 @@ export default class TestUtils {
       let fs = await TestUtils.getDefaultFs();
       if (!await MoneroWalletFull.walletExists(TestUtils.WALLET_FULL_PATH, fs)) {
         // create directory for test wallets if it doesn't exist
-        fs.existsSync(TestUtils.TEST_WALLETS_DIR) || fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
-        if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-          if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-          fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+        await LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR) || await fs.mkdir(TestUtils.TEST_WALLETS_DIR);
+        if (!await LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR)) {
+          if (!await LibraryUtils.exists(fs, process.cwd())) await fs.mkdir(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+          fs.mkdir(TestUtils.TEST_WALLETS_DIR);
         }
         
         // create wallet with connection
@@ -272,9 +272,9 @@ export default class TestUtils {
 
     // create directory for test wallets if it doesn't exist
     let fs = await TestUtils.getDefaultFs();
-    if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-      if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-      fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+    if (!await LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR)) {
+      if (!await LibraryUtils.exists(fs, process.cwd())) await fs.mkdir(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+      await fs.mkdir(TestUtils.TEST_WALLETS_DIR);
     }
 
     // create ground truth wallet
