@@ -100,7 +100,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
    * Check if a wallet exists at a given path.
    * 
    * @param {string} path - path of the wallet on the file system
-   * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
+   * @param {any} fs - file system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser)
    * @return {boolean} true if a wallet exists at the given path, false otherwise
    */
   static async walletExists(path, fs) {
