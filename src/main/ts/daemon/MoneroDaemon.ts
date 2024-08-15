@@ -267,7 +267,7 @@ export default class MoneroDaemon {
    * @param {boolean} [prune] - specifies if the returned tx should be pruned (defaults to false)
    * @return {Promise<MoneroTx>} transaction with the given hash or undefined if not found
    */
-  async getTx(txHash?: string, prune = false): Promise<MoneroTx> {
+  async getTx(txHash?: string, prune = false): Promise<MoneroTx|undefined> {
     return (await this.getTxs([txHash], prune))[0];
   }
   

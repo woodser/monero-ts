@@ -430,7 +430,7 @@ export default class MoneroWallet {
    * 
    * @return {Promise<number[]>} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
    */
-  async getNumBlocksToUnlock(): Promise<number[]> {
+  async getNumBlocksToUnlock(): Promise<number[]|undefined> {
     
     // get balances
     let balance = await this.getBalance();
@@ -566,7 +566,7 @@ export default class MoneroWallet {
    * @param {string} txHash - hash of a transaction to get
    * @return {Promise<MoneroTxWallet> } the identified transaction or undefined if not found
    */
-  async getTx(txHash: string): Promise<MoneroTxWallet> {
+  async getTx(txHash: string): Promise<MoneroTxWallet|undefined> {
     let txs = await this.getTxs([txHash]);
     return txs.length === 0 ? undefined : txs[0]; 
   }
