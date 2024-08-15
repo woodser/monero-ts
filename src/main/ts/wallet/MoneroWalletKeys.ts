@@ -63,6 +63,9 @@ export class MoneroWalletKeys extends MoneroWallet {
       let walletProxy = await MoneroWalletKeysProxy.createWallet(config);;
       return new MoneroWalletKeys(undefined, walletProxy);
     }
+
+    // disallow server connection
+    if (config.getServer() !== undefined) throw new MoneroError("Cannot initialize keys wallet with server connection");
     
     // create wallet
     if (config.getSeed() !== undefined) return MoneroWalletKeys.createWalletFromSeed(config);
