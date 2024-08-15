@@ -758,7 +758,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
-  async getTx(txHash?: string, prune = false): Promise<MoneroTx> { return super.getTx(txHash, prune); };
+  async getTx(txHash?: string, prune = false): Promise<MoneroTx|undefined> { return super.getTx(txHash, prune); };
   async getTxHex(txHash: string, prune = false): Promise<string> { return super.getTxHex(txHash, prune); };
   async getKeyImageSpentStatus(keyImage: string): Promise<MoneroKeyImageSpentStatus> { return super.getKeyImageSpentStatus(keyImage); }
   async setPeerBan(ban: MoneroBan): Promise<void> { return super.setPeerBan(ban); }

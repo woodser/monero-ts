@@ -1586,8 +1586,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
   
-  async getNumBlocksToUnlock(): Promise<number[]> { return super.getNumBlocksToUnlock(); }
-  async getTx(txHash: string): Promise<MoneroTxWallet> { return super.getTx(txHash); }
+  async getNumBlocksToUnlock(): Promise<number[]|undefined> { return super.getNumBlocksToUnlock(); }
+  async getTx(txHash: string): Promise<MoneroTxWallet|undefined> { return super.getTx(txHash); }
   async getIncomingTransfers(query: Partial<MoneroTransferQuery>): Promise<MoneroIncomingTransfer[]> { return super.getIncomingTransfers(query); }
   async getOutgoingTransfers(query: Partial<MoneroTransferQuery>) { return super.getOutgoingTransfers(query); }
   async createTx(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet> { return super.createTx(config); }
