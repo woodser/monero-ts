@@ -279,8 +279,8 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * @return {Promise<void>}
      */
     stop(): Promise<void>;
-    getNumBlocksToUnlock(): Promise<number[]>;
-    getTx(txHash: string): Promise<MoneroTxWallet>;
+    getNumBlocksToUnlock(): Promise<number[] | undefined>;
+    getTx(txHash: string): Promise<MoneroTxWallet | undefined>;
     getIncomingTransfers(query: Partial<MoneroTransferQuery>): Promise<MoneroIncomingTransfer[]>;
     getOutgoingTransfers(query: Partial<MoneroTransferQuery>): Promise<MoneroOutgoingTransfer[]>;
     createTx(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet>;

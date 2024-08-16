@@ -67,10 +67,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
      * Check if a wallet exists at a given path.
      *
      * @param {string} path - path of the wallet on the file system
-     * @param {fs} - Node.js compatible file system to use (optional, defaults to disk if nodejs)
+     * @param {any} fs - file system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser)
      * @return {boolean} true if a wallet exists at the given path, false otherwise
      */
-    static walletExists(path: any, fs: any): any;
+    static walletExists(path: any, fs: any): Promise<boolean>;
     static openWallet(config: Partial<MoneroWalletConfig>): Promise<any>;
     static createWallet(config: MoneroWalletConfig): Promise<MoneroWalletFull>;
     protected static createWalletFromSeed(config: MoneroWalletConfig): Promise<MoneroWalletFull>;
@@ -221,8 +221,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     changePassword(oldPassword: string, newPassword: string): Promise<void>;
     save(): Promise<void>;
     close(save?: boolean): Promise<void>;
-    getNumBlocksToUnlock(): Promise<number[]>;
-    getTx(txHash: string): Promise<MoneroTxWallet>;
+    getNumBlocksToUnlock(): Promise<number[] | undefined>;
+    getTx(txHash: string): Promise<MoneroTxWallet | undefined>;
     getIncomingTransfers(query: Partial<MoneroTransferQuery>): Promise<MoneroIncomingTransfer[]>;
     getOutgoingTransfers(query: Partial<MoneroTransferQuery>): Promise<import("./model/MoneroOutgoingTransfer").default[]>;
     createTx(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet>;
@@ -246,7 +246,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
      * @param {string} browserMainPath - path of the wallet on the browser main thread
      */
     protected setBrowserMainPath(browserMainPath: any): void;
-    static moveTo(path: any, wallet: any): Promise<void>;
+    static moveTo(path: any, wallet: any): Promise<any>;
     static save(wallet: any): Promise<void>;
 }
 /**
@@ -357,7 +357,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     signMultisigTxHex(multisigTxHex: any): Promise<MoneroMultisigSignResult>;
     submitMultisigTxHex(signedMultisigTxHex: any): Promise<any>;
     getData(): Promise<any>;
-    moveTo(path: any): Promise<void>;
+    moveTo(path: any): Promise<any>;
     changePassword(oldPassword: any, newPassword: any): Promise<void>;
     save(): Promise<void>;
     close(save: any): Promise<void>;

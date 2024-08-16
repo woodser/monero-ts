@@ -35,7 +35,7 @@ export default class MoneroWalletConfig {
     saveCurrent: boolean;
     /** Proxies wallet operations to a worker in order to not block the main thread (default true). */
     proxyToWorker: boolean;
-    /** Node.js compatible file system to use (defaults to disk or in-memory FS if browser). */
+    /** File system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser). */
     fs: any;
     /** Wallet keys data to open. */
     keysData: Uint8Array;
@@ -70,7 +70,7 @@ export default class MoneroWalletConfig {
      * @param {Uint8Array} [config.keysData] - wallet keys data to open (optional)
      * @param {Uint8Array} [config.cacheData] - wallet cache data to open (optional)
      * @param {boolean} [config.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
-     * @param {fs} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+     * @param {any} [config.fs] - file system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser)
      * @param {boolean} [config.saveCurrent] - specifies if the current RPC wallet should be saved before being closed
      * @param {number} [config.accountLookahead] - number of accounts to scan (optional)
      * @param {number} [config.subaddressLookahead] - number of subaddresses to scan per account (optional)

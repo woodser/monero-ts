@@ -1,3 +1,4 @@
+import ThreadPool from "./ThreadPool";
 /**
  * Collection of helper utilities for the library.
  */
@@ -8,6 +9,7 @@ export default class LibraryUtils {
     static WORKER_OBJECTS: any;
     static FULL_LOADED: any;
     static REJECT_UNAUTHORIZED_FNS: any;
+    static readonly MUTEX: ThreadPool;
     static WORKER_DIST_PATH_DEFAULT: any;
     static WORKER_DIST_PATH: any;
     /**
@@ -96,6 +98,8 @@ export default class LibraryUtils {
     static invokeWorker(objectId: any, fnName: any, args: any): Promise<unknown>;
     static serializeError(err: any): any;
     protected static deserializeError(serializedErr: any): Error;
+    static queueTask<T>(asyncFn: () => Promise<T>): Promise<T>;
+    static exists(fs: any, path: string): Promise<boolean>;
     protected static initWasmModule(wasmModule: any): void;
     protected static prefixWindowsPath(path: any): any;
 }

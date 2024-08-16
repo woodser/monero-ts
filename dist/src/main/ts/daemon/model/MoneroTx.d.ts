@@ -201,9 +201,9 @@ export default class MoneroTx {
     /**
      * Get full transaction hex. Full hex = pruned hex + prunable hex.
      *
-     * @return {string} full tx hex
+     * @return {string|undefined} full tx hex
      */
-    getFullHex(): string;
+    getFullHex(): string | undefined;
     /**
      * @param {string} fullHex - full tx hex
      * @return {MoneroTx} this tx for chaining
