@@ -194,7 +194,7 @@ declare function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConne
  * @param {MoneroConnectionManager} [config.connectionManager] - manage connections to monerod (optional)
  * @param {boolean} [config.rejectUnauthorized] - reject self-signed server certificates if true (defaults to true)
  * @param {boolean} [config.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
- * @param {any} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+ * @param {any} [config.fs] - file system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser)
  * @return {Promise<MoneroWalletFull>} the created wallet
  */
 declare function createWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;
@@ -224,7 +224,7 @@ declare function createWalletFull(config: Partial<MoneroWalletConfig>): Promise<
  * @param {Uint8Array} [config.keysData] - wallet keys data to open (optional if path provided)
  * @param {Uint8Array} [config.cacheData] - wallet cache data to open (optional)
  * @param {boolean} [config.proxyToWorker] - proxies wallet operations to a worker in order to not block the main thread (default true)
- * @param {any} [config.fs] - Node.js compatible file system to use (defaults to disk or in-memory FS if browser)
+ * @param {any} [config.fs] - file system compatible with Node.js `fs.promises` API (defaults to disk or in-memory FS if browser)
  * @return {Promise<MoneroWalletFull>} the opened wallet
  */
 declare function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletFull>;

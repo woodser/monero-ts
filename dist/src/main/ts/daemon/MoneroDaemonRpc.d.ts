@@ -141,7 +141,7 @@ declare class MoneroDaemonRpc extends MoneroDaemon {
     stop(): Promise<void>;
     waitForNextBlockHeader(): Promise<MoneroBlockHeader>;
     getPollInterval(): number;
-    getTx(txHash?: string, prune?: boolean): Promise<MoneroTx>;
+    getTx(txHash?: string, prune?: boolean): Promise<MoneroTx | undefined>;
     getTxHex(txHash: string, prune?: boolean): Promise<string>;
     getKeyImageSpentStatus(keyImage: string): Promise<MoneroKeyImageSpentStatus>;
     setPeerBan(ban: MoneroBan): Promise<void>;

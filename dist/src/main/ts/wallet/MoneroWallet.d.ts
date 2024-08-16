@@ -303,7 +303,7 @@ export default class MoneroWallet {
      *
      * @return {Promise<number[]>} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
      */
-    getNumBlocksToUnlock(): Promise<number[]>;
+    getNumBlocksToUnlock(): Promise<number[] | undefined>;
     /**
      * Get accounts with a given tag.
      *
@@ -373,7 +373,7 @@ export default class MoneroWallet {
      * @param {string} txHash - hash of a transaction to get
      * @return {Promise<MoneroTxWallet> } the identified transaction or undefined if not found
      */
-    getTx(txHash: string): Promise<MoneroTxWallet>;
+    getTx(txHash: string): Promise<MoneroTxWallet | undefined>;
     /**
      * <p>Get wallet transactions.  Wallet transactions contain one or more
      * transfers that are either incoming or outgoing to the wallet.<p>
