@@ -108,6 +108,15 @@ await walletFull.close(true);
 * [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
 * [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
 
+## Related projects
+
+* [monero-cpp](https://github.com/woodser/monero-cpp) - C++ library counterpart
+* [monero-java](https://github.com/woodser/monero-java) - Java library counterpart
+* [haveno-ts](https://github.com/haveno-dex/haveno-ts) - used for testing Haveno and its TypeScript library
+* [xmr-sample-webpack](https://github.com/woodser/xmr-sample-webpack) - sample browser application using Webpack
+* [xmr-sample-next](https://github.com/woodser/xmr-sample-next) - sample browser application using Next.js
+* [xmr-sample-vite](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite (work in progress)
+
 ## Using monero-ts in your project
 
 1. `cd your_project` or `mkdir your_project && cd your_project && npm init`
@@ -126,7 +135,7 @@ To avoid the error "Failed to parse URL from /path/to/file.wasm" on Node.js >16:
     - Windows: `set NODE_OPTIONS=--openssl-legacy-provider`
 
 #### Building a browser application
-1. Bundle your application code for a browser. See [xmr-sample-app](https://github.com/woodser/xmr-sample-app) for an example project using webpack.
+1. Bundle your application code for a browser. See [xmr-sample-webpack](https://github.com/woodser/xmr-sample-webpack) for an example project using Webpack.
 2. Copy assets from ./dist to your web app's build directory.
 
 #### Using RPC servers:
@@ -172,13 +181,6 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 1. Start monero-wallet-rpc servers used by tests: `./bin/start_wallet_rpc_test_servers.sh`
 2. In another terminal, build browser tests: `./bin/build_browser_tests.sh`
 3. Access http://localhost:8080/tests.html in a browser to run all tests
-
-## Related projects
-
-* [monero-java](https://github.com/woodser/monero-java)
-* [monero-cpp](https://github.com/woodser/monero-cpp)
-* [haveno-ts](https://github.com/haveno-dex/haveno-ts)
-* [xmr-sample-app](https://github.com/woodser/xmr-sample-app) - sample web application using monero-ts
 
 ## License
 

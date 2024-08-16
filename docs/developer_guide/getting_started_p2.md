@@ -27,9 +27,9 @@ A script is available to automatically download, build, and launch sample monero
 
 1. Create a new folder to contain the project: `mkdir ~/monero-ts-sample-web-apps`
 2. Enter the new directory: `cd ~/monero-ts-sample-web-apps`
-3. Download and run the web app starter script: `bash <(curl -sL https://raw.githubusercontent.com/woodser/xmr-sample-app/master/bin/web_template_script.sh)`
+3. Download and run the web app starter script: `bash <(curl -sL https://raw.githubusercontent.com/woodser/xmr-sample-webpack/master/bin/web_template_script.sh)`
 
-Alternatively, you can [manually download](https://raw.githubusercontent.com/woodser/xmr-sample-app/master/bin/web_template_script.sh) the script then run it.
+Alternatively, you can [manually download](https://raw.githubusercontent.com/woodser/xmr-sample-webpack/master/bin/web_template_script.sh) the script then run it.
 
 The script configures a project folder and serves sample web applications on port 9100. Open a web browser and navigate to http://localhost:9100 for links to the applications:
 * "Offline wallet generator" shows off the final result of following this guide. To view the complete offline wallet generator code as a functioning web application, see "src/offline_wallet_generator.html" and "src/offline_wallet_generator.ts".
