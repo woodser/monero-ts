@@ -47,6 +47,14 @@
 <li><a href="docs/developer_guide/getting_started_p1.md">Getting started part 1: creating a Node.js application</a></li>
 <li><a href="docs/developer_guide/getting_started_p2.md">Getting started part 2: creating a web application</a></li>
 </ul>
+<a id="md:related-projects" class="tsd-anchor"></a><h2><a href="#md:related-projects">Related projects</a></h2><ul>
+<li><a href="https://github.com/woodser/monero-cpp">monero-cpp</a> - C++ library counterpart</li>
+<li><a href="https://github.com/woodser/monero-java">monero-java</a> - Java library counterpart</li>
+<li><a href="https://github.com/haveno-dex/haveno-ts">haveno-ts</a> - used for testing Haveno and its TypeScript library</li>
+<li><a href="https://github.com/woodser/xmr-sample-webpack">xmr-sample-webpack</a> - sample browser application using Webpack</li>
+<li><a href="https://github.com/woodser/xmr-sample-next">xmr-sample-next</a> - sample browser application using Next.js</li>
+<li><a href="https://github.com/woodser/xmr-sample-vite">xmr-sample-vite</a> - sample browser application using Vite (work in progress)</li>
+</ul>
 <a id="md:using-monero-ts-in-your-project" class="tsd-anchor"></a><h2><a href="#md:using-monero-ts-in-your-project">Using monero-ts in your project</a></h2><ol>
 <li><code>cd your_project</code> or <code>mkdir your_project &amp;&amp; cd your_project &amp;&amp; npm init</code></li>
 <li><code>npm install monero-ts</code></li>
@@ -63,7 +71,7 @@
 </li>
 </ol>
 <a id="md:building-a-browser-application" class="tsd-anchor"></a><h4><a href="#md:building-a-browser-application">Building a browser application</a></h4><ol>
-<li>Bundle your application code for a browser. See <a href="https://github.com/woodser/xmr-sample-app">xmr-sample-app</a> for an example project using webpack.</li>
+<li>Bundle your application code for a browser. See <a href="https://github.com/woodser/xmr-sample-webpack">xmr-sample-webpack</a> for an example project using Webpack.</li>
 <li>Copy assets from ./dist to your web app&#39;s build directory.</li>
 </ol>
 <a id="md:using-rpc-servers" class="tsd-anchor"></a><h4><a href="#md:using-rpc-servers">Using RPC servers:</a></h4><ol>
@@ -77,7 +85,7 @@
 <li>Install and activate emscripten.<ol>
 <li>Clone emscripten repository: <code>git clone https://github.com/emscripten-core/emsdk.git</code></li>
 <li><code>cd emsdk</code></li>
-<li><code>git pull &amp;&amp; ./emsdk install 3.1.10 &amp;&amp; ./emsdk activate 3.1.10 &amp;&amp; source ./emsdk_env.sh</code></li>
+<li><code>git pull &amp;&amp; ./emsdk install 3.1.26 &amp;&amp; ./emsdk activate 3.1.26 &amp;&amp; source ./emsdk_env.sh</code></li>
 <li><code>export EMSCRIPTEN=path/to/emsdk/upstream/emscripten</code> (change for your system)</li>
 </ol>
 </li>
@@ -108,12 +116,6 @@
 <li>In another terminal, build browser tests: <code>./bin/build_browser_tests.sh</code></li>
 <li>Access <a href="http://localhost:8080/tests.html">http://localhost:8080/tests.html</a> in a browser to run all tests</li>
 </ol>
-<a id="md:related-projects" class="tsd-anchor"></a><h2><a href="#md:related-projects">Related projects</a></h2><ul>
-<li><a href="https://github.com/woodser/monero-java">monero-java</a></li>
-<li><a href="https://github.com/woodser/monero-cpp">monero-cpp</a></li>
-<li><a href="https://github.com/haveno-dex/haveno-ts">haveno-ts</a></li>
-<li><a href="https://github.com/woodser/xmr-sample-app">xmr-sample-app</a> - sample web application using monero-ts</li>
-</ul>
 <a id="md:license" class="tsd-anchor"></a><h2><a href="#md:license">License</a></h2><p>This project is licensed under MIT.</p>
 <a id="md:donations" class="tsd-anchor"></a><h2><a href="#md:donations">Donations</a></h2><p>If this library brings you value, please consider donating.</p>
 <p align="center">
@@ -146,6 +148,7 @@
 <li><a href="#md:architecture"><span>Architecture</span></a></li>
 <li><a href="#md:sample-code"><span>Sample code</span></a></li>
 <li><a href="#md:documentation"><span>Documentation</span></a></li>
+<li><a href="#md:related-projects"><span>Related projects</span></a></li>
 <li><a href="#md:using-monero-ts-in-your-project"><span>Using monero-<wbr/>ts in your project</span></a></li>
 <li>
 <ul>
@@ -162,7 +165,6 @@
 <li>
 <ul>
 <li><a href="#md:running-tests-in-a-browser"><span>Running tests in a browser</span></a></li></ul></li></ul></li>
-<li><a href="#md:related-projects"><span>Related projects</span></a></li>
 <li><a href="#md:license"><span>License</span></a></li>
 <li><a href="#md:donations"><span>Donations</span></a></li></ul></li></ul></li></ul></div></details></div>
 <div class="site-menu">
