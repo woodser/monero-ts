@@ -272,7 +272,6 @@ export default class MoneroRpcConnection {
         body: body,
         timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
         proxyToWorker: this.proxyToWorker
       });
       
@@ -322,7 +321,6 @@ export default class MoneroRpcConnection {
         body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
         timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
         proxyToWorker: this.proxyToWorker
       });
       
@@ -374,7 +372,6 @@ export default class MoneroRpcConnection {
         body: paramsBin,
         timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
         rejectUnauthorized: this.rejectUnauthorized,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch",
         proxyToWorker: this.proxyToWorker
       });
       
