@@ -42,16 +42,14 @@
 <a href="HttpClient.html#MAX_TIMEOUT" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>TIMEOUT</span></a>
 <a href="HttpClient.html#PROMISE_THROTTLES" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>PROMISE_<wbr/>THROTTLES</span></a>
 <a href="HttpClient.html#TASK_QUEUES" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>TASK_<wbr/>QUEUES</span></a>
-<a href="HttpClient.html#digestAuthRequest" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>digest<wbr/>Auth<wbr/>Request</span></a>
+<a href="HttpClient.html#axiosDigestAuthRequest" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="HttpClient.html#getHttpAgent" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Http<wbr/>Agent</span></a>
 <a href="HttpClient.html#getHttpsAgent" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Https<wbr/>Agent</span></a>
-<a href="HttpClient.html#parseXhrResponseHeaders" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>parse<wbr/>Xhr<wbr/>Response<wbr/>Headers</span></a>
 <a href="HttpClient.html#request" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request</span></a>
-<a href="HttpClient.html#requestFetch" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Fetch</span></a>
-<a href="HttpClient.html#requestXhr" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Xhr</span></a>
+<a href="HttpClient.html#requestAxios" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Axios</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -65,7 +63,7 @@
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="DEFAULT_REQUEST" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>DEFAULT_<wbr/>REQUEST</span><a href="#DEFAULT_REQUEST" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>REQUEST</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">method</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">requestApi</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">resolveWithFullResponse</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = ...</span></div>
+<div class="tsd-signature"><span class="tsd-kind-property">DEFAULT_<wbr/>REQUEST</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">method</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">rejectUnauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">resolveWithFullResponse</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = ...</span></div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
@@ -73,8 +71,6 @@
 <h5><span class="tsd-kind-property">method</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">reject<wbr/>Unauthorized</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
-<li class="tsd-parameter">
-<h5><span class="tsd-kind-property">request<wbr/>Api</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">resolve<wbr/>With<wbr/>Full<wbr/>Response</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li></ul></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="DEFAULT_TIMEOUT" class="tsd-anchor"></a>
@@ -98,20 +94,16 @@
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="TASK_QUEUES" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>TASK_<wbr/>QUEUES</span><a href="#TASK_QUEUES" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">TASK_<wbr/>QUEUES</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="digestAuthRequest" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>digest<wbr/>Auth<wbr/>Request</span><a href="#digestAuthRequest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">digest<wbr/>Auth<wbr/>Request</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">url</span>, <span class="tsd-kind-parameter">username</span>, <span class="tsd-kind-parameter">password</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = ...</span></div>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="axiosDigestAuthRequest" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span><a href="#axiosDigestAuthRequest" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">url</span>, <span class="tsd-kind-parameter">username</span>, <span class="tsd-kind-parameter">password</span>, <span class="tsd-kind-parameter">body</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">AxiosResponse</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = ...</span></div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
 <ul class="tsd-signatures">
-<li class="tsd-signature" id="digestAuthRequest.__type-1.__type-2"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">url</span>, <span class="tsd-kind-parameter">username</span>, <span class="tsd-kind-parameter">password</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li class="tsd-signature" id="axiosDigestAuthRequest.__type-1.__type-2"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">url</span>, <span class="tsd-kind-parameter">username</span>, <span class="tsd-kind-parameter">password</span>, <span class="tsd-kind-parameter">body</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">AxiosResponse</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Modification of digest auth request by @inorganik.</p>
-<p>Dependent on CryptoJS MD5 hashing: <a href="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js">http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js</a></p>
-<p>MIT licensed.</p>
-</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
@@ -122,9 +114,10 @@
 <li>
 <h5><span class="tsd-kind-parameter">username</span>: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">password</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-<div class="tsd-comment tsd-typography"></div></li></ul></li></ul></div></section></section>
+<h5><span class="tsd-kind-parameter">password</span>: <span class="tsd-signature-type">any</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">body</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">AxiosResponse</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></li></ul></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="getHttpAgent" class="tsd-anchor"></a>
@@ -147,18 +140,6 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><p>a shared agent for network requests among library instances</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="parseXhrResponseHeaders" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>parse<wbr/>Xhr<wbr/>Response<wbr/>Headers</span><a href="#parseXhrResponseHeaders" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="parseXhrResponseHeaders.parseXhrResponseHeaders-1"><span class="tsd-kind-call-signature">parse<wbr/>Xhr<wbr/>Response<wbr/>Headers</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">headersStr</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><a href="#parseXhrResponseHeaders.parseXhrResponseHeaders-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5><span class="tsd-kind-parameter">headersStr</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{}</span></h4>
-<ul class="tsd-parameters"></ul></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="request" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>request</span><a href="#request" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -176,21 +157,10 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><p>response - the response object</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="requestFetch" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>request<wbr/>Fetch</span><a href="#requestFetch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="requestAxios" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>request<wbr/>Axios</span><a href="#requestAxios" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="requestFetch.requestFetch-1"><span class="tsd-kind-call-signature">request<wbr/>Fetch</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">req</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#requestFetch.requestFetch-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5><span class="tsd-kind-parameter">req</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="requestXhr" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>request<wbr/>Xhr</span><a href="#requestXhr" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="requestXhr.requestXhr-1"><span class="tsd-kind-call-signature">request<wbr/>Xhr</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">req</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#requestXhr.requestXhr-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="requestAxios.requestAxios-1"><span class="tsd-kind-call-signature">request<wbr/>Axios</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">req</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#requestAxios.requestAxios-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -225,13 +195,11 @@
 <li><a href="#MAX_TIMEOUT" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>TIMEOUT</span></a></li>
 <li><a href="#PROMISE_THROTTLES" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>PROMISE_<wbr/>THROTTLES</span></a></li>
 <li><a href="#TASK_QUEUES" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>TASK_<wbr/>QUEUES</span></a></li>
-<li><a href="#digestAuthRequest" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>digest<wbr/>Auth<wbr/>Request</span></a></li>
+<li><a href="#axiosDigestAuthRequest" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span></a></li>
 <li><a href="#getHttpAgent" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Http<wbr/>Agent</span></a></li>
 <li><a href="#getHttpsAgent" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Https<wbr/>Agent</span></a></li>
-<li><a href="#parseXhrResponseHeaders" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>parse<wbr/>Xhr<wbr/>Response<wbr/>Headers</span></a></li>
 <li><a href="#request" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request</span></a></li>
-<li><a href="#requestFetch" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Fetch</span></a></li>
-<li><a href="#requestXhr" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Xhr</span></a></li></ul></div></details></div>
+<li><a href="#requestAxios" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request<wbr/>Axios</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>monero-ts</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="..">
