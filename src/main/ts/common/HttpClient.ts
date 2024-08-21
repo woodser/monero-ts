@@ -120,16 +120,6 @@ export default class HttpClient {
     return HttpClient.HTTPS_AGENT;
   }
 
-  protected static parseXhrResponseHeaders(headersStr) {
-    let headerMap = {};
-    let headers = headersStr.trim().split(/[\r\n]+/);
-    for (let header of headers) {
-      let headerVals = header.split(": ");
-      headerMap[headerVals[0]] = headerVals[1];
-    }
-    return headerMap;
-  }
-
   protected static async requestAxios(req) {
     if (req.headers) throw new Error("Custom headers not implemented in XHR request");  // TODO
 
@@ -159,10 +149,8 @@ export default class HttpClient {
 
     // normalize response
     let normalizedResponse: any = {};
-
     normalizedResponse.statusCode = resp.status;
     normalizedResponse.statusText = resp.statusText;
-
     normalizedResponse.headers = {...resp.headers};
     normalizedResponse.body = isBinary ? new Uint8Array(resp.data) : resp.data;
     if (normalizedResponse.body instanceof ArrayBuffer) normalizedResponse.body = new Uint8Array(normalizedResponse.body);  // handle empty binary request
@@ -183,7 +171,6 @@ export default class HttpClient {
       }
       return token;
     }
-
 
     let count = 0;
     return axios.request({
