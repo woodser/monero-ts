@@ -5,7 +5,6 @@ export default class HttpClient {
     static MAX_REQUESTS_PER_SECOND: number;
     protected static DEFAULT_REQUEST: {
         method: string;
-        requestApi: string;
         resolveWithFullResponse: boolean;
         rejectUnauthorized: boolean;
     };
@@ -25,7 +24,6 @@ export default class HttpClient {
      * @param {string} [request.username] - username to authenticate the request (optional)
      * @param {string} [request.password] - password to authenticate the request (optional)
      * @param {object} [request.headers] - headers to add to the request (optional)
-     * @param {string} [request.requestApi] - one of "fetch" or "xhr" (default "fetch")
      * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
      * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
      * @param {number} request.timeout - maximum time allowed in milliseconds
@@ -37,8 +35,6 @@ export default class HttpClient {
      * @return {object} response.headers - the response headers
      */
     static request(request: any): Promise<any>;
-    protected static requestFetch(req: any): Promise<any>;
-    protected static requestXhr(req: any): Promise<any>;
     /**
      * Get a singleton instance of an HTTP client to share.
      *
@@ -51,13 +47,6 @@ export default class HttpClient {
      * @return {https.Agent} a shared agent for network requests among library instances
      */
     protected static getHttpsAgent(): any;
-    protected static parseXhrResponseHeaders(headersStr: any): {};
-    /**
-     * Modification of digest auth request by @inorganik.
-     *
-     * Dependent on CryptoJS MD5 hashing: http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js
-     *
-     * MIT licensed.
-     */
-    protected static digestAuthRequest: (method: any, url: any, username: any, password: any) => void;
+    protected static requestAxios(req: any): Promise<any>;
+    protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any) => Promise<import("axios").AxiosResponse<any, any>>;
 }
