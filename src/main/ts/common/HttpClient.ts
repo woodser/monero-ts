@@ -4,7 +4,7 @@ import ThreadPool from "./ThreadPool";
 import PromiseThrottle from "promise-throttle";
 import http from "http";
 import https from "https";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 /**
  * Handle HTTP requests with a uniform interface.
@@ -148,9 +148,9 @@ export default class HttpClient {
         return new Promise(function(resolve, reject) {
           HttpClient.axiosDigestAuthRequest(method, uri, username, password, body).then(function(resp) {
             resolve(resp);
-          }).catch(function(resp) {
-            if (resp.status) resolve(resp);
-            else reject(new Error("Request failed without response: " + method + " " + uri));
+          }).catch(function(error: AxiosError) {
+            if (error.response?.status) resolve(error.response);
+            reject(new Error("Request failed without response: " + method + " " + uri));
           });
         });
 
@@ -199,7 +199,7 @@ export default class HttpClient {
       data: body,
       transformResponse: res => res,
     }).catch(async (err) => {
-      if (err.response.status === 401) {
+      if (err.response?.status === 401) {
         let authHeader = err.response.headers['www-authenticate'].replace(/,\sDigest.*/, "");
         if (!authHeader) {
           throw err;
