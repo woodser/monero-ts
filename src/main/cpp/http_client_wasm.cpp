@@ -30,7 +30,6 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       body: UTF8ToString(body),
       resolveWithFullResponse: true,
       rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
-      requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
     }).then(resp => {
 
       // build response container
@@ -96,7 +95,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         body: view,
         resolveWithFullResponse: true,
         rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       }).then(resp => {
 
         // write binary body to heap to pass back pointer
