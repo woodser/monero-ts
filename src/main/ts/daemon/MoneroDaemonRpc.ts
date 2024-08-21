@@ -367,10 +367,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc.checkResponseStatus(resp.result);
     let feeEstimate = new MoneroFeeEstimate();
     feeEstimate.setFee(BigInt(resp.result.fee));
-    let fees = [];
-    for (let i = 0; i < resp.result.fees.length; i++) fees.push(BigInt(resp.result.fees[i]));
-    feeEstimate.setFees(fees);
     feeEstimate.setQuantizationMask(BigInt(resp.result.quantization_mask));
+    if (resp.result.fees !== undefined) {
+      let fees = [];
+      for (let i = 0; i < resp.result.fees.length; i++) fees.push(BigInt(resp.result.fees[i]));
+      feeEstimate.setFees(fees);
+    }
     return feeEstimate;
   }
   
