@@ -112,10 +112,10 @@ await walletFull.close(true);
 
 * [monero-cpp](https://github.com/woodser/monero-cpp) - C++ library counterpart
 * [monero-java](https://github.com/woodser/monero-java) - Java library counterpart
-* [haveno-ts](https://github.com/haveno-dex/haveno-ts) - used for testing Haveno and its TypeScript library
 * [xmr-sample-webpack](https://github.com/woodser/xmr-sample-webpack) - sample browser application using Webpack
 * [xmr-sample-next](https://github.com/woodser/xmr-sample-next) - sample browser application using Next.js
-* [xmr-sample-vite](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite (work in progress)
+* [xmr-sample-vite](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite
+* [haveno-ts](https://github.com/haveno-dex/haveno-ts) - used for testing Haveno and its TypeScript library
 
 ## Using monero-ts in your project
 
