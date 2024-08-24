@@ -2979,25 +2979,25 @@ export default class TestMoneroWalletCommon {
       // TODO: test sending to multiple accounts
       if (testConfig.testRelays && testConfig.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: BigInt(await that.daemon.getHeight() + 3), canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, unlockTime: BigInt(await that.daemon.getHeight() + 3), canSplit: true, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, canSplit: true, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: BigInt(await that.daemon.getHeight() + 3), canSplit: false, relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
-        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, unlockTime: BigInt(await that.daemon.getHeight() + 3), relay: true});
+        let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
@@ -4540,11 +4540,11 @@ export default class TestMoneroWalletCommon {
       else assert(found);
       
       // test common attributes
-      let config = ctx.config;
+      let config = ctx.config as MoneroTxConfig;
       assert.equal(tx.getIsConfirmed(), false);
       await testTransfer(tx.getOutgoingTransfer(), ctx);
       assert.equal(tx.getRingSize(), MoneroUtils.RING_SIZE);
-      assert.equal(tx.getUnlockTime().toString(), (config.getUnlockTime() ? config.getUnlockTime() : BigInt(0)).toString());
+      assert.equal(tx.getUnlockTime().toString(), BigInt(0).toString());
       assert.equal(tx.getBlock(), undefined);
       assert(tx.getKey().length > 0);
       assert.equal(typeof tx.getFullHex(), "string");

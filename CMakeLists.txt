@@ -100,7 +100,7 @@ set_target_properties(
 
 set(BOOST ${CMAKE_SOURCE_DIR}/build/boost)
 include_directories("${BOOST}")
-include_directories("${BOOST}/include") # must exist already - run bin/build-boost-emscripten.sh
+include_directories("${BOOST}/include") # must exist already - run bin/build_boost_emscripten.sh
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(
@@ -355,7 +355,7 @@ if (BUILD_MONERO_WALLET_FULL_WASM)
         boost_system
         boost_thread
         boost_serialization
-        #boost_filesystem
+        boost_filesystem
         boost_regex
         #boost_atomic
         #

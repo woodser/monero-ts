@@ -905,7 +905,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = configNormalized.getPaymentId();
-    if (configNormalized.getUnlockTime() !== undefined) params.unlock_time = configNormalized.getUnlockTime().toString()
     params.do_not_relay = configNormalized.getRelay() !== true;
     assert(configNormalized.getPriority() === undefined || configNormalized.getPriority() >= 0 && configNormalized.getPriority() <= 3);
     params.priority = configNormalized.getPriority();
@@ -961,7 +960,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
     params.account_index = config.getAccountIndex();
     params.subaddr_indices = config.getSubaddressIndices();
     params.key_image = config.getKeyImage();
-    if (config.getUnlockTime() !== undefined) params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getRelay() !== true;
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
@@ -1756,7 +1754,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     return resp.result.signed_key_images.map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));
   }
   
-  protected async rpcSweepAccount(config) {
+  protected async rpcSweepAccount(config: MoneroTxConfig) {
     
     // validate config
     if (config === undefined) throw new MoneroError("Must provide sweep config");
@@ -1786,7 +1784,6 @@ export default class MoneroWalletRpc extends MoneroWallet {
     params.address = config.getDestinations()[0].getAddress();
     assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
     params.priority = config.getPriority();
-    if (config.getUnlockTime() !== undefined) params.unlock_time = config.getUnlockTime();
     params.payment_id = config.getPaymentId();
     params.do_not_relay = !relay;
     params.below_amount = config.getBelowAmount();
@@ -1818,7 +1815,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(config.getPaymentId());
-      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(0n);
       if (tx.getRelay()) {
         if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
         if (tx.getIsDoubleSpendSeen() === undefined) tx.setIsDoubleSpendSeen(false);
@@ -1926,7 +1923,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} copyDestinations - copies config destinations if true
    * @return {MoneroTxWallet} is the initialized send tx
    */
-  protected static initSentTxWallet(config, tx, copyDestinations) {
+  protected static initSentTxWallet(config: Partial<MoneroTxConfig>, tx, copyDestinations) {
     if (!tx) tx = new MoneroTxWallet();
     let relay = config.getRelay() === true;
     tx.setIsOutgoing(true);
@@ -1949,7 +1946,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     }
     tx.setOutgoingTransfer(transfer);
     tx.setPaymentId(config.getPaymentId());
-    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(0n);
     if (config.getRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
       if (tx.getIsDoubleSpendSeen() === undefined) tx.setIsDoubleSpendSeen(false);

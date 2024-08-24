@@ -1465,7 +1465,7 @@ export default class MoneroWallet {
     }
   }
   
-  protected static normalizeTxQuery(query) {
+  protected static normalizeTxQuery(query): MoneroTxQuery {
     if (query instanceof MoneroTxQuery) query = query.copy();
     else if (Array.isArray(query)) query = new MoneroTxQuery().setHashes(query);
     else {
@@ -1478,7 +1478,7 @@ export default class MoneroWallet {
     return query;
   }
   
-  protected static normalizeTransferQuery(query) {
+  protected static normalizeTransferQuery(query): MoneroTransferQuery {
     query = new MoneroTransferQuery(query);
     if (query.getTxQuery() !== undefined) {
       let txQuery = query.getTxQuery().copy();
@@ -1490,7 +1490,7 @@ export default class MoneroWallet {
     return query;
   }
   
-  protected static normalizeOutputQuery(query) {
+  protected static normalizeOutputQuery(query): MoneroOutputQuery {
     query = new MoneroOutputQuery(query);
     if (query.getTxQuery() !== undefined) {
       let txQuery = query.getTxQuery().copy();
@@ -1502,7 +1502,7 @@ export default class MoneroWallet {
     return query;
   }
   
-  protected static normalizeCreateTxsConfig(config) {
+  protected static normalizeCreateTxsConfig(config): MoneroTxConfig {
     if (config === undefined || !(config instanceof Object)) throw new MoneroError("Must provide MoneroTxConfig or equivalent JS object");
     config = new MoneroTxConfig(config);
     assert(config.getDestinations() && config.getDestinations().length > 0, "Must provide destinations");
@@ -1511,7 +1511,7 @@ export default class MoneroWallet {
     return config;
   }
   
-  protected static normalizeSweepOutputConfig(config) {
+  protected static normalizeSweepOutputConfig(config): MoneroTxConfig {
     if (config === undefined || !(config instanceof Object)) throw new MoneroError("Must provide MoneroTxConfig or equivalent JS object");
     config = new MoneroTxConfig(config);
     assert.equal(config.getSweepEachSubaddress(), undefined);
@@ -1522,7 +1522,7 @@ export default class MoneroWallet {
     return config;  
   }
   
-  protected static normalizeSweepUnlockedConfig(config) {
+  protected static normalizeSweepUnlockedConfig(config): MoneroTxConfig {
     if (config === undefined || !(config instanceof Object)) throw new MoneroError("Must provide MoneroTxConfig or equivalent JS object");
     config = new MoneroTxConfig(config);
     if (config.getDestinations() === undefined || config.getDestinations().length != 1) throw new MoneroError("Must provide exactly one destination to sweep to");
