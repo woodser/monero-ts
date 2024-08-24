@@ -38,9 +38,6 @@ export default class MoneroTxConfig {
   /** Payment ID for the transaction. */
   paymentId: string;
 
-  /** Minimum height or timestamp for the transaction to unlock (default 0). */
-  unlockTime: bigint;
-
   /** Miner fee (calculated automatically). */
   fee: bigint;
 
@@ -102,7 +99,6 @@ export default class MoneroTxConfig {
     // deserialize bigints
     if (this.amount !== undefined && typeof this.amount !== "bigint") this.amount = BigInt(this.amount);
     if (this.fee !== undefined && typeof this.fee !== "bigint") this.fee = BigInt(this.fee);
-    if (this.unlockTime !== undefined && typeof this.unlockTime !== "bigint") this.unlockTime = BigInt(this.unlockTime);
     if (this.belowAmount !== undefined && typeof this.belowAmount !== "bigint") this.belowAmount = BigInt(this.belowAmount);
 
     // copy destinations
@@ -138,7 +134,6 @@ export default class MoneroTxConfig {
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
     if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getUnlockTime()) json.unlockTime = this.getUnlockTime().toString();
     if (this.getBelowAmount()) json.belowAmount = this.getBelowAmount().toString();
     return json;
   }
@@ -274,15 +269,6 @@ export default class MoneroTxConfig {
   setSubaddressIndices(subaddressIndices: number[]): MoneroTxConfig {
     if (arguments.length > 1) subaddressIndices = Array.from(arguments);
     this.subaddressIndices = subaddressIndices;
-    return this;
-  }
-  
-  getUnlockTime(): bigint {
-    return this.unlockTime;
-  }
-  
-  setUnlockTime(unlockTime: bigint): MoneroTxConfig {
-    this.unlockTime = unlockTime;
     return this;
   }
   
