@@ -125,6 +125,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot specify restore height when opening wallet");
     if (config.getLanguage() !== undefined) throw new MoneroError("Cannot specify language when opening wallet");
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when opening full wallet");
+    if (config.getFs() === undefined) config.setFs(MoneroWalletFull.getFs());
 
     // set server from connection manager if provided
     if (config.getConnectionManager()) {
@@ -134,7 +135,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
 
     // read wallet data from disk unless provided
     if (!config.getKeysData()) {
-      let fs = config.getFs() ? config.getFs() : MoneroWalletFull.getFs();
+      let fs = config.getFs();
       if (!fs) throw new MoneroError("Must provide file system to read wallet data from");
       if (!await this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
       config.setKeysData(await fs.readFile(config.getPath() + ".keys"));
@@ -1627,7 +1628,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         // create wallet in wasm which invokes callback when done
         module.open_wallet_full(config.password, config.networkType, config.keysData ?? "", config.cacheData ?? "", daemonUri, daemonUsername, daemonPassword, rejectUnauthorizedFnId, (cppAddress) => {
           if (typeof cppAddress === "string") reject(new MoneroError(cppAddress));
-          else resolve(new MoneroWalletFull(cppAddress, config.path, config.password, fs, rejectUnauthorized, rejectUnauthorizedFnId));
+          else resolve(new MoneroWalletFull(cppAddress, config.path, config.password, config.fs, rejectUnauthorized, rejectUnauthorizedFnId));
         });
       });
     });
