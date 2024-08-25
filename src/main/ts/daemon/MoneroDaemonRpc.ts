@@ -1539,9 +1539,9 @@ class MoneroDaemonRpcProxy {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
-  static async connect(config) {
+  static async connect(config: MoneroDaemonConfig) {
     let daemonId = GenUtils.getUUID();
-    config = Object.assign({}, config, {proxyToWorker: false});
+    config = Object.assign({}, config.toJson(), {proxyToWorker: false});
     await LibraryUtils.invokeWorker(daemonId, "connectDaemonRpc", [config]);
     return new MoneroDaemonRpcProxy(daemonId, await LibraryUtils.getWorker());
   }

@@ -186,7 +186,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await MoneroUtils.validateMnemonic(await wallet.getSeed());
         await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.MAINNET);
         assert.equal(await wallet.getNetworkType(), MoneroNetworkType.MAINNET);
-        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getSeedLanguage(), "English");
         assert(!(await wallet.isSynced()));
@@ -213,7 +213,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
         assert.equal(await wallet.getNetworkType(), await MoneroNetworkType.TESTNET);
         assert(await wallet.getDaemonConnection());
-        assert((await that.daemon.getRpcConnection()).getConfig() !== (await wallet.getDaemonConnection()).getConfig());         // not same reference
+        assert((await that.daemon.getRpcConnection()) !== (await wallet.getDaemonConnection())); // not same reference
         assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri());
         assert.equal((await wallet.getDaemonConnection()).getUsername(), (await that.daemon.getRpcConnection()).getUsername());
         assert.equal((await wallet.getDaemonConnection()).getPassword(), (await that.daemon.getRpcConnection()).getPassword());
@@ -234,7 +234,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(await wallet.getSeed(), TestUtils.SEED);
         assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getSeedLanguage(), "English");
         assert(!(await wallet.isSynced()));
@@ -266,7 +266,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(await wallet.getSeed(), TestUtils.SEED);
         assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-        assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
         assert(!(await wallet.isConnectedToDaemon()));
         assert.equal(await wallet.getSeedLanguage(), "English");
         assert.equal(await wallet.getHeight(), 1); // TODO monero-project: why does height of new unsynced wallet start at 1?
@@ -940,7 +940,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert(await MoneroWalletFull.walletExists(path, await TestUtils.getDefaultFs()));
           assert.equal(await wallet.getSeed(), TestUtils.SEED);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
           assert.equal(await wallet.getRestoreHeight(), restoreHeight);
           assert.equal(await wallet.getSeedLanguage(), "English");
           assert.equal(await wallet.getHeight(), 1);
@@ -961,7 +961,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert(await MoneroWalletFull.walletExists(path, await TestUtils.getDefaultFs()));
           assert.equal(await wallet.getSeed(), TestUtils.SEED);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
           assert(!(await wallet.isConnectedToDaemon()));
           assert.equal(await wallet.getSeedLanguage(), "English");
           assert(!(await wallet.isSynced()));
@@ -987,7 +987,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           // test wallet state is saved
           assert(!(await wallet.isConnectedToDaemon()));
           await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());  // TODO monero-project: daemon connection not stored in wallet files so must be explicitly set each time
-          assert.deepEqual(await wallet.getDaemonConnection(), TestUtils.getDaemonRpcConnection());
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), TestUtils.getDaemonRpcConnection().getConfig());
           assert(await wallet.isConnectedToDaemon());
           assert.equal(await wallet.getHeight(), prevHeight);
           assert(await wallet.getRestoreHeight() > 0);
@@ -1196,7 +1196,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
     await WalletEqualityUtils.testWalletEqualityOnChain(wallet1, wallet2);
     assert.equal(await wallet2.getNetworkType(), await wallet1.getNetworkType());
     assert.equal(await wallet2.getRestoreHeight(), await wallet1.getRestoreHeight());
-    assert.deepEqual(await wallet1.getDaemonConnection(), await wallet2.getDaemonConnection());
+    if (await wallet1.getDaemonConnection() === undefined) assert(await wallet2.getDaemonConnection() === undefined);
+    else assert.deepEqual((await wallet1.getDaemonConnection()).getConfig(), (await wallet2.getDaemonConnection()).getConfig());
     assert.equal(await wallet2.getSeedLanguage(), await wallet1.getSeedLanguage());
     // TODO: more wasm-specific extensions
   }

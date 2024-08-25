@@ -432,7 +432,7 @@ export default class TestMoneroWalletCommon {
           
           // create random wallet with default daemon connection
           wallet = await that.createWallet();
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG));
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG).getConfig());
           assert.equal(await wallet.isConnectedToDaemon(), true);
           
           // set empty server uri
@@ -442,7 +442,7 @@ export default class TestMoneroWalletCommon {
           
           // set offline server uri
           await wallet.setDaemonConnection(TestUtils.OFFLINE_SERVER_URI);
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI));
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.OFFLINE_SERVER_URI).getConfig());
           assert.equal(await wallet.isConnectedToDaemon(), false);
           
           // set daemon with wrong credentials
@@ -453,7 +453,7 @@ export default class TestMoneroWalletCommon {
           
           // set daemon with authentication
           await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG);
-          assert.deepEqual(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password));
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password).getConfig());
           assert(await wallet.isConnectedToDaemon());
           
           // nullify daemon connection
