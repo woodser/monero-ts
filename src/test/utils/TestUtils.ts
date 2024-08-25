@@ -224,7 +224,7 @@ export default class TestUtils {
         // create wallet with connection
         TestUtils.walletFull = await createWalletFull({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, seed: TestUtils.SEED, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER, fs: fs});
         assert.equal(await TestUtils.walletFull.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        assert.deepEqual(await TestUtils.walletFull.getDaemonConnection(), TestUtils.getDaemonRpcConnection());
+        assert.deepEqual((await TestUtils.walletFull.getDaemonConnection()).getConfig(), TestUtils.getDaemonRpcConnection().getConfig());
       }
       
       // otherwise open existing wallet

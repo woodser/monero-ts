@@ -4,6 +4,7 @@ import LibraryUtils from "./LibraryUtils";
 import MoneroError from "./MoneroError";
 import MoneroRpcError from "./MoneroRpcError";
 import MoneroUtils from "./MoneroUtils";
+import ThreadPool from "./ThreadPool";
 
 /**
  * Maintains a connection and sends requests to a Monero RPC API.
@@ -25,6 +26,8 @@ export default class MoneroRpcConnection {
   protected attributes: any;
   protected fakeDisconnected: boolean;
   protected responseTime: number;
+  protected checkConnectionMutex: ThreadPool;
+  protected sendRequestMutex: ThreadPool;
 
   // default config
   /** @private */
@@ -79,6 +82,10 @@ export default class MoneroRpcConnection {
     
     // normalize uri
     if (this.uri) this.uri = GenUtils.normalizeUri(this.uri);
+
+    // initialize mutexes
+    this.checkConnectionMutex = new ThreadPool(1);
+    this.sendRequestMutex = new ThreadPool(1);
   }
   
   setCredentials(username, password) {
@@ -173,34 +180,36 @@ export default class MoneroRpcConnection {
    * @param {number} timeoutMs - maximum response time before considered offline
    * @return {Promise<boolean>} true if there is a change in status, false otherwise
    */
-  async checkConnection(timeoutMs) {
-    await LibraryUtils.loadKeysModule(); // cache wasm for binary request
-    let isOnlineBefore = this.isOnline;
-    let isAuthenticatedBefore = this.isAuthenticated;
-    let startTime = Date.now();
-    try {
-      if (this.fakeDisconnected) throw new Error("Connection is fake disconnected");
-      let heights = [];
-      for (let i = 0; i < 100; i++) heights.push(i);
-      await this.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights}, timeoutMs); // assume daemon connection
-      this.isOnline = true;
-      this.isAuthenticated = true;
-    } catch (err) {
-      this.isOnline = false;
-      this.isAuthenticated = undefined;
-      this.responseTime = undefined;
-      if (err instanceof MoneroRpcError) {
-        if (err.getCode() === 401) {
-          this.isOnline = true;
-          this.isAuthenticated = false;
-        } else if (err.getCode() === 404) { // fallback to latency check
-          this.isOnline = true;
-          this.isAuthenticated = true;
+  async checkConnection(timeoutMs): Promise<boolean> {
+    return this.queueCheckConnection(async () => {
+      await LibraryUtils.loadKeysModule(); // cache wasm for binary request
+      let isOnlineBefore = this.isOnline;
+      let isAuthenticatedBefore = this.isAuthenticated;
+      let startTime = Date.now();
+      try {
+        if (this.fakeDisconnected) throw new Error("Connection is fake disconnected");
+        let heights = [];
+        for (let i = 0; i < 100; i++) heights.push(i);
+        await this.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights}, timeoutMs); // assume daemon connection
+        this.isOnline = true;
+        this.isAuthenticated = true;
+      } catch (err) {
+        this.isOnline = false;
+        this.isAuthenticated = undefined;
+        this.responseTime = undefined;
+        if (err instanceof MoneroRpcError) {
+          if (err.getCode() === 401) {
+            this.isOnline = true;
+            this.isAuthenticated = false;
+          } else if (err.getCode() === 404) { // fallback to latency check
+            this.isOnline = true;
+            this.isAuthenticated = true;
+          }
         }
       }
-    }
-    if (this.isOnline) this.responseTime = Date.now() - startTime;
-    return isOnlineBefore !== this.isOnline || isAuthenticatedBefore !== this.isAuthenticated;
+      if (this.isOnline) this.responseTime = Date.now() - startTime;
+      return isOnlineBefore !== this.isOnline || isAuthenticatedBefore !== this.isAuthenticated;
+    });
   }
   
   /**
@@ -249,50 +258,52 @@ export default class MoneroRpcConnection {
    * @return {object} is the response map
    */
   async sendJsonRequest(method, params?, timeoutMs?): Promise<any> {
-    try {
+    return this.queueSendRequest(async () => {
+      try {
       
-      // build request body
-      let body = JSON.stringify({  // body is stringified so text/plain is returned so bigints are preserved
-        id: "0",
-        jsonrpc: "2.0",
-        method: method,
-        params: params
-      });
-
-      // logging
-      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending json request with method '" + method + "' and body: " + body);
-      
-      // send http request
-      let startTime = new Date().getTime();
-      let resp = await HttpClient.request({
-        method: "POST",
-        uri: this.getUri() + '/json_rpc',
-        username: this.getUsername(),
-        password: this.getPassword(),
-        body: body,
-        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
-        rejectUnauthorized: this.rejectUnauthorized,
-        proxyToWorker: this.proxyToWorker
-      });
-      
-      // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
-      
-      // deserialize response
-      if (resp.body[0] != '{') throw resp.body;
-      resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
-      if (LibraryUtils.getLogLevel() >= 3) {
-        let respStr = JSON.stringify(resp);
-        LibraryUtils.log(3, "Received response from method='" + method + "', response=" + respStr.substring(0, Math.min(1000, respStr.length)) + "(" + (new Date().getTime() - startTime) + " ms)");
+        // build request body
+        let body = JSON.stringify({  // body is stringified so text/plain is returned so bigints are preserved
+          id: "0",
+          jsonrpc: "2.0",
+          method: method,
+          params: params
+        });
+  
+        // logging
+        if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending json request with method '" + method + "' and body: " + body);
+        
+        // send http request
+        let startTime = new Date().getTime();
+        let resp = await HttpClient.request({
+          method: "POST",
+          uri: this.getUri() + '/json_rpc',
+          username: this.getUsername(),
+          password: this.getPassword(),
+          body: body,
+          timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
+          rejectUnauthorized: this.rejectUnauthorized,
+          proxyToWorker: this.proxyToWorker
+        });
+        
+        // validate response
+        MoneroRpcConnection.validateHttpResponse(resp);
+        
+        // deserialize response
+        if (resp.body[0] != '{') throw resp.body;
+        resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+        if (LibraryUtils.getLogLevel() >= 3) {
+          let respStr = JSON.stringify(resp);
+          LibraryUtils.log(3, "Received response from method='" + method + "', response=" + respStr.substring(0, Math.min(1000, respStr.length)) + "(" + (new Date().getTime() - startTime) + " ms)");
+        }
+        
+        // check rpc response for errors
+        this.validateRpcResponse(resp, method, params);
+        return resp;
+      } catch (err: any) {
+        if (err instanceof MoneroRpcError) throw err;
+        else throw new MoneroRpcError(err, err.statusCode, method, params);
       }
-      
-      // check rpc response for errors
-      this.validateRpcResponse(resp, method, params);
-      return resp;
-    } catch (err: any) {
-      if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, err.statusCode, method, params);
-    }
+    });
   }
   
   /**
@@ -306,43 +317,45 @@ export default class MoneroRpcConnection {
    * @return {object} is the response map
    */
   async sendPathRequest(path, params?, timeoutMs?): Promise<any> {
-    try {
+    return this.queueSendRequest(async () => {
+      try {
 
-      // logging
-      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
-      
-      // send http request
-      let startTime = new Date().getTime();
-      let resp = await HttpClient.request({
-        method: "POST",
-        uri: this.getUri() + '/' + path,
-        username: this.getUsername(),
-        password: this.getPassword(),
-        body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
-        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
-        rejectUnauthorized: this.rejectUnauthorized,
-        proxyToWorker: this.proxyToWorker
-      });
-      
-      // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
-      
-      // deserialize response
-      if (resp.body[0] != '{') throw resp.body;
-      resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
-      if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
-      if (LibraryUtils.getLogLevel() >= 3) {
-        let respStr = JSON.stringify(resp);
-        LibraryUtils.log(3, "Received response from path='" + path + "', response=" + respStr.substring(0, Math.min(1000, respStr.length)) + "(" + (new Date().getTime() - startTime) + " ms)");
+        // logging
+        if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
+        
+        // send http request
+        let startTime = new Date().getTime();
+        let resp = await HttpClient.request({
+          method: "POST",
+          uri: this.getUri() + '/' + path,
+          username: this.getUsername(),
+          password: this.getPassword(),
+          body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
+          timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
+          rejectUnauthorized: this.rejectUnauthorized,
+          proxyToWorker: this.proxyToWorker
+        });
+        
+        // validate response
+        MoneroRpcConnection.validateHttpResponse(resp);
+        
+        // deserialize response
+        if (resp.body[0] != '{') throw resp.body;
+        resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+        if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
+        if (LibraryUtils.getLogLevel() >= 3) {
+          let respStr = JSON.stringify(resp);
+          LibraryUtils.log(3, "Received response from path='" + path + "', response=" + respStr.substring(0, Math.min(1000, respStr.length)) + "(" + (new Date().getTime() - startTime) + " ms)");
+        }
+        
+        // check rpc response for errors
+        this.validateRpcResponse(resp, path, params);
+        return resp;
+      } catch (err: any) {
+        if (err instanceof MoneroRpcError) throw err;
+        else throw new MoneroRpcError(err, err.statusCode, path, params);
       }
-      
-      // check rpc response for errors
-      this.validateRpcResponse(resp, path, params);
-      return resp;
-    } catch (err: any) {
-      if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, err.statusCode, path, params);
-    }
+    });
   }
   
   /**
@@ -354,42 +367,44 @@ export default class MoneroRpcConnection {
    * @return {Uint8Array} the binary response
    */
   async sendBinaryRequest(path, params?, timeoutMs?): Promise<any> {
-    
-    // serialize params
-    let paramsBin = await MoneroUtils.jsonToBinary(params);
-    
-    try {
+    return this.queueSendRequest(async () => {
 
-      // logging
-      if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending binary request with path '" + path + "' and params: " + JSON.stringify(params));
-      
-      // send http request
-      let resp = await HttpClient.request({
-        method: "POST",
-        uri: this.getUri() + '/' + path,
-        username: this.getUsername(),
-        password: this.getPassword(),
-        body: paramsBin,
-        timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
-        rejectUnauthorized: this.rejectUnauthorized,
-        proxyToWorker: this.proxyToWorker
-      });
-      
-      // validate response
-      MoneroRpcConnection.validateHttpResponse(resp);
-      
-      // process response
-      resp = resp.body;
-      if (!(resp instanceof Uint8Array)) {
-        console.error("resp is not uint8array");
-        console.error(resp);
+      // serialize params
+      let paramsBin = await MoneroUtils.jsonToBinary(params);
+          
+      try {
+
+        // logging
+        if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending binary request with path '" + path + "' and params: " + JSON.stringify(params));
+        
+        // send http request
+        let resp = await HttpClient.request({
+          method: "POST",
+          uri: this.getUri() + '/' + path,
+          username: this.getUsername(),
+          password: this.getPassword(),
+          body: paramsBin,
+          timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
+          rejectUnauthorized: this.rejectUnauthorized,
+          proxyToWorker: this.proxyToWorker
+        });
+        
+        // validate response
+        MoneroRpcConnection.validateHttpResponse(resp);
+        
+        // process response
+        resp = resp.body;
+        if (!(resp instanceof Uint8Array)) {
+          console.error("resp is not uint8array");
+          console.error(resp);
+        }
+        if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
+        return resp;
+      } catch (err: any) {
+        if (err instanceof MoneroRpcError) throw err;
+        else throw new MoneroRpcError(err, err.statusCode, path, params);
       }
-      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
-      return resp;
-    } catch (err: any) {
-      if (err instanceof MoneroRpcError) throw err;
-      else throw new MoneroRpcError(err, err.statusCode, path, params);
-    }
+    });
   }
 
   getConfig() {
@@ -405,11 +420,14 @@ export default class MoneroRpcConnection {
   }
 
   toJson() {
-    return Object.assign({}, this);
+    let json = Object.assign({}, this)
+    json.checkConnectionMutex = undefined;
+    json.sendRequestMutex = undefined;
+    return json;
   }
   
   toString() {
-    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + " timeoutMs=" + this.getTimeout() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
+    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + ", timeoutMs=" + this.getTimeout() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
   }
 
   setFakeDisconnected(fakeDisconnected) { // used to test connection manager
@@ -417,6 +435,14 @@ export default class MoneroRpcConnection {
   }
   
   // ------------------------------ PRIVATE HELPERS --------------------------
+
+  protected async queueCheckConnection<T>(asyncFn: () => Promise<T>): Promise<T> {
+    return this.checkConnectionMutex.submit(asyncFn);
+  }
+
+  protected async queueSendRequest<T>(asyncFn: () => Promise<T>): Promise<T> {
+    return this.sendRequestMutex.submit(asyncFn);
+  }
   
   protected static validateHttpResponse(resp) {
     let code = resp.statusCode;
