@@ -1,7 +1,7 @@
 {
   "name": "monero-ts",
   "description": "A TypeScript library for using Monero",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "license": "MIT",
   "repository": "https://github.com/woodser/monero-ts",
   "private": false,
