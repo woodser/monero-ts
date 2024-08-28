@@ -140,7 +140,7 @@ export default class HttpClient {
             resolve(resp);
           }).catch(function(error: AxiosError) {
             if (error.response?.status) resolve(error.response);
-            reject(new Error("Request failed without response: " + method + " " + uri));
+            reject(new Error("Request failed without response: " + method + " " + uri + " due to underlying error:\n" + error.message + "\n" + error.stack));
           });
         });
 
@@ -185,6 +185,7 @@ export default class HttpClient {
       httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
       data: body,
       transformResponse: res => res,
+      adapter: ['http', 'xhr', 'fetch'],
     }).catch(async (err) => {
       if (err.response?.status === 401) {
         let authHeader = err.response.headers['www-authenticate'].replace(/,\sDigest.*/, "");
@@ -231,6 +232,7 @@ export default class HttpClient {
           httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
           data: body,
           transformResponse: res => res,
+          adapter: ['http', 'xhr', 'fetch'],
         });
 
         return finalResponse;
