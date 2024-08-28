@@ -1004,10 +1004,10 @@ export default class MoneroWallet {
      * @private
      */
     announceOutputSpent(output: MoneroOutputWallet): Promise<void>;
-    protected static normalizeTxQuery(query: any): any;
-    protected static normalizeTransferQuery(query: any): any;
-    protected static normalizeOutputQuery(query: any): any;
-    protected static normalizeCreateTxsConfig(config: any): any;
-    protected static normalizeSweepOutputConfig(config: any): any;
-    protected static normalizeSweepUnlockedConfig(config: any): any;
+    protected static normalizeTxQuery(query: any): MoneroTxQuery;
+    protected static normalizeTransferQuery(query: any): MoneroTransferQuery;
+    protected static normalizeOutputQuery(query: any): MoneroOutputQuery;
+    protected static normalizeCreateTxsConfig(config: any): MoneroTxConfig;
+    protected static normalizeSweepOutputConfig(config: any): MoneroTxConfig;
+    protected static normalizeSweepUnlockedConfig(config: any): MoneroTxConfig;
 }

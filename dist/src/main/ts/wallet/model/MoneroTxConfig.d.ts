@@ -24,8 +24,6 @@ export default class MoneroTxConfig {
     subtractFeeFrom: number[];
     /** Payment ID for the transaction. */
     paymentId: string;
-    /** Minimum height or timestamp for the transaction to unlock (default 0). */
-    unlockTime: bigint;
     /** Miner fee (calculated automatically). */
     fee: bigint;
     /** Transaction note saved locally with the wallet (optional). */
@@ -120,8 +118,6 @@ export default class MoneroTxConfig {
     setSubaddressIndex(subaddressIndex: number): MoneroTxConfig;
     getSubaddressIndices(): number[];
     setSubaddressIndices(subaddressIndices: number[]): MoneroTxConfig;
-    getUnlockTime(): bigint;
-    setUnlockTime(unlockTime: bigint): MoneroTxConfig;
     getRelay(): boolean;
     setRelay(relay: boolean): MoneroTxConfig;
     getCanSplit(): boolean;

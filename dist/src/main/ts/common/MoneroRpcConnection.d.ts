@@ -1,3 +1,4 @@
+import ThreadPool from "./ThreadPool";
 /**
  * Maintains a connection and sends requests to a Monero RPC API.
  */
@@ -14,6 +15,8 @@ export default class MoneroRpcConnection {
     protected attributes: any;
     protected fakeDisconnected: boolean;
     protected responseTime: number;
+    protected checkConnectionMutex: ThreadPool;
+    protected sendRequestMutex: ThreadPool;
     /** @private */
     static DEFAULT_CONFIG: Partial<MoneroRpcConnection>;
     /**
@@ -142,6 +145,8 @@ export default class MoneroRpcConnection {
     toJson(): {} & this;
     toString(): string;
     setFakeDisconnected(fakeDisconnected: any): void;
+    protected queueCheckConnection<T>(asyncFn: () => Promise<T>): Promise<T>;
+    protected queueSendRequest<T>(asyncFn: () => Promise<T>): Promise<T>;
     protected static validateHttpResponse(resp: any): void;
     protected validateRpcResponse(resp: any, method: any, params: any): void;
 }
