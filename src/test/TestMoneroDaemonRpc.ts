@@ -1618,6 +1618,7 @@ function testSubmitTxResultGood(result: MoneroSubmitTxResult) {
     assert.equal(result.getTopBlockHash(), undefined);
     assert.equal(result.getIsTxExtraTooBig(), false);
     assert.equal(result.getIsGood(), true);
+    assert.equal(result.getIsNonzeroUnlockTime(), false);
   } catch (e) {
     console.log("Submit result is not good: " + JSON.stringify(result.toJson()));
     throw e;

@@ -1343,6 +1343,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else if (key === "top_hash") result.setTopBlockHash("" === val ? undefined : val);
       else if (key === "tx_extra_too_big") result.setIsTxExtraTooBig(val);
+      else if (key === "nonzero_unlock_time") result.setIsNonzeroUnlockTime(val);
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;

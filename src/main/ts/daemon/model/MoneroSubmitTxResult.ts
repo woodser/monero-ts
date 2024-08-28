@@ -18,6 +18,7 @@ export default class MoneroSubmitTxResult {
   credits: bigint;
   topBlockHash: string;
   isTxExtraTooBig: boolean;
+  isNonzeroUnlockTime: boolean;
   
   constructor(result?: Partial<MoneroSubmitTxResult>) {
     Object.assign(this, result);
@@ -162,6 +163,15 @@ export default class MoneroSubmitTxResult {
   
   setIsTxExtraTooBig(isTxExtraTooBig: boolean): MoneroSubmitTxResult {
     this.isTxExtraTooBig = isTxExtraTooBig;
+    return this;
+  }
+
+  getIsNonzeroUnlockTime(): boolean {
+    return this.isNonzeroUnlockTime;
+  }
+  
+  setIsNonzeroUnlockTime(isNonzeroUnlockTime: boolean): MoneroSubmitTxResult {
+    this.isNonzeroUnlockTime = isNonzeroUnlockTime;
     return this;
   }
 }
