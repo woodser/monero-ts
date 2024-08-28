@@ -301,7 +301,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * @return {MoneroKeyImage[]} are the key images
      */
     protected rpcExportKeyImages(all: any): Promise<any>;
-    protected rpcSweepAccount(config: any): Promise<MoneroTxWallet[]>;
+    protected rpcSweepAccount(config: MoneroTxConfig): Promise<MoneroTxWallet[]>;
     protected refreshListening(): void;
     /**
      * Poll if listening.
@@ -329,7 +329,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * @param {boolean} copyDestinations - copies config destinations if true
      * @return {MoneroTxWallet} is the initialized send tx
      */
-    protected static initSentTxWallet(config: any, tx: any, copyDestinations: any): any;
+    protected static initSentTxWallet(config: Partial<MoneroTxConfig>, tx: any, copyDestinations: any): any;
     /**
      * Initializes a tx set from a RPC map excluding txs.
      *

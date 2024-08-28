@@ -17,6 +17,7 @@ export default class MoneroSubmitTxResult {
     credits: bigint;
     topBlockHash: string;
     isTxExtraTooBig: boolean;
+    isNonzeroUnlockTime: boolean;
     constructor(result?: Partial<MoneroSubmitTxResult>);
     toJson(): any;
     getIsGood(): boolean;
@@ -49,4 +50,6 @@ export default class MoneroSubmitTxResult {
     setTopBlockHash(topBlockHash: string): MoneroSubmitTxResult;
     getIsTxExtraTooBig(): boolean;
     setIsTxExtraTooBig(isTxExtraTooBig: boolean): MoneroSubmitTxResult;
+    getIsNonzeroUnlockTime(): boolean;
+    setIsNonzeroUnlockTime(isNonzeroUnlockTime: boolean): MoneroSubmitTxResult;
 }

@@ -224,7 +224,7 @@ declare class MoneroDaemonRpcProxy {
     private wrappedListeners;
     private process;
     constructor(daemonId: any, worker: any);
-    static connect(config: any): Promise<MoneroDaemonRpcProxy>;
+    static connect(config: MoneroDaemonConfig): Promise<MoneroDaemonRpcProxy>;
     addListener(listener: any): Promise<unknown>;
     removeListener(listener: any): Promise<void>;
     getListeners(): Promise<any[]>;
