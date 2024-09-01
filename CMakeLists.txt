@@ -294,7 +294,7 @@ EMCC_LINKER_FLAGS_BASE
 -s NODEJS_CATCH_EXIT=0 \
 -s RESERVED_FUNCTION_POINTERS=5 \
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"getTempRet0\",\"addFunction\"]' \
--s WASM=1 \
+-s SINGLE_FILE \
 -s ALLOW_MEMORY_GROWTH=1 \
 -s WASM_BIGINT=1 \
 "

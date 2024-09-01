@@ -18,7 +18,7 @@ cd build || exit 1
 emcmake cmake .. || exit 1
 emmake cmake --build . -j$HOST_NCORES || exit 1
 
-# move available wasm files to ./dist
+# move wasm files to ./dist
 cd ..
 mkdir -p ./dist || exit 1
 [ -f ./build/monero_wallet_keys.js ] \
@@ -26,17 +26,7 @@ mkdir -p ./dist || exit 1
     mv ./build/monero_wallet_keys.js ./dist/
   }
 
-[ -f ./build/monero_wallet_keys.wasm ] \
-  && {
-    mv ./build/monero_wallet_keys.wasm ./dist/
-  }
-
 [ -f ./build/monero_wallet_full.js ] \
   && {
     mv ./build/monero_wallet_full.js ./dist/
-  }
-
-[ -f ./build/monero_wallet_full.wasm ] \
-  && {
-    mv ./build/monero_wallet_full.wasm ./dist/
   }
