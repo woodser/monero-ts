@@ -26,6 +26,7 @@ export default class LibraryUtils {
     return LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
   }();
   static WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
+  static WORKER_LOADER?: () => Worker = undefined;
   
   /**
    * Log a message.
@@ -157,6 +158,18 @@ export default class LibraryUtils {
   }
 
   /**
+   * Set the worker loader closure to customize worker loading.
+   * Takes precedence over default loading mechanisms.
+   *
+   * Could be as simple as `() => new Worker(new URL("monero-ts/dist/monero_web_worker.js", import.meta.url));` for browsers.
+   *
+   * @param {function} loader - loader function which instantiates a worker
+   */
+  static setWorkerLoader(loader?: () => Worker): void {
+    LibraryUtils.WORKER_LOADER = loader;
+  }
+
+  /**
    * Get a singleton instance of a worker to share.
    * 
    * @return {Worker} a worker to share among wallet instances
@@ -165,11 +178,17 @@ export default class LibraryUtils {
     
     // one time initialization
     if (!LibraryUtils.WORKER) {
-      if (GenUtils.isBrowser()) {
-        LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+      // try load worker with user provided closure
+      if (LibraryUtils.WORKER_LOADER) {
+        LibraryUtils.WORKER = LibraryUtils.WORKER_LOADER();
       } else {
-        const Worker = require("web-worker"); // import web worker if nodejs
-        LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+        // otherwise use standard loading mechanisms for browser and node
+        if (GenUtils.isBrowser()) {
+          LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+        } else {
+          const Worker = require("web-worker"); // import web worker if nodejs
+          LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+        }
       }
       LibraryUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       

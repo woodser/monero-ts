@@ -13,7 +13,7 @@
     "build_web_tests": "webpack --config ./webpack.tests.js",
     "test": "npm run build_commonjs && node --enable-source-maps node_modules/mocha/bin/_mocha --require @babel/register \"dist/src/test/TestAll\" --timeout 900000000 --exit",
     "typedoc": "typedoc ./index.ts --out ./docs/typedocs --excludePrivate --disableSources",
-    "build_commonjs": "babel ./src  --extensions \".js,.ts\" --out-dir ./dist/src && babel ./index.ts  --extensions \".ts\" --out-dir ./dist && shx mkdir -p dist/dist && shx cp dist/monero_wallet_full.js dist/monero_wallet_keys.js dist/dist && shx cp dist/*.js.map dist/dist && shx cp dist/*.wasm dist/dist",
+    "build_commonjs": "babel ./src  --extensions \".js,.ts\" --out-dir ./dist/src && babel ./index.ts  --extensions \".ts\" --out-dir ./dist && shx mkdir -p dist/dist && shx cp dist/monero_wallet_full.js dist/monero_wallet_keys.js dist/dist && shx cp dist/*.js.map dist/dist",
     "check_babel_version": "babel -V"
   },
   "build": {
