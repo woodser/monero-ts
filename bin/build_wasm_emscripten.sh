@@ -26,17 +26,7 @@ mkdir -p ./dist || exit 1
     mv ./build/monero_wallet_keys.js ./dist/
   }
 
-[ -f ./build/monero_wallet_keys.wasm ] \
-  && {
-    mv ./build/monero_wallet_keys.wasm ./dist/
-  }
-
 [ -f ./build/monero_wallet_full.js ] \
   && {
     mv ./build/monero_wallet_full.js ./dist/
-  }
-
-[ -f ./build/monero_wallet_full.wasm ] \
-  && {
-    mv ./build/monero_wallet_full.wasm ./dist/
   }
