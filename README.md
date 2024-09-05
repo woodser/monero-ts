@@ -128,13 +128,6 @@ await walletFull.close(true);
 
 Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the `--experimental-wasm-threads` flag.
 
-To avoid the error "Failed to parse URL from /path/to/file.wasm" on Node.js >16:
-
-1. Pass the `--no-experimental-fetch` flag to `node`.
-2. Set OpenSSL legacy provider:
-    - Unix: `export NODE_OPTIONS=--openssl-legacy-provider`
-    - Windows: `set NODE_OPTIONS=--openssl-legacy-provider`
-
 #### Building a browser application
 1. Bundle your application code for a browser. See [xmr-sample-webpack](https://github.com/woodser/xmr-sample-webpack) for an example project using Webpack.
 2. Copy assets from ./dist to your web app's build directory.
