@@ -9,7 +9,6 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALL
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 set(BUILD_MONERO_WALLET_FULL_WASM ON)
-set(BUILD_MONERO_WALLET_KEYS_WASM ON)
 
 ##############
 # C++ bridge
@@ -307,12 +306,6 @@ EMCC_LINKER_FLAGS_BASE
 )
 
 set(
-EMCC_LINKER_FLAGS_KEYS
-"${EMCC_LINKER_FLAGS_BASE} \
-"
-)
-
-set(
 EMCC_LINKER_FLAGS_FULL
 "${EMCC_LINKER_FLAGS_BASE} \
 -s ASYNCIFY=1 \
@@ -320,26 +313,11 @@ EMCC_LINKER_FLAGS_FULL
 "
 )
 
-message(STATUS "EMCC_LINKER_FLAGS_KEYS ${EMCC_LINKER_FLAGS_KEYS}")
 message(STATUS "EMCC_LINKER_FLAGS_FULL ${EMCC_LINKER_FLAGS_FULL}")
 
 ####################
 # Build targets
 ####################
-
-if (BUILD_MONERO_WALLET_KEYS_WASM)
-    add_executable(monero_wallet_keys ${MONERO_WALLET_KEYS_SRC_FILES})
-    set_target_properties(monero_wallet_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
-    target_link_libraries(
-        monero_wallet_keys
-        #
-        boost_chrono
-        boost_system
-        boost_thread
-        #
-        ${log-lib}
-    )
-endif()
 
 if (BUILD_MONERO_WALLET_FULL_WASM)
     add_executable(monero_wallet_full ${MONERO_WALLET_FULL_SRC_FILES} ${MONERO_WALLET_KEYS_SRC_FILES})

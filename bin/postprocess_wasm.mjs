@@ -1,7 +1,7 @@
 import fs from "fs";
 import { Buffer } from "buffer";
 
-const fileNames = ["./dist/monero_wallet_full.js", "./dist/monero_wallet_keys.js"];
+const fileNames = ["./dist/monero_wallet_full.js"];
 
 
 const postprocess = async (fileName) => {
