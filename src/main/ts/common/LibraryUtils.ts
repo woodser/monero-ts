@@ -80,30 +80,9 @@ export default class LibraryUtils {
   }
   
   /**
-   * Load the WebAssembly keys module with caching.
-   */
-  static async loadKeysModule() {
-    
-    // use cache if suitable, full module supersedes keys module because it is superset
-    if (LibraryUtils.WASM_MODULE) return LibraryUtils.WASM_MODULE;
-    
-    // load module
-    const fetch_ = globalThis.fetch;
-    globalThis.fetch = undefined; // prevent fetch in worker
-    let module = await require("../../../../dist/monero_wallet_keys")();
-    globalThis.fetch = fetch_;
-    LibraryUtils.WASM_MODULE = module;
-    delete LibraryUtils.WASM_MODULE.then;
-    LibraryUtils.initWasmModule(LibraryUtils.WASM_MODULE);
-    return module;
-  }
-  
-  /**
    * Load the WebAssembly full module with caching.
    * 
    * The full module is a superset of the keys module and overrides it.
-   * 
-   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle worker using runtime param for conditional import
    */
   static async loadFullModule() {
     
