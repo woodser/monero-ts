@@ -182,7 +182,7 @@ export default class MoneroRpcConnection {
    */
   async checkConnection(timeoutMs): Promise<boolean> {
     return this.queueCheckConnection(async () => {
-      await LibraryUtils.loadKeysModule(); // cache wasm for binary request
+      await LibraryUtils.loadFullModule(); // cache wasm for binary request
       let isOnlineBefore = this.isOnline;
       let isAuthenticatedBefore = this.isAuthenticated;
       let startTime = Date.now();
