@@ -59,7 +59,7 @@ let configBase = {
         os: require.resolve('os-browserify/browser'),
         path: require.resolve('path-browserify'),
         //punycode: require.resolve('punycode'),
-        //process: require.resolve('process/browser'),
+        'process/browser': require.resolve('process/browser'),
         querystring: require.resolve('querystring-es3'),
         stream: require.resolve('stream-browserify'),
         //string_decoder: require.resolve('string_decoder'),
