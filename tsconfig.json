@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "module": "commonjs",
+    "module": "es2022",
     "target": "es2021",
     "allowJs": true,
     "outDir": "dist",
