@@ -7,6 +7,16 @@
   "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "!dist/src/test/**",
+    "README.md",
+    "package.json",
+    "tsconfig.json",
+    ".babelrc",
+    "CMakeListst.txt",
+    "LICENSE.txt"
+  ],
   "scripts": {
     "start": "todo",
     "build_web_worker": "webpack --config ./webpack.worker.js",
