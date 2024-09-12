@@ -17,7 +17,7 @@ export default class LibraryUtils {
   static FULL_LOADED: any;
   static REJECT_UNAUTHORIZED_FNS: any;
   static readonly MUTEX = new ThreadPool(1);
-  static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero_web_worker.js" : function() {
+  static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero.worker.js" : function() {
 
     // get worker path in dist (assumes library is running from src or dist)
     let curPath = path.normalize(__dirname);
@@ -84,7 +84,7 @@ export default class LibraryUtils {
    * 
    * The full module is a superset of the keys module and overrides it.
    */
-  static async loadFullModule() {
+  static async loadWasmModule() {
     
     // use cache if suitable, full module supersedes keys module because it is superset
     if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
@@ -92,7 +92,7 @@ export default class LibraryUtils {
     // load module
     const fetch_ = globalThis.fetch;
     globalThis.fetch = undefined; // prevent fetch in worker
-    let module = await require("../../../../dist/monero_wallet_full")();
+    let module = await require("../../../../dist/monero")();
     globalThis.fetch = fetch_;
     LibraryUtils.WASM_MODULE = module;
     delete LibraryUtils.WASM_MODULE.then;
@@ -125,7 +125,7 @@ export default class LibraryUtils {
   }
   
   /**
-   * Set the path to load the worker. Defaults to "/monero_web_worker.js" in the browser
+   * Set the path to load the worker. Defaults to "/monero.worker.js" in the browser
    * and "./MoneroWebWorker.js" in node.
    * 
    * @param {string} workerDistPath - path to load the worker
@@ -140,7 +140,7 @@ export default class LibraryUtils {
    * Set the worker loader closure to customize worker loading.
    * Takes precedence over default loading mechanisms.
    *
-   * Could be as simple as `() => new Worker(new URL("monero-ts/dist/monero_web_worker.js", import.meta.url));` for browsers.
+   * Could be as simple as `() => new Worker(new URL("monero-ts/dist/monero.worker.js", import.meta.url));` for browsers.
    *
    * @param {function} loader - loader function which instantiates a worker
    */

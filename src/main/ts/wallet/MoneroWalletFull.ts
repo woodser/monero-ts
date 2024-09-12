@@ -201,7 +201,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getSeedOffset() === undefined) config.setSeedOffset("");
     
     // load full wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async () => {
@@ -237,7 +237,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (config.getLanguage() === undefined) config.setLanguage("English");
     
     // load full wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async () => {
@@ -268,7 +268,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async () => {
@@ -292,7 +292,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   static async getSeedLanguages() {
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     return module.queueTask(async () => {
       return JSON.parse(module.get_keys_wallet_seed_languages()).languages;
     });
@@ -1614,7 +1614,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     let rejectUnauthorized = daemonConnection ? daemonConnection.getRejectUnauthorized() : true;
     
     // load wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // open wallet in queue
     return module.queueTask(async () => {

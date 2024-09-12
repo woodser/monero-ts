@@ -8,8 +8,6 @@ string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
-set(BUILD_MONERO_WALLET_FULL_WASM ON)
-
 ##############
 # C++ bridge
 ##############
@@ -319,27 +317,25 @@ message(STATUS "EMCC_LINKER_FLAGS_FULL ${EMCC_LINKER_FLAGS_FULL}")
 # Build targets
 ####################
 
-if (BUILD_MONERO_WALLET_FULL_WASM)
-    add_executable(monero_wallet_full ${MONERO_WALLET_FULL_SRC_FILES} ${MONERO_WALLET_KEYS_SRC_FILES})
-    set_target_properties(monero_wallet_full PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_FULL}")
-    target_compile_definitions(monero_wallet_full PRIVATE BUILD_WALLET_FULL=1)
-    target_link_libraries(
-        monero_wallet_full
-        #
-        #openssl_ssl
-        #openssl_crypto
-        #
-        boost_chrono
-        boost_system
-        boost_thread
-        boost_serialization
-        boost_filesystem
-        boost_regex
-        #boost_atomic
-        #
-        ${log-lib}
-    )
-endif()
+add_executable(monero ${MONERO_WALLET_FULL_SRC_FILES} ${MONERO_WALLET_KEYS_SRC_FILES})
+set_target_properties(monero PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_FULL}")
+target_compile_definitions(monero PRIVATE BUILD_WALLET_FULL=1)
+target_link_libraries(
+    monero
+    #
+    #openssl_ssl
+    #openssl_crypto
+    #
+    boost_chrono
+    boost_system
+    boost_thread
+    boost_serialization
+    boost_filesystem
+    boost_regex
+    #boost_atomic
+    #
+    ${log-lib}
+)
 
 # build to bitcode instead of wasm
 #SET(CMAKE_EXECUTABLE_SUFFIX ".bc")

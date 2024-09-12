@@ -8,7 +8,7 @@ let configBrowserTest = Object.assign({}, configBase, {
   entry: "./dist/src/test/browser/tests.js",
   output: {
     path: path.resolve(__dirname, "browser_build"),
-    filename: "monero-ts-tests.js"
+    filename: "monero.tests.js"
   },
 });
 

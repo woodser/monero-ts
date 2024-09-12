@@ -83,7 +83,7 @@ export class MoneroWalletKeys extends MoneroWallet {
     if (config.getLanguage() === undefined) config.setLanguage("English");
     
     // load wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // queue call to wasm module
     return module.queueTask(async () => {
@@ -107,7 +107,7 @@ export class MoneroWalletKeys extends MoneroWallet {
     if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from seed");
     
     // load wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // queue call to wasm module
     return module.queueTask(async () => {
@@ -133,7 +133,7 @@ export class MoneroWalletKeys extends MoneroWallet {
     if (config.getLanguage() === undefined) config.setLanguage("English");
     
     // load wasm module
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     
     // queue call to wasm module
     return module.queueTask(async () => {
@@ -149,7 +149,7 @@ export class MoneroWalletKeys extends MoneroWallet {
   }
   
   static async getSeedLanguages(): Promise<string[]> {
-    let module = await LibraryUtils.loadFullModule();
+    let module = await LibraryUtils.loadWasmModule();
     return module.queueTask(async () => {
       return JSON.parse(module.get_keys_wallet_seed_languages()).languages;
     });
