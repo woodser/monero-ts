@@ -157,10 +157,12 @@ export default class LibraryUtils {
     
     // one time initialization
     if (!LibraryUtils.WORKER) {
-      // try load worker with user provided closure
+
+      // try to load worker with user provided closure
       if (LibraryUtils.WORKER_LOADER) {
         LibraryUtils.WORKER = LibraryUtils.WORKER_LOADER();
       } else {
+
         // otherwise use standard loading mechanisms for browser and node
         if (GenUtils.isBrowser()) {
           LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
@@ -173,7 +175,7 @@ export default class LibraryUtils {
       
       // receive worker errors
       LibraryUtils.WORKER.onerror = function(err) {
-        console.error("Error posting message to Monero web worker; is it built and copied to the app's build directory (e.g. in the root)?");
+        console.error("Error posting message to monero.worker.js; is it built and copied to the app's public or build directory?");
         console.log(err);
       };
       
