@@ -162,7 +162,7 @@ export default class MoneroUtils {
     assert(GenUtils.isBase58(standardAddress), "Address is not base 58");
     
     // load keys module by default
-    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadFullModule();
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadWasmModule();
     
     // get integrated address in queue
     return LibraryUtils.getWasmModule().queueTask(async () => {
@@ -204,7 +204,7 @@ export default class MoneroUtils {
     networkType = MoneroNetworkType.from(networkType);
     
     // load keys module by default
-    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadFullModule();
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadWasmModule();
     
     // validate address in queue
     return LibraryUtils.getWasmModule().queueTask(async function() {
@@ -308,7 +308,7 @@ export default class MoneroUtils {
     if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsJsonToBinary", Array.from(arguments));
     
     // load keys module by default
-    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadFullModule();
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadWasmModule();
     
     // use wasm in queue
     return LibraryUtils.getWasmModule().queueTask(async function() {
@@ -345,7 +345,7 @@ export default class MoneroUtils {
     if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsBinaryToJson", Array.from(arguments));
     
     // load keys module by default
-    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadFullModule();
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadWasmModule();
     
     // use wasm in queue
     return LibraryUtils.getWasmModule().queueTask(async function() {
@@ -382,7 +382,7 @@ export default class MoneroUtils {
     if (MoneroUtils.PROXY_TO_WORKER) return LibraryUtils.invokeWorker(undefined, "moneroUtilsBinaryBlocksToJson", Array.from(arguments));
     
     // load keys module by default
-    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadFullModule();
+    if (LibraryUtils.getWasmModule() === undefined) await LibraryUtils.loadWasmModule();
     
     // use wasm in queue
     return LibraryUtils.getWasmModule().queueTask(async function() {

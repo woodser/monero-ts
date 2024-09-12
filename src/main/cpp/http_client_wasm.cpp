@@ -75,7 +75,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
   return Asyncify.handleSleep(function(wakeUp) {
 
     // load full wasm module then convert from json to binary
-    LibraryUtils.loadFullModule().then(module => {
+    LibraryUtils.loadWasmModule().then(module => {
 
       // read binary data from heap to Uint8Array
       let ptr = body;
