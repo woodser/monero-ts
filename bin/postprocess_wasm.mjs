@@ -1,10 +1,10 @@
 import fs from "fs";
 import { Buffer } from "buffer";
 
-const fileNames = ["./dist/monero.js"];
-
+const fileNames = ["./build/monero.js"];
 
 const postprocess = async (fileName) => {
+
   // read input file
   const source = await fs.promises.readFile(fileName, "utf8");
 

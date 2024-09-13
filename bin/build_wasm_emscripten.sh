@@ -17,9 +17,12 @@ HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 
 cd build || exit 1
 emcmake cmake .. || exit 1
 emmake cmake --build . -j$HOST_NCORES || exit 1
-
-# move available wasm files to ./dist
 cd ..
+
+# postprocess wasm files
+./bin/postprocess_wasm.sh || exit 1
+
+# move wasm files to ./dist
 mkdir -p ./dist || exit 1
 [ -f ./build/monero.js ] \
   && {
