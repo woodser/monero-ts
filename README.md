@@ -182,7 +182,7 @@ This project is licensed under MIT.
 
 ## Donations
 
-If this library brings you value, please consider donating.
+Please consider donating to support the development of this project. 🙏
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/><br>
