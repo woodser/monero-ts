@@ -50,10 +50,11 @@
 <a id="md:related-projects" class="tsd-anchor"></a><h2><a href="#md:related-projects">Related projects</a></h2><ul>
 <li><a href="https://github.com/woodser/monero-cpp">monero-cpp</a> - C++ library counterpart</li>
 <li><a href="https://github.com/woodser/monero-java">monero-java</a> - Java library counterpart</li>
-<li><a href="https://github.com/woodser/xmr-sample-webpack">xmr-sample-webpack</a> - sample browser application using Webpack</li>
-<li><a href="https://github.com/woodser/xmr-sample-next">xmr-sample-next</a> - sample browser application using Next.js</li>
-<li><a href="https://github.com/woodser/xmr-sample-vite">xmr-sample-vite</a> - sample browser application using Vite</li>
 <li><a href="https://github.com/haveno-dex/haveno-ts">haveno-ts</a> - used for testing Haveno and its TypeScript library</li>
+<li><a href="https://github.com/woodser/xmr-sample-react">Sample React app</a> - sample browser application using React (create-react-app)</li>
+<li><a href="https://github.com/woodser/xmr-sample-next">Sample Next.js app</a> - sample browser application using Next.js</li>
+<li><a href="https://github.com/woodser/xmr-sample-vite">Sample Vite app</a> - sample browser application using Vite</li>
+<li><a href="https://github.com/woodser/xmr-sample-webpack">Sample Webpack app</a> - sample browser application using Webpack</li>
 </ul>
 <a id="md:using-monero-ts-in-your-project" class="tsd-anchor"></a><h2><a href="#md:using-monero-ts-in-your-project">Using monero-ts in your project</a></h2><ol>
 <li><code>cd your_project</code> or <code>mkdir your_project &amp;&amp; cd your_project &amp;&amp; npm init</code></li>
@@ -61,15 +62,6 @@
 <li>Add <code>import moneroTs from &quot;monero-ts&quot;</code> in your application code (or import types individually).</li>
 </ol>
 <a id="md:running-in-nodejs" class="tsd-anchor"></a><h4><a href="#md:running-in-nodejs">Running in Node.js</a></h4><p>Node 20 LTS is recommended. Alternatively, Node 16 and 18 LTS work using the <code>--experimental-wasm-threads</code> flag.</p>
-<p>To avoid the error &quot;Failed to parse URL from /path/to/file.wasm&quot; on Node.js &gt;16:</p>
-<ol>
-<li>Pass the <code>--no-experimental-fetch</code> flag to <code>node</code>.</li>
-<li>Set OpenSSL legacy provider:<ul>
-<li>Unix: <code>export NODE_OPTIONS=--openssl-legacy-provider</code></li>
-<li>Windows: <code>set NODE_OPTIONS=--openssl-legacy-provider</code></li>
-</ul>
-</li>
-</ol>
 <a id="md:building-a-browser-application" class="tsd-anchor"></a><h4><a href="#md:building-a-browser-application">Building a browser application</a></h4><ol>
 <li>Bundle your application code for a browser. See <a href="https://github.com/woodser/xmr-sample-webpack">xmr-sample-webpack</a> for an example project using Webpack.</li>
 <li>Copy assets from ./dist to your web app&#39;s build directory.</li>
@@ -117,7 +109,7 @@
 <li>Access <a href="http://localhost:8080/tests.html">http://localhost:8080/tests.html</a> in a browser to run all tests</li>
 </ol>
 <a id="md:license" class="tsd-anchor"></a><h2><a href="#md:license">License</a></h2><p>This project is licensed under MIT.</p>
-<a id="md:donations" class="tsd-anchor"></a><h2><a href="#md:donations">Donations</a></h2><p>If this library brings you value, please consider donating.</p>
+<a id="md:donations" class="tsd-anchor"></a><h2><a href="#md:donations">Donations</a></h2><p>Please consider donating to support the development of this project. 🙏</p>
 <p align="center">
     <img src="donate.png" width="115" height="115"/><br>
     <code>46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz</code>
