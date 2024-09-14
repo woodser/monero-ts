@@ -12,6 +12,7 @@ export default class LibraryUtils {
     static readonly MUTEX: ThreadPool;
     static WORKER_DIST_PATH_DEFAULT: any;
     static WORKER_DIST_PATH: any;
+    static WORKER_LOADER?: () => Worker;
     /**
      * Log a message.
      *
@@ -42,17 +43,11 @@ export default class LibraryUtils {
      */
     static getWasmModule(): any;
     /**
-     * Load the WebAssembly keys module with caching.
-     */
-    static loadKeysModule(): Promise<any>;
-    /**
      * Load the WebAssembly full module with caching.
      *
      * The full module is a superset of the keys module and overrides it.
-     *
-     * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle worker using runtime param for conditional import
      */
-    static loadFullModule(): Promise<any>;
+    static loadWasmModule(): Promise<any>;
     /**
      * Register a function by id which informs if unauthorized requests (e.g.
      * self-signed certificates) should be rejected.
@@ -68,12 +63,21 @@ export default class LibraryUtils {
      */
     static isRejectUnauthorized(fnId: any): any;
     /**
-     * Set the path to load the worker. Defaults to "/monero_web_worker.js" in the browser
+     * Set the path to load the worker. Defaults to "/monero.worker.js" in the browser
      * and "./MoneroWebWorker.js" in node.
      *
      * @param {string} workerDistPath - path to load the worker
      */
     static setWorkerDistPath(workerDistPath: any): void;
+    /**
+     * Set the worker loader closure to customize worker loading.
+     * Takes precedence over default loading mechanisms.
+     *
+     * Could be as simple as `() => new Worker(new URL("monero-ts/dist/monero.worker.js", import.meta.url));` for browsers.
+     *
+     * @param {function} loader - loader function which instantiates a worker
+     */
+    static setWorkerLoader(loader?: () => Worker): void;
     /**
      * Get a singleton instance of a worker to share.
      *
