@@ -4,7 +4,6 @@ import { Buffer } from "buffer";
 const fileNames = ["./build/monero.js"];
 
 const postprocess = async (fileName) => {
-
   // read input file
   const source = await fs.promises.readFile(fileName, "utf8");
 
@@ -15,16 +14,16 @@ const postprocess = async (fileName) => {
   }
 
   // find wasmBinaryFile base64 string
-  const match = source.match(/wasmBinaryFile=\"data:application\/octet-stream;base64,(.+?(?=\"))/gm);
+  const match = source.match(/f=\"data:application\/octet-stream;base64,(.+?(?=\"))/gm);
   if (!match?.length) {
     console.log(`Skipping ${fileName}. wasmBinaryFile not base64 encoded`);
     return;
   }
-  const b64 = match[0].split('wasmBinaryFile="data:application/octet-stream;base64,')[1];
+  const b64 = match[0].split('f="data:application/octet-stream;base64,')[1];
   const buf = Buffer.from(b64, 'base64');
 
   // compress wasmBinaryFile
-  const compression = new CompressionStream("deflate");
+  const compression = new CompressionStream("gzip");
   const compressedStream = new ReadableStream({
     start(controller) {
       controller.enqueue(new Uint8Array(buf));
@@ -41,11 +40,7 @@ const postprocess = async (fileName) => {
     .replace(b64, cb64)
     .replace(
       "return intArrayFromBase64(filename.slice(dataURIPrefix.length))",
-      'const data=filename.slice(dataURIPrefix.length);if(data.startsWith("AGFzbQ"))return intArrayFromBase64(data);else{const bin=intArrayFromBase64(data);const ds = new DecompressionStream("deflate");const decompressedStream = new ReadableStream({start(controller){controller.enqueue(bin);controller.close();}}).pipeThrough(ds);return (new Response(decompressedStream)).arrayBuffer();}'
-    )
-    .replace(
-      "!wasmBinary&&(ENVIRONMENT_IS_WEB||ENVIRONMENT_IS_WORKER)",
-      "!wasmBinary&&false"
+      'const data=filename.slice(dataURIPrefix.length);if(data.startsWith("AGFzbQ"))return intArrayFromBase64(data);else{const bin=intArrayFromBase64(data);const ds = new DecompressionStream("gzip");const decompressedStream = new ReadableStream({start(controller){controller.enqueue(bin);controller.close();}}).pipeThrough(ds);return (new Response(decompressedStream)).arrayBuffer();}'
     );
 
   // write output file

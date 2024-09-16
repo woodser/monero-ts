@@ -5,7 +5,7 @@ project(monero-ts-wasm)
 # build with exception whitelist from file
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]'")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]' -D_REENTRANT")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
 ##############
@@ -277,7 +277,7 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -Werror -Wno-js-compiler -Wl,--allow-undefined -std=c++14 -Oz \
+"-Wall -Werror -Wno-js-compiler -Wl,--allow-undefined -std=c++14 -Oz -D_REENTRANT \
 --bind \
 -s MODULARIZE=1 \
 -s 'EXPORT_NAME=\"monero_ts\"' \
@@ -286,7 +286,6 @@ EMCC_LINKER_FLAGS_BASE
 -s EXIT_RUNTIME=0 \
 -s PRECISE_F32=1 \
 -s EXCEPTION_DEBUG=0 \
--s DEMANGLE_SUPPORT=0 \
 -s NO_DYNAMIC_EXECUTION=1 \
 -s NODEJS_CATCH_EXIT=0 \
 -s RESERVED_FUNCTION_POINTERS=5 \
@@ -294,6 +293,9 @@ EMCC_LINKER_FLAGS_BASE
 -s SINGLE_FILE=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
 -s WASM_BIGINT=1 \
+-s EXPORTED_FUNCTIONS='[_free, _malloc]' \
+-s STACK_SIZE=5MB \
+-s DEFAULT_PTHREAD_STACK_SIZE=2MB \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it

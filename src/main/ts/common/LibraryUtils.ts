@@ -90,10 +90,7 @@ export default class LibraryUtils {
     if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
-    const fetch_ = globalThis.fetch;
-    globalThis.fetch = undefined; // prevent fetch in worker
     let module = await require("../../../../dist/monero")();
-    globalThis.fetch = fetch_;
     LibraryUtils.WASM_MODULE = module;
     delete LibraryUtils.WASM_MODULE.then;
     LibraryUtils.FULL_LOADED = true;
