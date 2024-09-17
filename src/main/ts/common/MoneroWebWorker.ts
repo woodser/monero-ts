@@ -21,6 +21,11 @@ import MoneroWalletFull from "../wallet/MoneroWalletFull";
 
 declare const self: any;
 
+// expose some modules to the worker
+self.HttpClient = HttpClient;
+self.LibraryUtils = LibraryUtils;
+self.GenUtils = GenUtils;
+
 /**
  * Worker to manage a daemon and wasm wallet off the main thread using messages.
  * 
