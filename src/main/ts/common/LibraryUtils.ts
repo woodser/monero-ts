@@ -90,7 +90,7 @@ export default class LibraryUtils {
     if (LibraryUtils.WASM_MODULE && LibraryUtils.FULL_LOADED) return LibraryUtils.WASM_MODULE;
     
     // load module
-    let module = await require("../../../../dist/monero")();
+    const module = await require("#monero-ts/monero.js")();
     LibraryUtils.WASM_MODULE = module;
     delete LibraryUtils.WASM_MODULE.then;
     LibraryUtils.FULL_LOADED = true;

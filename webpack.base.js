@@ -39,12 +39,10 @@ let configBase = {
       extensions: ['.js', '.ts'],
       alias: {
         "fs": "memfs",
-        ['~']: path.resolve(__dirname + '/app')
       },
       extensions: ['.js', '.jsx', '.css', '.json', 'otf', 'ttf', 'eot', 'svg', '.ts', '.tsx'],
       modules: [
         'node_modules',
-        path.resolve(__dirname + '/src')
       ],
       fallback: { // browser polyfills
         assert: require.resolve('assert'),
