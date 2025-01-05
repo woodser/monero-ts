@@ -1155,9 +1155,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let template = new MoneroBlockTemplate();
     for (let key of Object.keys(rpcTemplate)) {
       let val = rpcTemplate[key];
-      if (key === "blockhashing_blob") template.setBlockTemplateBlob(val);
-      else if (key === "blocktemplate_blob") template.setBlockHashingBlob(val);
-      else if (key === "difficulty") template.setDifficulty(BigInt(val));
+      if (key === "blockhashing_blob") template.setBlockHashingBlob(val);
+      else if (key === "blocktemplate_blob") template.setBlockTemplateBlob(val);
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "difficulty") { }  // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
