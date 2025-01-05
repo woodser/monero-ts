@@ -325,7 +325,7 @@ export default class MoneroConnectionManager {
     let connection = this.getConnection();
     if (connection) {
       if (await connection.checkConnection(this.timeoutMs)) connectionChanged = true;
-      if (await this.processResponses([connection]) !== undefined) return this; // done if connection set from responses
+      await this.processResponses([connection]);
     }
     if (this.autoSwitch && !this.isConnected()) {
       let bestConnection = await this.getBestAvailableConnection([connection]);
