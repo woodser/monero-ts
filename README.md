@@ -108,15 +108,19 @@ await walletFull.close(true);
 * [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)
 * [Getting started part 2: creating a web application](docs/developer_guide/getting_started_p2.md)
 
+## Sample projects
+
+* [Sample Node.js app](https://github.com/woodser/xmr-sample-node) - sample Node.js application
+* [Sample React app](https://github.com/woodser/xmr-sample-react) - sample browser application using React (create-react-app)
+* [Sample Next.js app](https://github.com/woodser/xmr-sample-next) - sample browser application using Next.js
+* [Sample Vite app](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite
+* [Sample Webpack app](https://github.com/woodser/xmr-sample-webpack) - sample browser application using Webpack
+
 ## Related projects
 
 * [monero-cpp](https://github.com/woodser/monero-cpp) - C++ library counterpart
 * [monero-java](https://github.com/woodser/monero-java) - Java library counterpart
 * [haveno-ts](https://github.com/haveno-dex/haveno-ts) - used for testing Haveno and its TypeScript library
-* [Sample React app](https://github.com/woodser/xmr-sample-react) - sample browser application using React (create-react-app)
-* [Sample Next.js app](https://github.com/woodser/xmr-sample-next) - sample browser application using Next.js
-* [Sample Vite app](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite
-* [Sample Webpack app](https://github.com/woodser/xmr-sample-webpack) - sample browser application using Webpack
 
 ## Using monero-ts in your project
 
