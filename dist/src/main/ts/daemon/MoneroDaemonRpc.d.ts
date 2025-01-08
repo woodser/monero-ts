@@ -281,7 +281,7 @@ declare class MoneroDaemonRpcProxy {
     startMining(address: any, numThreads: any, isBackground: any, ignoreBattery: any): Promise<unknown>;
     stopMining(): Promise<void>;
     getMiningStatus(): Promise<MoneroMiningStatus>;
-    submitBlocks(blockBlobs: any): Promise<void>;
+    submitBlocks(blockBlobs: any): Promise<unknown>;
     pruneBlockchain(check: any): Promise<MoneroPruneResult>;
     checkForUpdate(): Promise<MoneroDaemonUpdateCheckResult>;
     downloadUpdate(path: any): Promise<MoneroDaemonUpdateDownloadResult>;
