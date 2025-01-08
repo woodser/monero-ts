@@ -89,11 +89,13 @@ export default class TestMoneroWalletCommon {
     console.log("After all");
     
     // try to stop mining
-    try { await this.daemon.stopMining(); }
-    catch (err: any) { }
+    if (this.daemon) {
+      try { await this.daemon.stopMining(); }
+      catch (err: any) { }
+    }
     
     // close wallet
-    await this.wallet.close(true);
+    if (this.wallet) await this.wallet.close(true);
   }
   
   /**
