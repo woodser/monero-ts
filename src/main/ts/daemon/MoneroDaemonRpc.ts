@@ -706,7 +706,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async submitBlocks(blockBlobs: string[]): Promise<void> {
-    if (this.config.proxyToWorker) return this.proxyDaemon.submitBlocks();
+    if (this.config.proxyToWorker) return this.proxyDaemon.submitBlocks(blockBlobs);
     assert(Array.isArray(blockBlobs) && blockBlobs.length > 0, "Must provide an array of mined block blobs to submit");
     let resp = await this.config.getServer().sendJsonRequest("submit_block", blockBlobs);
     MoneroDaemonRpc.checkResponseStatus(resp.result);
@@ -1837,7 +1837,7 @@ class MoneroDaemonRpcProxy {
   }
   
   async submitBlocks(blockBlobs) {
-    throw new MoneroError("Not implemented");
+    return this.invokeWorker("daemonSubmitBlocks", Array.from(arguments));
   }
 
   async pruneBlockchain(check) {
