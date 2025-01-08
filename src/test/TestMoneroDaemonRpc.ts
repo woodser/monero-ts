@@ -998,7 +998,7 @@ export default class TestMoneroDaemonRpc {
         
         // try to submit block hashing blob without nonce
         try {
-          await that.daemon.submitBlock(template.getBlockHashingBlob());
+          await that.daemon.submitBlock(template.getBlockTemplateBlob());
           throw new Error("Should have thrown error");
         } catch (e: any) {
           assert.equal(e.getCode(), -7);

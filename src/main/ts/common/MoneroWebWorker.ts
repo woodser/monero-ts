@@ -394,15 +394,14 @@ self.daemonGetMiningStatus = async function(daemonId) {
   return (await self.WORKER_OBJECTS[daemonId].getMiningStatus()).toJson();
 }
 
+self.daemonSubmitBlocks = async function(daemonId, blockBlobs) {
+  return self.WORKER_OBJECTS[daemonId].submitBlocks(blockBlobs);
+}
+
 self.daemonPruneBlockchain = async function(daemonId, check) {
   return (await self.WORKER_OBJECTS[daemonId].pruneBlockchain(check)).toJson();
 }
 
-//
-//async submitBlocks(blockBlobs) {
-//  throw new MoneroError("Not implemented");
-//}
-//
 //async checkForUpdate() {
 //  throw new MoneroError("Not implemented");
 //}
