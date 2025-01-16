@@ -260,6 +260,14 @@ export default class TestMoneroUtils {
         assert.equal(MoneroUtils.atomicUnitsToXmr(250000000000n), .25);
         assert.equal(MoneroUtils.xmrToAtomicUnits("1.25").toString(), 1250000000000n.toString());
         assert.equal(MoneroUtils.atomicUnitsToXmr(1250000000000n), 1.25);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("2.79672619").toString(), 2796726190000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(2796726190000n), 2.79672619);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("2.796726190001").toString(), 2796726190001n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(2796726190001n), 2.796726190001);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("2.796726189999").toString(), 2796726189999n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(2796726189999n), 2.796726189999);
+        assert.equal(MoneroUtils.xmrToAtomicUnits("2.79672618").toString(), 2796726180000n.toString());
+        assert.equal(MoneroUtils.atomicUnitsToXmr(2796726180000n), 2.79672618);
       });
     })
   }
