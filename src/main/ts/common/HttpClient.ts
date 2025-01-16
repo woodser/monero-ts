@@ -11,7 +11,7 @@ import axios, { AxiosError } from "axios";
  */
 export default class HttpClient {
 
-  static MAX_REQUESTS_PER_SECOND = 50
+  static MAX_REQUESTS_PER_SECOND = 50;
 
   // default request config
   protected static DEFAULT_REQUEST = {
