@@ -1,4 +1,5 @@
 import assert from "assert";
+import Decimal from 'decimal.js';
 import GenUtils from "./GenUtils";
 import LibraryUtils from "./LibraryUtils";
 import MoneroError from "./MoneroError";
@@ -419,14 +420,7 @@ export default class MoneroUtils {
    * @return {bigint} amount in atomic units
    */
   static xmrToAtomicUnits(amountXmr: number | string): bigint {
-    if (typeof amountXmr === "number") amountXmr = "" + amountXmr;
-    let decimalDivisor = 1;
-    let decimalIdx = amountXmr.indexOf('.');
-    if (decimalIdx > -1) {
-      decimalDivisor = Math.pow(10, amountXmr.length - decimalIdx - 1);
-      amountXmr = amountXmr.slice(0, decimalIdx) + amountXmr.slice(decimalIdx + 1);
-    }
-    return BigInt(amountXmr) * BigInt(MoneroUtils.AU_PER_XMR) / BigInt(decimalDivisor);
+    return BigInt(new Decimal(amountXmr).mul(MoneroUtils.AU_PER_XMR.toString()).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toFixed(0));
   }
   
   /**
@@ -435,12 +429,30 @@ export default class MoneroUtils {
    * @param {bigint | string} amountAtomicUnits - amount in atomic units to convert to XMR
    * @return {number} amount in XMR 
    */
-  static atomicUnitsToXmr(amountAtomicUnits: bigint | string) {
-    if (typeof amountAtomicUnits === "string") amountAtomicUnits = BigInt(amountAtomicUnits);
-    else if (typeof amountAtomicUnits !== "bigint") throw new Error("Must provide atomic units as bigint or string to convert to XMR");
-    const quotient: bigint = amountAtomicUnits / MoneroUtils.AU_PER_XMR;
-    const remainder: bigint = amountAtomicUnits % MoneroUtils.AU_PER_XMR;
-    return Number(quotient) + Number(remainder) / Number(MoneroUtils.AU_PER_XMR);
+  static atomicUnitsToXmr(amountAtomicUnits: bigint | string): number {
+    return new Decimal(amountAtomicUnits.toString()).div(MoneroUtils.AU_PER_XMR.toString()).toDecimalPlaces(12, Decimal.ROUND_HALF_UP).toNumber();
+  }
+
+  /**
+   * Divide one atomic units by another.
+   * 
+   * @param {bigint} au1 dividend
+   * @param {bigint} au2 divisor
+   * @returns {number} the result
+   */
+  static divide(au1: bigint, au2: bigint): number {
+    return new Decimal(au1.toString()).div(new Decimal(au2.toString())).toDecimalPlaces(12, Decimal.ROUND_HALF_UP).toNumber();
+  }
+
+  /**
+   * Multiply a bigint by a number or bigint.
+   * 
+   * @param a bigint to multiply
+   * @param b bigint or number to multiply by
+   * @returns the product as a bigint
+   */
+  static multiply(a: bigint, b: number | bigint): bigint {
+    return BigInt(new Decimal(a.toString()).mul(new Decimal(b.toString())).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toString());
   }
   
   protected static isHex64(str) {
