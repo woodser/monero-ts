@@ -432,6 +432,28 @@ export default class MoneroUtils {
   static atomicUnitsToXmr(amountAtomicUnits: bigint | string): number {
     return new Decimal(amountAtomicUnits.toString()).div(MoneroUtils.AU_PER_XMR.toString()).toDecimalPlaces(12, Decimal.ROUND_HALF_UP).toNumber();
   }
+
+  /**
+   * Divide one atomic units by another.
+   * 
+   * @param {bigint} au1 dividend
+   * @param {bigint} au2 divisor
+   * @returns {number} the result
+   */
+  static divide(au1: bigint, au2: bigint): number {
+    return new Decimal(au1.toString()).div(new Decimal(au2.toString())).toDecimalPlaces(12, Decimal.ROUND_HALF_UP).toNumber();
+  }
+
+  /**
+   * Multiply a bigint by a number or bigint.
+   * 
+   * @param a bigint to multiply
+   * @param b bigint or number to multiply by
+   * @returns the product as a bigint
+   */
+  static multiply(a: bigint, b: number | bigint): bigint {
+    return BigInt(new Decimal(a.toString()).mul(new Decimal(b.toString())).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toString());
+  }
   
   protected static isHex64(str) {
     return typeof str === "string" && str.length === 64 && GenUtils.isHex(str);
