@@ -147,7 +147,7 @@ get_boost_source() {
   [ -d ${SDK_PATH} ] || { echo "get_boost_source: Missing directory: ${SDK_PATH}"; return 1; }
 
   # Github source is missing stuff
-  local DL_URL="https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/"
+  local DL_URL="https://archives.boost.io/release/1.83.0/source/"
   local DL_FILE="boost_1_83_0.tar.gz"
 
   check_archive "${SDK_PATH}/${DL_FILE}" \
