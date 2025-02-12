@@ -180,6 +180,22 @@ export default class MoneroUtils {
      * @return {number} amount in XMR
      */
     static atomicUnitsToXmr(amountAtomicUnits: bigint | string): number;
+    /**
+     * Divide one atomic units by another.
+     *
+     * @param {bigint} au1 dividend
+     * @param {bigint} au2 divisor
+     * @returns {number} the result
+     */
+    static divide(au1: bigint, au2: bigint): number;
+    /**
+     * Multiply a bigint by a number or bigint.
+     *
+     * @param a bigint to multiply
+     * @param b bigint or number to multiply by
+     * @returns the product as a bigint
+     */
+    static multiply(a: bigint, b: number | bigint): bigint;
     protected static isHex64(str: any): boolean;
     /**
      * Determine if the given unlock time is a timestamp or block height.

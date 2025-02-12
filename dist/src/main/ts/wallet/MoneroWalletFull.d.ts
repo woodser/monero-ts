@@ -20,6 +20,7 @@ import MoneroSyncResult from "./model/MoneroSyncResult";
 import MoneroTransfer from "./model/MoneroTransfer";
 import MoneroTransferQuery from "./model/MoneroTransferQuery";
 import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxPriority from "./model/MoneroTxPriority";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxSet from "./model/MoneroTxSet";
 import MoneroTxWallet from "./model/MoneroTxWallet";
@@ -167,6 +168,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     freezeOutput(keyImage: string): Promise<void>;
     thawOutput(keyImage: string): Promise<void>;
     isOutputFrozen(keyImage: string): Promise<boolean>;
+    getDefaultFeePriority(): Promise<MoneroTxPriority>;
     createTxs(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet[]>;
     sweepOutput(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet>;
     sweepUnlocked(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet[]>;
@@ -311,6 +313,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     freezeOutput(keyImage: any): Promise<any>;
     thawOutput(keyImage: any): Promise<any>;
     isOutputFrozen(keyImage: any): Promise<any>;
+    getDefaultFeePriority(): Promise<any>;
     createTxs(config: any): Promise<MoneroTxWallet[]>;
     sweepOutput(config: any): Promise<MoneroTxWallet>;
     sweepUnlocked(config: any): Promise<any[]>;
