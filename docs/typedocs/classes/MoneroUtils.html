@@ -44,6 +44,7 @@
 <div class="tsd-index-list"><a href="MoneroUtils.html#atomicUnitsToXmr" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>atomic<wbr/>Units<wbr/>To<wbr/>Xmr</span></a>
 <a href="MoneroUtils.html#binaryBlocksToJson" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>binary<wbr/>Blocks<wbr/>To<wbr/>Json</span></a>
 <a href="MoneroUtils.html#binaryToJson" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>binary<wbr/>To<wbr/>Json</span></a>
+<a href="MoneroUtils.html#divide" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>divide</span></a>
 <a href="MoneroUtils.html#getIntegratedAddress" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Integrated<wbr/>Address</span></a>
 <a href="MoneroUtils.html#getLastTxPubKey" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Last<wbr/>Tx<wbr/>Pub<wbr/>Key</span></a>
 <a href="MoneroUtils.html#getVersion" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Version</span></a>
@@ -57,6 +58,7 @@
 <a href="MoneroUtils.html#isValidPublicViewKey" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Public<wbr/>View<wbr/>Key</span></a>
 <a href="MoneroUtils.html#jsonToBinary" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>json<wbr/>To<wbr/>Binary</span></a>
 <a href="MoneroUtils.html#mergeTx" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>merge<wbr/>Tx</span></a>
+<a href="MoneroUtils.html#multiply" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>multiply</span></a>
 <a href="MoneroUtils.html#paymentIdsEqual" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>payment<wbr/>Ids<wbr/>Equal</span></a>
 <a href="MoneroUtils.html#setProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroUtils.html#validateAddress" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Address</span></a>
@@ -144,6 +146,29 @@
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><p>JSON object converted from the binary data</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="divide" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>divide</span><a href="#divide" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="divide.divide-1"><span class="tsd-kind-call-signature">divide</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">au1</span>, <span class="tsd-kind-parameter">au2</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#divide.divide-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Divide one atomic units by another.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">au1</span>: <span class="tsd-signature-type">bigint</span></h5>
+<div class="tsd-comment tsd-typography"><p>dividend</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">au2</span>: <span class="tsd-signature-type">bigint</span></h5>
+<div class="tsd-comment tsd-typography"><p>divisor</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>the result</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getIntegratedAddress" class="tsd-anchor"></a>
@@ -382,6 +407,29 @@ returns the last tx pub key.</p>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="multiply" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>multiply</span><a href="#multiply" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="multiply.multiply-1"><span class="tsd-kind-call-signature">multiply</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">a</span>, <span class="tsd-kind-parameter">b</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">bigint</span><a href="#multiply.multiply-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Multiply a bigint by a number or bigint.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">a</span>: <span class="tsd-signature-type">bigint</span></h5>
+<div class="tsd-comment tsd-typography"><p>bigint to multiply</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">b</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></h5>
+<div class="tsd-comment tsd-typography"><p>bigint or number to multiply by</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">bigint</span></h4><p>the product as a bigint</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="paymentIdsEqual" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>payment<wbr/>Ids<wbr/>Equal</span><a href="#paymentIdsEqual" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -593,6 +641,7 @@ returns the last tx pub key.</p>
 <li><a href="#atomicUnitsToXmr" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>atomic<wbr/>Units<wbr/>To<wbr/>Xmr</span></a></li>
 <li><a href="#binaryBlocksToJson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>binary<wbr/>Blocks<wbr/>To<wbr/>Json</span></a></li>
 <li><a href="#binaryToJson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>binary<wbr/>To<wbr/>Json</span></a></li>
+<li><a href="#divide" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>divide</span></a></li>
 <li><a href="#getIntegratedAddress" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Integrated<wbr/>Address</span></a></li>
 <li><a href="#getLastTxPubKey" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Last<wbr/>Tx<wbr/>Pub<wbr/>Key</span></a></li>
 <li><a href="#getVersion" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Version</span></a></li>
@@ -606,6 +655,7 @@ returns the last tx pub key.</p>
 <li><a href="#isValidPublicViewKey" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Valid<wbr/>Public<wbr/>View<wbr/>Key</span></a></li>
 <li><a href="#jsonToBinary" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>json<wbr/>To<wbr/>Binary</span></a></li>
 <li><a href="#mergeTx" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>merge<wbr/>Tx</span></a></li>
+<li><a href="#multiply" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>multiply</span></a></li>
 <li><a href="#paymentIdsEqual" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>payment<wbr/>Ids<wbr/>Equal</span></a></li>
 <li><a href="#setProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#validateAddress" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>validate<wbr/>Address</span></a></li>

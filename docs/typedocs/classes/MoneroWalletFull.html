@@ -93,6 +93,7 @@
 <a href="MoneroWalletFull.html#getDaemonHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Daemon<wbr/>Height</span></a>
 <a href="MoneroWalletFull.html#getDaemonMaxPeerHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Daemon<wbr/>Max<wbr/>Peer<wbr/>Height</span></a>
 <a href="MoneroWalletFull.html#getData" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Data</span></a>
+<a href="MoneroWalletFull.html#getDefaultFeePriority" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Default<wbr/>Fee<wbr/>Priority</span></a>
 <a href="MoneroWalletFull.html#getHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Height</span></a>
 <a href="MoneroWalletFull.html#getHeightByDate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Height<wbr/>By<wbr/>Date</span></a>
 <a href="MoneroWalletFull.html#getIncomingTransfers" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Incoming<wbr/>Transfers</span></a>
@@ -1016,6 +1017,17 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">DataView</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>is the keys and cache data, respectively</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="getDefaultFeePriority" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Default<wbr/>Fee<wbr/>Priority</span><a href="#getDefaultFeePriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="getDefaultFeePriority.getDefaultFeePriority-1"><span class="tsd-kind-call-signature">get<wbr/>Default<wbr/>Fee<wbr/>Priority</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../enums/MoneroTxPriority.html" class="tsd-signature-type tsd-kind-enum">MoneroTxPriority</a><span class="tsd-signature-symbol">&gt;</span><a href="#getDefaultFeePriority.getDefaultFeePriority-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current default fee priority (unimportant, normal, elevated, etc).</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../enums/MoneroTxPriority.html" class="tsd-signature-type tsd-kind-enum">MoneroTxPriority</a><span class="tsd-signature-symbol">&gt;</span></h4><p>the current fee priority</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Overrides <a href="MoneroWalletKeys.html">MoneroWalletKeys</a>.<a href="MoneroWalletKeys.html#getDefaultFeePriority">getDefaultFeePriority</a></p></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getHeight" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Height</span><a href="#getHeight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -2929,6 +2941,7 @@ let wallet = await MoneroWalletKeys.createWallet({<br>
 <li><a href="#getDaemonHeight" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Daemon<wbr/>Height</span></a></li>
 <li><a href="#getDaemonMaxPeerHeight" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Daemon<wbr/>Max<wbr/>Peer<wbr/>Height</span></a></li>
 <li><a href="#getData" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Data</span></a></li>
+<li><a href="#getDefaultFeePriority" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Default<wbr/>Fee<wbr/>Priority</span></a></li>
 <li><a href="#getHeight" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Height</span></a></li>
 <li><a href="#getHeightByDate" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Height<wbr/>By<wbr/>Date</span></a></li>
 <li><a href="#getIncomingTransfers" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Incoming<wbr/>Transfers</span></a></li>
