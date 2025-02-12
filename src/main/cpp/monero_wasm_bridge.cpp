@@ -775,6 +775,15 @@ void monero_wasm_bridge::is_output_frozen(int handle, const string& key_image, e
   }
 }
 
+void monero_wasm_bridge::get_default_fee_priority(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    callback(static_cast<int>(wallet->get_default_fee_priority()));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
 void monero_wasm_bridge::create_txs(int handle, const string& config_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {

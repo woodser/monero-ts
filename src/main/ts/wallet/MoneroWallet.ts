@@ -27,6 +27,7 @@ import MoneroSyncResult from "./model/MoneroSyncResult";
 import MoneroTransfer from "./model/MoneroTransfer";
 import MoneroTransferQuery from "./model/MoneroTransferQuery";
 import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxPriority from "./model/MoneroTxPriority";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxWallet from "./model/MoneroTxWallet";
 import MoneroTxSet from "./model/MoneroTxSet";
@@ -772,6 +773,15 @@ export default class MoneroWallet {
    * @return {Promise<boolean>} true if the output is frozen, false otherwise
    */
   async isOutputFrozen(keyImage: string): Promise<boolean> {
+    throw new MoneroError("Not supported");
+  }
+
+  /**
+   * Get the current default fee priority (unimportant, normal, elevated, etc).
+   * 
+   * @return {Promise<MoneroTxPriority>} the current fee priority
+   */
+  async getDefaultFeePriority(): Promise<MoneroTxPriority> {
     throw new MoneroError("Not supported");
   }
   

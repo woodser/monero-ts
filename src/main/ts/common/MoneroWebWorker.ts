@@ -796,6 +796,10 @@ self.isOutputFrozen = async function(walletId, keyImage) {
   return self.WORKER_OBJECTS[walletId].isOutputFrozen(keyImage);
 }
 
+self.getDefaultFeePriority = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getDefaultFeePriority();
+}
+
 self.createTxs = async function(walletId, config) {
   if (typeof config === "object") config = new MoneroTxConfig(config);
   let txs = await self.WORKER_OBJECTS[walletId].createTxs(config);

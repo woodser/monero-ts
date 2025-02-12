@@ -27,6 +27,7 @@ import MoneroSyncResult from "./model/MoneroSyncResult";
 import MoneroTransfer from "./model/MoneroTransfer";
 import MoneroTransferQuery from "./model/MoneroTransferQuery";
 import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxPriority from "./model/MoneroTxPriority";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxSet from "./model/MoneroTxSet";
 import MoneroTx from "../daemon/model/MoneroTx";
@@ -941,6 +942,16 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.is_output_frozen(this.cppAddress, keyImage, (result) => resolve(result));
+      });
+    });
+  }
+
+  async getDefaultFeePriority(): Promise<MoneroTxPriority> {
+    if (this.getWalletProxy()) return this.getWalletProxy().getDefaultFeePriority();
+    return this.module.queueTask(async () => {
+      this.assertNotClosed();
+      return new Promise((resolve, reject) => {
+        this.module.get_default_fee_priority(this.cppAddress, (result) => resolve(result));
       });
     });
   }
@@ -2119,6 +2130,10 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   
   async isOutputFrozen(keyImage) {
     return this.invokeWorker("isOutputFrozen", [keyImage]);
+  }
+
+  async getDefaultFeePriority() {
+    return this.invokeWorker("getDefaultFeePriority");
   }
   
   async createTxs(config) {
