@@ -1245,7 +1245,7 @@ export default class TestMoneroWalletCommon {
         // get height that most txs occur at
         let heightCounts = countNumInstances(txHeights);
         let heightModes = getModes(heightCounts);
-        let modeHeight = heightModes.values().next().value;
+        let modeHeight = heightModes.values().next().value as number;
         
         // fetch txs at mode height
         let modeTxs = await that.getAndTestTxs(that.wallet, new MoneroTxQuery().setHeight(modeHeight));
@@ -4232,6 +4232,12 @@ export default class TestMoneroWalletCommon {
         await that.closeWallet(verifyingWallet);
       });
     });
+
+    if (testConfig.testNonRelays)
+    it("Can get the default fee priority", async function() {
+      const defaultPriority = await that.wallet.getDefaultFeePriority();
+      assert(defaultPriority > 0);
+    });
   }
   
   // -------------------------------- PRIVATE ---------------------------------
@@ -5611,4 +5617,3 @@ class WalletNotificationCollector extends MoneroWalletListener {
     this.listening = listening;
   }
 }
-

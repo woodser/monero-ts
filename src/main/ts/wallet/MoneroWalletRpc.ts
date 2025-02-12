@@ -29,6 +29,7 @@ import MoneroTransfer from "./model/MoneroTransfer";
 import MoneroTransferQuery from "./model/MoneroTransferQuery";
 import MoneroTx from "../daemon/model/MoneroTx";
 import MoneroTxConfig from "./model/MoneroTxConfig";
+import MoneroTxPriority from "./model/MoneroTxPriority";
 import MoneroTxQuery from "./model/MoneroTxQuery";
 import MoneroTxSet from "./model/MoneroTxSet";
 import MoneroTxWallet from "./model/MoneroTxWallet";
@@ -879,6 +880,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async isOutputFrozen(keyImage: string): Promise<boolean> {
     let resp = await this.config.getServer().sendJsonRequest("frozen", {key_image: keyImage});
     return resp.result.frozen === true;
+  }
+
+  async getDefaultFeePriority(): Promise<MoneroTxPriority> {
+    let resp = await this.config.getServer().sendJsonRequest("get_default_fee_priority");
+    return resp.result.priority;
   }
   
   async createTxs(config: Partial<MoneroTxConfig>): Promise<MoneroTxWallet[]> {

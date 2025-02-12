@@ -83,6 +83,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("freeze_output", &monero_wasm_bridge::freeze_output);
   emscripten::function("thaw_output", &monero_wasm_bridge::thaw_output);
   emscripten::function("is_output_frozen", &monero_wasm_bridge::is_output_frozen);
+  emscripten::function("get_default_fee_priority", &monero_wasm_bridge::get_default_fee_priority);
   emscripten::function("create_txs", &monero_wasm_bridge::create_txs);
   emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
   emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);

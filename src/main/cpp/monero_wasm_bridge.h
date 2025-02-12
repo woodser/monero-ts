@@ -101,6 +101,7 @@ namespace monero_wasm_bridge
   void freeze_output(int handle, const string& key_image, emscripten::val callback);
   void thaw_output(int handle, const string& key_image, emscripten::val callback);
   void is_output_frozen(int handle, const string& key_image, emscripten::val callback);
+  void get_default_fee_priority(int handle, emscripten::val callback);
   void create_txs(int handle, const string& config_json, emscripten::val callback);
   void sweep_output(int handle, const string& config_json, emscripten::val callback);
   void sweep_unlocked(int handle, const string& config_json, emscripten::val callback);
