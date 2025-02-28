@@ -32,7 +32,7 @@ let txsInPool = await daemon.getTxPool();     // get transactions in the pool
 
 // create wallet from mnemonic phrase using WebAssembly bindings to monero-project
 let walletFull = await moneroTs.createWalletFull({
-  path: "sample_wallet_full"
+  path: "sample_wallet_full",
   password: "supersecretpassword123",
   networkType: moneroTs.MoneroNetworkType.TESTNET,
   seed: "hefty value scenic...",
