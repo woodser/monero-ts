@@ -887,10 +887,12 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.export_key_images(this.cppAddress, all, (keyImagesStr) => {
-          if (keyImagesStr.charAt(0) !== '{') reject(new MoneroError(keyImagesStr)); // json expected, else error
-          let keyImages = [];
-          for (let keyImageJson of JSON.parse(GenUtils.stringifyBigInts(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
-          resolve(keyImages);
+          if (keyImagesStr.charAt(0) !== '{')reject(new MoneroError(keyImagesStr)); // json expected, else error
+          else {
+            let keyImages = [];
+            for (let keyImageJson of JSON.parse(GenUtils.stringifyBigInts(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
+            resolve(keyImages);
+          }
         });
       });
     });
@@ -902,7 +904,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.import_key_images(this.cppAddress, JSON.stringify({keyImages: keyImages.map(keyImage => keyImage.toJson())}), (keyImageImportResultStr) => {
-          resolve(new MoneroKeyImageImportResult(JSON.parse(GenUtils.stringifyBigInts(keyImageImportResultStr))));
+          if (keyImageImportResultStr.charAt(0) !== '{') reject(new MoneroError(keyImageImportResultStr)); // json expected, else error
+          else resolve(new MoneroKeyImageImportResult(JSON.parse(GenUtils.stringifyBigInts(keyImageImportResultStr))));
         });
       });
     });
