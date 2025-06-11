@@ -33,7 +33,7 @@ export default class MoneroRpcError extends MoneroError {
   
   toString() {
     let str = super.toString();
-    if (this.rpcMethod || this.rpcParams) str += "\nRequest: '" + this.rpcMethod + "' with params: " + (typeof this.rpcParams === "object" ? JSON.stringify(this.rpcParams) : this.rpcParams);
+    if (this.rpcMethod) str += "\nRPC request: '" + this.rpcMethod + "'";
     return str;
   }
 }
