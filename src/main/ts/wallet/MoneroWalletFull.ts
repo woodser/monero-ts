@@ -498,7 +498,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       try {
         let result = this.module.get_integrated_address(this.cppAddress, standardAddress ? standardAddress : "", paymentId ? paymentId : "");
-        if (result.charAt(0) !== "{") throw new MoneroError(result);
+        if (result.charAt(0) !== '{') throw new MoneroError(result);
         return new MoneroIntegratedAddress(JSON.parse(result));
       } catch (err: any) {
         if (err.message.includes("Invalid payment ID")) throw new MoneroError("Invalid payment ID: " + paymentId);
@@ -513,7 +513,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       try {
         let result = this.module.decode_integrated_address(this.cppAddress, integratedAddress);
-        if (result.charAt(0) !== "{") throw new MoneroError(result);
+        if (result.charAt(0) !== '{') throw new MoneroError(result);
         return new MoneroIntegratedAddress(JSON.parse(result));
       } catch (err: any) {
         throw new MoneroError(err.message);
@@ -591,7 +591,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         
           // sync wallet in wasm which invokes callback when done
           that.module.sync(that.cppAddress, startHeight, async (resp) => {
-            if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+            if (resp.charAt(0) !== '{') reject(new MoneroError(resp));
             else {
               let respJson = JSON.parse(resp);
               resolve(new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney));
@@ -783,7 +783,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         this.module.get_txs(this.cppAddress, JSON.stringify(queryNormalized.getBlock().toJson()), (blocksJsonStr) => {
           
           // check for error
-          if (blocksJsonStr.charAt(0) !== "{") {
+          if (blocksJsonStr.charAt(0) !== '{') {
             reject(new MoneroError(blocksJsonStr));
             return;
           }
@@ -814,7 +814,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         this.module.get_transfers(this.cppAddress, JSON.stringify(queryNormalized.getTxQuery().getBlock().toJson()), (blocksJsonStr) => {
             
           // check for error
-          if (blocksJsonStr.charAt(0) !== "{") {
+          if (blocksJsonStr.charAt(0) !== '{') {
             reject(new MoneroError(blocksJsonStr));
             return;
           }
@@ -845,7 +845,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         this.module.get_outputs(this.cppAddress, JSON.stringify(queryNormalized.getTxQuery().getBlock().toJson()), (blocksJsonStr) => {
           
           // check for error
-          if (blocksJsonStr.charAt(0) !== "{") {
+          if (blocksJsonStr.charAt(0) !== '{') {
             reject(new MoneroError(blocksJsonStr));
             return;
           }
@@ -1054,7 +1054,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.relay_txs(this.cppAddress, JSON.stringify({txMetadatas: txMetadatas}), (txHashesJson) => {
-          if (txHashesJson.charAt(0) !== "{") reject(new MoneroError(txHashesJson));
+          if (txHashesJson.charAt(0) !== '{') reject(new MoneroError(txHashesJson));
           else resolve(JSON.parse(txHashesJson).txHashes);
         });
       });
@@ -1086,7 +1086,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.submit_txs(this.cppAddress, signedTxHex, (resp) => {
-          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          if (resp.charAt(0) !== '{') reject(new MoneroError(resp));
           else resolve(JSON.parse(resp).txHashes);
         });
       });
@@ -1141,7 +1141,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed(); 
       return new Promise((resolve, reject) => {
         this.module.check_tx_key(this.cppAddress, txHash, txKey, address, (respJsonStr) => {
-          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr));
+          if (respJsonStr.charAt(0) !== '{') reject(new MoneroError(respJsonStr));
           else resolve(new MoneroCheckTx(JSON.parse(GenUtils.stringifyBigInts(respJsonStr))));
         });
       });
@@ -1168,7 +1168,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed(); 
       return new Promise((resolve, reject) => {
         this.module.check_tx_proof(this.cppAddress, txHash || "", address || "", message || "", signature || "", (respJsonStr) => {
-          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr));
+          if (respJsonStr.charAt(0) !== '{') reject(new MoneroError(respJsonStr));
           else resolve(new MoneroCheckTx(JSON.parse(GenUtils.stringifyBigInts(respJsonStr))));
         });
       });
@@ -1235,7 +1235,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed(); 
       return new Promise((resolve, reject) => {
         this.module.check_reserve_proof(this.cppAddress, address, message, signature, (respJsonStr) => {
-          if (respJsonStr.charAt(0) !== "{") reject(new MoneroError(respJsonStr, -1));
+          if (respJsonStr.charAt(0) !== '{') reject(new MoneroError(respJsonStr, -1));
           else resolve(new MoneroCheckReserve(JSON.parse(GenUtils.stringifyBigInts(respJsonStr))));
         });
       });
@@ -1491,7 +1491,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.sign_multisig_tx_hex(this.cppAddress, multisigTxHex, (resp) => {
-          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          if (resp.charAt(0) !== '{') reject(new MoneroError(resp));
           else resolve(new MoneroMultisigSignResult(JSON.parse(resp)));
         });
       });
@@ -1504,7 +1504,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.submit_multisig_tx_hex(this.cppAddress, signedMultisigTxHex, (resp) => {
-          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          if (resp.charAt(0) !== '{') reject(new MoneroError(resp));
           else resolve(JSON.parse(resp).txHashes);
         });
       });
