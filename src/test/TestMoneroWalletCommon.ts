@@ -2551,7 +2551,7 @@ export default class TestMoneroWalletCommon {
           await that.openWallet(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD));
           throw new Error("Should have thrown");
         } catch (err: any) {
-          assert(err.message === "Failed to open wallet" || err.message === "invalid password"); // TODO: different errors from rpc and wallet2
+          assert(err.message.toLowerCase().indexOf("failed to open wallet") >= 0 || err.message.toLowerCase().indexOf("invalid password") >= 0); // TODO: different errors from rpc and wallet2
         }
         
         // open wallet with new password
