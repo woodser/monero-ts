@@ -49,7 +49,7 @@ await walletFull.sync(new class extends moneroTs.MoneroWalletListener {
   async onSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string) {
     // feed a progress bar?
   }
-} as moneroTs.MoneroWalletListener);
+});
 
 // synchronize in the background every 5 seconds
 await walletFull.startSyncing(5000);
