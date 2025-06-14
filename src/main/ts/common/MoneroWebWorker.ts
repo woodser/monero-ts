@@ -20,6 +20,9 @@ import {MoneroWalletKeys} from "../wallet/MoneroWalletKeys";
 import MoneroWalletFull from "../wallet/MoneroWalletFull";
 
 declare const self: any;
+if (LibraryUtils.isUsingDeno() && typeof self === "undefined" && typeof globalThis === "object" && typeof DedicatedWorkerGlobalScope === "function" && DedicatedWorkerGlobalScope.prototype.isPrototypeOf(globalThis)) {
+  self = globalThis;
+}
 
 // expose some modules to the worker
 self.HttpClient = HttpClient;
