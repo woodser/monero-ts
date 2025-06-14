@@ -22,6 +22,7 @@ export default class LibraryUtils {
     // get worker path in dist (assumes library is running from src or dist)
     let curPath = path.normalize(__dirname);
     const targetPath = path.join('monero-ts', 'dist');
+    if (LibraryUtils.isUsingDeno()) return path.join("file://", curPath, !curPath.includes(targetPath) ? "../../../../../dist/src/main/ts/common" : "", "./MoneroWebWorker.js");
     if (!curPath.includes(targetPath)) curPath = path.join(curPath, "../../../../dist/src/main/js/common");
     return LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
   }();
@@ -163,6 +164,8 @@ export default class LibraryUtils {
         // otherwise use standard loading mechanisms for browser and node
         if (GenUtils.isBrowser()) {
           LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+        } else if (LibraryUtils.isUsingDeno()) {
+          LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH, { type: "module" });
         } else {
           const Worker = require("web-worker"); // import web worker if nodejs
           LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
@@ -271,6 +274,13 @@ export default class LibraryUtils {
     } catch (err) {
       return false;
     }
+  }
+
+  /**
+   * Get whether or not we are running under Deno by checking for the existence of the global Deno variable.
+   */
+  static isUsingDeno() {
+    return typeof Deno === "object" && Deno.hasOwnProperty("version") && typeof Deno.version === "object" && Deno.version.hasOwnProperty("deno") && typeof Deno.version.deno === "string";
   }
   
   // ------------------------------ PRIVATE HELPERS ---------------------------
