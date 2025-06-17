@@ -581,6 +581,12 @@ export default class GenUtils {
      */
     static isBrowser(): boolean;
     /**
+     * Indicates if the current environment is Deno
+     *
+     * @return {boolean} true if the environment is Deno, false otherwise
+     */
+    static isDeno(): boolean;
+    /**
      * Indicates if the current environment is a firefox-based browser.
      *
      * @return {boolean} true if the environment is a firefox-based browser, false otherwise

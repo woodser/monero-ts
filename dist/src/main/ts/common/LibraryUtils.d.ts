@@ -10,8 +10,8 @@ export default class LibraryUtils {
     static FULL_LOADED: any;
     static REJECT_UNAUTHORIZED_FNS: any;
     static readonly MUTEX: ThreadPool;
-    static WORKER_DIST_PATH_DEFAULT: any;
-    static WORKER_DIST_PATH: any;
+    static WORKER_DIST_PATH_DEFAULT: string;
+    static WORKER_DIST_PATH: string;
     static WORKER_LOADER?: () => Worker;
     /**
      * Log a message.
