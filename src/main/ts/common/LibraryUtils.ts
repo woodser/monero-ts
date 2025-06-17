@@ -23,7 +23,9 @@ export default class LibraryUtils {
     let curPath = path.normalize(__dirname);
     const targetPath = path.join('monero-ts', 'dist');
     if (!curPath.includes(targetPath)) curPath = path.join(curPath, "../../../../dist/src/main/js/common");
-    return LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
+    curPath = LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
+    if (GenUtils.isDeno()) curPath = path.join("file://", curPath);
+    return curPath;
   }();
   static WORKER_DIST_PATH = LibraryUtils.WORKER_DIST_PATH_DEFAULT;
   static WORKER_LOADER?: () => Worker = undefined;
@@ -163,6 +165,8 @@ export default class LibraryUtils {
         // otherwise use standard loading mechanisms for browser and node
         if (GenUtils.isBrowser()) {
           LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
+        } else if (GenUtils.isDeno()) {
+          LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH, { type: "module" });
         } else {
           const Worker = require("web-worker"); // import web worker if nodejs
           LibraryUtils.WORKER = new Worker(LibraryUtils.WORKER_DIST_PATH);
