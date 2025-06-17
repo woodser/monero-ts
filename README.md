@@ -110,11 +110,12 @@ await walletFull.close(true);
 
 ## Sample projects
 
-* [Sample Node.js app](https://github.com/woodser/xmr-sample-node) - sample Node.js application
-* [Sample React app](https://github.com/woodser/xmr-sample-react) - sample browser application using React (create-react-app)
-* [Sample Next.js app](https://github.com/woodser/xmr-sample-next) - sample browser application using Next.js
-* [Sample Vite app](https://github.com/woodser/xmr-sample-vite) - sample browser application using Vite
-* [Sample Webpack app](https://github.com/woodser/xmr-sample-webpack) - sample browser application using Webpack
+* [Sample Node.js app](https://github.com/woodser/xmr-sample-node)
+* [Sample React app](https://github.com/woodser/xmr-sample-react)
+* [Sample Next.js app](https://github.com/woodser/xmr-sample-next)
+* [Sample Vite app](https://github.com/woodser/xmr-sample-vite)
+* [Sample Webpack app](https://github.com/woodser/xmr-sample-webpack)
+* [Sample Deno app](https://github.com/woodser/xmr-sample-deno)
 
 ## Related projects
 
