@@ -2,6 +2,8 @@ import assert from "assert";
 import async from "async";
 import { ChildProcess } from "child_process";
 
+declare var Deno: any;
+
 /**
  * MIT License
  * 
@@ -1171,6 +1173,15 @@ export default class GenUtils {
     let isBrowserMain = new Function("try {return this===window;}catch(e){return false;}")();
     let isJsDom = isBrowserMain ? new Function("try {return window.navigator.userAgent.includes('jsdom');}catch(e){return false;}")() : false;
     return isWorker || (isBrowserMain && !isJsDom);
+  }
+  
+  /**
+   * Indicates if the current environment is Deno
+   * 
+   * @return {boolean} true if the environment is Deno, false otherwise
+   */
+  static isDeno() {
+    return typeof Deno === "object" && Deno.hasOwnProperty("version") && typeof Deno.version === "object" && Deno.version.hasOwnProperty("deno") && typeof Deno.version.deno === "string";
   }
   
   /**

@@ -19,7 +19,14 @@ import MoneroWalletListener from "../wallet/model/MoneroWalletListener"
 import {MoneroWalletKeys} from "../wallet/MoneroWalletKeys";
 import MoneroWalletFull from "../wallet/MoneroWalletFull";
 
-declare const self: any;
+declare var self: any;
+
+// deno configuration
+declare var DedicatedWorkerGlobalScope: any;
+if (GenUtils.isDeno() && typeof self === "undefined" && typeof globalThis === "object" && typeof DedicatedWorkerGlobalScope === "function" && DedicatedWorkerGlobalScope.prototype.isPrototypeOf(globalThis)) {
+  self = globalThis;
+  (globalThis as any).self = globalThis;
+}
 
 // expose some modules to the worker
 self.HttpClient = HttpClient;

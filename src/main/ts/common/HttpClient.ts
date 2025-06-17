@@ -185,7 +185,7 @@ export default class HttpClient {
       httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
       data: body,
       transformResponse: res => res,
-      adapter: ['http', 'xhr', 'fetch'],
+      adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
     }).catch(async (err) => {
       if (err.response?.status === 401) {
         let authHeader = err.response.headers['www-authenticate'].replace(/,\sDigest.*/, "");
@@ -232,7 +232,7 @@ export default class HttpClient {
           httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
           data: body,
           transformResponse: res => res,
-          adapter: ['http', 'xhr', 'fetch'],
+          adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
         });
 
         return finalResponse;
