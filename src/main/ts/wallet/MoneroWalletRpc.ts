@@ -343,6 +343,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     params.ssl_ca_file = sslOptions.getCertificateAuthorityFile();
     params.ssl_allowed_fingerprints = sslOptions.getAllowedFingerprints();
     params.ssl_allow_any_cert = sslOptions.getAllowAnyCert();
+    params.proxy = connection ? connection.getProxyUri() : "";
     await this.config.getServer().sendJsonRequest("set_daemon", params);
     this.daemonConnection = connection;
   }

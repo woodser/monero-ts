@@ -15,6 +15,8 @@ export default class MoneroRpcConnection {
   uri: string;
   username: string;
   password: string;
+  zmqUri: string;
+  proxyUri: string;
   rejectUnauthorized: boolean;
   proxyToWorker: boolean;
   priority: number;
@@ -35,6 +37,8 @@ export default class MoneroRpcConnection {
     uri: undefined,
     username: undefined,
     password: undefined,
+    zmqUri: undefined,
+    proxyUri: undefined,
     rejectUnauthorized: true, // reject self-signed certificates if true
     proxyToWorker: false,
     priority: 0,
@@ -62,6 +66,8 @@ export default class MoneroRpcConnection {
    * @param {string} uriOrConnection.uri - URI of the RPC endpoint
    * @param {string} [uriOrConnection.username] - username to authenticate with the RPC endpoint (optional)
    * @param {string} [uriOrConnection.password] - password to authenticate with the RPC endpoint (optional)
+   * @param {string} [uriOrConnection.zmqUri] - URI of the ZMQ endpoint (optional)
+   * @param {string} [uriOrConnection.proxyUri] - URI of a proxy server to route requests through (optional)
    * @param {boolean} [uriOrConnection.rejectUnauthorized] - rejects self-signed certificates if true (default true)
    * @param {boolean} uriOrConnection.proxyToWorker - proxy requests to worker (default true)
    * @param {string} username - username to authenticate with the RPC endpoint (optional)
@@ -80,8 +86,10 @@ export default class MoneroRpcConnection {
       this.setCredentials(this.username, this.password);
     }
     
-    // normalize uri
+    // normalize uris
     if (this.uri) this.uri = GenUtils.normalizeUri(this.uri);
+    if (this.zmqUri) this.zmqUri = GenUtils.normalizeUri(this.zmqUri);
+    if (this.proxyUri) this.proxyUri = GenUtils.normalizeUri(this.proxyUri);
 
     // initialize mutexes
     this.checkConnectionMutex = new ThreadPool(1);
@@ -109,13 +117,31 @@ export default class MoneroRpcConnection {
   getUri() {
     return this.uri;
   }
-  
+
   getUsername() {
     return this.username ? this.username : "";
   }
   
   getPassword() {
     return this.password ? this.password : "";
+  }
+
+  getZmqUri() {
+    return this.zmqUri;
+  }
+
+  setZmqUri(zmqUri) {
+    this.zmqUri = zmqUri;
+    return this;
+  }
+  
+  getProxyUri() {
+    return this.proxyUri;
+  }
+
+  setProxyUri(proxyUri) {
+    this.proxyUri = proxyUri;
+    return this;
   }
   
   getRejectUnauthorized() {
@@ -130,7 +156,6 @@ export default class MoneroRpcConnection {
   getProxyToWorker() {
     return this.proxyToWorker;
   }
-  
   
   /**
    * Set the connection's priority relative to other connections. Priority 1 is highest,
@@ -260,7 +285,7 @@ export default class MoneroRpcConnection {
   async sendJsonRequest(method, params?, timeoutMs?): Promise<any> {
     return this.queueSendRequest(async () => {
       try {
-      
+
         // build request body
         let body = JSON.stringify({  // body is stringified so text/plain is returned so bigints are preserved
           id: "0",
@@ -271,6 +296,9 @@ export default class MoneroRpcConnection {
   
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending json request with method '" + method + "' and body: " + body);
+
+        // proxy uri is not supported
+        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for JSON requests");
         
         // send http request
         let startTime = new Date().getTime();
@@ -322,6 +350,9 @@ export default class MoneroRpcConnection {
 
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
+
+        // proxy uri is not supported
+        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for path requests");
         
         // send http request
         let startTime = new Date().getTime();
@@ -376,6 +407,9 @@ export default class MoneroRpcConnection {
 
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending binary request with path '" + path + "' and params: " + JSON.stringify(params));
+
+        // proxy uri is not supported
+        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for binary requests");
         
         // send http request
         let resp = await HttpClient.request({
@@ -412,6 +446,8 @@ export default class MoneroRpcConnection {
       uri: this.uri,
       username: this.username,
       password: this.password,
+      zmqUri: this.zmqUri,
+      proxyUri: this.proxyUri,
       rejectUnauthorized: this.rejectUnauthorized,
       proxyToWorker: this.proxyToWorker,
       priority: this.priority,
@@ -427,7 +463,7 @@ export default class MoneroRpcConnection {
   }
   
   toString() {
-    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", priority=" + this.getPriority() + ", timeoutMs=" + this.getTimeout() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
+    return this.getUri() + " (username=" + this.getUsername() + ", password=" + (this.getPassword() ? "***" : this.getPassword()) + ", zmqUri=" + this.getZmqUri() + ", proxyUri=" + this.getProxyUri() + ", priority=" + this.getPriority() + ", timeoutMs=" + this.getTimeout() + ", isOnline=" + this.getIsOnline() + ", isAuthenticated=" + this.getIsAuthenticated() + ")";
   }
 
   setFakeDisconnected(fakeDisconnected) { // used to test connection manager
