@@ -248,9 +248,9 @@ bool monero_wasm_bridge::is_view_only(int handle) {
   return wallet->is_view_only();
 }
 
-void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback) {
+void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, const string& proxy_uri, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_daemon_connection(uri, username, password);
+  wallet->set_daemon_connection(uri, username, password, proxy_uri);
   callback();
 }
 

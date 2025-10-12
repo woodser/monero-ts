@@ -441,6 +441,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     let uri = connection && connection.getUri() ? connection.getUri() : "";
     let username = connection && connection.getUsername() ? connection.getUsername() : "";
     let password = connection && connection.getPassword() ? connection.getPassword() : "";
+    let proxyUri = connection && connection.getProxyUri() ? connection.getProxyUri() : "";
     let rejectUnauthorized = connection ? connection.getRejectUnauthorized() : undefined;
     this.rejectUnauthorized = rejectUnauthorized;  // persist locally
     
@@ -448,7 +449,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
-        this.module.set_daemon_connection(this.cppAddress, uri, username, password, (resp) => {
+        this.module.set_daemon_connection(this.cppAddress, uri, username, password, proxyUri, (resp) => {
           resolve();
         });
       });
@@ -464,7 +465,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
         if (!connectionContainerStr) resolve(undefined);
         else {
           let jsonConnection = JSON.parse(connectionContainerStr);
-          resolve(new MoneroRpcConnection({uri: jsonConnection.uri, username: jsonConnection.username, password: jsonConnection.password, rejectUnauthorized: this.rejectUnauthorized}));
+          resolve(new MoneroRpcConnection({uri: jsonConnection.uri, username: jsonConnection.username, password: jsonConnection.password, proxyUri: jsonConnection.proxyUri, rejectUnauthorized: this.rejectUnauthorized}));
         }
       });
     });
