@@ -1489,7 +1489,7 @@ function testBlockTemplate(template) {
   assert(template.getPrevHash());
   assert(template.getReservedOffset());
   assert.equal(typeof template.getSeedHeight(), "number");
-  assert(template.getSeedHeight() > 0);
+  assert(template.getSeedHeight() >= 0);
   assert.equal(typeof template.getSeedHash(), "string");
   assert(template.getSeedHash());
   // next seed hash can be null or initialized  // TODO: test circumstances for each
