@@ -288,6 +288,15 @@ function createWalletKeys(config: Partial<MoneroWalletConfig>): Promise<MoneroWa
   return MoneroWalletKeys.createWallet(new MoneroWalletConfig(config));
 }
 
+/**
+ * <p>Shut down the monero-ts library, terminating any running workers.</p>
+ *
+ * @return {Promise<void>} promise that resolves when the library has shut down
+ */
+function shutdown(): Promise<void> {
+  return LibraryUtils.terminateWorker();
+}
+
 // --------------------------------- EXPORTS ----------------------------------
 
 export {
@@ -376,7 +385,8 @@ export {
   connectToWalletRpc,
   createWalletFull,
   openWalletFull,
-  createWalletKeys
+  createWalletKeys,
+  shutdown
 };
 
 // export default object with aggregate of all exports
@@ -464,7 +474,8 @@ const moneroTs = {
   connectToWalletRpc,
   createWalletFull,
   openWalletFull,
-  createWalletKeys
+  createWalletKeys,
+  shutdown
 }
 export default moneroTs;
 

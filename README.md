@@ -89,6 +89,9 @@ assert(fundsReceived);
 
 // save and close WebAssembly wallet
 await walletFull.close(true);
+
+// terminate any running resources (e.g. workers)
+await moneroTs.shutdown();
 ```
 
 ## Documentation
