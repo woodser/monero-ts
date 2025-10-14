@@ -252,7 +252,13 @@ declare function openWalletFull(config: Partial<MoneroWalletConfig>): Promise<Mo
  * @return {Promise<MoneroWalletKeys>} the created wallet
  */
 declare function createWalletKeys(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletKeys>;
-export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool, getVersion, connectToDaemonRpc, connectToWalletRpc, createWalletFull, openWalletFull, createWalletKeys };
+/**
+ * <p>Shut down the monero-ts library, terminating any running workers.</p>
+ *
+ * @return {Promise<void>} promise that resolves when the library has shut down
+ */
+declare function shutdown(): Promise<void>;
+export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool, getVersion, connectToDaemonRpc, connectToWalletRpc, createWalletFull, openWalletFull, createWalletKeys, shutdown };
 declare const moneroTs: {
     GenUtils: typeof GenUtils;
     Filter: typeof Filter;
@@ -336,6 +342,7 @@ declare const moneroTs: {
     createWalletFull: typeof createWalletFull;
     openWalletFull: typeof openWalletFull;
     createWalletKeys: typeof createWalletKeys;
+    shutdown: typeof shutdown;
 };
 export default moneroTs;
 declare global {
