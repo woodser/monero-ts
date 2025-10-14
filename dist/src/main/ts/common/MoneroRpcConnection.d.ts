@@ -6,6 +6,8 @@ export default class MoneroRpcConnection {
     uri: string;
     username: string;
     password: string;
+    zmqUri: string;
+    proxyUri: string;
     rejectUnauthorized: boolean;
     proxyToWorker: boolean;
     priority: number;
@@ -40,6 +42,8 @@ export default class MoneroRpcConnection {
      * @param {string} uriOrConnection.uri - URI of the RPC endpoint
      * @param {string} [uriOrConnection.username] - username to authenticate with the RPC endpoint (optional)
      * @param {string} [uriOrConnection.password] - password to authenticate with the RPC endpoint (optional)
+     * @param {string} [uriOrConnection.zmqUri] - URI of the ZMQ endpoint (optional)
+     * @param {string} [uriOrConnection.proxyUri] - URI of a proxy server to route requests through (optional)
      * @param {boolean} [uriOrConnection.rejectUnauthorized] - rejects self-signed certificates if true (default true)
      * @param {boolean} uriOrConnection.proxyToWorker - proxy requests to worker (default true)
      * @param {string} username - username to authenticate with the RPC endpoint (optional)
@@ -50,6 +54,10 @@ export default class MoneroRpcConnection {
     getUri(): string;
     getUsername(): string;
     getPassword(): string;
+    getZmqUri(): string;
+    setZmqUri(zmqUri: any): this;
+    getProxyUri(): string;
+    setProxyUri(proxyUri: any): this;
     getRejectUnauthorized(): boolean;
     setProxyToWorker(proxyToWorker: any): this;
     getProxyToWorker(): boolean;
@@ -137,6 +145,8 @@ export default class MoneroRpcConnection {
         uri: string;
         username: string;
         password: string;
+        zmqUri: string;
+        proxyUri: string;
         rejectUnauthorized: boolean;
         proxyToWorker: boolean;
         priority: number;
