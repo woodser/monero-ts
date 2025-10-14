@@ -116,6 +116,9 @@ export default class TestSampleCode {
         
         // save and close WebAssembly wallet
         await walletFull.close(true);
+
+        // terminate any running resources (e.g. workers)
+        await moneroTs.shutdown();
       });
       
       it("Connection manager demonstration", async function() {
