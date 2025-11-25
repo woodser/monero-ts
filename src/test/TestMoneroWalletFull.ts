@@ -516,7 +516,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (false && testConfig.testNonRelays && !testConfig.liteMode) // TODO: re-enable before release
+      if (testConfig.testNonRelays && !testConfig.liteMode)
       it("Can sync a wallet created from seed from the genesis", async function() {
         await testSyncSeed(undefined, undefined, true, false);
       });
