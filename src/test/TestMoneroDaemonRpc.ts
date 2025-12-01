@@ -1432,9 +1432,11 @@ function testTx(tx: MoneroTx, ctx) {
   }
   
   // test pruned vs not pruned
+  let isPruned = tx.getPrunedHex() !== undefined; // tx might be pruned regardless of configuration
+  if (ctx.isPruned) assert(isPruned);
   if (ctx.fromGetTxPool || ctx.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monerod: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
   else assert(tx.getPrunableHash());
-  if (ctx.isPruned) {
+  if (isPruned) {
     assert.equal(tx.getRctSigPrunable(), undefined);
     assert.equal(tx.getSize(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1442,7 +1444,6 @@ function testTx(tx: MoneroTx, ctx) {
     assert.equal(tx.getFullHex(), undefined);
     assert(tx.getPrunedHex());
   } else {
-    assert.equal(tx.getPrunedHex(), undefined);
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0n);
     assert(tx.getExtra() instanceof Uint8Array);

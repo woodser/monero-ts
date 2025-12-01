@@ -2615,7 +2615,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNotifications)
-      it("Can generate notifications sending to different account.", async function() {
+      it("Can generate notifications sending to different account", async function() {
         await testWalletNotifications("testNotificationsDifferentAccounts", true, false, false, false, 0);
       });
       
