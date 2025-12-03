@@ -24,7 +24,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // if full tests ran, wait for full wallet's pool txs to confirm
         if (TestMoneroWalletFull.FULL_TESTS_RUN) {
             let walletFull = await TestUtils.getWalletFull();
-            await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(walletFull);
+            await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(walletFull);
             await walletFull.close(true);
         }
     }
@@ -54,52 +54,11 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     }
 
     async openWallet(config) {
-
-        // assign defaults
-        config = new MoneroWalletConfig(config);
-        if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
-        if (!config.getServer() && !config.getConnectionManager()) config.setServer(await this.daemon.getRpcConnection());
-
-        // create client connected to internal monero-wallet-rpc executable
-        let offline = config.getServer() && config.getServer().getUri() === TestUtils.OFFLINE_SERVER_URI;
-        let wallet = await TestUtils.startWalletRpcProcess(offline);
-
-        // open wallet
-        try {
-            await wallet.openWallet(config);
-            await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
-            if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
-            return wallet;
-        } catch (err) {
-            await TestUtils.stopWalletRpcProcess(wallet);
-            throw err;
-        }
+        return await TestUtils.openWalletRpc(config);
     }
 
     async createWallet(config: Partial<MoneroWalletConfig>) {
-
-        // assign defaults
-        config = new MoneroWalletConfig(config);
-        let random = !config.getSeed() && !config.getPrimaryAddress();
-        if (!config.getPath()) config.setPath(GenUtils.getUUID());
-        if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
-        if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
-        if (!config.getServer() && !config.getConnectionManager()) config.setServer(await this.daemon.getRpcConnection());
-
-        // create client connected to internal monero-wallet-rpc executable
-        let offline = config.getServer() && config.getServer().getUri() === GenUtils.normalizeUri(TestUtils.OFFLINE_SERVER_URI);
-        let wallet = await TestUtils.startWalletRpcProcess(offline);
-
-        // create wallet
-        try {
-            await wallet.createWallet(config);
-            await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
-            if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
-            return wallet;
-        } catch (err) {
-            await TestUtils.stopWalletRpcProcess(wallet);
-            throw err;
-        }
+        return TestUtils.createWalletRpc(config);
     }
 
     async closeWallet(wallet, save?) {

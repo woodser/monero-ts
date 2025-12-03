@@ -433,7 +433,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return super.getListeners();
   }
   
-  async setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string): Promise<void> {
+  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().setDaemonConnection(uriOrConnection);
     
     // normalize connection

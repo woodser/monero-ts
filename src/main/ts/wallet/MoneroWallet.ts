@@ -130,7 +130,7 @@ export default class MoneroWallet {
    * @param {MoneroRpcConnection | string} [uriOrConnection] - daemon's URI or connection (defaults to offline)
    * @return {Promise<void>}
    */
-  async setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string): Promise<void> {
+  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void> {
     throw new MoneroError("Not supported");
   }
   

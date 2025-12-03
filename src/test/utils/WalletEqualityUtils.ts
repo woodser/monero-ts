@@ -5,6 +5,8 @@ import {GenUtils,
         MoneroTransferQuery,
         MoneroOutputQuery,
         MoneroOutgoingTransfer,
+        MoneroTxWallet,
+        MoneroWallet,
         MoneroWalletRpc} from "../../../index";
 
 /**
@@ -29,17 +31,22 @@ export default class WalletEqualityUtils {
    * @param w1 a wallet to compare
    * @param w2 a wallet to compare
    */
-  static async testWalletEqualityOnChain(w1, w2) {
-    TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+  static async testWalletEqualityOnChain(w1: MoneroWallet, w2: MoneroWallet) {
     
     // wait for relayed txs associated with wallets to clear pool
     assert.equal(await w1.isConnectedToDaemon(), await w2.isConnectedToDaemon());
-    if (await w1.isConnectedToDaemon()) await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool([w1, w2]);
-    
-    // sync the wallets until same height
-    while (await w1.getHeight() !== await w2.getHeight()) {
+    if (await w1.isConnectedToDaemon()) {
+
+      // sync wallets until same height
       await w1.sync();
       await w2.sync();
+      while (await w1.getHeight() !== await w2.getHeight()) {
+        await w1.sync();
+        await w2.sync();
+      }
+
+      // wait for txs to clear the pool
+      await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(w1, w2);
     }
     
     // test that wallets are equal using only on-chain data
@@ -51,7 +58,7 @@ export default class WalletEqualityUtils {
     let txQuery = new MoneroTxQuery().setIsConfirmed(true);
     await WalletEqualityUtils.testTxWalletsEqualOnChain(await w1.getTxs(txQuery), await w2.getTxs(txQuery));
     txQuery.setIncludeOutputs(true);
-    await WalletEqualityUtils.testTxWalletsEqualOnChain(await w1.getTxs(txQuery), await w2.getTxs(txQuery));  // fetch and compare outputs
+    await WalletEqualityUtils.testTxWalletsEqualOnChain(await w1.getTxs(txQuery), await w2.getTxs(txQuery)); // fetch and compare outputs
     await WalletEqualityUtils.testAccountsEqualOnChain(await w1.getAccounts(true), await w2.getAccounts(true));
     assert.equal((await w2.getBalance()).toString(), (await w1.getBalance()).toString());
     assert.equal((await w2.getUnlockedBalance()).toString(), (await w1.getUnlockedBalance()).toString());
@@ -94,7 +101,7 @@ export default class WalletEqualityUtils {
     account2.setTag(undefined);
     
     // test account equality
-    assert(GenUtils.equals(account2, account1));
+    assert(GenUtils.equals(account2, account1), "These accounts are not equal: " + account1.toString() + "\n---vs---\n" + account2.toString());
     await WalletEqualityUtils.testSubaddressesEqualOnChainAux(subaddresses1, subaddresses2);
   }
   
@@ -124,10 +131,30 @@ export default class WalletEqualityUtils {
     assert(GenUtils.equals(subaddress2, subaddress1));
   }
   
-  protected static async testTxWalletsEqualOnChain(txs1, txs2) {
+  protected static async testTxWalletsEqualOnChain(txs1: MoneroTxWallet[], txs2: MoneroTxWallet[]) {
+
+    // remove pool or failed txs for comparison
+    txs1 = txs1.filter(tx => tx.getInTxPool() !== true && tx.getIsFailed() !== true);
+    let toRemove = [];
+    for (let tx of txs1) {
+      if (tx.getInTxPool() === true || tx.getIsFailed() === true) toRemove.push(tx);
+    }
+    for (let tx of toRemove) {
+      let index = txs1.indexOf(tx);
+      if (index > -1) txs1.splice(index, 1);
+    }
+    txs2 = txs2.filter(tx => tx.getInTxPool() !== true && tx.getIsFailed() !== true);
+    toRemove = [];
+    for (let tx of txs2) {
+      if (tx.getInTxPool() === true || tx.getIsFailed() === true) toRemove.push(tx);
+    }
+    for (let tx of toRemove) {
+      let index = txs2.indexOf(tx);
+      if (index > -1) txs2.splice(index, 1);
+    }
     
     // nullify off-chain data for comparison
-    let allTxs: any = [];
+    let allTxs: MoneroTxWallet[] = [];
     for (let tx1 of txs1) allTxs.push(tx1);
     for (let tx2 of txs2) allTxs.push(tx2);
     for (let tx of allTxs) {
@@ -151,21 +178,22 @@ export default class WalletEqualityUtils {
             WalletEqualityUtils.transferCachedInfo(tx2, tx1);
           }
           
-          // test tx equality by merging
+          // test tx equality
           assert(TestUtils.txsMergeable(tx1, tx2), "Txs are not mergeable");
+          assert(GenUtils.equals(tx1.toJson(), tx2.toJson()), "Txs are not equal: " + tx1.toString() + "\n---vs---\n" + tx2.toString());
           found = true;
           
           // test block equality except txs to ignore order
           let blockTxs1 = tx1.getBlock().getTxs();
           let blockTxs2 = tx2.getBlock().getTxs();
-          tx1.getBlock().setTxs();
-          tx2.getBlock().setTxs();
+          tx1.getBlock().setTxs(undefined);
+          tx2.getBlock().setTxs(undefined);
           assert(GenUtils.equals(tx2.getBlock().toJson(), tx1.getBlock().toJson()), "Tx blocks are not equal");
           tx1.getBlock().setTxs(blockTxs1);
           tx2.getBlock().setTxs(blockTxs2);
         }
       }
-      assert(found);  // each tx must have one and only one match
+      assert(found);  // each tx must have one and only one matchgit loq
     }
   }
   

@@ -343,7 +343,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getTxHexes(txHashes: string[], prune = false): Promise<string[]> {
     if (this.config.proxyToWorker) return this.proxyDaemon.getTxHexes(txHashes, prune);
     let hexes = [];
-    for (let tx of await this.getTxs(txHashes, prune)) hexes.push(prune ? tx.getPrunedHex() : tx.getFullHex());
+    for (let tx of await this.getTxs(txHashes, prune)) {
+      hexes.push(tx.getPrunedHex() ? tx.getPrunedHex() : tx.getFullHex()); // tx may be pruned regardless of configuration
+    }
     return hexes;
   }
   

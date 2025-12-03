@@ -43,7 +43,6 @@ export default class TestMoneroDaemonRpc {
   
   constructor(testConfig) {
     this.testConfig = testConfig;
-    TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
   
   /**
@@ -59,7 +58,6 @@ export default class TestMoneroDaemonRpc {
         try {
           that.wallet = await TestUtils.getWalletRpc();
           that.daemon = await TestUtils.getDaemonRpc();
-          TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
         } catch (e) {
           console.error("Error before tests: ");
           console.error(e);
@@ -406,7 +404,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get transactions by hashes that are in the transaction pool", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet); // wait for wallet's txs in the pool to clear to ensure reliable sync
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet); // wait for wallet's txs in the pool to clear to ensure reliable sync
         
         // submit txs to the pool but don't relay
         let txHashes: string[] = [];
@@ -453,7 +451,7 @@ export default class TestMoneroDaemonRpc {
           assert.equal(typeof hexes[i], "string");
           assert.equal(typeof hexesPruned[i], "string");
           assert(hexesPruned[i].length > 0);
-          assert(hexes[i].length > hexesPruned[i].length); // pruned hex is shorter
+          assert(hexes[i].length >= hexesPruned[i].length); // pruned hex is shorter
         }
         
         // fetch invalid hash
@@ -512,7 +510,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get all transactions in the transaction pool", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(that.wallet, 0);
@@ -549,7 +547,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get transaction pool statistics", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         let err;
         let txIds = [];
         try {
@@ -578,7 +576,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can flush all transactions from the pool", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // preserve original transactions in the pool
         let txPoolBefore = await that.daemon.getTxPool();
@@ -610,7 +608,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can flush a transaction from the pool by hash", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // preserve original transactions in the pool
         let txPoolBefore = await that.daemon.getTxPool();
@@ -644,7 +642,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can flush transactions from the pool by hashes", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // preserve original transactions in the pool
         let txPoolBefore = await that.daemon.getTxPool();
@@ -669,7 +667,7 @@ export default class TestMoneroDaemonRpc {
       
       if (testConfig.testNonRelays)
       it("Can get the spent status of key images", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // submit txs to the pool to collect key images then flush them
         let txs: MoneroTx[] = [];
@@ -1075,7 +1073,7 @@ export default class TestMoneroDaemonRpc {
       it("Can submit a tx in hex format to the pool and relay in one call", async function() {
         
         // wait one time for wallet txs in the pool to clear
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // create 2 txs, the second will double spend outputs of first
         let tx1 = await getUnrelayedTx(that.wallet, 2);  // TODO: this test requires tx to be from/to different accounts else the occlusion issue (#4500) causes the tx to not be recognized by the wallet at all
@@ -1117,21 +1115,18 @@ export default class TestMoneroDaemonRpc {
           }
         }
         assert(!found, "Tx2 should not be in the pool because it double spends tx1 which is in the pool");
-        
-        // all wallets will need to wait for tx to confirm in order to properly sync
-        TestUtils.WALLET_TX_TRACKER.reset();
       });
       
       if (testConfig.testRelays && !testConfig.liteMode)
       it("Can submit a tx in hex format to the pool then relay", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         let tx = await getUnrelayedTx(that.wallet, 1);
         await testSubmitThenRelay([tx]);
       });
       
       if (testConfig.testRelays && !testConfig.liteMode)
       it("Can submit txs in hex format to the pool then relay", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         let txs: MoneroTxWallet[] = [];
         txs.push(await getUnrelayedTx(that.wallet, 1));
         txs.push(await getUnrelayedTx(that.wallet, 2)); // TODO: accounts cannot be re-used across send tests else isRelayed is true; wallet needs to update?
@@ -1189,9 +1184,6 @@ export default class TestMoneroDaemonRpc {
           }
           assert(found, "Tx was not found after being submitted to the that.daemon's tx pool");
         }
-        
-        // wallets will need to wait for tx to confirm in order to properly sync
-        TestUtils.WALLET_TX_TRACKER.reset();
       }
       
       // ------------------------ TEST NOTIFICATIONS --------------------------

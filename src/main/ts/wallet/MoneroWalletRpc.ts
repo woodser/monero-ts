@@ -331,7 +331,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} isTrusted - indicates if the daemon in trusted
    * @param {SslOptions} sslOptions - custom SSL configuration
    */
-  async setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void> {
+  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void> {
     let connection = !uriOrConnection ? undefined : uriOrConnection instanceof MoneroRpcConnection ? uriOrConnection : new MoneroRpcConnection(uriOrConnection);
     if (!sslOptions) sslOptions = new SslOptions();
     let params: any = {};
@@ -396,6 +396,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       await this.checkReserveProof(await this.getPrimaryAddress(), "", ""); // TODO (monero-project): provide better way to know if wallet rpc is connected to daemon
       throw new MoneroError("check reserve expected to fail");
     } catch (e: any) {
+      if (e instanceof MoneroError && e.getCode() === -13) throw e; // no wallet file
       return e.message.indexOf("Failed to connect to daemon") < 0;
     }
   }
@@ -2335,7 +2336,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       isOutgoing = true;
       tx.setIsConfirmed(false);
       tx.setInTxPool(false);
-      tx.setIsRelayed(true);
+      tx.setIsRelayed(false);
       tx.setRelay(true);
       tx.setIsFailed(true);
       tx.setIsMinerTx(false);

@@ -69,7 +69,6 @@ export default class TestMoneroWalletCommon {
     console.log("Before all");
     this.wallet = await this.getTestWallet();
     this.daemon = await this.getTestDaemon();
-    TestUtils.WALLET_TX_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
     await LibraryUtils.loadWasmModule(); // for wasm dependents like address validation
   }
   
@@ -429,7 +428,7 @@ export default class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can set the daemon connection", async function() {
         let err;
-        let wallet;
+        let wallet: MoneroWallet;
         try {
           
           // create random wallet with default daemon connection
@@ -1935,8 +1934,7 @@ export default class TestMoneroWalletCommon {
         
         // wait for pool txs to confirm if no confirmed txs with destinations
         if ((await that.wallet.getTxs({isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}})).length === 0) {
-          TestUtils.WALLET_TX_TRACKER.reset();
-          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+          await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         }
         
         // get random txs that are confirmed and have outgoing destinations
@@ -2660,7 +2658,7 @@ export default class TestMoneroWalletCommon {
         for (let i = 0; i < 4 - numAccounts; i++) await receiver.createAccount();
         
         // wait for unlocked funds in source account
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(sender);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(sender);
         await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (10n));
         
         // get balances to compare after sending
@@ -2952,7 +2950,7 @@ export default class TestMoneroWalletCommon {
           await receiver.addListener(myListener);
           
           // wait for txs to confirm and for sufficient unlocked balance
-          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+          await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, TestUtils.MAX_FEE);
           
           // send funds to the created wallet
@@ -3020,7 +3018,7 @@ export default class TestMoneroWalletCommon {
         if (!config) config = new MoneroTxConfig();
         
         // wait for txs to confirm and for sufficient unlocked balance
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         assert(!config.getSubaddressIndices());
         await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, config.getAccountIndex(), undefined, TestUtils.MAX_FEE * (2n));
         
@@ -3170,7 +3168,7 @@ export default class TestMoneroWalletCommon {
         try {
           
           // wait for txs to confirm and for sufficient unlocked balance
-          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+          await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
           let amount = TestUtils.MAX_FEE * (3n);
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, amount);
           
@@ -3208,7 +3206,7 @@ export default class TestMoneroWalletCommon {
         try {
           
           // wait for txs to confirm and for sufficient unlocked balance
-          await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+          await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
           let amount = TestUtils.MAX_FEE * (3n);
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(that.wallet, 0, undefined, amount);
           
@@ -3258,7 +3256,7 @@ export default class TestMoneroWalletCommon {
       });
       
       async function testSendFromMultiple(config?) {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         if (!config) config = new MoneroTxConfig();
         
         let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
@@ -3392,7 +3390,7 @@ export default class TestMoneroWalletCommon {
       });
       
       async function testSendToSingle(config) {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         if (!config) config = new MoneroTxConfig();
         
         // find a non-primary subaddress to send from
@@ -3512,11 +3510,6 @@ export default class TestMoneroWalletCommon {
           }
           assert(found, "Created txs should be among locked txs");
         }
-        
-        // if tx was relayed in separate step, all wallets will need to wait for tx to confirm in order to reliably sync
-        if (config.getRelay() != true) {
-          await TestUtils.WALLET_TX_TRACKER.reset(); // TODO: resetExcept(that.wallet), or does this test wallet also need to be waited on?
-        }
       }
       
       if (testConfig.testRelays)
@@ -3556,7 +3549,7 @@ export default class TestMoneroWalletCommon {
        * @param subtractFeeFromDestinations specifies to subtract the fee from destination addresses
        */
       async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress?, useJsConfig?, subtractFeeFromDestinations?) {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // compute the minimum account unlocked balance needed in order to fulfill the request
         let minAccountAmount;
@@ -3717,7 +3710,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can sweep individual outputs identified by their key images", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // test config
         let numOutputs = 3;
@@ -3762,7 +3755,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can sweep dust without relaying", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
         let txs = await that.wallet.sweepDust(false);
@@ -3791,7 +3784,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can sweep dust", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
         let txs = await that.wallet.sweepDust(true);
@@ -3813,7 +3806,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testResets)
       it("Can sweep subaddresses", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         const NUM_SUBADDRESSES_TO_SWEEP = 2;
         
@@ -3892,7 +3885,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testResets)
       it("Can sweep accounts", async function() {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         const NUM_ACCOUNTS_TO_SWEEP = 1;
         
         // collect accounts with sufficient balance and unlocked balance to cover the fee
@@ -3966,7 +3959,7 @@ export default class TestMoneroWalletCommon {
       });
       
       async function testSweepWallet(sweepEachSubaddress = false) {
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(that.wallet);
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // verify 2 subaddresses with enough unlocked balance to cover the fee
         let subaddressesBalance: MoneroSubaddress[] = [];
@@ -4833,7 +4826,7 @@ export default class TestMoneroWalletCommon {
       }
       
       // wait for txs to confirm and for sufficient unlocked balance
-      await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
+      await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(this.wallet);
       await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (20n)); 
       
       // send funds from the main test wallet to destinations in the first multisig wallet
@@ -5058,7 +5051,7 @@ export default class TestMoneroWalletCommon {
   protected async testViewOnlyAndOfflineWallets(viewOnlyWallet: MoneroWallet, offlineWallet: MoneroWallet) {
     
     // wait for txs to confirm and for sufficient unlocked balance
-    await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(this.wallet);
+    await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(this.wallet, viewOnlyWallet);
     await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(this.wallet, 0, undefined, TestUtils.MAX_FEE * (4n));
     
     // test getting txs, transfers, and outputs from view-only wallet
@@ -5104,7 +5097,8 @@ export default class TestMoneroWalletCommon {
     assert(!await offlineWallet.isConnectedToDaemon());
     assert(!await offlineWallet.isViewOnly());
     if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getSeed(), TestUtils.SEED); // TODO monero-project: cannot get seed from offline wallet rpc
-    assert.equal((await offlineWallet.getTxs(new MoneroTxQuery().setInTxPool(false))).length, 0);
+    let offlineTxs = await offlineWallet.getTxs(new MoneroTxQuery().setInTxPool(false));
+    assert.equal( offlineTxs.length, 0, "Offline wallet has unexpected confirmed transactions, expected 0 but found " +  offlineTxs.length);
     
     // import outputs to offline wallet
     let numOutputsImported = await offlineWallet.importOutputs(outputsHex);
@@ -5139,7 +5133,7 @@ export default class TestMoneroWalletCommon {
       let txHashes = await viewOnlyWallet.submitTxs(signedTxSet.getSignedTxHex());
       assert.equal(txHashes.length, 1);
       assert.equal(txHashes[0].length, 64);
-      await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(viewOnlyWallet); // wait for confirmation for other tests
+      await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(viewOnlyWallet); // wait for confirmation for other tests
     }
   }
   

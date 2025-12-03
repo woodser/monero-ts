@@ -13,6 +13,7 @@ import {LibraryUtils,
         openWalletFull,
         createWalletFull,
         createWalletKeys,
+        MoneroWalletConfig,
         MoneroWalletFull,
         MoneroWalletKeys} from "../../../index";
 
@@ -110,13 +111,10 @@ export default class TestUtils {
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
 
-      console.log(e);
-      
       // -1 returned when wallet does not exist or fails to open e.g. it's already open by another application
       if (e.getCode() === -1) {
         
         // create wallet
-        console.log("Creating wallet!");
         await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_NAME, password: TestUtils.WALLET_PASSWORD, seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
       } else {
         throw e;
@@ -135,14 +133,67 @@ export default class TestUtils {
     // return cached wallet rpc
     return TestUtils.walletRpc;
   }
+
+  static async openWalletRpc(config: Partial<MoneroWalletConfig>): Promise<MoneroWalletRpc> {
+
+      // assign defaults
+      config = new MoneroWalletConfig(config);
+      if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
+      if (!config.getServer() && !config.getConnectionManager()) config.setServer(await (await this.getDaemonRpc()).getRpcConnection());
+
+      // create client connected to internal monero-wallet-rpc executable
+      let server = config.getServer();
+      let wallet = await TestUtils.startWalletRpcProcess(server ? server.getUri() : undefined, server ? server.getUsername() : undefined, server ? server.getPassword() : undefined);
+
+      // open wallet
+      try {
+          await wallet.stopSyncing();
+          await wallet.openWallet(config);
+          await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
+          if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+          return wallet;
+      } catch (err) {
+          await TestUtils.stopWalletRpcProcess(wallet);
+          throw err;
+      }
+  }
+
+  static async createWalletRpc(config?: Partial<MoneroWalletConfig>): Promise<MoneroWalletRpc> {
+        
+      // assign defaults
+      config = new MoneroWalletConfig(config);
+      let random = !config.getSeed() && !config.getPrimaryAddress();
+      if (!config.getPath()) config.setPath(GenUtils.getUUID());
+      if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
+      if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
+      if (!config.getServer() && !config.getConnectionManager()) config.setServer(await (await this.getDaemonRpc()).getRpcConnection());
+
+      // create client connected to internal monero-wallet-rpc executable
+      let server = config.getServer();
+      let wallet = await TestUtils.startWalletRpcProcess(server ? server.getUri() : undefined, server ? server.getUsername() : undefined, server ? server.getPassword() : undefined);
+
+      // create wallet
+      try {
+          await wallet.stopSyncing();
+          await wallet.createWallet(config);
+          await wallet.setDaemonConnection(await wallet.getDaemonConnection(), true, undefined); // set daemon as trusted
+          if (await wallet.isConnectedToDaemon()) await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
+          return wallet;
+      } catch (err) {
+          await TestUtils.stopWalletRpcProcess(wallet);
+          throw err;
+      }
+  }
   
   /**
    * Create a monero-wallet-rpc process bound to the next available port.
    *
-   * @param {boolean} [offline] - wallet is started in offline mode (default false)
+   * @param {string} [daemonUri] - daemon URI to use as startup flag
+   * @param {string} [daemonUsername] - daemon username to use as startup flag
+   * @param {string} [daemonPassword] - daemon password to use as startup flag
    * @return {Promise<MoneroWalletRpc>} - client connected to an internal monero-wallet-rpc instance
    */
-  static async startWalletRpcProcess(offline = false): Promise<MoneroWalletRpc> {
+  static async startWalletRpcProcess(daemonUri = "", daemonUsername = "", daemonPassword = ""): Promise<MoneroWalletRpc> {
     
     // get next available offset of ports to bind to
     let portOffset = 1;
@@ -165,9 +216,12 @@ export default class TestUtils {
           "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR,
           "--rpc-access-control-origins", TestUtils.WALLET_RPC_ACCESS_CONTROL_ORIGINS
       ];
+      let offline = daemonUri === GenUtils.normalizeUri(TestUtils.OFFLINE_SERVER_URI);
       if (offline) cmd.push("--offline");
-      else cmd.push("--daemon-address", TestUtils.DAEMON_RPC_CONFIG.uri);
-      if (TestUtils.DAEMON_RPC_CONFIG.username) cmd.push("--daemon-login", TestUtils.DAEMON_RPC_CONFIG.username + ":" + TestUtils.DAEMON_RPC_CONFIG.password);
+      else if (daemonUri) {
+        cmd.push("--daemon-address", daemonUri);
+        if (daemonUsername) cmd.push("--daemon-login", daemonUsername + ":" + daemonPassword);
+      }
       
       // TODO: include zmq params when supported and enabled
       
