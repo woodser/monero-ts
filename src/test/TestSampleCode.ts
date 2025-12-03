@@ -16,9 +16,6 @@ export default class TestSampleCode {
       before(async function() {
         try {
 
-          // all wallets need to wait for txs to confirm to reliably sync
-          TestUtils.WALLET_TX_TRACKER.reset();
-          
           // create rpc test wallet
           let walletRpc = await TestUtils.getWalletRpc();
           await walletRpc.close();
@@ -99,7 +96,7 @@ export default class TestSampleCode {
         let txs = await walletRpc.getTxs();           // get transactions containing transfers to/from the wallet
 
         // send funds from RPC wallet to WebAssembly wallet
-        await TestUtils.WALLET_TX_TRACKER.waitForWalletTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(walletRpc); // *** REMOVE FROM README SAMPLE ***
         await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(walletRpc, 0, undefined, 250000000000n); // *** REMOVE FROM README SAMPLE ***
         let createdTx = await walletRpc.createTx({
           accountIndex: 0,
@@ -118,7 +115,7 @@ export default class TestSampleCode {
         await walletFull.close(true);
 
         // terminate any running resources (e.g. workers)
-        await moneroTs.shutdown();
+        //await moneroTs.shutdown(); // *** IGNORED FOR TESTS ***
       });
       
       it("Connection manager demonstration", async function() {

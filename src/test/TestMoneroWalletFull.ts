@@ -15,6 +15,7 @@ import {createWalletFull,
         MoneroOutputQuery,
         MoneroOutputWallet,
         MoneroRpcConnection,
+        MoneroTxQuery,
         MoneroWallet,
         MoneroWalletFull,
         MoneroWalletRpc} from "../../index";
@@ -111,7 +112,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
   }
   
   async closeWallet(wallet, save?) {
-    await wallet.close(save);
+    if (wallet instanceof MoneroWalletRpc) await TestUtils.stopWalletRpcProcess(wallet);
+    else await wallet.close(save);
   }
   
   async getSeedLanguages(): Promise<string[]> {
@@ -329,7 +331,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         let walletName = GenUtils.getUUID();
         let walletRpc = await TestUtils.getWalletRpc();
         await walletRpc.createWallet(new MoneroWalletConfig().setPath(walletName).setPassword(TestUtils.WALLET_PASSWORD).setSeed(TestUtils.SEED).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT));
-        await walletRpc.sync();
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(walletRpc);
         let balance = await walletRpc.getBalance();
         let outputsHex = await walletRpc.exportOutputs();
         assert(outputsHex.length > 0);
@@ -337,7 +339,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // open as full wallet
         let walletFull = await openWalletFull(new MoneroWalletConfig().setPath(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
-        await walletFull.sync();
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(walletFull);
         assert.equal(TestUtils.SEED, await walletFull.getSeed());
         assert.equal(TestUtils.ADDRESS, await walletFull.getPrimaryAddress());
         assert.equal(balance.toString(), (await walletFull.getBalance()).toString());
@@ -365,15 +367,14 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(TestUtils.ADDRESS, await walletRpc.getPrimaryAddress());
         assert.equal(balance.toString(), (await walletRpc.getBalance()).toString());
         assert.equal(outputsHex.length, (await walletRpc.exportOutputs()).length);
-        await walletRpc.close(true);
+        await walletRpc.close(true); // TODO: this will not get called if there was an error above, leaving the wallet open
       });
       
       if (!testConfig.liteMode && (testConfig.testNonRelays || testConfig.testRelays))
       it("Is compatible with monero-wallet-rpc outputs and offline transaction signing", async function() {
         
         // create view-only wallet in wallet rpc process
-        let viewOnlyWallet = await TestUtils.startWalletRpcProcess();
-        await viewOnlyWallet.createWallet({
+        let viewOnlyWallet = await TestUtils.createWalletRpc({
           path: GenUtils.getUUID(),
           password: TestUtils.WALLET_PASSWORD,
           primaryAddress: await that.wallet.getPrimaryAddress(),
@@ -391,7 +392,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         catch (e) { err = e; }
         
         // finally
-        TestUtils.stopWalletRpcProcess(viewOnlyWallet);
+        await TestUtils.stopWalletRpcProcess(viewOnlyWallet);
         await that.closeWallet(offlineWallet);
         if (err) throw err;
       });
@@ -401,8 +402,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // create participants with monero-wallet-rpc and full wallet
         let participants: MoneroWallet[] = [];
-        participants.push(await (await TestUtils.startWalletRpcProcess()).createWallet(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD)));
-        participants.push(await (await TestUtils.startWalletRpcProcess()).createWallet(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD)));
+        participants.push(await (await TestUtils.createWalletRpc(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD))));
+        participants.push(await (await TestUtils.createWalletRpc(new MoneroWalletConfig().setPath(GenUtils.getUUID()).setPassword(TestUtils.WALLET_PASSWORD))));
         participants.push(await that.createWallet(new MoneroWalletConfig()));
         
         // test multisig
@@ -418,10 +419,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         catch (e) { }
         
         // save and close participants
-        if (participants[0] instanceof MoneroWalletRpc) await TestUtils.stopWalletRpcProcess(participants[0]);
-        else participants[0].close(true); // multisig tests might restore wallet from seed
-        await TestUtils.stopWalletRpcProcess(participants[1]);
-        await that.closeWallet(participants[2], true);
+        for (let participant of participants) await that.closeWallet(participant, true);
         if (err) throw err;
       });
       
@@ -544,6 +542,9 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       async function testSyncSeed(startHeight, restoreHeight?, skipGtComparison?, testPostSyncNotifications?) {
         assert(await that.daemon.isConnected(), "Not connected to daemon");
         if (startHeight !== undefined && restoreHeight != undefined) assert(startHeight <= TestUtils.FIRST_RECEIVE_HEIGHT || restoreHeight <= TestUtils.FIRST_RECEIVE_HEIGHT);
+
+        // wait for txs to clear pool
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // create wallet from seed
         let wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: restoreHeight}, false);
@@ -823,6 +824,15 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       
       if (testConfig.testNonRelays)
       it("Is equal to the RPC wallet.", async function() {
+
+        // wait for txs to clear pool
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(await TestUtils.getWalletRpc(), that.wallet);
+
+        // TODO: rescanning spent outputs is necessary for equality test to mark as spent/unspent correctly
+        await that.wallet.rescanSpent();
+        await (await TestUtils.getWalletRpc()).rescanSpent();
+
+        // compare wallets based on on-chain data
         await WalletEqualityUtils.testWalletEqualityOnChain(await TestUtils.getWalletRpc(), that.wallet);
       });
 
@@ -1208,7 +1218,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
  */
 class SyncProgressTester extends WalletSyncPrinter {
 
-  wallet: any;
+  wallet: MoneroWallet;
   startHeight: number;
   prevEndHeight: number;
   prevCompleteHeight: number;
@@ -1375,8 +1385,16 @@ class WalletSyncTester extends SyncProgressTester {
     assert.notEqual(this.walletTesterPrevHeight, undefined);
     assert.notEqual(this.prevOutputReceived, undefined);
     assert.notEqual(this.prevOutputSpent, undefined);
-    let balance = this.incomingTotal - (this.outgoingTotal);
-    assert.equal(balance.toString(), (await this.wallet.getBalance()).toString());
+    let expectedBalance = this.incomingTotal - (this.outgoingTotal);
+
+    // output notifications do not include pool fees or outgoing amount
+    let poolSpendAmount = 0n;
+    for (let poolTx of await this.wallet.getTxs(new MoneroTxQuery().setInTxPool(true))) {
+      poolSpendAmount += poolTx.getFee() + (poolTx.getOutgoingAmount() ? poolTx.getOutgoingAmount() : 0n);
+    }
+    expectedBalance -= poolSpendAmount;
+
+    assert.equal(expectedBalance.toString(), (await this.wallet.getBalance()).toString());
     assert.equal(this.prevBalance.toString(), (await this.wallet.getBalance()).toString());
     assert.equal(this.prevUnlockedBalance.toString(), (await this.wallet.getUnlockedBalance()).toString());
   }
