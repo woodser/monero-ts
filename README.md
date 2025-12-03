@@ -190,7 +190,7 @@ This project is licensed under MIT.
 
 ## Donations
 
-If this open-source library has been valuable to you, please consider supporting its continued development with a donation.
+If this library has been valuable to you, please consider donating to support its continued development.
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/><br>
