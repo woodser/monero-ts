@@ -126,7 +126,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     addListener(listener: MoneroWalletListener): Promise<void>;
     removeListener(listener: any): Promise<void>;
     getListeners(): MoneroWalletListener[];
-    setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string): Promise<void>;
+    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
     isConnectedToDaemon(): Promise<boolean>;
     getVersion(): Promise<MoneroVersion>;

@@ -167,7 +167,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * @param {boolean} isTrusted - indicates if the daemon in trusted
      * @param {SslOptions} sslOptions - custom SSL configuration
      */
-    setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void>;
+    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
     /**
      * Get the total and unlocked balances in a single request.

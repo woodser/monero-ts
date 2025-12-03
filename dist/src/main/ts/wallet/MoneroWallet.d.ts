@@ -100,7 +100,7 @@ export default class MoneroWallet {
      * @param {MoneroRpcConnection | string} [uriOrConnection] - daemon's URI or connection (defaults to offline)
      * @return {Promise<void>}
      */
-    setDaemonConnection(uriOrConnection?: MoneroRpcConnection | string): Promise<void>;
+    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void>;
     /**
      * Get the wallet's daemon connection.
      *
