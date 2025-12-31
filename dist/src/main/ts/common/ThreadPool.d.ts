@@ -16,7 +16,7 @@ export default class ThreadPool {
      * @param {function} asyncFn - asynchronous function to run with the thread pool
      * @return {Promise<T>} resolves when the function completes execution
      */
-    submit<T>(asyncFn: any): Promise<T>;
+    submit<T>(asyncFn: () => Promise<T>): Promise<T>;
     /**
      * Await all functions to complete.
      *
