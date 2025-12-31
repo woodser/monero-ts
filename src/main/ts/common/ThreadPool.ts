@@ -38,7 +38,7 @@ export default class ThreadPool {
    * @param {function} asyncFn - asynchronous function to run with the thread pool
    * @return {Promise<T>} resolves when the function completes execution
    */
-  async submit<T>(asyncFn): Promise<T> {
+  async submit<T>(asyncFn: () => Promise<T>): Promise<T> {
     try {
       return await new Promise((resolve, reject) => {
         this.taskQueue.push(asyncFn, (resp, err) => {
@@ -46,12 +46,11 @@ export default class ThreadPool {
           else resolve(resp);
         });
       });
-    } catch (err) {
-      if (err instanceof Error) {
-        err.stack = new Error().stack + "\nCaused By: " + err.stack; // TODO: this preserves original error type but overwrites stack which is non-standard. upgrade to ES2022+ and use err.cause, then check for that in callers?
-        throw err;
+    } catch (err: any) {
+      if (err && typeof err === "object" && typeof err.stack === "string") {
+        err.stack = err.stack + "\nOriginating from: " + new Error().stack;
       }
-      throw new Error(String(err));
+      throw err;
     }
   }
   
