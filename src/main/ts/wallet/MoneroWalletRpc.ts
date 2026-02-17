@@ -2234,6 +2234,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     // initialize tx
     let tx = new MoneroTxWallet();
     tx.setIsConfirmed(true);
+    tx.setInTxPool(false);
     tx.setIsRelayed(true);
     tx.setIsFailed(false);
     
