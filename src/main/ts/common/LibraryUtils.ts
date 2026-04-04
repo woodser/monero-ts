@@ -282,6 +282,12 @@ export default class LibraryUtils {
   protected static initWasmModule(wasmModule) {
     wasmModule.taskQueue = new ThreadPool(1);
     wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
+    if (!GenUtils.isBrowser()) {
+      const HttpClient = require("./HttpClient").default;
+      (globalThis as any).HttpClient = HttpClient;
+      (globalThis as any).LibraryUtils = LibraryUtils;
+      (globalThis as any).GenUtils = GenUtils;
+    }
   }
   
   protected static prefixWindowsPath(path) {
