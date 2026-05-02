@@ -164,7 +164,7 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 void monero_wasm_bridge::open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback) {
 #if defined BUILD_WALLET_FULL
   try {
-    monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+    std::shared_ptr<monero_rpc_connection> daemon_connection = std::make_shared<monero_rpc_connection>(daemon_uri, daemon_username, daemon_password);
     monero_wallet* wallet = monero_wallet_full::open_wallet_data(password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)));
     callback((int) wallet); // callback with wallet memory address
   } catch (exception& e) {
@@ -256,8 +256,8 @@ void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, co
 
 string monero_wasm_bridge::get_daemon_connection(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  boost::optional<monero_rpc_connection> daemon_connection = wallet->get_daemon_connection();
-  return daemon_connection == boost::none ? "" : daemon_connection.get().serialize();
+  boost::optional<std::shared_ptr<monero_rpc_connection>> daemon_connection = wallet->get_daemon_connection();
+  return daemon_connection == boost::none ? "" : daemon_connection.get()->serialize();
 }
 
 void monero_wasm_bridge::is_connected_to_daemon(int handle, emscripten::val callback) {
