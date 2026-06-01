@@ -1725,7 +1725,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       // convert response to txs with outputs and merge
       if (resp.result.transfers === undefined) continue;
       for (let rpcOutput of resp.result.transfers) {
-        let tx = MoneroWalletRpc.convertRpcTxWalletWithOutput(rpcOutput);
+        let tx = MoneroWalletRpc.convertRpcTxWithOutput(rpcOutput);
         MoneroWalletRpc.mergeTx(tx, txMap, blockMap);
       }
     }
@@ -2229,11 +2229,12 @@ export default class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  protected static convertRpcTxWalletWithOutput(rpcOutput) {
+  protected static convertRpcTxWithOutput(rpcOutput) {
     
     // initialize tx
     let tx = new MoneroTxWallet();
     tx.setIsConfirmed(true);
+    tx.setInTxPool(false);
     tx.setIsRelayed(true);
     tx.setIsFailed(false);
     
