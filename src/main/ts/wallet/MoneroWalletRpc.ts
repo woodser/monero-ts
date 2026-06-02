@@ -85,6 +85,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   protected path: string;
   protected daemonConnection: MoneroRpcConnection;
   protected walletPoller: WalletPoller;
+  protected startupProxyUri: string;
   
   /** @private */
   constructor(config: MoneroWalletConfig) {
@@ -345,7 +346,18 @@ export default class MoneroWalletRpc extends MoneroWallet {
     params.ssl_ca_file = sslOptions.getCertificateAuthorityFile();
     params.ssl_allowed_fingerprints = sslOptions.getAllowedFingerprints();
     params.ssl_allow_any_cert = sslOptions.getAllowAnyCert();
-    params.proxy = connection ? connection.getProxyUri() : "";
+
+    // set proxy which must match startup proxy if applicable
+    if (connection && connection.getProxyUri() === undefined) {
+      if (this.startupProxyUri !== undefined) throw new MoneroError("Cannot set daemon connection without proxy URI because monero-wallet-rpc was started with a proxy URI: " + this.startupProxyUri);
+    } else {
+      if (this.startupProxyUri === undefined) params.proxy = connection ? connection.getProxyUri() : "";
+      else if (this.startupProxyUri !== connection.getProxyUri()) {
+        throw new MoneroError("Cannot set daemon connection with proxy URI " + connection.getProxyUri() + " because monero-wallet-rpc was started with a different proxy URI: " + this.startupProxyUri);
+      }
+    }
+    if (!params.proxy) params.proxy = "";
+
     await this.config.getServer().sendJsonRequest("set_daemon", params);
     this.daemonConnection = connection;
   }
@@ -1529,14 +1541,18 @@ export default class MoneroWalletRpc extends MoneroWallet {
           // read success message
           if (line.indexOf("Starting wallet RPC server") >= 0) {
             
-            // get username and password from params
+            // get username, password, zmq publish uri, and proxy uri from params
             let userPassIdx = config.cmd.indexOf("--rpc-login");
             let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
             let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
             let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
+            let zmqUriIdx = config.cmd.indexOf("--zmq-pub");
+            let zmqUri = zmqUriIdx >= 0 ? config.cmd[zmqUriIdx + 1] : undefined;
+            let proxyUriIdx = config.cmd.indexOf("--proxy");
+            this.startupProxyUri = proxyUriIdx >= 0 ? config.cmd[proxyUriIdx + 1] : undefined;
             
             // create client connected to internal process
-            config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
+            config = config.copy().setServer({uri: uri, username: username, password: password, zmqUri: zmqUri, proxyUri: this.startupProxyUri, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
             config.cmd = undefined;
             let wallet = await MoneroWalletRpc.connectToWalletRpc(config);
             wallet.process = childProcess;
