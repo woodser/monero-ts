@@ -1472,13 +1472,14 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
   
-  async importMultisigHex(multisigHexes: string[]): Promise<number> {
-    if (this.getWalletProxy()) return this.getWalletProxy().importMultisigHex(multisigHexes);
+  async importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number> {
+    if (refreshAfterImport === undefined) refreshAfterImport = true;
+    if (this.getWalletProxy()) return this.getWalletProxy().importMultisigHex(multisigHexes, refreshAfterImport);
     if (!GenUtils.isArray(multisigHexes)) throw new MoneroError("Must provide string[] to importMultisigHex()")
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
-        this.module.import_multisig_hex(this.cppAddress, JSON.stringify({multisigHexes: multisigHexes}), (resp) => {
+        this.module.import_multisig_hex(this.cppAddress, JSON.stringify({multisigHexes: multisigHexes, refreshAfterImport: refreshAfterImport}), (resp) => {
           if (typeof resp === "string") reject(new MoneroError(resp));
           else resolve(resp);
         });
@@ -2327,7 +2328,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     return this.invokeWorker("exportMultisigHex");
   }
   
-  async importMultisigHex(multisigHexes) {
+  async importMultisigHex(multisigHexes, refreshAfterImport) {
     return this.invokeWorker("importMultisigHex", Array.from(arguments));
   }
   

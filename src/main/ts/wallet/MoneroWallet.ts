@@ -1332,16 +1332,17 @@ export default class MoneroWallet {
    * @return {Promise<string>} this wallet's multisig info as hex for other participants
    */
   async exportMultisigHex(): Promise<string> {
-    throw new MoneroError("Not supported?");
+    throw new MoneroError("Not supported");
   }
   
   /**
    * Import multisig info as hex from other participants.
    * 
    * @param {string[]} multisigHexes - multisig hex from each participant
+   * @param {boolean} [refreshAfterImport] - specifies if the wallet should be refreshed after importing multisig hex (default true)
    * @return {Promise<number>} the number of outputs signed with the given multisig hex
    */
-  async importMultisigHex(multisigHexes: string[]): Promise<number> {
+  async importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number> {
     throw new MoneroError("Not supported");
   }
   

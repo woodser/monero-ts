@@ -988,8 +988,8 @@ self.exportMultisigHex = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].exportMultisigHex();
 }
 
-self.importMultisigHex = async function(walletId, multisigHexes) {
-  return self.WORKER_OBJECTS[walletId].importMultisigHex(multisigHexes);
+self.importMultisigHex = async function(walletId, multisigHexes, refreshAfterImport) {
+  return self.WORKER_OBJECTS[walletId].importMultisigHex(multisigHexes, refreshAfterImport);
 }
 
 self.signMultisigTxHex = async function(walletId, multisigTxHex) {
