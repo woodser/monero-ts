@@ -159,6 +159,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     
     // open wallet on rpc server
     if (!config.getPath()) throw new MoneroError("Must provide name of wallet to open");
+    if (config.getRegtest() !== undefined) throw new MoneroError("Cannot specify regtest mode when opening RPC wallet")
     await this.config.getServer().sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
     await this.clear();
     this.path = config.getPath();
@@ -221,6 +222,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     if (configNormalized.getSeed() !== undefined && (configNormalized.getPrimaryAddress() !== undefined || configNormalized.getPrivateViewKey() !== undefined || configNormalized.getPrivateSpendKey() !== undefined)) {
       throw new MoneroError("Wallet can be initialized with a seed or keys but not both");
     }
+    if (configNormalized.getRegtest() !== undefined) throw new MoneroError("Cannot specify regtest mode when creating RPC wallet")
     if (configNormalized.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
     if (configNormalized.getAccountLookahead() !== undefined || configNormalized.getSubaddressLookahead() !== undefined) throw new MoneroError("monero-wallet-rpc does not support creating wallets with subaddress lookahead over rpc");
     if (configNormalized.getPassword() === undefined) configNormalized.setPassword("");
