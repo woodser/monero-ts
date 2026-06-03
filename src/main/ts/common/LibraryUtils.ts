@@ -282,11 +282,16 @@ export default class LibraryUtils {
   protected static initWasmModule(wasmModule) {
     wasmModule.taskQueue = new ThreadPool(1);
     wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
-    if (!GenUtils.isBrowser()) {
-      const HttpClient = require("./HttpClient").default;
-      (globalThis as any).HttpClient = HttpClient;
-      (globalThis as any).LibraryUtils = LibraryUtils;
-      (globalThis as any).GenUtils = GenUtils;
+    
+    // assign utilities to globalThis
+    const HttpClient = typeof require !== 'undefined' ? require("./HttpClient").default : (globalThis as any).HttpClient;
+    if (HttpClient) (globalThis as any).HttpClient = HttpClient;
+    (globalThis as any).LibraryUtils = LibraryUtils;
+    (globalThis as any).GenUtils = GenUtils;
+
+    // fix for next.js: bind the request utility directly to globalThis for emscripten asyncify
+    if (!(globalThis as any).request && HttpClient) {
+      (globalThis as any).request = async function(options: any) { return HttpClient.request(options); };
     }
   }
   
