@@ -8,6 +8,8 @@ import {
   MoneroRpcConnection
 } from "../../index";
 
+const SYNC_PADDING = 1000;
+
 /**
  * Test the Monero RPC connection manager.
  */
@@ -97,7 +99,7 @@ class TestMoneroConnectionManager {
           walletRpcs[2].getRpcConnection()!.setFakeDisconnected(true); // browser does not start or stop instances
           walletRpcs[3].getRpcConnection()!.setFakeDisconnected(true);
           walletRpcs[4].getRpcConnection()!.setFakeDisconnected(true);
-          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100);
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + SYNC_PADDING);
           assert.equal(false, connectionManager.isConnected());
           assert.equal(false, connectionManager.getConnection().getIsOnline());
           assert.equal(undefined, connectionManager.getConnection().getIsAuthenticated());
@@ -136,7 +138,7 @@ class TestMoneroConnectionManager {
           
           // test auto switch when disconnected
           connectionManager.setAutoSwitch(true);
-          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100); // allow time to poll
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + SYNC_PADDING); // allow time to poll
           assert(connectionManager.isConnected());
           connection = connectionManager.getConnection();
           assert(connection.getIsOnline());
@@ -238,7 +240,7 @@ class TestMoneroConnectionManager {
           // shut down all connections
           connection = connectionManager.getConnection();
           for (let connection of orderedConnections) connection.setFakeDisconnected(true);
-          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + 100);
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS + SYNC_PADDING);
           assert.equal(false, connection.getIsOnline());
           assert.equal(listener.changedConnections.length, ++numExpectedChanges);
           assert(listener.changedConnections[listener.changedConnections.length - 1] === connection);
