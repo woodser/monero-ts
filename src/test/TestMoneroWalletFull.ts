@@ -282,8 +282,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         assert.equal(await wallet.getRestoreHeight(), restoreHeight);
         await wallet.close();
 
-        // create wallet with seed, connection, and restore height
-        wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: restoreHeight}, false);
+        // create wallet with seed, connection, and restore height, without proxying to worker
+        wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: restoreHeight, proxyToWorker: false}, false);
         assert.equal(await wallet.getSeed(), TestUtils.SEED);
         assert(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
         assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
