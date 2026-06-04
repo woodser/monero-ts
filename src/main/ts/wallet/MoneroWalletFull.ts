@@ -435,7 +435,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().setDaemonConnection(uriOrConnection);
-    
+
     // normalize connection
     let connection = !uriOrConnection ? undefined : uriOrConnection instanceof MoneroRpcConnection ? uriOrConnection : new MoneroRpcConnection(uriOrConnection);
     let uri = connection && connection.getUri() ? connection.getUri() : "";
