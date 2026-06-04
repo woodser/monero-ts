@@ -3381,12 +3381,12 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can create then relay a transaction to send to a single address", async function() {
-        await testSendToSingle(new MoneroTxConfig().setCanSplit(false));
+        await testSendToSingle(new MoneroTxConfig().setCanSplit(false).setRelay(false));
       });
       
       if (testConfig.testRelays)
       it("Can create then relay split transactions to send to a single address", async function() {
-        await testSendToSingle(new MoneroTxConfig().setCanSplit(true));
+        await testSendToSingle(new MoneroTxConfig().setCanSplit(true).setRelay(false));
       });
       
       async function testSendToSingle(config) {
