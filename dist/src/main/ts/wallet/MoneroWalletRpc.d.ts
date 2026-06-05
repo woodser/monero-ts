@@ -69,6 +69,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     protected path: string;
     protected daemonConnection: MoneroRpcConnection;
     protected walletPoller: WalletPoller;
+    protected startupProxyUri: string;
     /** @private */
     constructor(config: MoneroWalletConfig);
     /**
@@ -268,7 +269,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     makeMultisig(multisigHexes: string[], threshold: number, password: string): Promise<string>;
     exchangeMultisigKeys(multisigHexes: string[], password: string): Promise<MoneroMultisigInitResult>;
     exportMultisigHex(): Promise<string>;
-    importMultisigHex(multisigHexes: string[]): Promise<number>;
+    importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number>;
     signMultisigTxHex(multisigTxHex: string): Promise<MoneroMultisigSignResult>;
     submitMultisigTxHex(signedMultisigTxHex: string): Promise<string[]>;
     changePassword(oldPassword: string, newPassword: string): Promise<void>;
@@ -369,7 +370,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * @return {MoneroTxWallet} is the initialized tx
      */
     protected static convertRpcTxWithTransfer(rpcTx: any, tx?: any, isOutgoing?: any, config?: any): any;
-    protected static convertRpcTxWalletWithOutput(rpcOutput: any): MoneroTxWallet;
+    protected static convertRpcTxWithOutput(rpcOutput: any): MoneroTxWallet;
     protected static convertRpcDescribeTransfer(rpcDescribeTransferResult: any): MoneroTxSet;
     /**
      * Decodes a "type" from monero-wallet-rpc to initialize type and state

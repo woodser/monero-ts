@@ -45,6 +45,8 @@ export default class MoneroWalletConfig {
     accountLookahead: number;
     /** Number of subaddresses to scan per account (optional). */
     subaddressLookahead: number;
+    /** Specifies if the wallet should operate in regtest mode. */
+    regtest: boolean;
     /** Command to start monero-wallet-rpc as a child process. */
     cmd: string[];
     /**
@@ -74,6 +76,7 @@ export default class MoneroWalletConfig {
      * @param {boolean} [config.saveCurrent] - specifies if the current RPC wallet should be saved before being closed
      * @param {number} [config.accountLookahead] - number of accounts to scan (optional)
      * @param {number} [config.subaddressLookahead] - number of subaddresses to scan per account (optional)
+     * @param {boolean} [config.regtest] - specifies if the wallet should operate in regtest mode (default false)
      * @param {string[]} [config.cmd] - command to start wallet daemon (optional)
      */
     constructor(config?: Partial<MoneroWalletConfig>);
@@ -119,4 +122,6 @@ export default class MoneroWalletConfig {
     setAccountLookahead(accountLookahead: number): MoneroWalletConfig;
     getSubaddressLookahead(): number;
     setSubaddressLookahead(subaddressLookahead: number): MoneroWalletConfig;
+    getRegtest(): boolean;
+    setRegtest(regtest: boolean): MoneroWalletConfig;
 }
