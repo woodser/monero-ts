@@ -32,7 +32,7 @@ namespace monero_wasm_bridge
 
   // ------------------------- STATIC WALLET UTILS ----------------------------
 
-  void open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, emscripten::val callback);
+  void open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, bool regtest, emscripten::val callback);
   void create_full_wallet(const string& config_json, const string& reject_unauthorized_fn_id, emscripten::val callback);
   string get_full_wallet_seed_languages();
 
