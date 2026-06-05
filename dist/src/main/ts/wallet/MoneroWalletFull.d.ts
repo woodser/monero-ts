@@ -211,7 +211,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     makeMultisig(multisigHexes: string[], threshold: number, password: string): Promise<string>;
     exchangeMultisigKeys(multisigHexes: string[], password: string): Promise<MoneroMultisigInitResult>;
     exportMultisigHex(): Promise<string>;
-    importMultisigHex(multisigHexes: string[]): Promise<number>;
+    importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number>;
     signMultisigTxHex(multisigTxHex: string): Promise<MoneroMultisigSignResult>;
     submitMultisigTxHex(signedMultisigTxHex: string): Promise<string[]>;
     /**
@@ -356,7 +356,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     makeMultisig(multisigHexes: any, threshold: any, password: any): Promise<any>;
     exchangeMultisigKeys(multisigHexes: any, password: any): Promise<MoneroMultisigInitResult>;
     exportMultisigHex(): Promise<any>;
-    importMultisigHex(multisigHexes: any): Promise<any>;
+    importMultisigHex(multisigHexes: any, refreshAfterImport: any): Promise<any>;
     signMultisigTxHex(multisigTxHex: any): Promise<MoneroMultisigSignResult>;
     submitMultisigTxHex(signedMultisigTxHex: any): Promise<any>;
     getData(): Promise<any>;

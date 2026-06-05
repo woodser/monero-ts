@@ -88,30 +88,50 @@ export default class MoneroRpcConnection {
      */
     checkConnection(timeoutMs: any): Promise<boolean>;
     /**
-     * Indicates if the connection is connected according to the last call to checkConnection().<br><br>
-     *
-     * Note: must call checkConnection() manually unless using MoneroConnectionManager.
+     * Indicates if the connection is connected according to the last call to checkConnection().
      *
      * @return {boolean} true or false to indicate if connected, or undefined if checkConnection() has not been called
      */
     isConnected(): boolean;
     /**
-     * Indicates if the connection is online according to the last call to checkConnection().<br><br>
-     *
-     * Note: must call checkConnection() manually unless using MoneroConnectionManager.
+     * Indicates if the connection is online according to the last call to checkConnection().
      *
      * @return {boolean} true or false to indicate if online, or undefined if checkConnection() has not been called
      */
     getIsOnline(): boolean;
     /**
-     * Indicates if the connection is authenticated according to the last call to checkConnection().<br><br>
+     * Set the connection's online status.
      *
-     * Note: must call checkConnection() manually unless using MoneroConnectionManager.
+     * @param {boolean} isOnline - sets if the connection is online
+     * @return {MoneroRpcConnection} this connection
+     */
+    setOnline(isOnline: any): this;
+    /**
+     * Indicates if the connection is authenticated according to the last call to checkConnection().
      *
      * @return {boolean} true if authenticated or no authentication, false if not authenticated, or undefined if checkConnection() has not been called
      */
     getIsAuthenticated(): boolean;
+    /**
+     * Set the connection's authenticated status.
+     *
+     * @param {boolean} isAuthenticated - sets if the connection is authenticated
+     * @return {MoneroRpcConnection} this connection
+     */
+    setAuthenticated(isAuthenticated: any): this;
+    /**
+     * Get the response time, which is set automatically by calling checkConnection().
+     *
+     * @return {number} the response time of this connection in milliseconds
+     */
     getResponseTime(): number;
+    /**
+     * Set the connection's response time.
+     *
+     * @param {number} responseTimeMs - response time in milliseconds
+     * @return {MoneroRpcConnection} this connection
+     */
+    setResponseTime(responseTimeMs: any): this;
     /**
      * Send a JSON RPC request.
      *

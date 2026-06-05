@@ -947,9 +947,10 @@ export default class MoneroWallet {
      * Import multisig info as hex from other participants.
      *
      * @param {string[]} multisigHexes - multisig hex from each participant
+     * @param {boolean} [refreshAfterImport] - specifies if the wallet should be refreshed after importing multisig hex (default true)
      * @return {Promise<number>} the number of outputs signed with the given multisig hex
      */
-    importMultisigHex(multisigHexes: string[]): Promise<number>;
+    importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number>;
     /**
      * Sign multisig transactions from a multisig wallet.
      *
