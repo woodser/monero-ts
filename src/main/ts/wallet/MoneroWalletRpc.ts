@@ -1429,9 +1429,10 @@ export default class MoneroWalletRpc extends MoneroWallet {
     return resp.result.info;
   }
 
-  async importMultisigHex(multisigHexes: string[]): Promise<number> {
+  async importMultisigHex(multisigHexes: string[], refreshAfterImport?: boolean): Promise<number> {
+    if (refreshAfterImport === undefined) refreshAfterImport = true;
     if (!GenUtils.isArray(multisigHexes)) throw new MoneroError("Must provide string[] to importMultisigHex()")
-    let resp = await this.config.getServer().sendJsonRequest("import_multisig_info", {info: multisigHexes});
+    let resp = await this.config.getServer().sendJsonRequest("import_multisig_info", {info: multisigHexes, refresh_after_import: refreshAfterImport});
     return resp.result.n_outputs;
   }
 

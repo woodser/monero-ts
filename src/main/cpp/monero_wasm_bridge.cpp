@@ -1220,13 +1220,14 @@ void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, ems
     boost::property_tree::ptree node;
     boost::property_tree::read_json(iss, node);
 
-    // get multisig hexes from args
+    // extract args
     vector<string> multisig_hexes;
     boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
     for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+    bool refresh_after_import = node.get_child("refreshAfterImport").get_value<bool>();
 
     // import multisig hex
-    callback(wallet->import_multisig_hex(multisig_hexes));
+    callback(wallet->import_multisig_hex(multisig_hexes, refresh_after_import));
   } catch (exception& e) {
     callback(string(e.what()));
   }
