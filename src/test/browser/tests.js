@@ -15,6 +15,7 @@ function runTests() {
     ui: 'bdd',
     timeout: 3000000
   });
+  mocha.globals(['HttpClient', 'LibraryUtils', 'GenUtils', 'request']);
   mocha.checkLeaks();
   
   // override default to run daemon and wallets on main thread
