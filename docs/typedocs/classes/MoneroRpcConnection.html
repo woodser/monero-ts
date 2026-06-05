@@ -75,11 +75,14 @@
 <a href="MoneroRpcConnection.html#sendJsonRequest" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>Json<wbr/>Request</span></a>
 <a href="MoneroRpcConnection.html#sendPathRequest" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>Path<wbr/>Request</span></a>
 <a href="MoneroRpcConnection.html#setAttribute" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Attribute</span></a>
+<a href="MoneroRpcConnection.html#setAuthenticated" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Authenticated</span></a>
 <a href="MoneroRpcConnection.html#setCredentials" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Credentials</span></a>
 <a href="MoneroRpcConnection.html#setFakeDisconnected" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Fake<wbr/>Disconnected</span></a>
+<a href="MoneroRpcConnection.html#setOnline" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Online</span></a>
 <a href="MoneroRpcConnection.html#setPriority" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Priority</span></a>
 <a href="MoneroRpcConnection.html#setProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroRpcConnection.html#setProxyUri" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>Uri</span></a>
+<a href="MoneroRpcConnection.html#setResponseTime" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Response<wbr/>Time</span></a>
 <a href="MoneroRpcConnection.html#setTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Timeout</span></a>
 <a href="MoneroRpcConnection.html#setZmqUri" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Zmq<wbr/>Uri</span></a>
 <a href="MoneroRpcConnection.html#toJson" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Json</span></a>
@@ -241,8 +244,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="getIsAuthenticated.getIsAuthenticated-1"><span class="tsd-kind-call-signature">get<wbr/>Is<wbr/>Authenticated</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#getIsAuthenticated.getIsAuthenticated-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Indicates if the connection is authenticated according to the last call to checkConnection().<br><br></p>
-<p>Note: must call checkConnection() manually unless using MoneroConnectionManager.</p>
+<div class="tsd-comment tsd-typography"><p>Indicates if the connection is authenticated according to the last call to checkConnection().</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if authenticated or no authentication, false if not authenticated, or undefined if checkConnection() has not been called</p>
 
@@ -252,8 +254,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="getIsOnline.getIsOnline-1"><span class="tsd-kind-call-signature">get<wbr/>Is<wbr/>Online</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#getIsOnline.getIsOnline-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Indicates if the connection is online according to the last call to checkConnection().<br><br></p>
-<p>Note: must call checkConnection() manually unless using MoneroConnectionManager.</p>
+<div class="tsd-comment tsd-typography"><p>Indicates if the connection is online according to the last call to checkConnection().</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true or false to indicate if online, or undefined if checkConnection() has not been called</p>
 
@@ -293,7 +294,11 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="getResponseTime.getResponseTime-1"><span class="tsd-kind-call-signature">get<wbr/>Response<wbr/>Time</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#getResponseTime.getResponseTime-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></li></ul></section>
+<div class="tsd-comment tsd-typography"><p>Get the response time, which is set automatically by calling checkConnection().</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>the response time of this connection in milliseconds</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Timeout</span><a href="#getTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -323,8 +328,7 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="isConnected.isConnected-1"><span class="tsd-kind-call-signature">is<wbr/>Connected</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#isConnected.isConnected-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Indicates if the connection is connected according to the last call to checkConnection().<br><br></p>
-<p>Note: must call checkConnection() manually unless using MoneroConnectionManager.</p>
+<div class="tsd-comment tsd-typography"><p>Indicates if the connection is connected according to the last call to checkConnection().</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true or false to indicate if connected, or undefined if checkConnection() has not been called</p>
 
@@ -471,6 +475,24 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <li>
 <h5><span class="tsd-kind-parameter">value</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="setAuthenticated" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Authenticated</span><a href="#setAuthenticated" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="setAuthenticated.setAuthenticated-1"><span class="tsd-kind-call-signature">set<wbr/>Authenticated</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">isAuthenticated</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><a href="#setAuthenticated.setAuthenticated-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the connection&#39;s authenticated status.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">isAuthenticated</span>: <span class="tsd-signature-type">any</span></h5>
+<div class="tsd-comment tsd-typography"><p>sets if the connection is authenticated</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>this connection</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setCredentials" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Credentials</span><a href="#setCredentials" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -495,6 +517,24 @@ let connection1 = new MoneroRpcConnection("http://localhost:38081", "daemon_user
 <li>
 <h5><span class="tsd-kind-parameter">fakeDisconnected</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="setOnline" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Online</span><a href="#setOnline" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="setOnline.setOnline-1"><span class="tsd-kind-call-signature">set<wbr/>Online</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">isOnline</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><a href="#setOnline.setOnline-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the connection&#39;s online status.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">isOnline</span>: <span class="tsd-signature-type">any</span></h5>
+<div class="tsd-comment tsd-typography"><p>sets if the connection is online</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>this connection</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setPriority" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Priority</span><a href="#setPriority" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -536,6 +576,24 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li>
 <h5><span class="tsd-kind-parameter">proxyUri</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="setResponseTime" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Response<wbr/>Time</span><a href="#setResponseTime" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="setResponseTime.setResponseTime-1"><span class="tsd-kind-call-signature">set<wbr/>Response<wbr/>Time</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">responseTimeMs</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><a href="#setResponseTime.setResponseTime-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the connection&#39;s response time.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">responseTimeMs</span>: <span class="tsd-signature-type">any</span></h5>
+<div class="tsd-comment tsd-typography"><p>response time in milliseconds</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a></h4><p>this connection</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Timeout</span><a href="#setTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -660,11 +718,14 @@ then priority 2, etc. The default priority of 0 is lowest priority.</p>
 <li><a href="#sendJsonRequest" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>Json<wbr/>Request</span></a></li>
 <li><a href="#sendPathRequest" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>Path<wbr/>Request</span></a></li>
 <li><a href="#setAttribute" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Attribute</span></a></li>
+<li><a href="#setAuthenticated" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Authenticated</span></a></li>
 <li><a href="#setCredentials" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Credentials</span></a></li>
 <li><a href="#setFakeDisconnected" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Fake<wbr/>Disconnected</span></a></li>
+<li><a href="#setOnline" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Online</span></a></li>
 <li><a href="#setPriority" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Priority</span></a></li>
 <li><a href="#setProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#setProxyUri" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>Uri</span></a></li>
+<li><a href="#setResponseTime" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Response<wbr/>Time</span></a></li>
 <li><a href="#setTimeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Timeout</span></a></li>
 <li><a href="#setZmqUri" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Zmq<wbr/>Uri</span></a></li>
 <li><a href="#toJson" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Json</span></a></li>
