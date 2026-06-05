@@ -1535,7 +1535,7 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <section class="tsd-panel tsd-member tsd-is-inherited"><a id="importMultisigHex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>import<wbr/>Multisig<wbr/>Hex</span><a href="#importMultisigHex" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
-<li class="tsd-signature tsd-anchor-link" id="importMultisigHex.importMultisigHex-1"><span class="tsd-kind-call-signature">import<wbr/>Multisig<wbr/>Hex</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">multisigHexes</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><a href="#importMultisigHex.importMultisigHex-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="importMultisigHex.importMultisigHex-1"><span class="tsd-kind-call-signature">import<wbr/>Multisig<wbr/>Hex</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">multisigHexes</span>, <span class="tsd-kind-parameter">refreshAfterImport</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><a href="#importMultisigHex.importMultisigHex-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Import multisig info as hex from other participants.</p>
 </div>
@@ -1545,6 +1545,11 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <li>
 <h5><span class="tsd-kind-parameter">multisigHexes</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 <div class="tsd-comment tsd-typography"><p>multisig hex from each participant</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">refreshAfterImport</span>: <span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>specifies if the wallet should be refreshed after importing multisig hex (default true)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4><p>the number of outputs signed with the given multisig hex</p>
