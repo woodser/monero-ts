@@ -4336,10 +4336,13 @@ export default class TestMoneroWalletCommon {
     assert(txs.length > 0);
     for (let tx of txs) await this.testTxWallet(tx, ctx);
 
-    // test destinations across transactions
+    // test destinations across transactions; monero-project does not preserve destination order or splitting, so aggregate by address
     if (ctx.config && ctx.config.getDestinations()) {
-      let destinationIdx = 0;
       let subtractFeeFromDestinations = ctx.config.getSubtractFeeFrom() && ctx.config.getSubtractFeeFrom().length > 0;
+      let expectedAmounts = new Map<string, bigint>();
+      for (let destination of ctx.config.getDestinations()) expectedAmounts.set(destination.getAddress(), (expectedAmounts.get(destination.getAddress()) ?? 0n) + destination.getAmount());
+      let actualAmounts = new Map<string, bigint>();
+      let feeSum = 0n;
       for (let tx of txs) {
 
         // TODO: remove this after >18.3.1 when amounts_by_dest_list is official
@@ -4348,17 +4351,22 @@ export default class TestMoneroWalletCommon {
           return;
         }
 
-        let amountDiff = BigInt(0);
+        feeSum += tx.getFee();
         for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-          let ctxDestination = ctx.config.getDestinations()[destinationIdx];
-          assert.equal(destination.getAddress(), ctxDestination.getAddress());
-          if (subtractFeeFromDestinations) amountDiff = amountDiff + ctxDestination.getAmount() - destination.getAmount();
-          else assert.equal(destination.getAmount().toString(), ctxDestination.getAmount().toString());
-          destinationIdx++;
+          assert(expectedAmounts.has(destination.getAddress()), "Destination address not in config");
+          actualAmounts.set(destination.getAddress(), (actualAmounts.get(destination.getAddress()) ?? 0n) + destination.getAmount());
         }
-        if (subtractFeeFromDestinations) assert.equal(tx.getFee().toString(), amountDiff.toString());
       }
-      assert.equal(ctx.config.getDestinations().length, destinationIdx);
+
+      // each destination receives its requested amount, less fee if subtracted from destinations
+      if (subtractFeeFromDestinations) {
+        let amountDiff = 0n;
+        for (let [address, amount] of expectedAmounts) amountDiff += amount - (actualAmounts.get(address) ?? 0n);
+        assert.equal(feeSum.toString(), amountDiff.toString());
+      } else {
+        assert.equal(actualAmounts.size, expectedAmounts.size);
+        for (let [address, amount] of expectedAmounts) assert.equal((actualAmounts.get(address) ?? 0n).toString(), amount.toString());
+      }
     }
   }
   
