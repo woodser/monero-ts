@@ -3247,7 +3247,7 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testRelays)
       it("Can send from multiple subaddresses in a single transaction", async function() {
-        await testSendFromMultiple();
+        await testSendFromMultiple(new MoneroTxConfig().setCanSplit(false));
       });
       
       if (testConfig.testRelays)
