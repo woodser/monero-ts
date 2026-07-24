@@ -10,8 +10,7 @@ export default class HttpClient {
     };
     protected static PROMISE_THROTTLES: any[];
     protected static TASK_QUEUES: any[];
-    protected static DEFAULT_TIMEOUT: number;
-    static MAX_TIMEOUT: number;
+    protected static CONNECT_TIMEOUT: number;
     protected static HTTP_AGENT: any;
     protected static HTTPS_AGENT: any;
     /**
@@ -47,6 +46,7 @@ export default class HttpClient {
      * @return {https.Agent} a shared agent for network requests among library instances
      */
     protected static getHttpsAgent(): any;
+    protected static applyConnectTimeout(agent: any): any;
     protected static requestAxios(req: any): Promise<any>;
     protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any) => Promise<import("axios").AxiosResponse<any, any>>;
 }
