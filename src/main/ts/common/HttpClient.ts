@@ -23,8 +23,7 @@ export default class HttpClient {
   // rate limit requests per host
   protected static PROMISE_THROTTLES = [];
   protected static TASK_QUEUES = [];
-  protected static DEFAULT_TIMEOUT = 60000;
-  static MAX_TIMEOUT = 2147483647; // max 32-bit signed number
+  protected static CONNECT_TIMEOUT = 180000; // ms to establish a connection, matching monero-java's default (0 to disable)
 
   protected static HTTP_AGENT: any;
   protected static HTTPS_AGENT: any;
@@ -85,10 +84,9 @@ export default class HttpClient {
       });
     }
 
-    // request using fetch or xhr with timeout
-    let timeout = request.timeout === undefined ? HttpClient.DEFAULT_TIMEOUT : request.timeout === 0 ? HttpClient.MAX_TIMEOUT : request.timeout;
+    // response read is uncapped to match monero-java; the connection phase is bounded in the agents (0 or unset = no cap)
     let requestPromise = HttpClient.requestAxios(request);
-    return GenUtils.executeWithTimeout(requestPromise, timeout);
+    return request.timeout ? GenUtils.executeWithTimeout(requestPromise, request.timeout) : requestPromise;
   }
 
   // ----------------------------- PRIVATE HELPERS ----------------------------
@@ -100,10 +98,10 @@ export default class HttpClient {
    * @return {http.Agent} a shared agent for network requests among library instances
    */
   protected static getHttpAgent() {
-    if (!HttpClient.HTTP_AGENT) HttpClient.HTTP_AGENT = new http.Agent({
+    if (!HttpClient.HTTP_AGENT) HttpClient.HTTP_AGENT = HttpClient.applyConnectTimeout(new http.Agent({
       keepAlive: true,
       family: 4 // use IPv4
-    });
+    }));
     return HttpClient.HTTP_AGENT;
   }
 
@@ -113,11 +111,25 @@ export default class HttpClient {
    * @return {https.Agent} a shared agent for network requests among library instances
    */
   protected static getHttpsAgent() {
-    if (!HttpClient.HTTPS_AGENT) HttpClient.HTTPS_AGENT = new https.Agent({
+    if (!HttpClient.HTTPS_AGENT) HttpClient.HTTPS_AGENT = HttpClient.applyConnectTimeout(new https.Agent({
       keepAlive: true,
       family: 4 // use IPv4
-    });
+    }));
     return HttpClient.HTTPS_AGENT;
+  }
+
+  // bound only the connection phase; the response read stays uncapped to match monero-java
+  protected static applyConnectTimeout(agent: any) {
+    if (typeof agent.createConnection !== "function" || HttpClient.CONNECT_TIMEOUT <= 0) return agent; // no-op in browser shims or if disabled
+    const createConnection = agent.createConnection.bind(agent);
+    agent.createConnection = function(options, callback) {
+      const socket = createConnection(options, callback);
+      const timer = setTimeout(() => socket.destroy(new Error("Connection timed out in " + HttpClient.CONNECT_TIMEOUT + " ms")), HttpClient.CONNECT_TIMEOUT);
+      const clearConnectTimer = () => clearTimeout(timer);
+      socket.once("connect", clearConnectTimer).once("secureConnect", clearConnectTimer).once("error", clearConnectTimer).once("close", clearConnectTimer);
+      return socket;
+    };
+    return agent;
   }
 
   protected static async requestAxios(req) {
@@ -176,7 +188,6 @@ export default class HttpClient {
     return axios.request({
       url: url,
       method: method,
-      timeout: this.timeout,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -222,7 +233,6 @@ export default class HttpClient {
         const finalResponse = await axios.request({
           url: url,
           method: method,
-          timeout: this.timeout,
           headers: {
             'Authorization': digestAuthHeader,
             'Content-Type': 'application/json'
