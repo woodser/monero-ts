@@ -2228,8 +2228,10 @@ export default class TestMoneroWalletCommon {
         assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
         
         // test error when not enough balance for requested minimum reserve amount
+        // use the whole-wallet balance: get_reserve_proof validates against the account's strict balance, which counts
+        // pending-spent outputs and can exceed a single account's reported balance when unconfirmed txs exist (see #6595)
         try {
-          let reserveProof = await that.wallet.getReserveProofAccount(0, accounts[0].getBalance() + (TestUtils.MAX_FEE), "Test message");
+          let reserveProof = await that.wallet.getReserveProofAccount(0, (await that.wallet.getBalance()) + (TestUtils.MAX_FEE), "Test message");
           throw new Error("should have thrown error");
         } catch (e: any) {
           if (e.message === "should have thrown error") throw new Error("Should have thrown exception but got reserve proof: https://github.com/monero-project/monero/issues/6595");
