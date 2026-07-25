@@ -509,13 +509,17 @@ self.decodeIntegratedAddress = async function(walletId, integratedAddress) {
   return (await self.WORKER_OBJECTS[walletId].decodeIntegratedAddress(integratedAddress)).toJson();
 }
 
-self.setDaemonConnection = async function(walletId, config) {
-  return self.WORKER_OBJECTS[walletId].setDaemonConnection(config ? new MoneroRpcConnection(Object.assign(config, {proxyToWorker: false})) : undefined);
+self.setDaemonConnection = async function(walletId, config, isTrusted) {
+  return self.WORKER_OBJECTS[walletId].setDaemonConnection(config ? new MoneroRpcConnection(Object.assign(config, {proxyToWorker: false})) : undefined, isTrusted);
 }
 
 self.getDaemonConnection = async function(walletId) {
   let connection = await self.WORKER_OBJECTS[walletId].getDaemonConnection();
   return connection ? connection.getConfig() : undefined;
+}
+
+self.isDaemonTrusted = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isDaemonTrusted();
 }
 
 self.isConnectedToDaemon = async function(walletId) {

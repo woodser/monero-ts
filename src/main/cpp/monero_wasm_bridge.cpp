@@ -248,9 +248,9 @@ bool monero_wasm_bridge::is_view_only(int handle) {
   return wallet->is_view_only();
 }
 
-void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, const string& proxy_uri, emscripten::val callback) {
+void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, const string& proxy_uri, int is_trusted, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_daemon_connection(uri, username, password, proxy_uri);
+  wallet->set_daemon_connection(uri, username, password, proxy_uri, is_trusted < 0 ? boost::none : boost::optional<bool>(is_trusted != 0)); // trusted is unset if negative
   callback();
 }
 
@@ -258,6 +258,11 @@ string monero_wasm_bridge::get_daemon_connection(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   boost::optional<monero_rpc_connection> daemon_connection = wallet->get_daemon_connection();
   return daemon_connection == boost::none ? "" : daemon_connection.get().serialize();
+}
+
+bool monero_wasm_bridge::is_daemon_trusted(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->is_daemon_trusted();
 }
 
 void monero_wasm_bridge::is_connected_to_daemon(int handle, emscripten::val callback) {

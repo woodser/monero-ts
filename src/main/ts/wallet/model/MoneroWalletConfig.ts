@@ -20,6 +20,9 @@ export default class MoneroWalletConfig {
   /** Server config to monerod or monero-wallet-rpc. */
   server: string | Partial<MoneroRpcConnection>;
 
+  /** Indicates if the server is trusted (defaults to trusted if local address). */
+  isTrustedDaemon: boolean;
+
   /** Govern the wallet's server connection. */
   connectionManager: MoneroConnectionManager;
 
@@ -92,6 +95,7 @@ export default class MoneroWalletConfig {
    * @param {number} [config.accountLookahead] -  number of accounts to scan (optional)
    * @param {number} [config.subaddressLookahead] - number of subaddresses to scan per account (optional)
    * @param {string|Partial<MoneroRpcConnection>} [config.server] - uri or MoneroRpcConnection to the wallet's server (optional)
+   * @param {boolean} [config.isTrustedDaemon] - indicates if the server is trusted (defaults to trusted if local address)
    * @param {MoneroConnectionManager} [config.connectionManager] - manage connections to monerod (optional)
    * @param {boolean} [config.rejectUnauthorized] - reject self-signed server certificates if true (default true)
    * @param {Uint8Array} [config.keysData] - wallet keys data to open (optional)
@@ -162,6 +166,15 @@ export default class MoneroWalletConfig {
     return this;
   }
   
+  getIsTrustedDaemon(): boolean {
+    return this.isTrustedDaemon;
+  }
+
+  setIsTrustedDaemon(isTrustedDaemon: boolean): MoneroWalletConfig {
+    this.isTrustedDaemon = isTrustedDaemon;
+    return this;
+  }
+
   getConnectionManager(): MoneroConnectionManager {
     return this.connectionManager;
   }

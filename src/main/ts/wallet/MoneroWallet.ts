@@ -128,9 +128,10 @@ export default class MoneroWallet {
    * Set the wallet's daemon connection.
    * 
    * @param {MoneroRpcConnection | string} [uriOrConnection] - daemon's URI or connection (defaults to offline)
+   * @param {boolean} [isTrusted] - indicates if the daemon is trusted (defaults to trusted if local address)
    * @return {Promise<void>}
    */
-  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void> {
+  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void> {
     throw new MoneroError("Not supported");
   }
   

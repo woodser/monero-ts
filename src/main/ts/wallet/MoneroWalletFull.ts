@@ -145,6 +145,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     // open wallet from data
     const wallet = await MoneroWalletFull.openWalletData(config);
 
+    // apply explicit daemon trust
+    if (config.getIsTrustedDaemon() !== undefined && config.getServer()) await wallet.setDaemonConnection(config.getServer(), config.getIsTrustedDaemon());
+
     // set connection manager
     await wallet.setConnectionManager(config.getConnectionManager());
     return wallet;
@@ -433,8 +436,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return super.getListeners();
   }
   
-  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void> {
-    if (this.getWalletProxy()) return this.getWalletProxy().setDaemonConnection(uriOrConnection);
+  async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void> {
+    if (this.getWalletProxy()) return this.getWalletProxy().setDaemonConnection(uriOrConnection, isTrusted);
 
     // normalize connection
     let connection = !uriOrConnection ? undefined : uriOrConnection instanceof MoneroRpcConnection ? uriOrConnection : new MoneroRpcConnection(uriOrConnection);
@@ -443,19 +446,33 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     let password = connection && connection.getPassword() ? connection.getPassword() : "";
     let proxyUri = connection && connection.getProxyUri() ? connection.getProxyUri() : "";
     let rejectUnauthorized = connection ? connection.getRejectUnauthorized() : undefined;
+    let isTrustedArg = isTrusted === undefined ? -1 : (isTrusted ? 1 : 0); // negative if unset
     this.rejectUnauthorized = rejectUnauthorized;  // persist locally
-    
+
     // set connection in queue
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
-        this.module.set_daemon_connection(this.cppAddress, uri, username, password, proxyUri, (resp) => {
+        this.module.set_daemon_connection(this.cppAddress, uri, username, password, proxyUri, isTrustedArg, (resp) => {
           resolve();
         });
       });
     });
   }
-  
+
+  /**
+   * Indicates if the wallet's daemon is trusted.
+   *
+   * @return {Promise<boolean>} true if the daemon is trusted, false otherwise
+   */
+  async isDaemonTrusted(): Promise<boolean> {
+    if (this.getWalletProxy()) return this.getWalletProxy().isDaemonTrusted();
+    return this.module.queueTask(async () => {
+      this.assertNotClosed();
+      return this.module.is_daemon_trusted(this.cppAddress);
+    });
+  }
+
   async getDaemonConnection(): Promise<MoneroRpcConnection> {
     if (this.getWalletProxy()) return this.getWalletProxy().getDaemonConnection();
     return this.module.queueTask(async () => {
@@ -1910,14 +1927,18 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     return this.invokeWorker("setSubaddressLabel", Array.from(arguments)) as Promise<void>;
   }
   
-  async setDaemonConnection(uriOrRpcConnection) {
-    if (!uriOrRpcConnection) await this.invokeWorker("setDaemonConnection");
+  async setDaemonConnection(uriOrRpcConnection, isTrusted?) {
+    if (!uriOrRpcConnection) await this.invokeWorker("setDaemonConnection", [undefined, isTrusted]);
     else {
       let connection = !uriOrRpcConnection ? undefined : uriOrRpcConnection instanceof MoneroRpcConnection ? uriOrRpcConnection : new MoneroRpcConnection(uriOrRpcConnection);
-      await this.invokeWorker("setDaemonConnection", connection ? connection.getConfig() : undefined);
+      await this.invokeWorker("setDaemonConnection", [connection ? connection.getConfig() : undefined, isTrusted]);
     }
   }
-  
+
+  async isDaemonTrusted() {
+    return this.invokeWorker("isDaemonTrusted") as Promise<boolean>;
+  }
+
   async getDaemonConnection() {
     let rpcConfig = await this.invokeWorker("getDaemonConnection");
     return rpcConfig ? new MoneroRpcConnection(rpcConfig) : undefined;
