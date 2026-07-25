@@ -24,6 +24,7 @@ export default class HttpClient {
   protected static PROMISE_THROTTLES = [];
   protected static TASK_QUEUES = [];
   protected static CONNECT_TIMEOUT = 180000; // ms to establish a connection, matching monero-java's default (0 to disable)
+  protected static READ_TIMEOUT = 180000; // ms of socket inactivity before timing out
 
   protected static HTTP_AGENT: any;
   protected static HTTPS_AGENT: any;
@@ -84,7 +85,7 @@ export default class HttpClient {
       });
     }
 
-    // response read is uncapped to match monero-java; the connection phase is bounded in the agents (0 or unset = no cap)
+    // connection and response inactivity are bounded in the agents
     let requestPromise = HttpClient.requestAxios(request);
     return request.timeout ? GenUtils.executeWithTimeout(requestPromise, request.timeout) : requestPromise;
   }
@@ -98,7 +99,7 @@ export default class HttpClient {
    * @return {http.Agent} a shared agent for network requests among library instances
    */
   protected static getHttpAgent() {
-    if (!HttpClient.HTTP_AGENT) HttpClient.HTTP_AGENT = HttpClient.applyConnectTimeout(new http.Agent({
+    if (!HttpClient.HTTP_AGENT) HttpClient.HTTP_AGENT = HttpClient.applyTimeouts(new http.Agent({
       keepAlive: true,
       family: 4 // use IPv4
     }));
@@ -111,22 +112,25 @@ export default class HttpClient {
    * @return {https.Agent} a shared agent for network requests among library instances
    */
   protected static getHttpsAgent() {
-    if (!HttpClient.HTTPS_AGENT) HttpClient.HTTPS_AGENT = HttpClient.applyConnectTimeout(new https.Agent({
+    if (!HttpClient.HTTPS_AGENT) HttpClient.HTTPS_AGENT = HttpClient.applyTimeouts(new https.Agent({
       keepAlive: true,
       family: 4 // use IPv4
     }));
     return HttpClient.HTTPS_AGENT;
   }
 
-  // bound only the connection phase; the response read stays uncapped to match monero-java
-  protected static applyConnectTimeout(agent: any) {
-    if (typeof agent.createConnection !== "function" || HttpClient.CONNECT_TIMEOUT <= 0) return agent; // no-op in browser shims or if disabled
+  // bound the connection phase and socket inactivity
+  protected static applyTimeouts(agent: any) {
+    if (typeof agent.createConnection !== "function") return agent; // no-op in browser shims
     const createConnection = agent.createConnection.bind(agent);
     agent.createConnection = function(options, callback) {
       const socket = createConnection(options, callback);
-      const timer = setTimeout(() => socket.destroy(new Error("Connection timed out in " + HttpClient.CONNECT_TIMEOUT + " ms")), HttpClient.CONNECT_TIMEOUT);
-      const clearConnectTimer = () => clearTimeout(timer);
-      socket.once("connect", clearConnectTimer).once("secureConnect", clearConnectTimer).once("error", clearConnectTimer).once("close", clearConnectTimer);
+      if (HttpClient.CONNECT_TIMEOUT > 0) {
+        const timer = setTimeout(() => socket.destroy(new Error("Connection timed out in " + HttpClient.CONNECT_TIMEOUT + " ms")), HttpClient.CONNECT_TIMEOUT);
+        const clearConnectTimer = () => clearTimeout(timer);
+        socket.once("connect", clearConnectTimer).once("secureConnect", clearConnectTimer).once("error", clearConnectTimer).once("close", clearConnectTimer);
+      }
+      if (HttpClient.READ_TIMEOUT > 0) socket.setTimeout(HttpClient.READ_TIMEOUT, () => socket.destroy(new Error("Socket timed out after " + HttpClient.READ_TIMEOUT + " ms of inactivity")));
       return socket;
     };
     return agent;
