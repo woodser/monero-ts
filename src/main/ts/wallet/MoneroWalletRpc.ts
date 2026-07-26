@@ -14,6 +14,7 @@ import MoneroError from "../common/MoneroError";
 import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
 import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
 import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageExportResult from "./model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
 import MoneroMultisigInfo from "./model/MoneroMultisigInfo";
 import MoneroMultisigInitResult from "./model/MoneroMultisigInitResult";
@@ -863,17 +864,17 @@ export default class MoneroWalletRpc extends MoneroWallet {
     return resp.result.num_imported;
   }
   
-  async exportKeyImages(all = false): Promise<MoneroKeyImage[]> {
+  async exportKeyImages(all = false): Promise<MoneroKeyImageExportResult> {
     return await this.rpcExportKeyImages(all);
   }
   
-  async importKeyImages(keyImages: MoneroKeyImage[]): Promise<MoneroKeyImageImportResult> {
+  async importKeyImages(keyImages: MoneroKeyImage[], offset = 0): Promise<MoneroKeyImageImportResult> {
     
     // convert key images to rpc parameter
     let rpcKeyImages = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
     
     // send request
-    let resp = await this.config.getServer().sendJsonRequest("import_key_images", {signed_key_images: rpcKeyImages});
+    let resp = await this.config.getServer().sendJsonRequest("import_key_images", {signed_key_images: rpcKeyImages, offset: offset});
     
     // build and return result
     let importResult = new MoneroKeyImageImportResult();
@@ -884,7 +885,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getNewKeyImagesFromLastImport(): Promise<MoneroKeyImage[]> {
-    return await this.rpcExportKeyImages(false);
+    return (await this.rpcExportKeyImages(false)).getKeyImages();
   }
   
   async freezeOutput(keyImage: string): Promise<void> {
@@ -1775,12 +1776,12 @@ export default class MoneroWalletRpc extends MoneroWallet {
    * Common method to get key images.
    * 
    * @param all - pecifies to get all xor only new images from last import
-   * @return {MoneroKeyImage[]} are the key images
+   * @return {MoneroKeyImageExportResult} the key images and their offset among the wallet's outputs
    */
-  protected async rpcExportKeyImages(all) {
+  protected async rpcExportKeyImages(all): Promise<MoneroKeyImageExportResult> {
     let resp = await this.config.getServer().sendJsonRequest("export_key_images", {all: all});
-    if (!resp.result.signed_key_images) return [];
-    return resp.result.signed_key_images.map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));
+    let keyImages = (resp.result.signed_key_images || []).map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));
+    return new MoneroKeyImageExportResult().setOffset(resp.result.offset).setKeyImages(keyImages);
   }
   
   protected async rpcSweepAccount(config: MoneroTxConfig) {

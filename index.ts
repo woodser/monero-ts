@@ -54,6 +54,7 @@ import MoneroCheckReserve from "./src/main/ts/wallet/model/MoneroCheckReserve";
 import MoneroCheckTx from "./src/main/ts/wallet/model/MoneroCheckTx";
 import MoneroDestination from "./src/main/ts/wallet/model/MoneroDestination";
 import MoneroIntegratedAddress from "./src/main/ts/wallet/model/MoneroIntegratedAddress";
+import MoneroKeyImageExportResult from "./src/main/ts/wallet/model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./src/main/ts/wallet/model/MoneroKeyImageImportResult";
 import MoneroMultisigInfo from "./src/main/ts/wallet/model/MoneroMultisigInfo";
 import MoneroMultisigInitResult from "./src/main/ts/wallet/model/MoneroMultisigInitResult";
@@ -347,6 +348,7 @@ export {
   MoneroCheckTx,
   MoneroDestination,
   MoneroIntegratedAddress,
+  MoneroKeyImageExportResult,
   MoneroKeyImageImportResult,
   MoneroMultisigInfo,
   MoneroMultisigInitResult,
@@ -436,6 +438,7 @@ const moneroTs = {
   MoneroCheckTx,
   MoneroDestination,
   MoneroIntegratedAddress,
+  MoneroKeyImageExportResult,
   MoneroKeyImageImportResult,
   MoneroMultisigInfo,
   MoneroMultisigInitResult,

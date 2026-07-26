@@ -45,10 +45,10 @@ let outputsHex = await viewOnlyWallet.exportOutputs();
 await offlineWallet.importOutputs(outputsHex);
   
 // export key images from offline wallet
-let keyImages = await offlineWallet.exportKeyImages();
+let keyImageResult = await offlineWallet.exportKeyImages();
   
 // import key images to view-only wallet
-await viewOnlyWallet.importKeyImages(keyImages);
+await viewOnlyWallet.importKeyImages(keyImageResult.getKeyImages(), keyImageResult.getOffset());
   
 // create unsigned tx using view-only wallet
 let unsignedTx = await viewOnlyWallet.createTx({

@@ -728,13 +728,7 @@ void monero_wasm_bridge::import_outputs(int handle, const string& outputs_hex, e
 void monero_wasm_bridge::export_key_images(int handle, bool all, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    vector<shared_ptr<monero_key_image>> key_images = wallet->export_key_images(all);
-
-    // wrap and serialize key images
-    rapidjson::Document doc;
-    doc.SetObject();
-    doc.AddMember("keyImages", monero_utils::to_rapidjson_val(doc.GetAllocator(), key_images), doc.GetAllocator());
-    callback(gen_utils::serialize(doc));
+    callback(wallet->export_key_images(all)->serialize());
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -743,8 +737,8 @@ void monero_wasm_bridge::export_key_images(int handle, bool all, emscripten::val
 void monero_wasm_bridge::import_key_images(int handle, const string& key_images_str, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-    vector<shared_ptr<monero_key_image>> key_images = monero_key_image::deserialize_key_images(key_images_str);
-    callback(wallet->import_key_images(key_images)->serialize());
+    shared_ptr<monero_key_image_export_result> exported = monero_key_image_export_result::deserialize(key_images_str);
+    callback(wallet->import_key_images(exported->m_key_images, exported->m_offset == boost::none ? 0 : exported->m_offset.get())->serialize());
   } catch (exception& e) {
     callback(string(e.what()));
   }

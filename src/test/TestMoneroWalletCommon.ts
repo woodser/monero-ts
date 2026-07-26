@@ -2271,7 +2271,9 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testNonRelays)
       it("Can export key images", async function() {
-        let images = await that.wallet.exportKeyImages(true);
+        let result = await that.wallet.exportKeyImages(true);
+        assert.equal(result.getOffset(), 0);
+        let images = result.getKeyImages();
         assert(Array.isArray(images));
         assert(images.length > 0, "No signed key images in wallet");
         for (let image of images) {
@@ -2281,8 +2283,8 @@ export default class TestMoneroWalletCommon {
         }
         
         // wallet exports key images since last export by default
-        images = await that.wallet.exportKeyImages();
-        let imagesAll = await that.wallet.exportKeyImages(true);
+        images = (await that.wallet.exportKeyImages()).getKeyImages();
+        let imagesAll = (await that.wallet.exportKeyImages(true)).getKeyImages();
         assert(imagesAll.length > images.length);
       });
       
@@ -2310,10 +2312,11 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testNonRelays && false)  // TODO monero-project: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
       it("Can import key images", async function() {
-        let images = await that.wallet.exportKeyImages();
+        let exportResult = await that.wallet.exportKeyImages();
+        let images = exportResult.getKeyImages();
         assert(Array.isArray(images));
         assert(images.length > 0, "Wallet does not have any key images; run send tests");
-        let result = await that.wallet.importKeyImages(images);
+        let result = await that.wallet.importKeyImages(images, exportResult.getOffset());
         assert(result.getHeight() > 0);
         
         // determine if non-zero spent and unspent amounts are expected
@@ -5115,12 +5118,12 @@ export default class TestMoneroWalletCommon {
     assert(numOutputsImported > 0, "No outputs imported");
     
     // export key images from offline wallet
-    let keyImages = await offlineWallet.exportKeyImages();
-    assert(keyImages.length > 0);
+    let keyImageResult = await offlineWallet.exportKeyImages();
+    assert(keyImageResult.getKeyImages().length > 0);
     
     // import key images to view-only wallet
     assert(await viewOnlyWallet.isConnectedToDaemon());
-    await viewOnlyWallet.importKeyImages(keyImages);
+    await viewOnlyWallet.importKeyImages(keyImageResult.getKeyImages(), keyImageResult.getOffset());
     assert.equal((await viewOnlyWallet.getBalance()).toString(), (await this.wallet.getBalance()).toString());
     
     // create unsigned tx using view-only wallet

@@ -780,15 +780,13 @@ self.importOutputs = async function(walletId, outputsHex) {
 }
 
 self.getKeyImages = async function(walletId, all) {
-  let keyImagesJson = [];
-  for (let keyImage of await self.WORKER_OBJECTS[walletId].exportKeyImages(all)) keyImagesJson.push(keyImage.toJson());
-  return keyImagesJson;
+  return (await self.WORKER_OBJECTS[walletId].exportKeyImages(all)).toJson();
 }
 
-self.importKeyImages = async function(walletId, keyImagesJson) {
+self.importKeyImages = async function(walletId, keyImagesJson, offset) {
   let keyImages = [];
   for (let keyImageJson of keyImagesJson) keyImages.push(new MoneroKeyImage(keyImageJson));
-  return (await self.WORKER_OBJECTS[walletId].importKeyImages(keyImages)).toJson();
+  return (await self.WORKER_OBJECTS[walletId].importKeyImages(keyImages, offset)).toJson();
 }
 
 //async getNewKeyImagesFromLastImport() {

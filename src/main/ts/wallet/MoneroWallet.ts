@@ -12,6 +12,7 @@ import MoneroError from "../common/MoneroError";
 import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
 import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
 import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageExportResult from "./model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
@@ -722,9 +723,9 @@ export default class MoneroWallet {
    * Export signed key images.
    * 
    * @param {boolean} [all] - export all key images if true, else export the key images since the last export (default false)
-   * @return {Promise<MoneroKeyImage[]>} the wallet's signed key images
+   * @return {Promise<MoneroKeyImageExportResult>} the wallet's signed key images and their offset among the wallet's outputs
    */
-  async exportKeyImages(all = false): Promise<MoneroKeyImage[]> {
+  async exportKeyImages(all = false): Promise<MoneroKeyImageExportResult> {
     throw new MoneroError("Not supported");
   }
   
@@ -732,9 +733,10 @@ export default class MoneroWallet {
    * Import signed key images and verify their spent status.
    * 
    * @param {MoneroKeyImage[]} keyImages - images to import and verify (requires hex and signature)
+   * @param {number} [offset] - offset of the first key image among the wallet's outputs (default 0)
    * @return {Promise<MoneroKeyImageImportResult>} results of the import
    */
-  async importKeyImages(keyImages: MoneroKeyImage[]): Promise<MoneroKeyImageImportResult> {
+  async importKeyImages(keyImages: MoneroKeyImage[], offset = 0): Promise<MoneroKeyImageImportResult> {
     throw new MoneroError("Not supported");
   }
   
