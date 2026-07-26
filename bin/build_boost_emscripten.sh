@@ -114,12 +114,12 @@ HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2
   --stagedir="$INSTALL_PATH"  \
   2>&1
 
-unset NO_BZIP2
-
 if [ $? != 0 ]; then
   echo "ERROR: b2 FAILED!"
   exit 1
 fi
+
+unset NO_BZIP2
 
 # ---
 
