@@ -1,6 +1,7 @@
 #include <iostream>
 #include "monero_wasm_bridge.h"
 #include "wallet/monero_wallet_keys.h"
+#include "utils/gen_utils.h"
 #include "utils/monero_utils.h"
 #include "wallet/monero_wallet_full.h"
 #include "http_client_wasm.h"
@@ -118,14 +119,14 @@ string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
   root.put("length", ptr->length());
 
   // serialize memory info to json str
-  return monero_utils::serialize(root); // TODO: move this utility to gen_utils?
+  return gen_utils::serialize(root);
 }
 
 string monero_wasm_bridge::binary_to_json(const std::string &bin_mem_info_str)
 {
   // deserialize memory address info to json
   boost::property_tree::ptree root;
-  monero_utils::deserialize(bin_mem_info_str, root);
+  gen_utils::deserialize(bin_mem_info_str, root);
 
   // get ptr and length of binary data
   char* ptr = (char*) root.get<int>("ptr"); // TODO: reinterpret_cast<intptr_t>?
@@ -144,7 +145,7 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 {
   // deserialize memory address info to json
   boost::property_tree::ptree root;
-  monero_utils::deserialize(bin_mem_info_str, root);
+  gen_utils::deserialize(bin_mem_info_str, root);
 
   // get ptr and length of binary data
   char* ptr = (char*) root.get<int>("ptr"); // TODO: reinterpret_cast<intptr_t>?
@@ -164,7 +165,7 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 void monero_wasm_bridge::open_wallet_full(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& reject_unauthorized_fn_id, bool regtest, emscripten::val callback) {
 #if defined BUILD_WALLET_FULL
   try {
-    monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+    std::shared_ptr<monero_rpc_connection> daemon_connection = std::make_shared<monero_rpc_connection>(daemon_uri, daemon_username, daemon_password);
     monero_wallet* wallet = monero_wallet_full::open_wallet_data(password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection, std::unique_ptr<http_client_wasm_factory>(new http_client_wasm_factory(reject_unauthorized_fn_id)), regtest);
     callback((int) wallet); // callback with wallet memory address
   } catch (exception& e) {
@@ -195,7 +196,7 @@ string monero_wasm_bridge::get_full_wallet_seed_languages() {
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_full::get_seed_languages()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 #else
   throw runtime_error("monero_wallet_full not built");
 #endif
@@ -238,7 +239,7 @@ string monero_wasm_bridge::get_keys_wallet_seed_languages() {
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_keys::get_seed_languages()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
@@ -256,8 +257,8 @@ void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, co
 
 string monero_wasm_bridge::get_daemon_connection(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  boost::optional<monero_rpc_connection> daemon_connection = wallet->get_daemon_connection();
-  return daemon_connection == boost::none ? "" : daemon_connection.get().serialize();
+  std::shared_ptr<monero_rpc_connection> daemon_connection = wallet->get_daemon_connection();
+  return daemon_connection == nullptr ? "" : daemon_connection->serialize();
 }
 
 bool monero_wasm_bridge::is_daemon_trusted(int handle) {
@@ -501,7 +502,7 @@ string monero_wasm_bridge::get_balance_wallet(int handle) {
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("balance", rapidjson::Value().SetUint64(wallet->get_balance()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
@@ -512,7 +513,7 @@ string monero_wasm_bridge::get_balance_account(int handle, const uint32_t accoun
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("balance", rapidjson::Value().SetUint64(wallet->get_balance(account_idx)), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
@@ -523,7 +524,7 @@ string monero_wasm_bridge::get_balance_subaddress(int handle, const uint32_t acc
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("balance", rapidjson::Value().SetUint64(wallet->get_balance(account_idx, subaddress_idx)), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_unlocked_balance_wallet(int handle) {
@@ -534,7 +535,7 @@ string monero_wasm_bridge::get_unlocked_balance_wallet(int handle) {
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("unlockedBalance", rapidjson::Value().SetUint64(wallet->get_unlocked_balance()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_unlocked_balance_account(int handle, const uint32_t account_idx) {
@@ -545,7 +546,7 @@ string monero_wasm_bridge::get_unlocked_balance_account(int handle, const uint32
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("unlockedBalance", rapidjson::Value().SetUint64(wallet->get_unlocked_balance(account_idx)), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_unlocked_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
@@ -556,7 +557,7 @@ string monero_wasm_bridge::get_unlocked_balance_subaddress(int handle, const uin
   doc.SetObject();
   rapidjson::Value value;
   doc.AddMember("unlockedBalance", rapidjson::Value().SetUint64(wallet->get_unlocked_balance(account_idx, subaddress_idx)), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_accounts(int handle, bool include_subaddresses, const string& tag) {
@@ -569,7 +570,7 @@ string monero_wasm_bridge::get_accounts(int handle, bool include_subaddresses, c
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("accounts", monero_utils::to_rapidjson_val(doc.GetAllocator(), accounts), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
@@ -608,7 +609,7 @@ string monero_wasm_bridge::get_subaddresses(int handle, const string& args) {
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("subaddresses", monero_utils::to_rapidjson_val(doc.GetAllocator(), subaddresses), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 string monero_wasm_bridge::create_subaddress(int handle, const uint32_t account_idx, const string& label) {
@@ -637,7 +638,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
 
     // free memory
     monero_utils::free(blocks);
@@ -668,11 +669,11 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
 
     // free memory
     monero_utils::free(blocks);
-    monero_utils::free(transfer_query->m_tx_query.get());
+    monero_utils::free(transfer_query->m_tx_query);
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -696,11 +697,11 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
 
     // free memory
     monero_utils::free(blocks);
-    monero_utils::free(output_query->m_tx_query.get());
+    monero_utils::free(output_query->m_tx_query);
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -733,7 +734,7 @@ void monero_wasm_bridge::export_key_images(int handle, bool all, emscripten::val
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("keyImages", monero_utils::to_rapidjson_val(doc.GetAllocator(), key_images), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -800,7 +801,7 @@ void monero_wasm_bridge::create_txs(int handle, const string& config_json, emscr
     vector<shared_ptr<monero_tx_wallet>> txs = wallet->create_txs(*config);
 
     // serialize and return tx set
-    string tx_set_json = txs[0]->m_tx_set.get()->serialize();
+    string tx_set_json = txs[0]->m_tx_set->serialize();
     monero_utils::free(txs);
     callback(tx_set_json);
   } catch (exception& e) {
@@ -819,7 +820,7 @@ void monero_wasm_bridge::sweep_output(int handle, const string& config_json, ems
     shared_ptr<monero_tx_wallet> tx = wallet->sweep_output(*config);
 
     // serialize and return tx set
-    string tx_set_json = tx->m_tx_set.get()->serialize();
+    string tx_set_json = tx->m_tx_set->serialize();
     monero_utils::free(tx);
     callback(tx_set_json);
   } catch (exception& e) {
@@ -841,7 +842,7 @@ void monero_wasm_bridge::sweep_unlocked(int handle, const string& config_json, e
     vector<shared_ptr<monero_tx_set>> tx_sets;
     for (int i = 0; i < txs.size(); i++) {
       if (std::find(tx_sets.begin(), tx_sets.end(), txs[i]->m_tx_set) == tx_sets.end()) {
-        tx_sets.push_back(txs[i]->m_tx_set.get());
+        tx_sets.push_back(txs[i]->m_tx_set);
       }
     }
 
@@ -849,7 +850,7 @@ void monero_wasm_bridge::sweep_unlocked(int handle, const string& config_json, e
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("txSets", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_sets), doc.GetAllocator());
-    string tx_sets_json = monero_utils::serialize(doc);
+    string tx_sets_json = gen_utils::serialize(doc);
 
     // free and return
     monero_utils::free(txs);
@@ -863,7 +864,7 @@ void monero_wasm_bridge::sweep_dust(int handle, bool relay, emscripten::val call
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
     vector<shared_ptr<monero_tx_wallet>> txs = wallet->sweep_dust(relay);
-    string tx_set_json = txs.empty() ? string("{}") : txs[0]->m_tx_set.get()->serialize();
+    string tx_set_json = txs.empty() ? string("{}") : txs[0]->m_tx_set->serialize();
     monero_utils::free(txs);
     callback(tx_set_json);
   } catch (exception& e) {
@@ -892,7 +893,7 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -924,7 +925,7 @@ void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, ems
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -1041,7 +1042,7 @@ string monero_wasm_bridge::get_tx_notes(int handle, const string& args) {
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("txNotes", monero_utils::to_rapidjson_val(doc.GetAllocator(), notes), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 void monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
@@ -1086,7 +1087,7 @@ string monero_wasm_bridge::get_address_book_entries(int handle, const string& ar
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("entries", monero_utils::to_rapidjson_val(doc.GetAllocator(), entries), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 }
 
 int monero_wasm_bridge::add_address_book_entry(int handle, const string& address, const string& description) {
@@ -1257,7 +1258,7 @@ void monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed
     rapidjson::Document doc;
     doc.SetObject();
     doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-    callback(monero_utils::serialize(doc));
+    callback(gen_utils::serialize(doc));
   } catch (exception& e) {
     callback(string(e.what()));
   }
@@ -1304,7 +1305,7 @@ string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, boo
   rapidjson::Value value;
   doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(keys_buf_ptr->c_str())), doc.GetAllocator());
   doc.AddMember("length", rapidjson::Value().SetUint64(keys_buf_ptr->length()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 #else
   throw runtime_error("monero_wallet_full not built");
 #endif
@@ -1327,7 +1328,7 @@ string monero_wasm_bridge::get_cache_file_buffer(int handle) {
   rapidjson::Value value;
   doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(cache_buf_ptr->c_str())), doc.GetAllocator());
   doc.AddMember("length", rapidjson::Value().SetUint64(cache_buf_ptr->length()), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  return gen_utils::serialize(doc);
 #else
   throw runtime_error("monero_wallet_full not built");
 #endif

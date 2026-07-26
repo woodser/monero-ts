@@ -153,7 +153,9 @@ set(
     src/main/cpp/monero_wasm_bridge.cpp
     
     # monero-cpp (modified for WASM)
+    ${MONERO_CPP_SRC}/utils/gen_utils.cpp
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
+    ${MONERO_CPP_SRC}/common/monero_rpc_connection.cpp
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_keys.cpp
