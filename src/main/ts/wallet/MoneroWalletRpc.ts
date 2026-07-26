@@ -1103,7 +1103,8 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async signTxs(unsignedTxHex: string): Promise<MoneroTxSet> {
     let resp = await this.config.getServer().sendJsonRequest("sign_transfer", {
       unsigned_txset: unsignedTxHex,
-      export_raw: false
+      export_raw: true,
+      get_tx_keys: true
     });
     await this.poll();
     return MoneroWalletRpc.convertRpcSentTxsToTxSet(resp.result);
@@ -2041,7 +2042,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       let val = rpcTxs[key];
       if (key === "tx_hash_list") for (let i = 0; i < val.length; i++) txs[i].setHash(val[i]);
       else if (key === "tx_key_list") for (let i = 0; i < val.length; i++) txs[i].setKey(val[i]);
-      else if (key === "tx_blob_list") for (let i = 0; i < val.length; i++) txs[i].setFullHex(val[i]);
+      else if (key === "tx_blob_list" || key === "tx_raw_list") for (let i = 0; i < val.length; i++) txs[i].setFullHex(val[i]);
       else if (key === "tx_metadata_list") for (let i = 0; i < val.length; i++) txs[i].setMetadata(val[i]);
       else if (key === "fee_list") for (let i = 0; i < val.length; i++) txs[i].setFee(BigInt(val[i]));
       else if (key === "weight_list") for (let i = 0; i < val.length; i++) txs[i].setWeight(val[i]);

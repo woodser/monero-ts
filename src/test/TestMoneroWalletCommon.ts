@@ -5136,6 +5136,8 @@ export default class TestMoneroWalletCommon {
     assert(signedTxSet.getSignedTxHex().length > 0);
     assert.equal(signedTxSet.getTxs().length, 1);
     assert(signedTxSet.getTxs()[0].getHash().length > 0);
+    assert(signedTxSet.getTxs()[0].getKey().length > 0);
+    assert(signedTxSet.getTxs()[0].getFullHex().length > 0);
     
     // parse or "describe" unsigned tx set
     let describedTxSet = await offlineWallet.describeUnsignedTxSet(unsignedTx.getTxSet().getUnsignedTxHex());
