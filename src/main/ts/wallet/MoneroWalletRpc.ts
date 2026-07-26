@@ -2544,7 +2544,7 @@ class WalletPoller {
         that.numPolling--;
       } catch (err: any) {
         that.numPolling--;
-        console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message);
+        if (that.isPolling) console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message); // ignore errors from polls straggling after the wallet is closed
       }
     });
   }
