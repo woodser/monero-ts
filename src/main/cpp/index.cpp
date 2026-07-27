@@ -134,4 +134,6 @@ EMSCRIPTEN_BINDINGS(module)
 }
 extern "C"
 {
+  // stub so libc's socket-dependent implementation stays out of the link
+  unsigned int if_nametoindex(const char*) { return 0; }
 }
