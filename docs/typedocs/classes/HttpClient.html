@@ -40,12 +40,13 @@
 <a href="HttpClient.html#HTTP_AGENT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTP_<wbr/>AGENT</span></a>
 <a href="HttpClient.html#MAX_REQUESTS_PER_SECOND" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>REQUESTS_<wbr/>PER_<wbr/>SECOND</span></a>
 <a href="HttpClient.html#PROMISE_THROTTLES" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>PROMISE_<wbr/>THROTTLES</span></a>
+<a href="HttpClient.html#READ_TIMEOUT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>READ_<wbr/>TIMEOUT</span></a>
 <a href="HttpClient.html#TASK_QUEUES" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>TASK_<wbr/>QUEUES</span></a>
 <a href="HttpClient.html#axiosDigestAuthRequest" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
-<div class="tsd-index-list"><a href="HttpClient.html#applyConnectTimeout" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>apply<wbr/>Connect<wbr/>Timeout</span></a>
+<div class="tsd-index-list"><a href="HttpClient.html#applyTimeouts" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>apply<wbr/>Timeouts</span></a>
 <a href="HttpClient.html#getHttpAgent" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Http<wbr/>Agent</span></a>
 <a href="HttpClient.html#getHttpsAgent" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Https<wbr/>Agent</span></a>
 <a href="HttpClient.html#request" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request</span></a>
@@ -88,6 +89,9 @@
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="PROMISE_THROTTLES" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>PROMISE_<wbr/>THROTTLES</span><a href="#PROMISE_THROTTLES" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">PROMISE_<wbr/>THROTTLES</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="READ_TIMEOUT" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>READ_<wbr/>TIMEOUT</span><a href="#READ_TIMEOUT" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">READ_<wbr/>TIMEOUT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 180000</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="TASK_QUEUES" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>TASK_<wbr/>QUEUES</span><a href="#TASK_QUEUES" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">TASK_<wbr/>QUEUES</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div></section>
@@ -117,10 +121,10 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">AxiosResponse</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></li></ul></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="applyConnectTimeout" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>apply<wbr/>Connect<wbr/>Timeout</span><a href="#applyConnectTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="applyTimeouts" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>apply<wbr/>Timeouts</span><a href="#applyTimeouts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="applyConnectTimeout.applyConnectTimeout-1"><span class="tsd-kind-call-signature">apply<wbr/>Connect<wbr/>Timeout</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">agent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#applyConnectTimeout.applyConnectTimeout-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="applyTimeouts.applyTimeouts-1"><span class="tsd-kind-call-signature">apply<wbr/>Timeouts</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">agent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#applyTimeouts.applyTimeouts-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -201,9 +205,10 @@
 <li><a href="#HTTP_AGENT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTP_<wbr/>AGENT</span></a></li>
 <li><a href="#MAX_REQUESTS_PER_SECOND" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>REQUESTS_<wbr/>PER_<wbr/>SECOND</span></a></li>
 <li><a href="#PROMISE_THROTTLES" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>PROMISE_<wbr/>THROTTLES</span></a></li>
+<li><a href="#READ_TIMEOUT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>READ_<wbr/>TIMEOUT</span></a></li>
 <li><a href="#TASK_QUEUES" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>TASK_<wbr/>QUEUES</span></a></li>
 <li><a href="#axiosDigestAuthRequest" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>axios<wbr/>Digest<wbr/>Auth<wbr/>Request</span></a></li>
-<li><a href="#applyConnectTimeout" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>apply<wbr/>Connect<wbr/>Timeout</span></a></li>
+<li><a href="#applyTimeouts" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>apply<wbr/>Timeouts</span></a></li>
 <li><a href="#getHttpAgent" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Http<wbr/>Agent</span></a></li>
 <li><a href="#getHttpsAgent" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Https<wbr/>Agent</span></a></li>
 <li><a href="#request" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>request</span></a></li>

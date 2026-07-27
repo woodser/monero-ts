@@ -778,7 +778,7 @@ await walletRpc.createWallet({<br>
 <section class="tsd-panel tsd-member"><a id="exportKeyImages" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>export<wbr/>Key<wbr/>Images</span><a href="#exportKeyImages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="exportKeyImages.exportKeyImages-1"><span class="tsd-kind-call-signature">export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#exportKeyImages.exportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="exportKeyImages.exportKeyImages-1"><span class="tsd-kind-call-signature">export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#exportKeyImages.exportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Export signed key images.</p>
 </div>
@@ -790,7 +790,7 @@ await walletRpc.createWallet({<br>
 <div class="tsd-comment tsd-typography"><p>export all key images if true, else export the key images since the last export (default false)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>the wallet&#39;s signed key images</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span></h4><p>the wallet&#39;s signed key images and their offset among the wallet&#39;s outputs</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="MoneroWallet.html">MoneroWallet</a>.<a href="MoneroWallet.html#exportKeyImages">exportKeyImages</a></p></aside></li></ul></section>
@@ -1768,7 +1768,7 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <section class="tsd-panel tsd-member"><a id="importKeyImages" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>import<wbr/>Key<wbr/>Images</span><a href="#importKeyImages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="importKeyImages.importKeyImages-1"><span class="tsd-kind-call-signature">import<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">keyImages</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#importKeyImages.importKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="importKeyImages.importKeyImages-1"><span class="tsd-kind-call-signature">import<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">keyImages</span>, <span class="tsd-kind-parameter">offset</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#importKeyImages.importKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Import signed key images and verify their spent status.</p>
 </div>
@@ -1778,6 +1778,11 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <li>
 <h5><span class="tsd-kind-parameter">keyImages</span>: <a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span></h5>
 <div class="tsd-comment tsd-typography"><p>images to import and verify (requires hex and signature)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">offset</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+<div class="tsd-comment tsd-typography"><p>offset of the first key image among the wallet&#39;s outputs (default 0)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span></h4><p>results of the import</p>
@@ -2100,7 +2105,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="rpcExportKeyImages" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>rpc<wbr/>Export<wbr/>Key<wbr/>Images</span><a href="#rpcExportKeyImages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="rpcExportKeyImages.rpcExportKeyImages-1"><span class="tsd-kind-call-signature">rpc<wbr/>Export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><a href="#rpcExportKeyImages.rpcExportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="rpcExportKeyImages.rpcExportKeyImages-1"><span class="tsd-kind-call-signature">rpc<wbr/>Export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#rpcExportKeyImages.rpcExportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Common method to get key images.</p>
 </div>
@@ -2112,7 +2117,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <div class="tsd-comment tsd-typography"><p>pecifies to get all xor only new images from last import</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><p>are the key images</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span></h4><p>the key images and their offset among the wallet&#39;s outputs</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="rpcSweepAccount" class="tsd-anchor"></a>

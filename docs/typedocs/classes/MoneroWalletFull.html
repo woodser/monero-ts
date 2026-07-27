@@ -136,6 +136,7 @@
 <a href="MoneroWalletFull.html#isClosed" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Closed</span></a>
 <a href="MoneroWalletFull.html#isConnectedToDaemon" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Connected<wbr/>To<wbr/>Daemon</span></a>
 <a href="MoneroWalletFull.html#isDaemonSynced" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Daemon<wbr/>Synced</span></a>
+<a href="MoneroWalletFull.html#isDaemonTrusted" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Daemon<wbr/>Trusted</span></a>
 <a href="MoneroWalletFull.html#isMultisig" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Multisig</span></a>
 <a href="MoneroWalletFull.html#isMultisigImportNeeded" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Multisig<wbr/>Import<wbr/>Needed</span></a>
 <a href="MoneroWalletFull.html#isOutputFrozen" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Output<wbr/>Frozen</span></a>
@@ -736,7 +737,7 @@
 <section class="tsd-panel tsd-member"><a id="exportKeyImages" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>export<wbr/>Key<wbr/>Images</span><a href="#exportKeyImages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="exportKeyImages.exportKeyImages-1"><span class="tsd-kind-call-signature">export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#exportKeyImages.exportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="exportKeyImages.exportKeyImages-1"><span class="tsd-kind-call-signature">export<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">all</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#exportKeyImages.exportKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Export signed key images.</p>
 </div>
@@ -748,7 +749,7 @@
 <div class="tsd-comment tsd-typography"><p>export all key images if true, else export the key images since the last export (default false)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><p>the wallet&#39;s signed key images</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageExportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageExportResult</a><span class="tsd-signature-symbol">&gt;</span></h4><p>the wallet&#39;s signed key images and their offset among the wallet&#39;s outputs</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="MoneroWalletKeys.html">MoneroWalletKeys</a>.<a href="MoneroWalletKeys.html#exportKeyImages">exportKeyImages</a></p></aside></li></ul></section>
@@ -1645,7 +1646,7 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <section class="tsd-panel tsd-member"><a id="importKeyImages" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>import<wbr/>Key<wbr/>Images</span><a href="#importKeyImages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="importKeyImages.importKeyImages-1"><span class="tsd-kind-call-signature">import<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">keyImages</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#importKeyImages.importKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="importKeyImages.importKeyImages-1"><span class="tsd-kind-call-signature">import<wbr/>Key<wbr/>Images</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">keyImages</span>, <span class="tsd-kind-parameter">offset</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span><a href="#importKeyImages.importKeyImages-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Import signed key images and verify their spent status.</p>
 </div>
@@ -1655,6 +1656,11 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <li>
 <h5><span class="tsd-kind-parameter">keyImages</span>: <a href="MoneroKeyImage.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImage</a><span class="tsd-signature-symbol">[]</span></h5>
 <div class="tsd-comment tsd-typography"><p>images to import and verify (requires hex and signature)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">offset</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+<div class="tsd-comment tsd-typography"><p>offset of the first key image among the wallet&#39;s outputs (default 0)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroKeyImageImportResult.html" class="tsd-signature-type tsd-kind-class">MoneroKeyImageImportResult</a><span class="tsd-signature-symbol">&gt;</span></h4><p>results of the import</p>
@@ -1734,6 +1740,16 @@ criteria are optional and no filtering is applied when not defined.</p></div>
 <div class="tsd-comment tsd-typography"><p>Indicates if the wallet&#39;s daemon is synced with the network.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4><p>true if the daemon is synced with the network, false otherwise</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="isDaemonTrusted" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Daemon<wbr/>Trusted</span><a href="#isDaemonTrusted" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="isDaemonTrusted.isDaemonTrusted-1"><span class="tsd-kind-call-signature">is<wbr/>Daemon<wbr/>Trusted</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><a href="#isDaemonTrusted.isDaemonTrusted-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Indicates if the wallet&#39;s daemon is trusted.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4><p>true if the daemon is trusted, false otherwise</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="isMultisig" class="tsd-anchor"></a>
@@ -2101,7 +2117,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <section class="tsd-panel tsd-member"><a id="setDaemonConnection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Daemon<wbr/>Connection</span><a href="#setDaemonConnection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="setDaemonConnection.setDaemonConnection-1"><span class="tsd-kind-call-signature">set<wbr/>Daemon<wbr/>Connection</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">uriOrConnection</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#setDaemonConnection.setDaemonConnection-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="setDaemonConnection.setDaemonConnection-1"><span class="tsd-kind-call-signature">set<wbr/>Daemon<wbr/>Connection</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">uriOrConnection</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">isTrusted</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#setDaemonConnection.setDaemonConnection-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Set the wallet&#39;s daemon connection.</p>
 </div>
@@ -2111,6 +2127,11 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">uriOrConnection</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="MoneroRpcConnection.html" class="tsd-signature-type tsd-kind-class">MoneroRpcConnection</a><span class="tsd-signature-symbol">&gt;</span></h5>
 <div class="tsd-comment tsd-typography"><p>daemon&#39;s URI or connection (defaults to offline)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">isTrusted</span>: <span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>indicates if the daemon is trusted (defaults to trusted if local address)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -2989,6 +3010,7 @@ let wallet = await MoneroWalletKeys.createWallet({<br>
 <li><a href="#isClosed" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Closed</span></a></li>
 <li><a href="#isConnectedToDaemon" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Connected<wbr/>To<wbr/>Daemon</span></a></li>
 <li><a href="#isDaemonSynced" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Daemon<wbr/>Synced</span></a></li>
+<li><a href="#isDaemonTrusted" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Daemon<wbr/>Trusted</span></a></li>
 <li><a href="#isMultisig" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Multisig</span></a></li>
 <li><a href="#isMultisigImportNeeded" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Multisig<wbr/>Import<wbr/>Needed</span></a></li>
 <li><a href="#isOutputFrozen" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Output<wbr/>Frozen</span></a></li>
