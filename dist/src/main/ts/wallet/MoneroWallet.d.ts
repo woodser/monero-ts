@@ -8,6 +8,7 @@ import MoneroConnectionManagerListener from "../common/MoneroConnectionManagerLi
 import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
 import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
 import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageExportResult from "./model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
@@ -98,9 +99,10 @@ export default class MoneroWallet {
      * Set the wallet's daemon connection.
      *
      * @param {MoneroRpcConnection | string} [uriOrConnection] - daemon's URI or connection (defaults to offline)
+     * @param {boolean} [isTrusted] - indicates if the daemon is trusted (defaults to trusted if local address)
      * @return {Promise<void>}
      */
-    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void>;
+    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void>;
     /**
      * Get the wallet's daemon connection.
      *
@@ -497,16 +499,17 @@ export default class MoneroWallet {
      * Export signed key images.
      *
      * @param {boolean} [all] - export all key images if true, else export the key images since the last export (default false)
-     * @return {Promise<MoneroKeyImage[]>} the wallet's signed key images
+     * @return {Promise<MoneroKeyImageExportResult>} the wallet's signed key images and their offset among the wallet's outputs
      */
-    exportKeyImages(all?: boolean): Promise<MoneroKeyImage[]>;
+    exportKeyImages(all?: boolean): Promise<MoneroKeyImageExportResult>;
     /**
      * Import signed key images and verify their spent status.
      *
      * @param {MoneroKeyImage[]} keyImages - images to import and verify (requires hex and signature)
+     * @param {number} [offset] - offset of the first key image among the wallet's outputs (default 0)
      * @return {Promise<MoneroKeyImageImportResult>} results of the import
      */
-    importKeyImages(keyImages: MoneroKeyImage[]): Promise<MoneroKeyImageImportResult>;
+    importKeyImages(keyImages: MoneroKeyImage[], offset?: number): Promise<MoneroKeyImageImportResult>;
     /**
      * Get new key images from the last imported outputs.
      *

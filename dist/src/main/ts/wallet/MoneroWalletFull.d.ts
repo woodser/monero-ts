@@ -7,6 +7,7 @@ import MoneroCheckReserve from "./model/MoneroCheckReserve";
 import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
 import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
 import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageExportResult from "./model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
 import MoneroMultisigInfo from "./model/MoneroMultisigInfo";
 import MoneroMultisigInitResult from "./model/MoneroMultisigInitResult";
@@ -126,7 +127,13 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     addListener(listener: MoneroWalletListener): Promise<void>;
     removeListener(listener: any): Promise<void>;
     getListeners(): MoneroWalletListener[];
-    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string): Promise<void>;
+    setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void>;
+    /**
+     * Indicates if the wallet's daemon is trusted.
+     *
+     * @return {Promise<boolean>} true if the daemon is trusted, false otherwise
+     */
+    isDaemonTrusted(): Promise<boolean>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
     isConnectedToDaemon(): Promise<boolean>;
     getVersion(): Promise<MoneroVersion>;
@@ -162,8 +169,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     getOutputs(query?: Partial<MoneroOutputQuery>): Promise<MoneroOutputWallet[]>;
     exportOutputs(all?: boolean): Promise<string>;
     importOutputs(outputsHex: string): Promise<number>;
-    exportKeyImages(all?: boolean): Promise<MoneroKeyImage[]>;
-    importKeyImages(keyImages: MoneroKeyImage[]): Promise<MoneroKeyImageImportResult>;
+    exportKeyImages(all?: boolean): Promise<MoneroKeyImageExportResult>;
+    importKeyImages(keyImages: MoneroKeyImage[], offset?: number): Promise<MoneroKeyImageImportResult>;
     getNewKeyImagesFromLastImport(): Promise<MoneroKeyImage[]>;
     freezeOutput(keyImage: string): Promise<void>;
     thawOutput(keyImage: string): Promise<void>;
@@ -275,7 +282,8 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     getPath(): any;
     getNetworkType(): Promise<any>;
     setSubaddressLabel(accountIdx: any, subaddressIdx: any, label: any): Promise<void>;
-    setDaemonConnection(uriOrRpcConnection: any): Promise<void>;
+    setDaemonConnection(uriOrRpcConnection: any, isTrusted?: any): Promise<void>;
+    isDaemonTrusted(): Promise<boolean>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
     isConnectedToDaemon(): Promise<any>;
     getRestoreHeight(): Promise<any>;
@@ -307,8 +315,8 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     getOutputs(query: any): Promise<any[]>;
     exportOutputs(all: any): Promise<any>;
     importOutputs(outputsHex: any): Promise<any>;
-    exportKeyImages(all: any): Promise<any[]>;
-    importKeyImages(keyImages: any): Promise<MoneroKeyImageImportResult>;
+    exportKeyImages(all: any): Promise<MoneroKeyImageExportResult>;
+    importKeyImages(keyImages: any, offset?: number): Promise<MoneroKeyImageImportResult>;
     getNewKeyImagesFromLastImport(): Promise<MoneroKeyImage[]>;
     freezeOutput(keyImage: any): Promise<any>;
     thawOutput(keyImage: any): Promise<any>;

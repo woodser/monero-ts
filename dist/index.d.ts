@@ -43,6 +43,7 @@ import MoneroCheckReserve from "./src/main/ts/wallet/model/MoneroCheckReserve";
 import MoneroCheckTx from "./src/main/ts/wallet/model/MoneroCheckTx";
 import MoneroDestination from "./src/main/ts/wallet/model/MoneroDestination";
 import MoneroIntegratedAddress from "./src/main/ts/wallet/model/MoneroIntegratedAddress";
+import MoneroKeyImageExportResult from "./src/main/ts/wallet/model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./src/main/ts/wallet/model/MoneroKeyImageImportResult";
 import MoneroMultisigInfo from "./src/main/ts/wallet/model/MoneroMultisigInfo";
 import MoneroMultisigInitResult from "./src/main/ts/wallet/model/MoneroMultisigInitResult";
@@ -258,7 +259,7 @@ declare function createWalletKeys(config: Partial<MoneroWalletConfig>): Promise<
  * @return {Promise<void>} promise that resolves when the library has shut down
  */
 declare function shutdown(): Promise<void>;
-export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool, getVersion, connectToDaemonRpc, connectToWalletRpc, createWalletFull, openWalletFull, createWalletKeys, shutdown };
+export { GenUtils, Filter, MoneroError, HttpClient, LibraryUtils, MoneroRpcConnection, MoneroRpcError, SslOptions, TaskLooper, ConnectionType, MoneroAltChain, MoneroBan, MoneroBlockHeader, MoneroBlock, MoneroBlockTemplate, MoneroConnectionSpan, MoneroDaemonConfig, MoneroDaemonInfo, MoneroDaemonListener, MoneroDaemonSyncInfo, MoneroDaemonUpdateCheckResult, MoneroDaemonUpdateDownloadResult, MoneroFeeEstimate, MoneroHardForkInfo, MoneroKeyImage, MoneroKeyImageSpentStatus, MoneroMinerTxSum, MoneroMiningStatus, MoneroNetworkType, MoneroOutput, MoneroOutputHistogramEntry, MoneroSubmitTxResult, MoneroTx, MoneroTxPoolStats, MoneroVersion, MoneroPeer, MoneroPruneResult, MoneroAccount, MoneroAccountTag, MoneroAddressBookEntry, MoneroCheck, MoneroCheckReserve, MoneroCheckTx, MoneroDestination, MoneroIntegratedAddress, MoneroKeyImageExportResult, MoneroKeyImageImportResult, MoneroMultisigInfo, MoneroMultisigInitResult, MoneroMultisigSignResult, MoneroOutputWallet, MoneroOutputQuery, MoneroTxPriority, MoneroTxConfig, MoneroSubaddress, MoneroSyncResult, MoneroTransfer, MoneroIncomingTransfer, MoneroOutgoingTransfer, MoneroTransferQuery, MoneroTxSet, MoneroTxWallet, MoneroTxQuery, MoneroWalletListener, MoneroWalletConfig, MoneroMessageSignatureType, MoneroMessageSignatureResult, MoneroConnectionManagerListener, MoneroConnectionManager, MoneroDaemon, MoneroWallet, MoneroDaemonRpc, MoneroWalletRpc, MoneroWalletKeys, MoneroWalletFull, MoneroUtils, ThreadPool, getVersion, connectToDaemonRpc, connectToWalletRpc, createWalletFull, openWalletFull, createWalletKeys, shutdown };
 declare const moneroTs: {
     GenUtils: typeof GenUtils;
     Filter: typeof Filter;
@@ -305,6 +306,7 @@ declare const moneroTs: {
     MoneroCheckTx: typeof MoneroCheckTx;
     MoneroDestination: typeof MoneroDestination;
     MoneroIntegratedAddress: typeof MoneroIntegratedAddress;
+    MoneroKeyImageExportResult: typeof MoneroKeyImageExportResult;
     MoneroKeyImageImportResult: typeof MoneroKeyImageImportResult;
     MoneroMultisigInfo: typeof MoneroMultisigInfo;
     MoneroMultisigInitResult: typeof MoneroMultisigInitResult;

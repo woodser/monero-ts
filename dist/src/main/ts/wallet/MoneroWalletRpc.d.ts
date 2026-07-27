@@ -8,6 +8,7 @@ import MoneroCheckTx from "./model/MoneroCheckTx";
 import MoneroIncomingTransfer from "./model/MoneroIncomingTransfer";
 import MoneroIntegratedAddress from "./model/MoneroIntegratedAddress";
 import MoneroKeyImage from "../daemon/model/MoneroKeyImage";
+import MoneroKeyImageExportResult from "./model/MoneroKeyImageExportResult";
 import MoneroKeyImageImportResult from "./model/MoneroKeyImageImportResult";
 import MoneroMultisigInfo from "./model/MoneroMultisigInfo";
 import MoneroMultisigInitResult from "./model/MoneroMultisigInitResult";
@@ -221,8 +222,8 @@ export default class MoneroWalletRpc extends MoneroWallet {
     getOutputs(query?: Partial<MoneroOutputQuery>): Promise<MoneroOutputWallet[]>;
     exportOutputs(all?: boolean): Promise<string>;
     importOutputs(outputsHex: string): Promise<number>;
-    exportKeyImages(all?: boolean): Promise<MoneroKeyImage[]>;
-    importKeyImages(keyImages: MoneroKeyImage[]): Promise<MoneroKeyImageImportResult>;
+    exportKeyImages(all?: boolean): Promise<MoneroKeyImageExportResult>;
+    importKeyImages(keyImages: MoneroKeyImage[], offset?: number): Promise<MoneroKeyImageImportResult>;
     getNewKeyImagesFromLastImport(): Promise<MoneroKeyImage[]>;
     freezeOutput(keyImage: string): Promise<void>;
     thawOutput(keyImage: string): Promise<void>;
@@ -301,9 +302,9 @@ export default class MoneroWalletRpc extends MoneroWallet {
      * Common method to get key images.
      *
      * @param all - pecifies to get all xor only new images from last import
-     * @return {MoneroKeyImage[]} are the key images
+     * @return {MoneroKeyImageExportResult} the key images and their offset among the wallet's outputs
      */
-    protected rpcExportKeyImages(all: any): Promise<any>;
+    protected rpcExportKeyImages(all: any): Promise<MoneroKeyImageExportResult>;
     protected rpcSweepAccount(config: MoneroTxConfig): Promise<MoneroTxWallet[]>;
     protected refreshListening(): void;
     /**

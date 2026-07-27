@@ -177,6 +177,7 @@ export default class MoneroRpcConnection {
     setFakeDisconnected(fakeDisconnected: any): void;
     protected queueCheckConnection<T>(asyncFn: () => Promise<T>): Promise<T>;
     protected queueSendRequest<T>(asyncFn: () => Promise<T>): Promise<T>;
+    protected static parseBigIntJson(body: string): any;
     protected static validateHttpResponse(resp: any): void;
     protected validateRpcResponse(resp: any, method: any, params: any): void;
 }
