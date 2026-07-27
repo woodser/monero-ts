@@ -2968,8 +2968,9 @@ export default class TestMoneroWalletCommon {
             await that.daemon.waitForNextBlockHeader();
           }
           
-          // receiver should have notified listeners of received outputs
-          await new Promise(function(resolve) { setTimeout(resolve, 1000); }); // TODO: this lets block slip, okay?
+          // receiver should notify listeners of received outputs within rpc refresh + client poll periods
+          let startTime = Date.now();
+          while (myListener.getOutputsReceived().length === 0 && Date.now() - startTime < TestUtils.SYNC_PERIOD_IN_MS * 2) await GenUtils.waitFor(1000);
           assert(myListener.getOutputsReceived().length > 0, "Listener did not receive outputs");
         } catch (e: any) {
           err = e;
