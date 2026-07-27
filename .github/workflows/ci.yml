@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check types
+        run: npx tsc --noEmit
+
+      - name: Build commonjs
+        run: npm run build_commonjs
+
+      - name: Build web worker
+        run: npm run build_web_worker
+
+      - name: Run offline tests # full test suite requires local monerod and monero-wallet-rpc
+        run: npm test -- --grep "TEST MONERO UTILITIES"
+
+  dist:
+    name: dist
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake pkg-config perl python3 libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind-dev liblzma-dev libreadline-dev libexpat1-dev libpgm-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev
+
+      - name: Install unbound source # CMakeLists includes ~/unbound-1.22.0/libunbound for unbound.h
+        run: |
+          wget -q https://nlnetlabs.nl/downloads/unbound/unbound-1.22.0.tar.gz
+          echo "c5dd1bdef5d5685b2cedb749158dd152c52d44f65529a34ac15cd88d4b1b3d43  unbound-1.22.0.tar.gz" | sha256sum -c
+          tar xzf unbound-1.22.0.tar.gz -C ~
+
+      - name: Setup emscripten
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          ./emsdk/emsdk install 3.1.66
+          ./emsdk/emsdk activate 3.1.66
+
+      - name: Build monero-project translations
+        run: |
+          cmake -S external/monero-cpp/external/monero-project -B external/monero-cpp/external/monero-project/build/release -D CMAKE_BUILD_TYPE=Release -D MONERO_WALLET_CRYPTO_LIBRARY=cn # cn generates portable ops.h for wasm; auto selects host asm
+          cmake --build external/monero-cpp/external/monero-project/build/release --target generate_translations_header
+
+      - name: Cache emscripten boost and openssl
+        id: cache-emscripten-libs
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/boost
+            build/openssl
+          key: emscripten-3.1.66-v2-${{ hashFiles('bin/build_boost_emscripten.sh', 'bin/build_openssl_emscripten.sh', 'bin/download_deps.sh') }}
+
+      - name: Build boost
+        if: steps.cache-emscripten-libs.outputs.cache-hit != 'true'
+        run: |
+          source ./emsdk/emsdk_env.sh
+          export EMSCRIPTEN=$EMSDK/upstream/emscripten
+          ./bin/build_boost_emscripten.sh
+          # replace boost-sdk symlink with real headers so the cached directory is self-contained
+          rm build/boost/include
+          mkdir build/boost/include
+          cp -R external/monero-cpp/external/boost-sdk/boost build/boost/include/
+
+      - name: Build openssl
+        if: steps.cache-emscripten-libs.outputs.cache-hit != 'true'
+        run: |
+          source ./emsdk/emsdk_env.sh
+          export EMSCRIPTEN=$EMSDK/upstream/emscripten
+          ./bin/build_openssl_emscripten.sh
+
+      - name: Install node modules
+        run: npm ci
+
+      - name: Build dist
+        run: |
+          source ./emsdk/emsdk_env.sh
+          export EMSCRIPTEN=$EMSDK/upstream/emscripten
+          ./bin/build_dist.sh
+
+      - name: Test dist
+        run: npm test -- --grep "TEST MONERO UTILITIES"
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: monero-ts-dist
+          path: dist/
