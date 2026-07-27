@@ -350,7 +350,7 @@ export default class MoneroRpcConnection {
         
         // deserialize response
         if (resp.body[0] != '{') throw resp.body;
-        resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+        resp = MoneroRpcConnection.parseBigIntJson(resp.body);
         if (LibraryUtils.getLogLevel() >= 3) {
           let respStr = JSON.stringify(resp);
           LibraryUtils.log(3, "Received response from method='" + method + "', response=" + respStr.substring(0, Math.min(1000, respStr.length)) + "(" + (new Date().getTime() - startTime) + " ms)");
@@ -404,7 +404,7 @@ export default class MoneroRpcConnection {
         
         // deserialize response
         if (resp.body[0] != '{') throw resp.body;
-        resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+        resp = MoneroRpcConnection.parseBigIntJson(resp.body);
         if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
         if (LibraryUtils.getLogLevel() >= 3) {
           let respStr = JSON.stringify(resp);
@@ -512,6 +512,10 @@ export default class MoneroRpcConnection {
     return this.sendRequestMutex.submit(asyncFn);
   }
   
+  protected static parseBigIntJson(body: string): any {
+    return JSON.parse(body.replace(/("[^"]*"\s*:\s*|[\[,]\s*)(\d{16,})(?=\s*[,\]}])/g, '$1"$2"')); // quote 16+ digit values and array elements to preserve precision
+  }
+
   protected static validateHttpResponse(resp) {
     let code = resp.statusCode;
     if (code < 200 || code > 299) {
