@@ -28,6 +28,7 @@ export default class HttpClient {
 
   protected static HTTP_AGENT: any;
   protected static HTTPS_AGENT: any;
+  protected static SOCKS_AGENTS: any = {}; // shared socks agents keyed by proxy uri and ssl config
 
   /**
    * <p>Make a HTTP request.<p>
@@ -39,6 +40,7 @@ export default class HttpClient {
    * @param {string} [request.username] - username to authenticate the request (optional)
    * @param {string} [request.password] - password to authenticate the request (optional)
    * @param {object} [request.headers] - headers to add to the request (optional)
+   * @param {string} [request.proxyUri] - proxy the request through a SOCKS5 server, e.g. a local Tor proxy (Node.js only, optional)
    * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
    * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
    * @param {number} request.timeout - maximum time allowed in milliseconds
@@ -119,6 +121,27 @@ export default class HttpClient {
     return HttpClient.HTTPS_AGENT;
   }
 
+  /**
+   * Get a singleton agent to route requests through a SOCKS5 proxy; hostnames are resolved by the proxy to avoid DNS leaks.
+   *
+   * @return {SocksProxyAgent} a shared agent for the given proxy and ssl config
+   */
+  protected static getSocksAgent(proxyUri: string, rejectUnauthorized: boolean) {
+    if (GenUtils.isBrowser() || GenUtils.isDeno()) throw new Error("Proxied requests are only supported in Node.js");
+    const key = proxyUri + "_" + rejectUnauthorized;
+    if (!HttpClient.SOCKS_AGENTS[key]) {
+      const { SocksProxyAgent } = require("socks-proxy-agent");
+      const parsed = new URL(GenUtils.normalizeUri(proxyUri));
+      const auth = parsed.username ? parsed.username + ":" + parsed.password + "@" : "";
+      HttpClient.SOCKS_AGENTS[key] = new SocksProxyAgent("socks5h://" + auth + parsed.host, { // socks establishment and inactivity are bounded by timeout
+        keepAlive: true,
+        timeout: Math.max(HttpClient.CONNECT_TIMEOUT, HttpClient.READ_TIMEOUT),
+        rejectUnauthorized: rejectUnauthorized
+      });
+    }
+    return HttpClient.SOCKS_AGENTS[key];
+  }
+
   // bound the connection phase and socket inactivity
   protected static applyTimeouts(agent: any) {
     if (typeof agent.createConnection !== "function") return agent; // no-op in browser shims
@@ -146,13 +169,15 @@ export default class HttpClient {
     const username = req.username;
     const password = req.password;
     const body = req.body;
+    const proxyUri = req.proxyUri;
+    const rejectUnauthorized = req.rejectUnauthorized;
     const isBinary = body instanceof Uint8Array;
 
     // queue and throttle requests to execute in serial and rate limited per host
     const resp = await HttpClient.TASK_QUEUES[host].submit(async function() {
       return HttpClient.PROMISE_THROTTLES[host].add(function() {
         return new Promise(function(resolve, reject) {
-          HttpClient.axiosDigestAuthRequest(method, uri, username, password, body).then(function(resp) {
+          HttpClient.axiosDigestAuthRequest(method, uri, username, password, body, proxyUri, rejectUnauthorized).then(function(resp) {
             resolve(resp);
           }).catch(function(error: AxiosError) {
             if (error.response?.status) resolve(error.response);
@@ -173,10 +198,15 @@ export default class HttpClient {
     return normalizedResponse;
   }
 
-  protected static axiosDigestAuthRequest = async function(method, url, username, password, body) {
+  protected static axiosDigestAuthRequest = async function(method, url, username, password, body, proxyUri?, rejectUnauthorized?) {
     if (typeof CryptoJS === 'undefined' && typeof require === 'function') {
       var CryptoJS = require('crypto-js');
     }
+
+    // route through socks proxy if configured, otherwise use direct agents
+    const socksAgent = proxyUri ? HttpClient.getSocksAgent(proxyUri, rejectUnauthorized !== false) : undefined;
+    const httpAgent = socksAgent ?? (url.startsWith("https") ? undefined : HttpClient.getHttpAgent());
+    const httpsAgent = socksAgent ?? (url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined);
 
     const generateCnonce = function(): string {
       const characters = 'abcdef0123456789';
@@ -196,8 +226,9 @@ export default class HttpClient {
         'Content-Type': 'application/json'
       },
       responseType: body instanceof Uint8Array ? 'arraybuffer' : undefined,
-      httpAgent: url.startsWith("https") ? undefined : HttpClient.getHttpAgent(),
-      httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
+      httpAgent: httpAgent,
+      httpsAgent: httpsAgent,
+      proxy: socksAgent ? false : undefined, // env proxies must not bypass the socks agent
       data: body,
       transformResponse: res => res,
       adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']

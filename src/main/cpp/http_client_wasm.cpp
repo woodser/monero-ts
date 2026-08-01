@@ -9,7 +9,7 @@
 
 using namespace std;
 
-EM_JS(const char*, js_send_json_request, (const char* uri, const char* username, const char* password, const char* reject_unauthorized_fn_id, const char* method, const char* body, std::chrono::milliseconds timeout), {
+EM_JS(const char*, js_send_json_request, (const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, std::chrono::milliseconds timeout), {
   //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
 
   const HttpClient = this.HttpClient;
@@ -27,6 +27,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       username: UTF8ToString(username),
       password: UTF8ToString(password),
       body: UTF8ToString(body),
+      proxyUri: UTF8ToString(proxy_uri) || undefined,
       resolveWithFullResponse: true,
       rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
     }).then(resp => {
@@ -62,7 +63,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* uri, const char* username, const char* password, const char* reject_unauthorized_fn_id, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+EM_JS(const char*, js_send_binary_request, (const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
   //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
 
   const HttpClient = this.HttpClient;
@@ -91,6 +92,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         username: UTF8ToString(username),
         password: UTF8ToString(password),
         body: view,
+        proxyUri: UTF8ToString(proxy_uri) || undefined,
         resolveWithFullResponse: true,
         rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
       }).then(resp => {
@@ -142,10 +144,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
 });
 
 bool http_client_wasm::set_proxy(const std::string& address) {
-  if (!address.empty()) {
-    std::cout << "WARNING: http_client_wasm::set_proxy() not supported, returning false" << std::endl;
-    return false;
-  }
+  m_proxy_uri = address; // requests are proxied by the javascript http client
   return true;
 }
 
@@ -209,7 +208,7 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   // make json request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_json_request(uri.data(), m_user->username.data(), password.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), timeout);
+  const char* resp_str = js_send_json_request(uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), timeout);
   if (resp_str == nullptr) {
       cout << "Aborting this op." << endl;
       return false;
@@ -251,7 +250,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   // make binary request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_binary_request(uri.data(), m_user->username.data(), password.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), body.length(), timeout);
+  const char* resp_str = js_send_binary_request(uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), body.length(), timeout);
   if (resp_str == nullptr) {
       cout << "Aborting this op." << endl;
       return false;

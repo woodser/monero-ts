@@ -50,6 +50,7 @@ let configBase = {
         //console: require.resolve('console-browserify'),
         //constants: require.resolve('constants-browserify'),
         crypto: require.resolve('crypto-browserify'),
+        dns: false, // proxied requests are unsupported in the browser
         //domain: require.resolve('domain-browser'),
         //events: require.resolve('events'),
         http: require.resolve('stream-http'),

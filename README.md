@@ -106,6 +106,7 @@ await moneroTs.shutdown();
 * [View-only and offline wallets](docs/developer_guide/view_only_offline.md)
 * [Connection manager](docs/developer_guide/connection_manager.md)
 * [HTTPS and self-signed certificates](./docs/developer_guide/https_and_self_signed_certificates.md)
+* [Using Tor](docs/developer_guide/tor.md)
 * [Mocha tests](src/test)
 * [Installing prerequisites](docs/developer_guide/installing_prerequisites.md)
 * [Getting started part 1: creating a Node.js application](docs/developer_guide/getting_started_p1.md)

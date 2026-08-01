@@ -355,7 +355,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
       if (this.startupProxyUri !== undefined) throw new MoneroError("Cannot set daemon connection without proxy URI because monero-wallet-rpc was started with a proxy URI: " + this.startupProxyUri);
     } else {
       if (this.startupProxyUri === undefined) params.proxy = connection ? connection.getProxyUri() : "";
-      else if (this.startupProxyUri !== connection.getProxyUri()) {
+      else if (!GenUtils.isSameProxyUri(this.startupProxyUri, connection.getProxyUri())) {
         throw new MoneroError("Cannot set daemon connection with proxy URI " + connection.getProxyUri() + " because monero-wallet-rpc was started with a different proxy URI: " + this.startupProxyUri);
       }
     }

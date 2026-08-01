@@ -329,9 +329,6 @@ export default class MoneroRpcConnection {
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending json request with method '" + method + "' and body: " + body);
 
-        // proxy uri is not supported
-        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for JSON requests");
-        
         // send http request
         let startTime = new Date().getTime();
         let resp = await HttpClient.request({
@@ -340,6 +337,7 @@ export default class MoneroRpcConnection {
           username: this.getUsername(),
           password: this.getPassword(),
           body: body,
+          proxyUri: this.getProxyUri(),
           timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
           rejectUnauthorized: this.rejectUnauthorized,
           proxyToWorker: this.proxyToWorker
@@ -383,9 +381,6 @@ export default class MoneroRpcConnection {
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
 
-        // proxy uri is not supported
-        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for path requests");
-        
         // send http request
         let startTime = new Date().getTime();
         let resp = await HttpClient.request({
@@ -394,6 +389,7 @@ export default class MoneroRpcConnection {
           username: this.getUsername(),
           password: this.getPassword(),
           body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
+          proxyUri: this.getProxyUri(),
           timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
           rejectUnauthorized: this.rejectUnauthorized,
           proxyToWorker: this.proxyToWorker
@@ -440,9 +436,6 @@ export default class MoneroRpcConnection {
         // logging
         if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending binary request with path '" + path + "' and params: " + JSON.stringify(params));
 
-        // proxy uri is not supported
-        if (this.getProxyUri()) throw new MoneroError("Proxy URI not supported for binary requests");
-        
         // send http request
         let resp = await HttpClient.request({
           method: "POST",
@@ -450,6 +443,7 @@ export default class MoneroRpcConnection {
           username: this.getUsername(),
           password: this.getPassword(),
           body: paramsBin,
+          proxyUri: this.getProxyUri(),
           timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
           rejectUnauthorized: this.rejectUnauthorized,
           proxyToWorker: this.proxyToWorker

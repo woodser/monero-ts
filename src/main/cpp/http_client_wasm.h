@@ -41,6 +41,7 @@ namespace epee
       private:
         std::string m_host;
         std::string m_port;
+        std::string m_proxy_uri;
         boost::optional<login> m_user;
         string m_reject_unauthorized_fn_id;
         bool m_ssl_enabled;

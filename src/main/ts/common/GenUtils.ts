@@ -1467,7 +1467,26 @@ export default class GenUtils {
     if (!new RegExp("^\\w+://.+").test(uri)) uri= "http://" + uri; // assume http if protocol not given
     return uri;
   }
-  
+
+  /**
+   * Indicates if two proxy URIs refer to the same host and port, regardless of scheme.
+   *
+   * @param {string} uri1 - first proxy URI to compare
+   * @param {string} uri2 - second proxy URI to compare
+   * @return {boolean} true if the proxy URIs refer to the same host and port
+   */
+  static isSameProxyUri(uri1, uri2) {
+    if (!uri1 || !uri2) return !uri1 === !uri2;
+    if (uri1 === uri2) return true;
+    try {
+      const parsed1 = new URL(GenUtils.normalizeUri(uri1));
+      const parsed2 = new URL(GenUtils.normalizeUri(uri2));
+      return parsed1.hostname.toLowerCase() === parsed2.hostname.toLowerCase() && parsed1.port === parsed2.port;
+    } catch (err) {
+      return false;
+    }
+  }
+
   /**
    * Get the absolute value of the given bigint or number.
    * 
