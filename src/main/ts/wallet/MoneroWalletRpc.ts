@@ -736,7 +736,11 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getTxs(query?: string[] | Partial<MoneroTxQuery>): Promise<MoneroTxWallet[]> {
-    
+    return this.getTxsAux(query, 5);
+  }
+
+  protected async getTxsAux(query: string[] | Partial<MoneroTxQuery> | undefined, maxAttempts: number): Promise<MoneroTxWallet[]> {
+
     // copy query
     const queryNormalized = MoneroWallet.normalizeTxQuery(query);
     
@@ -801,8 +805,9 @@ export default class MoneroWalletRpc extends MoneroWallet {
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
       if (tx.getIsConfirmed() && tx.getBlock() === undefined || !tx.getIsConfirmed() && tx.getBlock() !== undefined) {
+        if (maxAttempts <= 1) throw new MoneroError("Unable to build consistent txs from multiple rpc calls");
         console.error("Inconsistency detected building txs from multiple rpc calls, re-fetching txs");
-        return this.getTxs(queryNormalized);
+        return this.getTxsAux(queryNormalized, maxAttempts - 1);
       }
     }
     
