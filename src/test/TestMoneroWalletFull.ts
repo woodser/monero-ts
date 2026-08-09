@@ -984,7 +984,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert.equal(await wallet.getSeedLanguage(), "English");
           assert(!(await wallet.isSynced()));
           assert.equal(await wallet.getHeight(), 1);
-          assert(await wallet.getRestoreHeight() > 0);
+          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
           
           // set the wallet's connection and sync
           await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
@@ -1008,7 +1008,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), TestUtils.getDaemonRpcConnection().getConfig());
           assert(await wallet.isConnectedToDaemon());
           assert.equal(await wallet.getHeight(), prevHeight);
-          assert(await wallet.getRestoreHeight() > 0);
+          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
           assert(await MoneroWalletFull.walletExists(path, await TestUtils.getDefaultFs()));
           assert.equal(await wallet.getSeed(), TestUtils.SEED);
           assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
