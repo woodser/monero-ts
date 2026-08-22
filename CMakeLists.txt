@@ -33,6 +33,10 @@ include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 set(MONERO_PROJECT "${MONERO_CPP}/external/monero-project")
 set(MONERO_PROJECT_SRC "${MONERO_PROJECT}/src")
 
+# generate version.cpp from monero-project git state for MONERO_VERSION* symbols
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/${MONERO_PROJECT}/cmake")
+include("${CMAKE_SOURCE_DIR}/${MONERO_PROJECT}/cmake/Version.cmake")
+
 # headers
 include_directories("src/main/cpp")
 include_directories("${MONERO_PROJECT_SRC}/")
@@ -162,6 +166,7 @@ set(
     ${MONERO_CPP}/external/libsodium/src/crypto_verify/verify.c
     
     # monero-project (modified for WASM)
+    ${CMAKE_BINARY_DIR}/version.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_basic/account.cpp
     ${MONERO_PROJECT_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
