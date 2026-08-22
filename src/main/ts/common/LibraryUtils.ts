@@ -3,6 +3,7 @@ import GenUtils from "./GenUtils";
 import MoneroError from "./MoneroError";
 import ThreadPool from "./ThreadPool";
 import path from "path";
+import fs from "fs";
 
 /**
  * Collection of helper utilities for the library.
@@ -19,10 +20,9 @@ export default class LibraryUtils {
   static readonly MUTEX = new ThreadPool(1);
   static WORKER_DIST_PATH_DEFAULT = GenUtils.isBrowser() ? "/monero.worker.js" : function() {
 
-    // get worker path in dist (assumes library is running from src or dist)
+    // use worker file beside this module when running from dist, else map src to dist
     let curPath = path.normalize(__dirname);
-    const targetPath = path.join('monero-ts', 'dist');
-    if (!curPath.includes(targetPath)) curPath = path.join(curPath, "../../../../dist/src/main/js/common");
+    if (!fs.existsSync(path.join(curPath, "MoneroWebWorker.js"))) curPath = path.join(curPath, "../../../../dist/src/main/ts/common");
     curPath = LibraryUtils.prefixWindowsPath(path.join(curPath, "./MoneroWebWorker.js"));
     if (GenUtils.isDeno()) curPath = path.join("file://", curPath);
     return curPath;
