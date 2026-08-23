@@ -5425,6 +5425,18 @@ async function testDescribedTxSet(describedTxSet) {
     for (let destination of describedTx.getOutgoingTransfer().getDestinations()) {
       await testDestination(destination);
     }
+
+    // test input sources
+    assert(describedTx.getInputs().length > 0);
+    let inputSum = 0n;
+    for (let input of describedTx.getInputsWallet()) {
+      assert(input.getTx() === describedTx);
+      TestUtils.testUnsignedBigInt(input.getAmount(), true);
+      assert(input.getIndex() >= 0);
+      assert.equal(input.getStealthPublicKey().length, 64);
+      inputSum += input.getAmount();
+    }
+    assert.equal(inputSum, describedTx.getInputSum());
   }
 }
 

@@ -2201,7 +2201,17 @@ export default class MoneroWalletRpc extends MoneroWallet {
         if (transfer === undefined) transfer = new MoneroOutgoingTransfer({tx: tx});
         transfer.setDestinations(destinations);
       }
-      else if (key === "sources") {} // ignoring
+      else if (key === "sources") {
+        GenUtils.assertTrue(tx.getInputs() === undefined);
+        tx.setInputs([]);
+        for (let rpcSource of val) {
+          let input = new MoneroOutputWallet().setTx(tx);
+          input.setAmount(BigInt(rpcSource.amount));
+          input.setIndex(rpcSource.global_index);
+          if (rpcSource.pubkey !== undefined) input.setStealthPublicKey(rpcSource.pubkey.substring(0, 64)); // dest key of dest||mask
+          tx.getInputs().push(input);
+        }
+      }
       else if (key === "multisig_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "amount_in") tx.setInputSum(BigInt(val));
