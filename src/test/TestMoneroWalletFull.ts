@@ -1231,6 +1231,7 @@ class SyncProgressTester extends WalletSyncPrinter {
   prevEndHeight: number;
   prevCompleteHeight: number;
   prevHeight: number;
+  sessionStart: boolean;
   isDone: boolean;
   onSyncProgressAfterDone: boolean;
   
@@ -1241,6 +1242,7 @@ class SyncProgressTester extends WalletSyncPrinter {
     assert(endHeight >= 0);
     this.startHeight = startHeight;
     this.prevEndHeight = endHeight;
+    this.sessionStart = true;
     this.isDone = false;
   }
   
@@ -1254,25 +1256,27 @@ class SyncProgressTester extends WalletSyncPrinter {
     }
     
     // update tester's start height if new sync session
-    if (this.prevCompleteHeight !== undefined && startHeight === this.prevCompleteHeight) this.startHeight = startHeight;  
-    
-    // if sync is complete, record completion height for subsequent start heights
-    if (percentDone === 1) this.prevCompleteHeight = endHeight;
-    
-    // otherwise start height is equal to previous completion height
-    else if (this.prevCompleteHeight !== undefined) assert.equal(startHeight, this.prevCompleteHeight);
-    
+    if (this.sessionStart && this.prevCompleteHeight !== undefined && startHeight >= this.prevCompleteHeight) this.startHeight = startHeight;
+
+    // progress notifications are throttled, so heights may skip, and the start height may rebase
+    // down to report progress while the wallet skips hashes below the sync start
     assert(endHeight > startHeight, "end height > start height");
-    assert.equal(startHeight, this.startHeight);
+    assert(startHeight <= this.startHeight, "start height only rebases down");
+    this.startHeight = startHeight;
     assert(endHeight >= this.prevEndHeight);  // chain can grow while syncing
     this.prevEndHeight = endHeight;
-    assert(height >= startHeight);
-    assert(height < endHeight);
-    let expectedPercentDone = (height - startHeight + 1) / (endHeight - startHeight);
-    assert.equal(expectedPercentDone, percentDone);
-    if (this.prevHeight === undefined) assert.equal(height, startHeight);
-    else assert.equal(this.prevHeight + 1, height);
+    if (this.prevHeight !== undefined) assert(height >= this.prevHeight, "heights advance monotonically");
     this.prevHeight = height;
+    if (height < startHeight) {
+      assert(this.sessionStart, "hash-skip notification only at the start of a sync session");
+      assert.equal(percentDone, 0); // initial notification while the wallet skips ahead to the sync start
+    } else {
+      assert(height < endHeight);
+      let expectedPercentDone = (height - startHeight + 1) / (endHeight - startHeight);
+      assert.equal(expectedPercentDone, percentDone);
+      if (percentDone === 1) this.prevCompleteHeight = endHeight; // record completion height for subsequent sync sessions
+    }
+    this.sessionStart = percentDone === 1; // completion starts a new session
   }
   
   async onDone(chainHeight) {
@@ -1308,12 +1312,14 @@ class WalletSyncTester extends SyncProgressTester {
   prevOutputReceived: MoneroOutputWallet;
   prevOutputSpent: MoneroOutputWallet;
   walletTesterPrevHeight: number;
+  syncStartHeight: number;
   onNewBlockAfterDone: boolean;
-  
+
   constructor(wallet, startHeight, endHeight) {
     super(wallet, startHeight, endHeight);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
+    this.syncStartHeight = startHeight;
     this.incomingTotal = 0n;
     this.outgoingTotal = 0n;
   }
@@ -1324,7 +1330,7 @@ class WalletSyncTester extends SyncProgressTester {
       this.onNewBlockAfterDone = true;
     }
     if (this.walletTesterPrevHeight !== undefined) assert.equal(height, this.walletTesterPrevHeight + 1);
-    assert(height >= this.startHeight);
+    assert(height >= this.syncStartHeight); // scanned blocks start at the requested height, not the rebased progress base
     this.walletTesterPrevHeight = height;
   }
   
