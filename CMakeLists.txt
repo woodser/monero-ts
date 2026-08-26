@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(monero-ts-wasm)
 
 # build with exception whitelist from file
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS wasm_exception_whitelist.txt) # reconfigure when the whitelist changes so flags are not stale
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]' -D_REENTRANT")
