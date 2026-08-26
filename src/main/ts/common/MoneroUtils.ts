@@ -16,7 +16,7 @@ export default class MoneroUtils {
   static PROXY_TO_WORKER = false;
   static NUM_MNEMONIC_WORDS = 25;
   static AU_PER_XMR = 1000000000000n;
-  static RING_SIZE = 12;
+  static RING_SIZE = 16;
 
   /**
    * <p>Get the version of the monero-ts library.<p>
