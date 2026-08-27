@@ -65,7 +65,10 @@ include_directories("${MONERO_PROJECT}/contrib/epee/include/net")
 #include_directories("${MONERO_PROJECT_SRC}/wallet/api")
 
 include_directories("${MONERO_PROJECT}/build/release/translations")
-include_directories("${MONERO_PROJECT}/build/release/generated_include")
+
+# generate empty crypto/wallet/ops.h to select monero-project's internal wallet crypto (supercop asm is not wasm-compatible)
+configure_file("${MONERO_PROJECT_SRC}/crypto/wallet/empty.h.in" "${CMAKE_BINARY_DIR}/generated_include/crypto/wallet/ops.h" COPYONLY)
+include_directories("${CMAKE_BINARY_DIR}/generated_include")
 
 #############
 # Unbound
