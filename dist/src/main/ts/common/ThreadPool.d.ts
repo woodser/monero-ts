@@ -1,9 +1,14 @@
 /**
- * Simple thread pool using the async library.
+ * Simple thread pool with a microtask-based queue.
+ *
+ * Timer-free: browsers clamp nested setTimeout(0) to several ms, which stalls queued tasks.
  */
 export default class ThreadPool {
-    protected taskQueue: any;
-    protected drainListeners: any;
+    protected maxConcurrency: number;
+    protected numRunning: number;
+    protected queueHead: any;
+    protected queueTail: any;
+    protected drainListeners: Array<() => void>;
     /**
      * Construct the thread pool.
      *
@@ -23,4 +28,5 @@ export default class ThreadPool {
      * @return {Promise<void>} resolves when all functions complete
      */
     awaitAll(): Promise<void>;
+    protected processNext(): void;
 }

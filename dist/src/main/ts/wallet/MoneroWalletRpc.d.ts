@@ -218,6 +218,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     createSubaddress(accountIdx: number, label?: string): Promise<MoneroSubaddress>;
     setSubaddressLabel(accountIdx: number, subaddressIdx: number, label: string): Promise<void>;
     getTxs(query?: string[] | Partial<MoneroTxQuery>): Promise<MoneroTxWallet[]>;
+    protected getTxsAux(query: string[] | Partial<MoneroTxQuery> | undefined, maxAttempts: number): Promise<MoneroTxWallet[]>;
     getTransfers(query?: Partial<MoneroTransferQuery>): Promise<MoneroTransfer[]>;
     getOutputs(query?: Partial<MoneroOutputQuery>): Promise<MoneroOutputWallet[]>;
     exportOutputs(all?: boolean): Promise<string>;

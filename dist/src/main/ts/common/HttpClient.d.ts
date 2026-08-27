@@ -14,6 +14,7 @@ export default class HttpClient {
     protected static READ_TIMEOUT: number;
     protected static HTTP_AGENT: any;
     protected static HTTPS_AGENT: any;
+    protected static SOCKS_AGENTS: any;
     /**
      * <p>Make a HTTP request.<p>
      *
@@ -24,6 +25,7 @@ export default class HttpClient {
      * @param {string} [request.username] - username to authenticate the request (optional)
      * @param {string} [request.password] - password to authenticate the request (optional)
      * @param {object} [request.headers] - headers to add to the request (optional)
+     * @param {string} [request.proxyUri] - proxy the request through a SOCKS5 server, e.g. a local Tor proxy (Node.js only, optional)
      * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
      * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
      * @param {number} request.timeout - maximum time allowed in milliseconds
@@ -47,7 +49,13 @@ export default class HttpClient {
      * @return {https.Agent} a shared agent for network requests among library instances
      */
     protected static getHttpsAgent(): any;
+    /**
+     * Get a singleton agent to route requests through a SOCKS5 proxy; hostnames are resolved by the proxy to avoid DNS leaks.
+     *
+     * @return {SocksProxyAgent} a shared agent for the given proxy and ssl config
+     */
+    protected static getSocksAgent(proxyUri: string, rejectUnauthorized: boolean): any;
     protected static applyTimeouts(agent: any): any;
     protected static requestAxios(req: any): Promise<any>;
-    protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any) => Promise<import("axios").AxiosResponse<any, any>>;
+    protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any, proxyUri?: any, rejectUnauthorized?: any) => Promise<import("axios").AxiosResponse<any, any>>;
 }

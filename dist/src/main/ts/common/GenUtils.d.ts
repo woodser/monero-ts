@@ -725,6 +725,14 @@ export default class GenUtils {
      */
     static normalizeUri(uri: any): any;
     /**
+     * Indicates if two proxy URIs refer to the same host and port, regardless of scheme.
+     *
+     * @param {string} uri1 - first proxy URI to compare
+     * @param {string} uri2 - second proxy URI to compare
+     * @return {boolean} true if the proxy URIs refer to the same host and port
+     */
+    static isSameProxyUri(uri1: any, uri2: any): boolean;
+    /**
      * Get the absolute value of the given bigint or number.
      *
      * @param {bigint | number} bi - the bigint or number to get the absolute value of
