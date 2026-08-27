@@ -89,7 +89,6 @@
 <li>Clone monero-ts repository: <code>git clone --recursive https://github.com/woodser/monero-ts.git</code></li>
 <li><code>cd monero-ts</code></li>
 <li><code>./bin/update_submodules.sh</code></li>
-<li>Modify ./external/monero-cpp/external/monero-project/src/crypto/wallet/CMakeLists.txt from <code>set(MONERO_WALLET_CRYPTO_LIBRARY &quot;auto&quot; ...</code> to <code>set(MONERO_WALLET_CRYPTO_LIBRARY &quot;cn&quot; ...</code>.</li>
 <li>Build the monero-cpp submodule (located at ./external/monero-cpp) by following <a href="https://github.com/woodser/monero-cpp#using-monero-cpp-in-your-project">instructions</a> for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (<code>~/unbound-1.19.0</code>).</li>
 <li><code>./bin/build_all.sh</code> (install <a href="https://github.com/monero-project/monero#dependencies">monero-project dependencies</a> as needed for your system)</li>
 </ol>
