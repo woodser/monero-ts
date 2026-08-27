@@ -16,7 +16,8 @@
 <li><a href="ThreadPool.html">ThreadPool</a></li></ul>
 <h1>Class ThreadPool</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Simple thread pool using the async library.</p>
+<div class="tsd-comment tsd-typography"><p>Simple thread pool with a microtask-based queue.</p>
+<p>Timer-free: browsers clamp nested setTimeout(0) to several ms, which stalls queued tasks.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
@@ -35,11 +36,15 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="ThreadPool.html#drainListeners" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>drain<wbr/>Listeners</span></a>
-<a href="ThreadPool.html#taskQueue" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>task<wbr/>Queue</span></a>
+<a href="ThreadPool.html#maxConcurrency" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>max<wbr/>Concurrency</span></a>
+<a href="ThreadPool.html#numRunning" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>num<wbr/>Running</span></a>
+<a href="ThreadPool.html#queueHead" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>queue<wbr/>Head</span></a>
+<a href="ThreadPool.html#queueTail" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>queue<wbr/>Tail</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="ThreadPool.html#awaitAll" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>await<wbr/>All</span></a>
+<a href="ThreadPool.html#processNext" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>process<wbr/>Next</span></a>
 <a href="ThreadPool.html#submit" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>submit</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
@@ -65,10 +70,27 @@
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="drainListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>drain<wbr/>Listeners</span><a href="#drainListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">drain<wbr/>Listeners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
-<section class="tsd-panel tsd-member tsd-is-protected"><a id="taskQueue" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>task<wbr/>Queue</span><a href="#taskQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">task<wbr/>Queue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section></section>
+<div class="tsd-signature"><span class="tsd-kind-property">drain<wbr/>Listeners</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></div>
+<div class="tsd-type-declaration">
+<h4>Type declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="maxConcurrency" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>max<wbr/>Concurrency</span><a href="#maxConcurrency" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">max<wbr/>Concurrency</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="numRunning" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>num<wbr/>Running</span><a href="#numRunning" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">num<wbr/>Running</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="queueHead" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>queue<wbr/>Head</span><a href="#queueHead" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">queue<wbr/>Head</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="queueTail" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>queue<wbr/>Tail</span><a href="#queueTail" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">queue<wbr/>Tail</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="awaitAll" class="tsd-anchor"></a>
@@ -81,6 +103,12 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><p>resolves when all functions complete</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="processNext" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>process<wbr/>Next</span><a href="#processNext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-protected">
+<li class="tsd-signature tsd-anchor-link" id="processNext.processNext-1"><span class="tsd-kind-call-signature">process<wbr/>Next</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#processNext.processNext-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="submit" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>submit</span><a href="#submit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -130,8 +158,12 @@
 <ul>
 <li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
 <li><a href="#drainListeners" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>drain<wbr/>Listeners</span></a></li>
-<li><a href="#taskQueue" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>task<wbr/>Queue</span></a></li>
+<li><a href="#maxConcurrency" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>max<wbr/>Concurrency</span></a></li>
+<li><a href="#numRunning" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>num<wbr/>Running</span></a></li>
+<li><a href="#queueHead" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>queue<wbr/>Head</span></a></li>
+<li><a href="#queueTail" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>queue<wbr/>Tail</span></a></li>
 <li><a href="#awaitAll" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>await<wbr/>All</span></a></li>
+<li><a href="#processNext" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>process<wbr/>Next</span></a></li>
 <li><a href="#submit" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>submit</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>monero-ts</span></a>
