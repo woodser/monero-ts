@@ -325,7 +325,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       
         // call wasm which invokes callback when done
         this.module.get_daemon_max_peer_height(this.cppAddress, (resp) => {
-          resolve(resp);
+          if (typeof resp === "string") reject(new MoneroError(resp));
+          else resolve(resp);
         });
       });
     });
@@ -344,7 +345,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       
         // call wasm which invokes callback when done
         this.module.is_daemon_synced(this.cppAddress, (resp) => {
-          resolve(resp);
+          if (typeof resp === "string") reject(new MoneroError(resp));
+          else resolve(resp);
         });
       });
     });
@@ -554,12 +556,12 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async getDaemonHeight(): Promise<number> {
     if (this.getWalletProxy()) return this.getWalletProxy().getDaemonHeight();
-    if (!await this.isConnectedToDaemon()) throw new MoneroError("Wallet is not connected to daemon");
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
         this.module.get_daemon_height(this.cppAddress, (resp) => {
-          resolve(resp);
+          if (typeof resp === "string") reject(new MoneroError(resp));
+          else resolve(resp);
         });
       });
     });
@@ -567,7 +569,6 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async getHeightByDate(year: number, month: number, day: number): Promise<number> {
     if (this.getWalletProxy()) return this.getWalletProxy().getHeightByDate(year, month, day);
-    if (!await this.isConnectedToDaemon()) throw new MoneroError("Wallet is not connected to daemon");
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise((resolve, reject) => {
@@ -588,7 +589,6 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
    */
   async sync(listenerOrStartHeight?: MoneroWalletListener | number, startHeight?: number, allowConcurrentCalls = false): Promise<MoneroSyncResult> {
     if (this.getWalletProxy()) return this.getWalletProxy().sync(listenerOrStartHeight, startHeight, allowConcurrentCalls);
-    if (!await this.isConnectedToDaemon()) throw new MoneroError("Wallet is not connected to daemon");
     
     // normalize params
     startHeight = listenerOrStartHeight === undefined || listenerOrStartHeight instanceof MoneroWalletListener ? startHeight : listenerOrStartHeight;
@@ -632,7 +632,6 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async startSyncing(syncPeriodInMs?: number): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().startSyncing(syncPeriodInMs);
-    if (!await this.isConnectedToDaemon()) throw new MoneroError("Wallet is not connected to daemon");
     this.syncPeriodInMs = syncPeriodInMs === undefined ? MoneroWalletFull.DEFAULT_SYNC_PERIOD_IN_MS : syncPeriodInMs;
     if (!this.syncLooper) this.syncLooper = new TaskLooper(async () => await this.backgroundSync())
     this.syncLooper.start(this.syncPeriodInMs);
@@ -663,7 +662,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
-        this.module.rescan_spent(this.cppAddress, () => resolve());
+        this.module.rescan_spent(this.cppAddress, (err) => {
+          if (err) reject(new MoneroError(err));
+          else resolve();
+        });
       });
     });
   }
@@ -673,7 +675,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
-        this.module.rescan_blockchain(this.cppAddress, () => resolve());
+        this.module.rescan_blockchain(this.cppAddress, (err) => {
+          if (err) reject(new MoneroError(err));
+          else resolve();
+        });
       });
     });
   }

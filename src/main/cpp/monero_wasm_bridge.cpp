@@ -273,7 +273,11 @@ void monero_wasm_bridge::is_connected_to_daemon(int handle, emscripten::val call
 
 void monero_wasm_bridge::get_daemon_max_peer_height(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback((long) wallet->get_daemon_max_peer_height());
+  try {
+    callback((long) wallet->get_daemon_max_peer_height());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 //void add_listener(int handle, monero_wallet_listener& listener);
@@ -382,7 +386,11 @@ void monero_wasm_bridge::get_height(int handle, emscripten::val callback) {
 
 void monero_wasm_bridge::get_daemon_height(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback((long) wallet->get_daemon_height());
+  try {
+    callback((long) wallet->get_daemon_height());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::get_height_by_date(int handle, uint16_t year, uint8_t month, uint8_t day, emscripten::val callback) {
@@ -396,7 +404,11 @@ void monero_wasm_bridge::get_height_by_date(int handle, uint16_t year, uint8_t m
 
 void monero_wasm_bridge::is_daemon_synced(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  callback(wallet->is_daemon_synced());
+  try {
+    callback(wallet->is_daemon_synced());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::is_synced(int handle, emscripten::val callback) {
@@ -462,8 +474,12 @@ void monero_wasm_bridge::stop_syncing(int handle) {
 
 void monero_wasm_bridge::rescan_spent(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->rescan_spent();
-  callback();
+  try {
+    wallet->rescan_spent();
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::scan_txs(int handle, const string& args, emscripten::val callback) {
@@ -490,8 +506,12 @@ void monero_wasm_bridge::scan_txs(int handle, const string& args, emscripten::va
 
 void monero_wasm_bridge::rescan_blockchain(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->rescan_blockchain();
-  callback();
+  try {
+    wallet->rescan_blockchain();
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 string monero_wasm_bridge::get_balance_wallet(int handle) {
