@@ -8,6 +8,7 @@ export default class TaskLooper {
   _isLooping: boolean;
   _periodInMs: number;
   _timeout: NodeJS.Timeout | undefined;
+  _loopId: number = 0; // versions each loop so a stale loop exits after stop and restart
   
   /**
    * Build the looper with a function to invoke on a fixed period loop.
@@ -41,7 +42,7 @@ export default class TaskLooper {
     this.setPeriodInMs(periodInMs);
     if (this._isStarted) return;
     this._isStarted = true;
-    this._runLoop(targetFixedPeriod);
+    this._runLoop(++this._loopId, targetFixedPeriod);
   }
 
   /**
@@ -72,14 +73,14 @@ export default class TaskLooper {
       this._periodInMs = periodInMs;
     }
   
-  async _runLoop(targetFixedPeriod: boolean) {
+  async _runLoop(loopId: number, targetFixedPeriod: boolean) {
     this._isLooping = true;
-    while (this._isStarted) {
+    while (this._isStarted && loopId === this._loopId) {
       const startTime = Date.now();
       await this._fn();
       let that = this;
-      if (this._isStarted) await new Promise((resolve) => { this._timeout = setTimeout(resolve, that._periodInMs - (targetFixedPeriod ? (Date.now() - startTime) : 0)); });
+      if (this._isStarted && loopId === this._loopId) await new Promise((resolve) => { this._timeout = setTimeout(resolve, that._periodInMs - (targetFixedPeriod ? (Date.now() - startTime) : 0)); });
     }
-    this._isLooping = false;
+    if (loopId === this._loopId) this._isLooping = false;
   }
 }
