@@ -55,6 +55,7 @@ export default class HttpClient {
      * @return {SocksProxyAgent} a shared agent for the given proxy and ssl config
      */
     protected static getSocksAgent(proxyUri: string, rejectUnauthorized: boolean): any;
+    protected static getNonAgentTimeout(): number;
     protected static applyTimeouts(agent: any): any;
     protected static requestAxios(req: any): Promise<any>;
     protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any, proxyUri?: any, rejectUnauthorized?: any) => Promise<import("axios").AxiosResponse<any, any>>;

@@ -8,6 +8,7 @@ export default class TaskLooper {
     _isLooping: boolean;
     _periodInMs: number;
     _timeout: NodeJS.Timeout | undefined;
+    _loopId: number;
     /**
      * Build the looper with a function to invoke on a fixed period loop.
      *
@@ -44,5 +45,5 @@ export default class TaskLooper {
      * @param {number} periodInMs the loop period in milliseconds
      */
     setPeriodInMs(periodInMs: any): void;
-    _runLoop(targetFixedPeriod: boolean): Promise<void>;
+    _runLoop(loopId: number, targetFixedPeriod: boolean): Promise<void>;
 }
