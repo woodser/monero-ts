@@ -142,6 +142,11 @@ export default class HttpClient {
     return HttpClient.SOCKS_AGENTS[key];
   }
 
+  // bound the whole request where node agent socket timeouts do not apply
+  protected static getNonAgentTimeout() {
+    return GenUtils.isBrowser() || GenUtils.isDeno() ? Math.max(HttpClient.CONNECT_TIMEOUT, HttpClient.READ_TIMEOUT) : 0;
+  }
+
   // bound the connection phase and socket inactivity
   protected static applyTimeouts(agent: any) {
     if (typeof agent.createConnection !== "function") return agent; // no-op in browser shims
@@ -229,6 +234,7 @@ export default class HttpClient {
       httpAgent: httpAgent,
       httpsAgent: httpsAgent,
       proxy: socksAgent ? false : undefined, // env proxies must not bypass the socks agent
+      timeout: HttpClient.getNonAgentTimeout(),
       data: body,
       transformResponse: res => res,
       adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
@@ -275,6 +281,7 @@ export default class HttpClient {
           responseType: body instanceof Uint8Array ? 'arraybuffer' : undefined,
           httpAgent: url.startsWith("https") ? undefined : HttpClient.getHttpAgent(),
           httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
+          timeout: HttpClient.getNonAgentTimeout(),
           data: body,
           transformResponse: res => res,
           adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
