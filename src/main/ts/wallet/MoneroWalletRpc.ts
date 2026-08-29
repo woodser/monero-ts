@@ -2549,8 +2549,14 @@ class WalletPoller {
         
         // announce new unlocked outputs
         for (let unlockedTx of unlockedTxs) {
+          let missedConfirm = unlockedTx.getIsConfirmed() && !that.prevConfirmedNotifications.has(unlockedTx.getHash());
           that.prevUnconfirmedNotifications.delete(unlockedTx.getHash());
           that.prevConfirmedNotifications.delete(unlockedTx.getHash());
+          if (missedConfirm) { // announce missed confirm transition if tx unlocked between polls
+            let confirmedTx = unlockedTx.copy().setIsLocked(true);
+            confirmedTx.setBlock(unlockedTx.getBlock().copy().setTxs([confirmedTx]));
+            await that.notifyOutputs(confirmedTx);
+          }
           await that.notifyOutputs(unlockedTx);
         }
         
