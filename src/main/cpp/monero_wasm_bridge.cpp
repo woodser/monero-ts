@@ -915,8 +915,8 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
 
 string monero_wasm_bridge::describe_tx_set(int handle, const string& tx_set_str) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_tx_set tx_set = monero_tx_set::deserialize(tx_set_str);
-  monero_tx_set described_tx_set = wallet->describe_tx_set(tx_set);
+  shared_ptr<monero_tx_set> tx_set = monero_tx_set::deserialize(tx_set_str);
+  monero_tx_set described_tx_set = wallet->describe_tx_set(*tx_set);
   std::string monero_tx_set_json = described_tx_set.serialize();
   monero_utils::free(described_tx_set.m_txs);
   return monero_tx_set_json;
