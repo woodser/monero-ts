@@ -37,6 +37,7 @@
 <div class="tsd-index-list"><a href="TaskLooper.html#_fn" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_fn</span></a>
 <a href="TaskLooper.html#_isLooping" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_is<wbr/>Looping</span></a>
 <a href="TaskLooper.html#_isStarted" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_is<wbr/>Started</span></a>
+<a href="TaskLooper.html#_loopId" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_loop<wbr/>Id</span></a>
 <a href="TaskLooper.html#_periodInMs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_period<wbr/>In<wbr/>Ms</span></a>
 <a href="TaskLooper.html#_timeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_timeout</span></a>
 </div></section>
@@ -93,6 +94,9 @@
 <section class="tsd-panel tsd-member"><a id="_isStarted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_is<wbr/>Started</span><a href="#_isStarted" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_is<wbr/>Started</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div></section>
+<section class="tsd-panel tsd-member"><a id="_loopId" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>_loop<wbr/>Id</span><a href="#_loopId" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">_loop<wbr/>Id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div></section>
 <section class="tsd-panel tsd-member"><a id="_periodInMs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_period<wbr/>In<wbr/>Ms</span><a href="#_periodInMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_period<wbr/>In<wbr/>Ms</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div></section>
@@ -104,11 +108,13 @@
 <section class="tsd-panel tsd-member"><a id="_runLoop" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_run<wbr/>Loop</span><a href="#_runLoop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="_runLoop._runLoop-1"><span class="tsd-kind-call-signature">_run<wbr/>Loop</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">targetFixedPeriod</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#_runLoop._runLoop-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="_runLoop._runLoop-1"><span class="tsd-kind-call-signature">_run<wbr/>Loop</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">loopId</span>, <span class="tsd-kind-parameter">targetFixedPeriod</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#_runLoop._runLoop-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">loopId</span>: <span class="tsd-signature-type">number</span></h5></li>
 <li>
 <h5><span class="tsd-kind-parameter">targetFixedPeriod</span>: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></section>
@@ -209,6 +215,7 @@
 <li><a href="#_fn" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_fn</span></a></li>
 <li><a href="#_isLooping" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_is<wbr/>Looping</span></a></li>
 <li><a href="#_isStarted" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_is<wbr/>Started</span></a></li>
+<li><a href="#_loopId" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_loop<wbr/>Id</span></a></li>
 <li><a href="#_periodInMs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_period<wbr/>In<wbr/>Ms</span></a></li>
 <li><a href="#_timeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>_timeout</span></a></li>
 <li><a href="#_runLoop" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_run<wbr/>Loop</span></a></li>
