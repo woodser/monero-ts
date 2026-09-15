@@ -38,6 +38,9 @@ jobs:
       - name: Check types
         run: npx tsc --noEmit
 
+      - name: Test release validation
+        run: node --test bin/check_release.test.cjs
+
       - name: Build commonjs
         run: npm run build_commonjs
 

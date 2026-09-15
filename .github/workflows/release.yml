@@ -1,0 +1,60 @@
+name: Publish npm release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'woodser/monero-ts' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.5.1
+      - name: Test release validation
+        run: node --test bin/check_release.test.cjs
+      - name: Check release metadata
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: node bin/check_release.cjs
+      - run: npm ci --ignore-scripts
+      - run: npx tsc --noEmit
+      - run: npm run build_commonjs
+      - run: npm run build_web_worker
+      - name: Run offline tests
+        run: npm test -- --grep "TEST MONERO UTILITIES"
+      - name: Pack and inspect exactly what will be published
+        run: |
+          npm pack --json > pack-result.json
+          node bin/check_release.cjs --pack pack-result.json
+      - name: Retain the reviewed release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-release
+          path: monero-ts-*.tgz
+          if-no-files-found: error
+      - name: Publish with npm trusted publishing
+        run: |
+          package_file=$(node -p 'JSON.parse(require("fs").readFileSync("pack-result.json"))[0].filename')
+          npm publish "$package_file" --provenance --access public
