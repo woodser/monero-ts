@@ -1170,8 +1170,8 @@ export default class GenUtils {
    */
   static isBrowser() {
     let isWorker = typeof importScripts === 'function';
-    let isBrowserMain = new Function("try {return this===window;}catch(e){return false;}")();
-    let isJsDom = isBrowserMain ? new Function("try {return window.navigator.userAgent.includes('jsdom');}catch(e){return false;}")() : false;
+    let isBrowserMain = typeof window !== 'undefined' && globalThis === window;
+    let isJsDom = isBrowserMain ? typeof navigator !== 'undefined' && navigator.userAgent.includes('jsdom') : false;
     return isWorker || (isBrowserMain && !isJsDom);
   }
   
