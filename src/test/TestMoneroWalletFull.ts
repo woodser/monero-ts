@@ -806,8 +806,8 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Is equal to the RPC wallet.", async function() {
 
-        // wait for txs to clear pool
-        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(await TestUtils.getWalletRpc(), that.wallet);
+        // wait for pending txs to clear from wallets before rescanning spent outputs
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(await TestUtils.getWalletRpc(), that.wallet);
 
         // TODO: rescanning spent outputs is necessary for equality test to mark as spent/unspent correctly
         await that.wallet.rescanSpent();
