@@ -1604,6 +1604,8 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   protected async clear() {
+    this.listenerGeneration++;
+    if (this.walletPoller) this.walletPoller.reset();
     this.refreshListening();
     delete this.addressCache;
     this.addressCache = {};
@@ -2468,6 +2470,8 @@ class WalletPoller {
   protected numPolling: any;
   protected prevHeight: any;
   protected prevBalances: any;
+  protected generation = 0;
+  protected snapshotGeneration = 0;
   
   constructor(wallet) {
     let that = this;
@@ -2480,6 +2484,10 @@ class WalletPoller {
     this.numPolling = 0;
   }
   
+  reset() {
+    this.generation++; // invalidate in-flight polls without waiting on their callbacks
+  }
+
   setIsPolling(isPolling) {
     this.isPolling = isPolling;
     if (isPolling) this.looper.start(this.wallet.getSyncPeriodInMs());
@@ -2499,33 +2507,47 @@ class WalletPoller {
     // synchronize polls
     let that = this;
     return this.threadPool.submit(async function() {
+      const generation = that.generation;
       try {
         
         // skip if wallet is closed
-        if (await that.wallet.isClosed()) {
-          that.numPolling--;
-          return;
+        if (await that.wallet.isClosed() || generation !== that.generation) return;
+
+        // reset snapshots only inside the serialized poll
+        if (that.snapshotGeneration !== generation) {
+          that.prevHeight = undefined;
+          that.prevBalances = undefined;
+          that.prevLockedTxs = [];
+          that.prevUnconfirmedNotifications.clear();
+          that.prevConfirmedNotifications.clear();
+          that.snapshotGeneration = generation;
         }
         
         // take initial snapshot
         if (that.prevBalances === undefined) {
           that.prevHeight = await that.wallet.getHeight();
+          if (generation !== that.generation) return;
           that.prevLockedTxs = await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(true));
+          if (generation !== that.generation) return;
           that.prevBalances = await that.wallet.getBalances();
-          that.numPolling--;
           return;
         }
         
         // announce height changes
         let height = await that.wallet.getHeight();
+        if (generation !== that.generation) return;
         if (that.prevHeight !== height) {
-          for (let i = that.prevHeight; i < height; i++) await that.onNewBlock(i);
+          for (let i = that.prevHeight; i < height; i++) {
+            await that.onNewBlock(i);
+            if (generation !== that.generation) return;
+          }
           that.prevHeight = height;
         }
         
         // get locked txs for comparison to previous
         let minHeight = Math.max(0, height - 70); // only monitor recent txs
         let lockedTxs = await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(true).setMinHeight(minHeight).setIncludeOutputs(true));
+        if (generation !== that.generation) return;
         
         // collect hashes of txs no longer locked
         let noLongerLockedHashes = [];
@@ -2540,13 +2562,15 @@ class WalletPoller {
         
         // fetch txs which are no longer locked
         let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(minHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true));
+        if (generation !== that.generation) return;
          
         // announce new unconfirmed and confirmed outputs
         for (let lockedTx of lockedTxs) {
           let searchSet = lockedTx.getIsConfirmed() ? that.prevConfirmedNotifications : that.prevUnconfirmedNotifications;
           let unannounced = !searchSet.has(lockedTx.getHash());
           searchSet.add(lockedTx.getHash());
-          if (unannounced) await that.notifyOutputs(lockedTx);
+          if (unannounced) await that.notifyOutputs(lockedTx, generation);
+          if (generation !== that.generation) return;
         }
         
         // announce new unlocked outputs
@@ -2557,17 +2581,19 @@ class WalletPoller {
           if (missedConfirm) { // announce missed confirm transition if tx unlocked between polls
             let confirmedTx = unlockedTx.copy().setIsLocked(true);
             confirmedTx.setBlock(unlockedTx.getBlock().copy().setTxs([confirmedTx]));
-            await that.notifyOutputs(confirmedTx);
+            await that.notifyOutputs(confirmedTx, generation);
+            if (generation !== that.generation) return;
           }
-          await that.notifyOutputs(unlockedTx);
+          await that.notifyOutputs(unlockedTx, generation);
+          if (generation !== that.generation) return;
         }
         
         // announce balance changes
-        await that.checkForChangedBalances();
-        that.numPolling--;
+        await that.checkForChangedBalances(generation);
       } catch (err: any) {
+        if (generation === that.generation && that.isPolling) console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message); // ignore errors from polls straggling after the wallet is closed
+      } finally {
         that.numPolling--;
-        if (that.isPolling) console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message); // ignore errors from polls straggling after the wallet is closed
       }
     });
   }
@@ -2576,7 +2602,8 @@ class WalletPoller {
     await this.wallet.announceNewBlock(height);
   }
   
-  protected async notifyOutputs(tx) {
+  protected async notifyOutputs(tx, generation) {
+    if (generation !== this.generation) return;
   
     // notify spent outputs // TODO (monero-project): monero-wallet-rpc does not allow scrape of tx inputs so providing one input with outgoing amount
     if (tx.getOutgoingTransfer() !== undefined) {
@@ -2588,6 +2615,7 @@ class WalletPoller {
           .setTx(tx);
       tx.setInputs([output]);
       await this.wallet.announceOutputSpent(output);
+      if (generation !== this.generation) return;
     }
     
     // notify received outputs
@@ -2595,6 +2623,7 @@ class WalletPoller {
       if (tx.getOutputs() !== undefined && tx.getOutputs().length > 0) { // TODO (monero-project): outputs only returned for confirmed txs
         for (let output of tx.getOutputs()) {
           await this.wallet.announceOutputReceived(output);
+          if (generation !== this.generation) return;
         }
       } else { // TODO (monero-project): monero-wallet-rpc does not allow scrape of unconfirmed received outputs so using incoming transfer values
         let outputs = [];
@@ -2608,6 +2637,7 @@ class WalletPoller {
         tx.setOutputs(outputs);
         for (let output of tx.getOutputs()) {
           await this.wallet.announceOutputReceived(output);
+          if (generation !== this.generation) return;
         }
       }
     }
@@ -2618,8 +2648,9 @@ class WalletPoller {
     return undefined;
   }
   
-  protected async checkForChangedBalances() {
+  protected async checkForChangedBalances(generation) {
     let balances = await this.wallet.getBalances();
+    if (generation !== this.generation) return false;
     if (balances[0] !== this.prevBalances[0] || balances[1] !== this.prevBalances[1]) {
       this.prevBalances = balances;
       await this.wallet.announceBalancesChanged(balances[0], balances[1]);
