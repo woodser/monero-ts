@@ -72,6 +72,7 @@ export default class MoneroWallet {
   protected connectionManager: MoneroConnectionManager;
   protected connectionManagerListener: MoneroConnectionManagerListener;
   protected listeners: MoneroWalletListener[] = [];
+  protected listenerGeneration = 0;
   protected _isClosed = false;
 
   /**
@@ -1423,8 +1424,10 @@ export default class MoneroWallet {
    * @private
    */
   async announceSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string): Promise<void> {
-    for (let listener of this.listeners) {
-      if (this._isClosed) return;
+    const generation = this.listenerGeneration;
+    for (let listener of this.listeners.slice()) {
+      if (this._isClosed || generation !== this.listenerGeneration) return;
+      if (!this.listeners.includes(listener)) continue;
       try {
         await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
       } catch (err) {
@@ -1437,8 +1440,10 @@ export default class MoneroWallet {
    * @private
    */
   async announceNewBlock(height: number): Promise<void> {
-    for (let listener of this.listeners) {
-      if (this._isClosed) return;
+    const generation = this.listenerGeneration;
+    for (let listener of this.listeners.slice()) {
+      if (this._isClosed || generation !== this.listenerGeneration) return;
+      if (!this.listeners.includes(listener)) continue;
       try {
         await listener.onNewBlock(height);
       } catch (err) {
@@ -1451,8 +1456,10 @@ export default class MoneroWallet {
    * @private
    */
   async announceBalancesChanged(newBalance: bigint, newUnlockedBalance: bigint): Promise<void> {
-    for (let listener of this.listeners) {
-      if (this._isClosed) return;
+    const generation = this.listenerGeneration;
+    for (let listener of this.listeners.slice()) {
+      if (this._isClosed || generation !== this.listenerGeneration) return;
+      if (!this.listeners.includes(listener)) continue;
       try {
         await listener.onBalancesChanged(newBalance, newUnlockedBalance);
       } catch (err) {
@@ -1465,8 +1472,10 @@ export default class MoneroWallet {
    * @private
    */
   async announceOutputReceived(output: MoneroOutputWallet): Promise<void> {
-    for (let listener of this.listeners) {
-      if (this._isClosed) return;
+    const generation = this.listenerGeneration;
+    for (let listener of this.listeners.slice()) {
+      if (this._isClosed || generation !== this.listenerGeneration) return;
+      if (!this.listeners.includes(listener)) continue;
       try {
         await listener.onOutputReceived(output);
       } catch (err) {
@@ -1479,8 +1488,10 @@ export default class MoneroWallet {
    * @private
    */
   async announceOutputSpent(output: MoneroOutputWallet): Promise<void> {
-    for (let listener of this.listeners) {
-      if (this._isClosed) return;
+    const generation = this.listenerGeneration;
+    for (let listener of this.listeners.slice()) {
+      if (this._isClosed || generation !== this.listenerGeneration) return;
+      if (!this.listeners.includes(listener)) continue;
       try {
         await listener.onOutputSpent(output);
       } catch (err) {
