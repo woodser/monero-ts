@@ -614,42 +614,18 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           if (testPostSyncNotifications) {
             
             // start automatic syncing
+            let walletHeight = await wallet.getHeight();
             await wallet.startSyncing(TestUtils.SYNC_PERIOD_IN_MS);
             
-            // attempt to start mining to push the network along  // TODO: TestUtils.tryStartMining() : reqId, TestUtils.tryStopMining(reqId)
-            let startedMining = false;
-            let miningStatus = await that.daemon.getMiningStatus();
-            if (!miningStatus.getIsActive()) {
-              try {
-                await StartMining.startMining();
-                startedMining = true;
-              } catch (e) {
-                // no problem
-              }
-            }
-            
-            try {
-              
-              // wait for block
-              console.log("Waiting for next block to test post sync notifications");
-              await that.daemon.waitForNextBlockHeader();
-              
-              // ensure wallet has time to detect new block
-              await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS + 3000); }); // sleep for wallet interval + time to sync
-              
-              // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
-              assert(walletSyncTester.getOnSyncProgressAfterDone());
-              assert(walletSyncTester.getOnNewBlockAfterDone());
-            } catch (e) {
-              err = e;
-            }
-            
-            // finally
-            if (startedMining) {
-              await that.daemon.stopMining();
-              //await wallet.stopMining();  // TODO: support client-side mining?
-            }
-            if (err) throw err;
+            console.log("Waiting for next block to test post sync notifications");
+            await StartMining.mineToHeight(walletHeight + 1);
+
+            // ensure wallet has time to detect new block
+            await new Promise(function(resolve) { setTimeout(resolve, TestUtils.SYNC_PERIOD_IN_MS + 3000); }); // sleep for wallet interval + time to sync
+
+            // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
+            assert(walletSyncTester.getOnSyncProgressAfterDone());
+            assert(walletSyncTester.getOnNewBlockAfterDone());
           }
         } catch (e) {
           err = e;
