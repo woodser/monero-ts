@@ -33,7 +33,7 @@ export default class WalletEqualityUtils {
    */
   static async testWalletEqualityOnChain(w1: MoneroWallet, w2: MoneroWallet) {
     
-    // wait for relayed txs associated with wallets to clear pool
+    // wait for relayed txs to clear from both wallets
     assert.equal(await w1.isConnectedToDaemon(), await w2.isConnectedToDaemon());
     if (await w1.isConnectedToDaemon()) {
 
@@ -45,8 +45,8 @@ export default class WalletEqualityUtils {
         await w2.sync();
       }
 
-      // wait for txs to clear the pool
-      await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(w1, w2);
+      // wait for pending txs to clear from wallets so balances exclude pending change
+      await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(w1, w2);
     }
     
     // test that wallets are equal using only on-chain data
