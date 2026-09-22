@@ -1288,18 +1288,21 @@ void monero_wasm_bridge::change_wallet_password(int handle, const string& old_pa
   }
 }
 
-void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
+// bypass embind, which waits on the active Asyncify call even for synchronous exports
+extern "C" EMSCRIPTEN_KEEPALIVE void request_wallet_shutdown(int handle) {
+  ((monero_wallet_full*) handle)->request_shutdown();
+}
+
+void monero_wasm_bridge::close(int handle, bool save, int listener_handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-
-  // TODO: ensure http clients are being deleted
-//  // if full wallet, disconnect and delete http client
-//  monero_wallet_full* wallet_full = dynamic_cast<const monero_wallet_full*>(wallet);
-//  if (full_wallet != nullptr) delete wallet_full->m_http_client;
-
-  if (save) wallet->save();
-  delete wallet;
-  wallet = nullptr;
-  callback();
+  try {
+    wallet->close(save); // drain native work before deleting the wallet or its listener
+    delete wallet;
+    delete (wallet_wasm_listener*) listener_handle;
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool view_only) {

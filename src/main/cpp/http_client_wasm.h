@@ -21,7 +21,7 @@ namespace epee
       class http_client_wasm : public abstract_http_client
       {
       public:
-        http_client_wasm(const string& reject_unauthorized_fn_id) : m_reject_unauthorized_fn_id(reject_unauthorized_fn_id), m_user(boost::none), m_is_connected(false), m_response_info() { }
+        http_client_wasm(const string& reject_unauthorized_fn_id) : m_reject_unauthorized_fn_id(reject_unauthorized_fn_id), m_user(boost::none), m_is_connected(false), m_is_shutdown(false), m_response_info() { }
         ~http_client_wasm() {
           disconnect();
         }
@@ -31,6 +31,7 @@ namespace epee
         void set_auto_connect(bool auto_connect) override;
         bool connect(std::chrono::milliseconds timeout) override;
         bool disconnect() override;
+        bool shutdown() override;
         bool is_connected(bool *ssl = NULL) override;
         bool invoke(const boost::string_ref uri, const boost::string_ref method, const boost::string_ref body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info = NULL, const fields_list& additional_params = fields_list()) override;
         bool invoke_get(const boost::string_ref uri, std::chrono::milliseconds timeout, const string& body = string(), const http_response_info** ppresponse_info = NULL, const fields_list& additional_params = fields_list()) override;
@@ -46,6 +47,7 @@ namespace epee
         string m_reject_unauthorized_fn_id;
         bool m_ssl_enabled;
         bool m_is_connected;
+        bool m_is_shutdown;
         http_response_info m_response_info;
         bool m_auto_connect;
 

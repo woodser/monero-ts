@@ -43,6 +43,7 @@ export default class HttpClient {
    * @param {string} [request.proxyUri] - proxy the request through a SOCKS5 server, e.g. a local Tor proxy (Node.js only, optional)
    * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
    * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
+   * @param {object} [request.cancelToken] - token to cancel a queued or active request (optional)
    * @param {number} request.timeout - maximum time allowed in milliseconds
    * @param {number} request.proxyToWorker - proxy request to worker thread
    * @return {object} response - the response object
@@ -90,6 +91,10 @@ export default class HttpClient {
     // connection and response inactivity are bounded in the agents
     let requestPromise = HttpClient.requestAxios(request);
     return request.timeout ? GenUtils.executeWithTimeout(requestPromise, request.timeout) : requestPromise;
+  }
+
+  static createCancelToken() {
+    return axios.CancelToken.source();
   }
 
   // ----------------------------- PRIVATE HELPERS ----------------------------
@@ -177,12 +182,15 @@ export default class HttpClient {
     const proxyUri = req.proxyUri;
     const rejectUnauthorized = req.rejectUnauthorized;
     const isBinary = body instanceof Uint8Array;
+    const cancelToken = req.cancelToken;
+    if (cancelToken) cancelToken.throwIfRequested();
 
     // queue and throttle requests to execute in serial and rate limited per host
-    const resp = await HttpClient.TASK_QUEUES[host].submit(async function() {
+    const response = HttpClient.TASK_QUEUES[host].submit(async function() {
+      if (cancelToken) cancelToken.throwIfRequested();
       return HttpClient.PROMISE_THROTTLES[host].add(function() {
         return new Promise(function(resolve, reject) {
-          HttpClient.axiosDigestAuthRequest(method, uri, username, password, body, proxyUri, rejectUnauthorized).then(function(resp) {
+          HttpClient.axiosDigestAuthRequest(method, uri, username, password, body, proxyUri, rejectUnauthorized, cancelToken).then(function(resp) {
             resolve(resp);
           }).catch(function(error: AxiosError) {
             if (error.response?.status) resolve(error.response);
@@ -192,6 +200,18 @@ export default class HttpClient {
 
       }.bind(this));
     });
+
+    // reject cancellation immediately even when queued behind another wallet's request
+    let onCancel;
+    let resp;
+    try {
+      resp = cancelToken ? await Promise.race([response, new Promise((resolve, reject) => {
+        onCancel = reject;
+        cancelToken.subscribe(onCancel);
+      })]) : await response;
+    } finally {
+      if (cancelToken) cancelToken.unsubscribe(onCancel);
+    }
 
     // normalize response
     let normalizedResponse: any = {};
@@ -203,7 +223,7 @@ export default class HttpClient {
     return normalizedResponse;
   }
 
-  protected static axiosDigestAuthRequest = async function(method, url, username, password, body, proxyUri?, rejectUnauthorized?) {
+  protected static axiosDigestAuthRequest = async function(method, url, username, password, body, proxyUri?, rejectUnauthorized?, cancelToken?) {
     if (typeof CryptoJS === 'undefined' && typeof require === 'function') {
       var CryptoJS = require('crypto-js');
     }
@@ -235,6 +255,7 @@ export default class HttpClient {
       httpsAgent: httpsAgent,
       proxy: socksAgent ? false : undefined, // env proxies must not bypass the socks agent
       timeout: HttpClient.getNonAgentTimeout(),
+      cancelToken: cancelToken,
       data: body,
       transformResponse: res => res,
       adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
@@ -282,6 +303,7 @@ export default class HttpClient {
           httpAgent: url.startsWith("https") ? undefined : HttpClient.getHttpAgent(),
           httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
           timeout: HttpClient.getNonAgentTimeout(),
+          cancelToken: cancelToken,
           data: body,
           transformResponse: res => res,
           adapter: GenUtils.isDeno() ? ['fetch'] : ['http', 'xhr', 'fetch']
