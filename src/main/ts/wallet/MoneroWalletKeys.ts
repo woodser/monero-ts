@@ -20,6 +20,8 @@ export class MoneroWalletKeys extends MoneroWallet {
   protected cppAddress: string;
   protected module: any;
   protected walletProxy: MoneroWalletKeysProxy;
+  protected closePromise: Promise<void>;
+  protected closeCompleted = false;
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -304,39 +306,42 @@ export class MoneroWalletKeys extends MoneroWallet {
   // decodeIntegratedAddress
   
   async close(save = false): Promise<void> {
-    if (this._isClosed) return; // no effect if closed
-    if (this.getWalletProxy()) {
-      await this.getWalletProxy().close(save);
-      await super.close();
-      this._isClosed = true;
-      return;
+    if (this.closePromise) return this.closePromise;
+    if (this.closeCompleted) return;
+    this.closePromise = this.closeInternal(save);
+    try {
+      await this.closePromise;
+      this.closeCompleted = true;
+    } finally {
+      this.closePromise = undefined; // keep native resources available for retry after failure
     }
-    
-    // save wallet if requested
-    if (save) await this.save();
+  }
 
-    // close super
-    await super.close();
-    this._isClosed = true;
-
-    // queue task to use wasm module
-    return this.module.queueTask(async () => {
-      return new Promise<void>((resolve, reject) => {
-        if (this._isClosed) {
-          resolve(undefined);
-          return;
-        }
-        
-        // close wallet in wasm and invoke callback when done
-        this.module.close(this.cppAddress, false, async () => { // saving handled external to webassembly
-          delete this.cppAddress;
-          this._isClosed = true;
-          resolve();
+  protected async closeInternal(save: boolean, listenerHandle = 0): Promise<void> {
+    if (this.connectionManager && this.connectionManager.getListeners().includes(this.connectionManagerListener)) this.connectionManager.removeListener(this.connectionManagerListener);
+    this.connectionManager = undefined;
+    this.connectionManagerListener = undefined;
+    if (this.walletProxy) {
+      this._isClosed = true;
+      await this.walletProxy.close(save);
+    } else {
+      if (save) await this.save();
+      this._isClosed = true;
+      await this.module.queueTask(async () => {
+        return new Promise<void>((resolve, reject) => {
+          this.module.close(this.cppAddress, false, listenerHandle, (errMsg) => { // saving handled external to webassembly
+            if (errMsg) reject(new MoneroError(errMsg));
+            else {
+              delete this.cppAddress;
+              resolve();
+            }
+          });
         });
       });
-    });
+    }
+    await super.close();
   }
-  
+
   async isClosed(): Promise<boolean> {
     return this._isClosed;
   }

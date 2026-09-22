@@ -9,7 +9,7 @@
 
 using namespace std;
 
-EM_JS(const char*, js_send_json_request, (const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, std::chrono::milliseconds timeout), {
+EM_JS(const char*, js_send_json_request, (int client, const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, std::chrono::milliseconds timeout), {
   //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
 
   const HttpClient = this.HttpClient;
@@ -18,6 +18,11 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
+
+    // register cancellation before starting the request
+    const cancellation = HttpClient.createCancelToken();
+    if (!Module.httpRequestCancels) Module.httpRequestCancels = {};
+    Module.httpRequestCancels[client] = cancellation.cancel;
 
     // make request and process response or error
     let wakeUpCalled = false;
@@ -28,6 +33,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       password: UTF8ToString(password),
       body: UTF8ToString(body),
       proxyUri: UTF8ToString(proxy_uri) || undefined,
+      cancelToken: cancellation.token,
       resolveWithFullResponse: true,
       rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
     }).then(resp => {
@@ -45,6 +51,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
+      delete Module.httpRequestCancels[client];
       wakeUpCalled = true;
       wakeUp(ptr);
     }).catch(err => {
@@ -57,13 +64,14 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(str, ptr, lengthBytes);
+      delete Module.httpRequestCancels[client];
       wakeUpCalled = true;
       wakeUp(ptr);
     });
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+EM_JS(const char*, js_send_binary_request, (int client, const char* uri, const char* username, const char* password, const char* proxy_uri, const char* reject_unauthorized_fn_id, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
   //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
 
   const HttpClient = this.HttpClient;
@@ -73,75 +81,89 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    // load full wasm module then convert from json to binary
-    LibraryUtils.loadWasmModule().then(module => {
+    // register cancellation before starting the request
+    const cancellation = HttpClient.createCancelToken();
+    if (!Module.httpRequestCancels) Module.httpRequestCancels = {};
+    Module.httpRequestCancels[client] = cancellation.cancel;
 
-      // read binary data from heap to Uint8Array
-      let ptr = body;
-      let length = body_length;
-      let view = new Uint8Array(length);
-      for (let i = 0; i < length; i++) {
-        view[i] = Module.HEAPU8[ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+    // read binary data from heap to Uint8Array
+    let ptr = body;
+    let length = body_length;
+    let view = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+      view[i] = Module.HEAPU8[ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+    }
+
+    // make request and process response or error
+    let wakeUpCalled = false;
+    HttpClient.request({
+      method: UTF8ToString(method),
+      uri: UTF8ToString(uri),
+      username: UTF8ToString(username),
+      password: UTF8ToString(password),
+      body: view,
+      proxyUri: UTF8ToString(proxy_uri) || undefined,
+      cancelToken: cancellation.token,
+      resolveWithFullResponse: true,
+      rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
+    }).then(resp => {
+
+      // write binary body to heap to pass back pointer
+      let respBin = resp.body;
+      if (!(respBin instanceof Uint8Array)) {
+        console.error("resp is not uint8array");
+        console.error(respBin);
       }
+      let nDataBytes = respBin.length * respBin.BYTES_PER_ELEMENT;
+      let bodyPtr = Module._malloc(nDataBytes);
+      let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, nDataBytes);
+      heap.set(new Uint8Array(respBin.buffer, respBin.byteOffset, nDataBytes));
 
-      // make request and process response or error
-      let wakeUpCalled = false;
-      HttpClient.request({
-        method: UTF8ToString(method),
-        uri: UTF8ToString(uri),
-        username: UTF8ToString(username),
-        password: UTF8ToString(password),
-        body: view,
-        proxyUri: UTF8ToString(proxy_uri) || undefined,
-        resolveWithFullResponse: true,
-        rejectUnauthorized: LibraryUtils.isRejectUnauthorized(UTF8ToString(reject_unauthorized_fn_id)),
-      }).then(resp => {
+      // build response container
+      let respContainer = {
+        code: resp.statusCode,
+        message: resp.statusText,
+        headers: resp.headers,
+        bodyPtr: bodyPtr,
+        bodyLength: respBin.length
+      };
 
-        // write binary body to heap to pass back pointer
-        let respBin = resp.body;
-        if (!(respBin instanceof Uint8Array)) {
-          console.error("resp is not uint8array");
-          console.error(respBin);
-        }
-        let nDataBytes = respBin.length * respBin.BYTES_PER_ELEMENT;
-        let bodyPtr = Module._malloc(nDataBytes);
-        let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, nDataBytes);
-        heap.set(new Uint8Array(respBin.buffer, respBin.byteOffset, nDataBytes));
-
-        // build response container
-        let respContainer = {
-          code: resp.statusCode,
-          message: resp.statusText,
-          headers: resp.headers,
-          bodyPtr: bodyPtr,
-          bodyLength: respBin.length
-        };
-
-        // serialize response container to heap // TODO: more efficient way?
-        let respStr = JSON.stringify(respContainer);
-        let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
-        let ptr = Module._malloc(lengthBytes);
-        Module.stringToUTF8(respStr, ptr, lengthBytes);
-        wakeUpCalled = true;
-        wakeUp(ptr);
-      }).catch(err => {
-        if (wakeUpCalled) {
-          console.error("Error caught in JS after previously calling wakeUp(): " + err);
-          throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
-        }
-        let str = err.message ? err.message : ("" + err); // get error message
-        str = JSON.stringify({error: str});               // wrap error in object
-        let lengthBytes = Module.lengthBytesUTF8(str) + 1;
-        let ptr = Module._malloc(lengthBytes);
-        Module.stringToUTF8(str, ptr, lengthBytes);
-        wakeUpCalled = true;
-        wakeUp(ptr);
-      });
+      // serialize response container to heap // TODO: more efficient way?
+      let respStr = JSON.stringify(respContainer);
+      let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
+      let ptr = Module._malloc(lengthBytes);
+      Module.stringToUTF8(respStr, ptr, lengthBytes);
+      delete Module.httpRequestCancels[client];
+      wakeUpCalled = true;
+      wakeUp(ptr);
     }).catch(err => {
-      throw new Error("Could not load full wasm module");
+      if (wakeUpCalled) {
+        console.error("Error caught in JS after previously calling wakeUp(): " + err);
+        throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
+      }
+      let str = err.message ? err.message : ("" + err); // get error message
+      str = JSON.stringify({error: str});               // wrap error in object
+      let lengthBytes = Module.lengthBytesUTF8(str) + 1;
+      let ptr = Module._malloc(lengthBytes);
+      Module.stringToUTF8(str, ptr, lengthBytes);
+      delete Module.httpRequestCancels[client];
+      wakeUpCalled = true;
+      wakeUp(ptr);
     });
   });
 });
+
+EM_JS(void, js_cancel_http_request, (int client), {
+  if (Module.httpRequestCancels && Module.httpRequestCancels[client]) {
+    Module.httpRequestCancels[client]("Wallet is closing");
+  }
+});
+
+bool http_client_wasm::shutdown() {
+  m_is_shutdown = true;
+  js_cancel_http_request((int) this);
+  return disconnect();
+}
 
 bool http_client_wasm::set_proxy(const std::string& address) {
   m_proxy_uri = address; // requests are proxied by the javascript http client
@@ -161,6 +183,7 @@ void http_client_wasm::set_auto_connect(bool auto_connect) {
 }
 
 bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
+  if (m_is_shutdown) return false;
   m_is_connected = true;    // TODO: do something!
   return true;
 }
@@ -208,7 +231,7 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   // make json request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_json_request(uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), timeout);
+  const char* resp_str = js_send_json_request((int) this, uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), timeout);
   if (resp_str == nullptr) {
       cout << "Aborting this op." << endl;
       return false;
@@ -216,6 +239,7 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
+  free((char*) resp_str);
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
 
@@ -238,9 +262,6 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
     *ppresponse_info = std::addressof(m_response_info);
   }
 
-  // free response string from heap
-  free((char*) resp_str);
-
   // return true iff 200
   return m_response_info.m_response_code == 200;
 }
@@ -250,7 +271,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   // make binary request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_binary_request(uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), body.length(), timeout);
+  const char* resp_str = js_send_binary_request((int) this, uri.data(), m_user->username.data(), password.data(), m_proxy_uri.data(), m_reject_unauthorized_fn_id.data(), method.data(), body.data(), body.length(), timeout);
   if (resp_str == nullptr) {
       cout << "Aborting this op." << endl;
       return false;
@@ -258,6 +279,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
+  free((char*) resp_str);
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
 
@@ -284,8 +306,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
     *ppresponse_info = std::addressof(m_response_info);
   }
 
-  // free response string and binary from heap
-  free((char*) resp_str);
+  // free binary from heap
   free((char*) body_ptr);
 
   // return true iff 200
@@ -294,6 +315,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 
 bool http_client_wasm::invoke(const boost::string_ref path, const boost::string_ref method, const boost::string_ref body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   //cout << "invoke(" << path << ", " << method << ", ...)" << endl;
+  if (m_is_shutdown) return false;
 
   if(!is_connected())
   {

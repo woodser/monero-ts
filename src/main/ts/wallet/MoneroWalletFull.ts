@@ -41,6 +41,7 @@ import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroVersion from "../daemon/model/MoneroVersion";
 import fs from "fs";
+import MoneroConnectionManager from "../common/MoneroConnectionManager";
 
 /**
  * Implements a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.
@@ -63,6 +64,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   protected syncPeriodInMs: number;
   protected syncLooper: TaskLooper;
   protected browserMainPath: string;
+  protected syncCalls = new Set<Promise<any>>();
 
   /**
    * Internal constructor which is given the memory address of a C++ wallet instance.
@@ -439,6 +441,11 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return super.getListeners();
   }
   
+  async setConnectionManager(connectionManager?: MoneroConnectionManager): Promise<void> {
+    this.assertNotClosed();
+    return super.setConnectionManager(connectionManager);
+  }
+
   async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().setDaemonConnection(uriOrConnection, isTrusted);
 
@@ -606,24 +613,30 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       result = await (allowConcurrentCalls ? syncWasm() : this.module.queueTask(async () => syncWasm()));
       function syncWasm() {
         that.assertNotClosed();
-        return new Promise((resolve, reject) => {
-        
+        let resolveCall;
+        let rejectCall;
+        const call = new Promise((resolve, reject) => { resolveCall = resolve; rejectCall = reject; });
+        that.syncCalls.add(call);
+        try {
           // sync wallet in wasm which invokes callback when done
-          that.module.sync(that.cppAddress, startHeight, async (resp) => {
-            if (resp.charAt(0) !== '{') reject(new MoneroError(resp));
+          that.module.sync(that.cppAddress, startHeight, (resp) => {
+            if (resp.charAt(0) !== '{') rejectCall(new MoneroError(resp));
             else {
               let respJson = JSON.parse(resp);
-              resolve(new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney));
+              resolveCall(new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney));
             }
           });
-        });
+        } catch (err) {
+          rejectCall(err);
+        }
+        return call.finally(() => that.syncCalls.delete(call));
       }
     } catch (e) {
       err = e;
     }
     
     // unregister listener
-    if (listener) await this.removeListener(listener);
+    if (listener && !this._isClosed) await this.removeListener(listener);
     
     // throw error or return
     if (err) throw err;
@@ -1544,47 +1557,50 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   async getData(): Promise<DataView[]> {
     if (this.getWalletProxy()) return this.getWalletProxy().getData();
     
-    // queue call to wasm module
-    let viewOnly = await this.isViewOnly();
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      
-      // store views in array
-      let views = [];
-      
-      // malloc cache buffer and get buffer location in c++ heap
-      let cacheBufferLoc = JSON.parse(this.module.get_cache_file_buffer(this.cppAddress));
-      
-      // read binary data from heap to DataView
-      let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
-      for (let i = 0; i < cacheBufferLoc.length; i++) {
-        view.setInt8(i, this.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-      }
-      
-      // free binary on heap
-      this.module._free(cacheBufferLoc.pointer);
-      
-      // write cache file
-      views.push(Buffer.from(view.buffer));
-      
-      // malloc keys buffer and get buffer location in c++ heap
-      let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, viewOnly));
-      
-      // read binary data from heap to DataView
-      view = new DataView(new ArrayBuffer(keysBufferLoc.length));
-      for (let i = 0; i < keysBufferLoc.length; i++) {
-        view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-      }
-      
-      // free binary on heap
-      this.module._free(keysBufferLoc.pointer);
-      
-      // prepend keys file
-      views.unshift(Buffer.from(view.buffer));
-      return views;
+      return this.getDataWasm();
     });
   }
-  
+
+  protected getDataWasm(): DataView[] {
+    let viewOnly = this.module.is_view_only(this.cppAddress);
+
+    // store views in array
+    let views = [];
+
+    // malloc cache buffer and get buffer location in c++ heap
+    let cacheBufferLoc = JSON.parse(this.module.get_cache_file_buffer(this.cppAddress));
+
+    // read binary data from heap to DataView
+    let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
+    for (let i = 0; i < cacheBufferLoc.length; i++) {
+      view.setInt8(i, this.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+    }
+
+    // free binary on heap
+    this.module._free(cacheBufferLoc.pointer);
+
+    // write cache file
+    views.push(Buffer.from(view.buffer));
+
+    // malloc keys buffer and get buffer location in c++ heap
+    let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, viewOnly));
+
+    // read binary data from heap to DataView
+    view = new DataView(new ArrayBuffer(keysBufferLoc.length));
+    for (let i = 0; i < keysBufferLoc.length; i++) {
+      view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+    }
+
+    // free binary on heap
+    this.module._free(keysBufferLoc.pointer);
+
+    // prepend keys file
+    views.unshift(Buffer.from(view.buffer));
+    return views;
+  }
+
   async changePassword(oldPassword: string, newPassword: string): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().changePassword(oldPassword, newPassword);
     if (oldPassword !== this.password) throw new MoneroError("Invalid original password."); // wallet2 verify_password loads from disk so verify password here
@@ -1607,23 +1623,46 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return MoneroWalletFull.save(this);
   }
   
-  async close(save = false): Promise<void> {
-    if (this._isClosed) return; // no effect if closed
-    if (save) await this.save();
-    if (this.getWalletProxy()) {
-      await this.getWalletProxy().close(false);
-      await super.close();
+  protected async closeInternal(save: boolean): Promise<void> {
+    if (this.walletProxy) {
+      await super.closeInternal(save);
       return;
     }
-    await this.refreshListening();
-    await this.stopSyncing();
-    await super.close();
+    await this.prepareClose();
+    if (save) {
+      await LibraryUtils.queueTask(async () => {
+        const snapshot = await this.getCloseData();
+        await MoneroWalletFull.writeWalletData(this, snapshot.data, snapshot.primaryAddress);
+      });
+    }
+    await super.closeInternal(false, this.wasmListenerHandle);
+    this.wasmListenerHandle = 0;
     delete this.path;
     delete this.password;
     delete this.wasmListener;
     LibraryUtils.setRejectUnauthorizedFn(this.rejectUnauthorizedConfigId, undefined); // unregister fn informing if unauthorized reqs should be rejected
   }
-  
+
+  // cancel outside the module queue so a blocked request can release it
+  protected async prepareClose(): Promise<void> {
+    this._isClosed = true;
+    if (this.syncLooper) this.syncLooper.stop();
+    this.module._request_wallet_shutdown(this.cppAddress);
+    if (this.connectionManager && this.connectionManager.getListeners().includes(this.connectionManagerListener)) this.connectionManager.removeListener(this.connectionManagerListener);
+    this.connectionManager = undefined;
+    this.connectionManagerListener = undefined;
+    await Promise.all(Array.from(this.syncCalls, call => call.catch(() => {})));
+    await this.module.queueTask(async () => {});
+  }
+
+  // serialize a stopped wallet for saving on this thread or the worker's caller
+  protected async getCloseData() {
+    return this.module.queueTask(async () => ({
+      data: this.getDataWasm(),
+      primaryAddress: this.module.get_address(this.cppAddress, 0, 0)
+    }));
+  }
+
   // ----------- ADD JSDOC FOR SUPPORTED DEFAULT IMPLEMENTATIONS --------------
   
   async getNumBlocksToUnlock(): Promise<number[]|undefined> { return super.getNumBlocksToUnlock(); }
@@ -1684,9 +1723,11 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   }
   
   protected async refreshListening() {
+    if (this._isClosed) return;
     let isEnabled = this.listeners.length > 0;
     if (this.wasmListenerHandle === 0 && !isEnabled || this.wasmListenerHandle > 0 && isEnabled) return; // no difference
     return this.module.queueTask(async () => {
+      if (this._isClosed) return;
       return new Promise<void>((resolve, reject) => {
         this.module.set_listener(
           this.cppAddress,
@@ -1849,24 +1890,25 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return LibraryUtils.queueTask(async () => {
       if (await wallet.isClosed()) throw new MoneroError("Wallet is closed");
 
-      // path must be set
-      let path = await wallet.getPath();
-      if (!path) throw new MoneroError("Cannot save wallet because path is not set");
-
-      // get wallet data
-      const data = await wallet.getData();
-
-      // write wallet files to *.new
-      let pathNew = path + ".new";
-      await wallet.fs.writeFile(pathNew + ".keys", data[0], "binary");
-      await wallet.fs.writeFile(pathNew, data[1], "binary");
-      await wallet.fs.writeFile(pathNew + ".address.txt", await wallet.getPrimaryAddress());
-
-      // replace old wallet files with new
-      await wallet.fs.rename(pathNew + ".keys", path + ".keys");
-      await wallet.fs.rename(pathNew, path);
-      await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt");
+      if (!await wallet.getPath()) throw new MoneroError("Cannot save wallet because path is not set");
+      await MoneroWalletFull.writeWalletData(wallet, await wallet.getData(), await wallet.getPrimaryAddress());
     });
+  }
+
+  static async writeWalletData(wallet: any, data: DataView[], primaryAddress: string) {
+    let path = wallet.path;
+    if (!path) throw new MoneroError("Cannot save wallet because path is not set");
+
+    // write wallet files to *.new
+    let pathNew = path + ".new";
+    await wallet.fs.writeFile(pathNew + ".keys", data[0], "binary");
+    await wallet.fs.writeFile(pathNew, data[1], "binary");
+    await wallet.fs.writeFile(pathNew + ".address.txt", primaryAddress);
+
+    // replace old wallet files with new
+    await wallet.fs.rename(pathNew + ".keys", path + ".keys");
+    await wallet.fs.rename(pathNew, path);
+    await wallet.fs.rename(pathNew + ".address.txt", path + ".address.txt");
   }
 }
 
@@ -1983,7 +2025,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async addListener(listener) {
-    let wrappedListener = new WalletWorkerListener(listener);
+    let wrappedListener = new WalletWorkerListener(listener, () => this._isClosed);
     let listenerId = wrappedListener.getId();
     LibraryUtils.addWorkerCallback(this.walletId, "onSyncProgress_" + listenerId, [wrappedListener.onSyncProgress, wrappedListener]);
     LibraryUtils.addWorkerCallback(this.walletId, "onNewBlock_" + listenerId, [wrappedListener.onNewBlock, wrappedListener]);
@@ -2042,7 +2084,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     }
     
     // unregister listener
-    if (listener) await this.removeListener(listener);
+    if (listener && !this._isClosed) await this.removeListener(listener);
     
     // throw error or return
     if (err) throw err;
@@ -2382,11 +2424,21 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     return MoneroWalletFull.save(this);
   }
 
+  async isClosed() {
+    return this._isClosed || super.isClosed();
+  }
+
   async close(save) {
-    if (await this.isClosed()) return;
-    if (save) await this.save();
-    while (this.wrappedListeners.length) await this.removeListener(this.wrappedListeners[0].getListener());
+    this._isClosed = true;
+    await this.invokeWorker("prepareClose");
+    if (save) {
+      await LibraryUtils.queueTask(async () => {
+        const snapshot = await this.invokeWorker("getCloseData");
+        await MoneroWalletFull.writeWalletData(this, snapshot.data, snapshot.primaryAddress);
+      });
+    }
     await super.close(false);
+    this.wrappedListeners.length = 0;
   }
 }
 
@@ -2488,10 +2540,12 @@ class WalletWorkerListener {
 
   protected id: any;
   protected listener: any;
+  protected isClosed: () => boolean;
   
-  constructor(listener) {
+  constructor(listener, isClosed) {
     this.id = GenUtils.getUUID();
     this.listener = listener;
+    this.isClosed = isClosed;
   }
   
   getId() {
@@ -2503,23 +2557,28 @@ class WalletWorkerListener {
   }
   
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+    if (this.isClosed()) return;
     this.listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
   }
 
   async onNewBlock(height) {
+    if (this.isClosed()) return;
     await this.listener.onNewBlock(height);
   }
   
   async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr) {
+    if (this.isClosed()) return;
     await this.listener.onBalancesChanged(BigInt(newBalanceStr), BigInt(newUnlockedBalanceStr));
   }
 
   async onOutputReceived(blockJson) {
+    if (this.isClosed()) return;
     let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
     await this.listener.onOutputReceived(block.getTxs()[0].getOutputs()[0]);
   }
   
   async onOutputSpent(blockJson) {
+    if (this.isClosed()) return;
     let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
     await this.listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
   }

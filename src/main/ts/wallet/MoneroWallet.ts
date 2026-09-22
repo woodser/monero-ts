@@ -158,7 +158,12 @@ export default class MoneroWallet {
     let that = this;
     if (!this.connectionManagerListener) this.connectionManagerListener = new class extends MoneroConnectionManagerListener {
       async onConnectionChanged(connection: MoneroRpcConnection | undefined) {
-        await that.setDaemonConnection(connection);
+        if (that._isClosed) return;
+        try {
+          await that.setDaemonConnection(connection);
+        } catch (err) {
+          if (!(err instanceof MoneroError) || !that._isClosed) throw err; // ignore a connection change racing with wallet shutdown
+        }
       }
     };
     connectionManager.addListener(this.connectionManagerListener);
@@ -1419,6 +1424,7 @@ export default class MoneroWallet {
    */
   async announceSyncProgress(height: number, startHeight: number, endHeight: number, percentDone: number, message: string): Promise<void> {
     for (let listener of this.listeners) {
+      if (this._isClosed) return;
       try {
         await listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
       } catch (err) {
@@ -1432,6 +1438,7 @@ export default class MoneroWallet {
    */
   async announceNewBlock(height: number): Promise<void> {
     for (let listener of this.listeners) {
+      if (this._isClosed) return;
       try {
         await listener.onNewBlock(height);
       } catch (err) {
@@ -1445,6 +1452,7 @@ export default class MoneroWallet {
    */
   async announceBalancesChanged(newBalance: bigint, newUnlockedBalance: bigint): Promise<void> {
     for (let listener of this.listeners) {
+      if (this._isClosed) return;
       try {
         await listener.onBalancesChanged(newBalance, newUnlockedBalance);
       } catch (err) {
@@ -1458,6 +1466,7 @@ export default class MoneroWallet {
    */
   async announceOutputReceived(output: MoneroOutputWallet): Promise<void> {
     for (let listener of this.listeners) {
+      if (this._isClosed) return;
       try {
         await listener.onOutputReceived(output);
       } catch (err) {
@@ -1471,6 +1480,7 @@ export default class MoneroWallet {
    */
   async announceOutputSpent(output: MoneroOutputWallet): Promise<void> {
     for (let listener of this.listeners) {
+      if (this._isClosed) return;
       try {
         await listener.onOutputSpent(output);
       } catch (err) {

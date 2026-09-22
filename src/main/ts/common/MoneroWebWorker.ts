@@ -1014,7 +1014,17 @@ self.isClosed = async function(walletId) {
   return !self.WORKER_OBJECTS[walletId] || self.WORKER_OBJECTS[walletId].isClosed();
 }
 
+self.prepareClose = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].prepareClose();
+}
+
+self.getCloseData = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getCloseData();
+}
+
 self.close = async function(walletId, save) {
-  return self.WORKER_OBJECTS[walletId].close(save);
+  if (!self.WORKER_OBJECTS[walletId]) return;
+  await self.WORKER_OBJECTS[walletId].close(save);
+  if (self.listeners) self.listeners = self.listeners.filter(listener => listener.walletId !== walletId);
   delete self.WORKER_OBJECTS[walletId];
 }
