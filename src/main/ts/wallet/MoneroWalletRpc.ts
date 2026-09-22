@@ -165,6 +165,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     await this.config.getServer().sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
     await this.clear();
     this.path = config.getPath();
+    this._isClosed = false;
 
     // set connection manager or server
     if (config.getConnectionManager() != null) {
@@ -239,6 +240,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     if (configNormalized.getSeed() !== undefined) await this.createWalletFromSeed(configNormalized);
     else if (configNormalized.getPrivateSpendKey() !== undefined || configNormalized.getPrimaryAddress() !== undefined) await this.createWalletFromKeys(configNormalized);
     else await this.createWalletRandom(configNormalized);
+    this._isClosed = false;
 
     // set connection manager or server
     if (configNormalized.getConnectionManager()) {
