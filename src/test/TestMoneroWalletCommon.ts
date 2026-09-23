@@ -2291,22 +2291,23 @@ export default class TestMoneroWalletCommon {
       if (testConfig.testNonRelays)
       it("Can get new key images from the last import", async function() {
         
-        // get outputs hex
-        let outputsHex = await that.wallet.exportOutputs();
-        
-        // import outputs hex
-        if (outputsHex !== undefined) {
-          let numImported = await that.wallet.importOutputs(outputsHex);
-          assert(numImported >= 0);
-        }
-        
-        // get and test new key images from last import
-        let images = await that.wallet.getNewKeyImagesFromLastImport();
-        assert(Array.isArray(images));
-        assert(images.length > 0, "No new key images in last import");  // TODO: these are already known to the wallet, so no new key images will be imported
-        for (let image of images) {
-          assert(image.getHex());
-          assert(image.getSignature());
+        // export all outputs for a fresh offline wallet
+        let outputsHex = await that.wallet.exportOutputs(true);
+        let offlineWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), server: TestUtils.OFFLINE_SERVER_URI, restoreHeight: 0});
+        try {
+          let numImported = await offlineWallet.importOutputs(outputsHex);
+          assert(numImported > 0, "No outputs imported");
+
+          // get and test new key images from last import
+          let images = await offlineWallet.getNewKeyImagesFromLastImport();
+          assert(Array.isArray(images));
+          assert(images.length > 0, "No new key images in last import");
+          for (let image of images) {
+            assert(image.getHex());
+            assert(image.getSignature());
+          }
+        } finally {
+          await that.closeWallet(offlineWallet);
         }
       });
       
