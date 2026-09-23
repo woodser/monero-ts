@@ -2650,226 +2650,250 @@ export default class TestMoneroWalletCommon {
       // TODO: test sweepUnlocked()
       async function testWalletNotificationsAux(sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay) {
         let MAX_POLL_TIME = 5000; // maximum time granted for wallet to poll
-        
+
         // collect issues as test runs
         let issues: any[] = [];
-        
+
         // set sender and receiver
         let sender = that.wallet;
         let receiver = sameWallet ? sender : await that.createWallet(new MoneroWalletConfig());
-        
-        // create receiver accounts if necessary
-        let numAccounts = (await receiver.getAccounts()).length;
-        for (let i = 0; i < 4 - numAccounts; i++) await receiver.createAccount();
-        
-        // wait for unlocked funds in source account
-        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(sender);
-        await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (10n));
-        
-        // get balances to compare after sending
-        let senderBalanceBefore = await sender.getBalance();
-        let senderUnlockedBalanceBefore = await sender.getUnlockedBalance();
-        let receiverBalanceBefore = await receiver.getBalance();
-        let receiverUnlockedBalanceBefore = await receiver.getUnlockedBalance();
-        let lastHeight = await that.daemon.getHeight();
-        
-        // start collecting notifications from sender and receiver
+
         let senderNotificationCollector = new WalletNotificationCollector();
         let receiverNotificationCollector = new WalletNotificationCollector();
-        await sender.addListener(senderNotificationCollector);
-        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS / 2); // TODO: remove this, should be unnecessary
-        await receiver.addListener(receiverNotificationCollector);
-        
-        // send funds
-        let ctx: any = {wallet: sender, isSendResponse: true};
-        let senderTx;
-        let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
-        let expectedOutputs: any = [];
-        if (sweepOutput) {
-          ctx.isSweepResponse = true;
-          ctx.isSweepOutputResponse = true;
-          let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE * (5n), txQuery: {isLocked: false}});
-          if (outputs.length === 0) {
-            issues.push("ERROR: No outputs available to sweep from account 0");
-            return issues;
-          }
-          let config = {address: await receiver.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: !createThenRelay};
-          senderTx = await sender.sweepOutput(config);
-          expectedOutputs.push(new MoneroOutputWallet().setAmount(senderTx.getOutgoingTransfer().getDestinations()[0].getAmount()).setAccountIndex(destinationAccounts[0]).setSubaddressIndex(0));
-          ctx.config = new MoneroTxConfig(config);
-        } else {
-          let config = new MoneroTxConfig().setAccountIndex(0).setRelay(!createThenRelay);
-          for (let destinationAccount of destinationAccounts) {
-            config.addDestination(await receiver.getAddress(destinationAccount, 0), TestUtils.MAX_FEE); // TODO: send and check random amounts?
-            expectedOutputs.push(new MoneroOutputWallet().setAmount(TestUtils.MAX_FEE).setAccountIndex(destinationAccount).setSubaddressIndex(0));
-          }
-          senderTx = await sender.createTx(config);
-          ctx.config = config;
-        }
-        if (createThenRelay) await sender.relayTx(senderTx);
-
-        // start timer to measure end of sync period
-        let startTime = Date.now(); // timestamp in ms
-        
-        // test send tx
-        await that.testTxWallet(senderTx, ctx);
-        
-        // test sender after sending
-        let outputQuery = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(senderTx.getHash())); // query for outputs from sender tx
-        if (sameWallet) {
-          if (senderTx.getIncomingAmount() === undefined) issues.push("WARNING: sender tx incoming amount is null when sent to same wallet");
-          else if (senderTx.getIncomingAmount() === 0n) issues.push("WARNING: sender tx incoming amount is 0 when sent to same wallet");
-          else if (senderTx.getIncomingAmount() !== senderTx.getOutgoingAmount() - (senderTx.getFee())) issues.push("WARNING: sender tx incoming amount != outgoing amount - fee when sent to same wallet");
-        } else {
-          if (senderTx.getIncomingAmount() !== undefined) issues.push("ERROR: tx incoming amount should be undefined"); // TODO: should be 0? then can remove undefined checks in this method
-        }
-        senderTx = (await sender.getTxs(new MoneroTxQuery().setHash(senderTx.getHash()).setIncludeOutputs(true)))[0];
-        if (await sender.getBalance() !== senderBalanceBefore - (senderTx.getFee()) - (senderTx.getOutgoingAmount()) + (senderTx.getIncomingAmount() === undefined ? 0n : senderTx.getIncomingAmount())) issues.push("ERROR: sender balance after send != balance before - tx fee - outgoing amount + incoming amount (" + await sender.getBalance() + " != " + senderBalanceBefore + " - " + senderTx.getFee() + " - " + senderTx.getOutgoingAmount() + " + " + senderTx.getIncomingAmount() + ")");
-        if (await sender.getUnlockedBalance() >= senderUnlockedBalanceBefore) issues.push("ERROR: sender unlocked balance should have decreased after sending");
-        if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not notify balance change after sending");
-        else {
-          if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after sending (" + await sender.getBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][0]) + ")";
-          if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + await sender.getUnlockedBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][1]) + ")";
-        }
-        if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) issues.push("ERROR: sender did not announce unconfirmed spent output");
-        
-        // test receiver after 2 sync periods
-        await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 - (Date.now() - startTime));
-        startTime = Date.now(); // reset timer
-        let receiverTx = await receiver.getTx(senderTx.getHash());
-        if (senderTx.getOutgoingAmount() !== receiverTx.getIncomingAmount()) {
-          if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount() + ")");
-          else issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount()) + ")";
-        }
-        if (await receiver.getBalance() !== receiverBalanceBefore + (receiverTx.getIncomingAmount() === undefined ? 0n : receiverTx.getIncomingAmount()) - (receiverTx.getOutgoingAmount() === undefined ? 0n : receiverTx.getOutgoingAmount()) - (sameWallet ? receiverTx.getFee() : 0n)) {
-          if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
-          else issues.push("ERROR: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
-        }
-        if (!sameWallet && await receiver.getUnlockedBalance() !== receiverUnlockedBalanceBefore) issues.push("ERROR: receiver unlocked balance should not have changed after sending");
-        if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not notify balance change when funds received");
-        else {
-          if (await receiver.getBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: receiver balance != last notified balance after funds received");
-          if (await receiver.getUnlockedBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds received");
-        }
-        if (receiverNotificationCollector.getOutputsReceived(outputQuery).length === 0) issues.push("ERROR: receiver did not announce unconfirmed received output");
-        else {
-          for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(outputQuery), true)) {
-            issues.push("ERROR: receiver did not announce received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
-          }
-        }
-        
-        // mine until test completes
-        await StartMining.startMining();
-        
-        // loop every sync period until unlock tested
         let threads: any = [];
-        let expectedUnlockTime = lastHeight + unlockDelay;
-        let confirmHeight: number | undefined = undefined;
-        while (true) {
-          
-          // test height notifications
-          let height = await that.daemon.getHeight();
-          if (height > lastHeight) {
-            let testStartHeight = lastHeight;
-            lastHeight = height;
-            let threadFn = async function() {
-              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
-              let senderBlockNotifications = senderNotificationCollector.getBlockNotifications();
-              let receiverBlockNotifications = receiverNotificationCollector.getBlockNotifications();
-              for (let i = testStartHeight; i < height; i++) {
-                if (!GenUtils.arrayContains(senderBlockNotifications, i)) issues.push("ERROR: sender did not announce block " + i);
-                if (!GenUtils.arrayContains(receiverBlockNotifications, i)) issues.push("ERROR: receiver did not announce block " + i);
-              }
+        let testFailed = false;
+        try {
+          // create receiver accounts if necessary
+          let numAccounts = (await receiver.getAccounts()).length;
+          for (let i = 0; i < 4 - numAccounts; i++) await receiver.createAccount();
+
+          // wait for unlocked funds in source account
+          await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(sender);
+          await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (10n));
+
+          // include the last mined blocks before measuring balance changes
+          if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+          await sender.sync();
+          if (receiver !== sender) await receiver.sync();
+
+          // get balances to compare after sending
+          let senderBalanceBefore = await sender.getBalance();
+          let senderUnlockedBalanceBefore = await sender.getUnlockedBalance();
+          let receiverBalanceBefore = await receiver.getBalance();
+          let receiverUnlockedBalanceBefore = await receiver.getUnlockedBalance();
+          let lastHeight = await that.daemon.getHeight();
+
+          // start collecting notifications from sender and receiver
+          await sender.addListener(senderNotificationCollector);
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS / 2); // TODO: remove this, should be unnecessary
+          await receiver.addListener(receiverNotificationCollector);
+
+          // send funds
+          let ctx: any = {wallet: sender, isSendResponse: true};
+          let senderTx;
+          let destinationAccounts = sameAccount ? (sweepOutput ? [0] : [0, 1, 2]) : (sweepOutput ? [1] : [1, 2, 3]);
+          let expectedOutputs: any = [];
+          if (sweepOutput) {
+            ctx.isSweepResponse = true;
+            ctx.isSweepOutputResponse = true;
+            let outputs = await sender.getOutputs({isSpent: false, accountIndex: 0, minAmount: TestUtils.MAX_FEE * (5n), txQuery: {isLocked: false}});
+            if (outputs.length === 0) {
+              issues.push("ERROR: No outputs available to sweep from account 0");
+              return issues;
             }
-            threads.push(threadFn());
+            let config = {address: await receiver.getAddress(destinationAccounts[0], 0), keyImage: outputs[0].getKeyImage().getHex(), relay: !createThenRelay};
+            senderTx = await sender.sweepOutput(config);
+            expectedOutputs.push(new MoneroOutputWallet().setAmount(senderTx.getOutgoingTransfer().getDestinations()[0].getAmount()).setAccountIndex(destinationAccounts[0]).setSubaddressIndex(0));
+            ctx.config = new MoneroTxConfig(config);
+          } else {
+            let config = new MoneroTxConfig().setAccountIndex(0).setRelay(!createThenRelay);
+            for (let destinationAccount of destinationAccounts) {
+              config.addDestination(await receiver.getAddress(destinationAccount, 0), TestUtils.MAX_FEE); // TODO: send and check random amounts?
+              expectedOutputs.push(new MoneroOutputWallet().setAmount(TestUtils.MAX_FEE).setAccountIndex(destinationAccount).setSubaddressIndex(0));
+            }
+            senderTx = await sender.createTx(config);
+            ctx.config = config;
           }
-          
-          // check if tx confirmed
-          if (confirmHeight === undefined) {
-            
-            // get updated tx
-            let tx = await receiver.getTx(senderTx.getHash());
-            
-            // break if tx fails
-            if (tx.getIsFailed()) {
-              issues.push("ERROR: tx failed in tx pool");
-              break;
+          if (createThenRelay) await sender.relayTx(senderTx);
+
+          // start timer to measure end of sync period
+          let startTime = Date.now(); // timestamp in ms
+
+          // test send tx
+          await that.testTxWallet(senderTx, ctx);
+
+          // test sender after sending
+          let outputQuery = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setHash(senderTx.getHash())); // query for outputs from sender tx
+          if (sameWallet) {
+            if (senderTx.getIncomingAmount() === undefined) issues.push("WARNING: sender tx incoming amount is null when sent to same wallet");
+            else if (senderTx.getIncomingAmount() === 0n) issues.push("WARNING: sender tx incoming amount is 0 when sent to same wallet");
+            else if (senderTx.getIncomingAmount() !== senderTx.getOutgoingAmount() - (senderTx.getFee())) issues.push("WARNING: sender tx incoming amount != outgoing amount - fee when sent to same wallet");
+          } else {
+            if (senderTx.getIncomingAmount() !== undefined) issues.push("ERROR: tx incoming amount should be undefined"); // TODO: should be 0? then can remove undefined checks in this method
+          }
+          senderTx = (await sender.getTxs(new MoneroTxQuery().setHash(senderTx.getHash()).setIncludeOutputs(true)))[0];
+          if (await sender.getBalance() !== senderBalanceBefore - (senderTx.getFee()) - (senderTx.getOutgoingAmount()) + (senderTx.getIncomingAmount() === undefined ? 0n : senderTx.getIncomingAmount())) issues.push("ERROR: sender balance after send != balance before - tx fee - outgoing amount + incoming amount (" + await sender.getBalance() + " != " + senderBalanceBefore + " - " + senderTx.getFee() + " - " + senderTx.getOutgoingAmount() + " + " + senderTx.getIncomingAmount() + ")");
+          let senderUnlockedBalanceAfter = await sender.getUnlockedBalance();
+          if (senderUnlockedBalanceAfter >= senderUnlockedBalanceBefore) issues.push("ERROR: sender unlocked balance should have decreased after sending (before: " + senderUnlockedBalanceBefore + ", after: " + senderUnlockedBalanceAfter + ")");
+          if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not notify balance change after sending");
+          else {
+            if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after sending (" + await sender.getBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][0]) + ")";
+            if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + await sender.getUnlockedBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][1]) + ")";
+          }
+          if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) issues.push("ERROR: sender did not announce unconfirmed spent output");
+
+          // test receiver after 2 sync periods
+          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 - (Date.now() - startTime));
+          startTime = Date.now(); // reset timer
+          let receiverTx = await receiver.getTx(senderTx.getHash());
+          if (senderTx.getOutgoingAmount() !== receiverTx.getIncomingAmount()) {
+            if (sameAccount) issues.push("WARNING: sender tx outgoing amount != receiver tx incoming amount when sent to same account (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount() + ")");
+            else issues.push("ERROR: sender tx outgoing amount != receiver tx incoming amount (" + senderTx.getOutgoingAmount() + " != " + receiverTx.getIncomingAmount()) + ")";
+          }
+          if (await receiver.getBalance() !== receiverBalanceBefore + (receiverTx.getIncomingAmount() === undefined ? 0n : receiverTx.getIncomingAmount()) - (receiverTx.getOutgoingAmount() === undefined ? 0n : receiverTx.getOutgoingAmount()) - (sameWallet ? receiverTx.getFee() : 0n)) {
+            if (sameAccount) issues.push("WARNING: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee when sent to same account (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
+            else issues.push("ERROR: after sending, receiver balance != balance before + incoming amount - outgoing amount - tx fee (" + await receiver.getBalance() + " != " + receiverBalanceBefore + " + " + receiverTx.getIncomingAmount() + " - " + receiverTx.getOutgoingAmount() + " - " + (sameWallet ? receiverTx.getFee() : 0n).toString() + ")");
+          }
+          if (!sameWallet && await receiver.getUnlockedBalance() !== receiverUnlockedBalanceBefore) issues.push("ERROR: receiver unlocked balance should not have changed after sending");
+          if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not notify balance change when funds received");
+          else {
+            if (await receiver.getBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: receiver balance != last notified balance after funds received");
+            if (await receiver.getUnlockedBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds received");
+          }
+          if (receiverNotificationCollector.getOutputsReceived(outputQuery).length === 0) issues.push("ERROR: receiver did not announce unconfirmed received output");
+          else {
+            for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(outputQuery), true)) {
+              issues.push("ERROR: receiver did not announce received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
             }
-            
-            // test confirm notifications
-            if (tx.getIsConfirmed() && confirmHeight === undefined) {
-              confirmHeight = tx.getHeight();
-              expectedUnlockTime = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockTime); // exact unlock time known
+          }
+
+          // mine until test completes
+          await StartMining.startMining();
+
+          // loop every sync period until unlock tested
+          let expectedUnlockTime = lastHeight + unlockDelay;
+          let confirmHeight: number | undefined = undefined;
+          while (true) {
+
+            // test height notifications
+            let height = await that.daemon.getHeight();
+            if (height > lastHeight) {
+              let testStartHeight = lastHeight;
+              lastHeight = height;
               let threadFn = async function() {
                 await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
-                let confirmedQuery = outputQuery.getTxQuery().copy().setIsConfirmed(true).setIsLocked(true).getOutputQuery();
-                if (senderNotificationCollector.getOutputsSpent(confirmedQuery).length === 0) issues.push("ERROR: sender did not announce confirmed spent output"); // TODO: test amount
-                if (receiverNotificationCollector.getOutputsReceived(confirmedQuery).length === 0) issues.push("ERROR: receiver did not announce confirmed received output");
-                else for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(confirmedQuery), true)) issues.push("ERROR: receiver did not announce confirmed received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
-                
-                // if same wallet, net amount spent = tx fee = outputs spent - outputs received
-                if (sameWallet) {
-                  let netAmount = 0n;
-                  for (let outputSpent of senderNotificationCollector.getOutputsSpent(confirmedQuery)) netAmount = netAmount + (outputSpent.getAmount());
-                  for (let outputReceived of senderNotificationCollector.getOutputsReceived(confirmedQuery)) netAmount = netAmount - (outputReceived.getAmount());
-                  if (tx.getFee() !== netAmount) {
-                    if (sameAccount) issues.push("WARNING: net output amount != tx fee when funds sent to same account: " + netAmount + " vs " + tx.getFee());
-                    else if (sender instanceof MoneroWalletRpc) issues.push("WARNING: net output amount != tx fee when funds sent to same wallet because monero-wallet-rpc does not provide tx inputs: " + netAmount + " vs " + tx.getFee()); // TODO (monero-project): open issue to provide tx inputs
-                    else issues.push("ERROR: net output amount must equal tx fee when funds sent to same wallet: " + netAmount + " vs " + tx.getFee());
-                  }
+                let senderBlockNotifications = senderNotificationCollector.getBlockNotifications();
+                let receiverBlockNotifications = receiverNotificationCollector.getBlockNotifications();
+                for (let i = testStartHeight; i < height; i++) {
+                  if (!GenUtils.arrayContains(senderBlockNotifications, i)) issues.push("ERROR: sender did not announce block " + i);
+                  if (!GenUtils.arrayContains(receiverBlockNotifications, i)) issues.push("ERROR: receiver did not announce block " + i);
                 }
               }
               threads.push(threadFn());
             }
-          }
-          
-          // otherwise test unlock notifications
-          else if (height >= expectedUnlockTime) {
-            let threadFn = async function() {
-              await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
-              let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
-              if (senderNotificationCollector.getOutputsSpent(unlockedQuery).length === 0) issues.push("ERROR: sender did not announce unlocked spent output"); // TODO: test amount?
-              for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(unlockedQuery), true)) issues.push("ERROR: receiver did not announce unlocked received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
-              if (!sameWallet && await receiver.getBalance() !== await receiver.getUnlockedBalance()) issues.push("ERROR: receiver balance != unlocked balance after funds unlocked");
-              if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not announce any balance notifications");
-              else {
-                if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after funds unlocked");
-                if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after funds unlocked");
+
+            // check if tx confirmed
+            if (confirmHeight === undefined) {
+
+              // get updated tx
+              let tx = await receiver.getTx(senderTx.getHash());
+
+              // break if tx fails
+              if (tx.getIsFailed()) {
+                issues.push("ERROR: tx failed in tx pool");
+                break;
               }
-              if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not announce any balance notifications");
-              else {
-                if (await receiver.getBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: receiver balance != last notified balance after funds unlocked");
-                if (await receiver.getUnlockedBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds unlocked");
+
+              // test confirm notifications
+              if (tx.getIsConfirmed() && confirmHeight === undefined) {
+                confirmHeight = tx.getHeight();
+                expectedUnlockTime = Math.max(confirmHeight + NUM_BLOCKS_LOCKED, expectedUnlockTime); // exact unlock time known
+                let threadFn = async function() {
+                  await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
+                  let confirmedQuery = outputQuery.getTxQuery().copy().setIsConfirmed(true).setIsLocked(true).getOutputQuery();
+                  if (senderNotificationCollector.getOutputsSpent(confirmedQuery).length === 0) issues.push("ERROR: sender did not announce confirmed spent output"); // TODO: test amount
+                  if (receiverNotificationCollector.getOutputsReceived(confirmedQuery).length === 0) issues.push("ERROR: receiver did not announce confirmed received output");
+                  else for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(confirmedQuery), true)) issues.push("ERROR: receiver did not announce confirmed received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
+
+                  // if same wallet, net amount spent = tx fee = outputs spent - outputs received
+                  if (sameWallet) {
+                    let netAmount = 0n;
+                    for (let outputSpent of senderNotificationCollector.getOutputsSpent(confirmedQuery)) netAmount = netAmount + (outputSpent.getAmount());
+                    for (let outputReceived of senderNotificationCollector.getOutputsReceived(confirmedQuery)) netAmount = netAmount - (outputReceived.getAmount());
+                    if (tx.getFee() !== netAmount) {
+                      if (sameAccount) issues.push("WARNING: net output amount != tx fee when funds sent to same account: " + netAmount + " vs " + tx.getFee());
+                      else if (sender instanceof MoneroWalletRpc) issues.push("WARNING: net output amount != tx fee when funds sent to same wallet because monero-wallet-rpc does not provide tx inputs: " + netAmount + " vs " + tx.getFee()); // TODO (monero-project): open issue to provide tx inputs
+                      else issues.push("ERROR: net output amount must equal tx fee when funds sent to same wallet: " + netAmount + " vs " + tx.getFee());
+                    }
+                  }
+                }
+                threads.push(threadFn());
               }
             }
-            threads.push(threadFn());
-            break;
-          }
-          
-          // wait for end of sync period
-          await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
-          startTime = Date.now(); // reset timer
-        }
-        
-        // wait for test threads
-        await Promise.all(threads);
 
-        // test notified outputs
-        for (let output of senderNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
-        for (let output of senderNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
-        for (let output of receiverNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
-        for (let output of receiverNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
-        
-        // clean up
-        if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
-        await sender.removeListener(senderNotificationCollector);
-        senderNotificationCollector.setListening(false);
-        await receiver.removeListener(receiverNotificationCollector);
-        receiverNotificationCollector.setListening(false);
-        if (sender !== receiver) await that.closeWallet(receiver);
-        return issues;
+            // otherwise test unlock notifications
+            else if (height >= expectedUnlockTime) {
+              let threadFn = async function() {
+                await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
+                let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
+                if (senderNotificationCollector.getOutputsSpent(unlockedQuery).length === 0) issues.push("ERROR: sender did not announce unlocked spent output"); // TODO: test amount?
+                for (let output of getMissingOutputs(expectedOutputs, receiverNotificationCollector.getOutputsReceived(unlockedQuery), true)) issues.push("ERROR: receiver did not announce unlocked received output for amount " + output.getAmount() + " to subaddress [" + output.getAccountIndex() + ", " + output.getSubaddressIndex() + "]");
+                if (!sameWallet && await receiver.getBalance() !== await receiver.getUnlockedBalance()) issues.push("ERROR: receiver balance != unlocked balance after funds unlocked");
+                if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not announce any balance notifications");
+                else {
+                  if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after funds unlocked");
+                  if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after funds unlocked");
+                }
+                if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not announce any balance notifications");
+                else {
+                  if (await receiver.getBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: receiver balance != last notified balance after funds unlocked");
+                  if (await receiver.getUnlockedBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds unlocked");
+                }
+              }
+              threads.push(threadFn());
+              break;
+            }
+
+            // wait for end of sync period
+            await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS - (Date.now() - startTime));
+            startTime = Date.now(); // reset timer
+          }
+
+          // wait for test threads
+          await Promise.all(threads);
+
+          // test notified outputs
+          for (let output of senderNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
+          for (let output of senderNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
+          for (let output of receiverNotificationCollector.getOutputsSpent(outputQuery)) testNotifiedOutput(output, true, issues);
+          for (let output of receiverNotificationCollector.getOutputsReceived(outputQuery)) testNotifiedOutput(output, false, issues);
+
+          return issues;
+        } catch (err) {
+          testFailed = true;
+          throw err;
+        } finally {
+          try {
+            await Promise.allSettled(threads);
+            try {
+              if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+            } finally {
+              try {
+                if (sender.getListeners().includes(senderNotificationCollector)) await sender.removeListener(senderNotificationCollector);
+                senderNotificationCollector.setListening(false);
+                if (receiver.getListeners().includes(receiverNotificationCollector)) await receiver.removeListener(receiverNotificationCollector);
+                receiverNotificationCollector.setListening(false);
+              } finally {
+                if (sender !== receiver) await that.closeWallet(receiver);
+              }
+            }
+          } catch (err) {
+            if (!testFailed) throw err;
+            console.warn("Error cleaning up notification test", err);
+          }
+        }
       }
-      
+
       function getMissingOutputs(expectedOutputs, actualOutputs, matchSubaddress): any[] {
         let missing: any[] = [];
         let used: any[] = [];
