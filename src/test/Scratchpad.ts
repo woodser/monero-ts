@@ -4,12 +4,20 @@ import {createWalletFull,
         connectToWalletRpc,
         connectToDaemonRpc,
         GenUtils,
+        LibraryUtils,
         MoneroNetworkType,
         MoneroWalletListener} from "../../index";
 
 describe("Scratchpad", function() {
 
   it("Can be scripted easily", async function() {
+
+    // create directory for test wallets if it doesn't exist
+    let fs = await TestUtils.getDefaultFs();
+    if (!await LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR)) {
+      if (!await LibraryUtils.exists(fs, process.cwd())) await fs.mkdir(process.cwd(), { recursive: true }); // create current process directory for relative paths which does not exist in memory fs
+      await fs.mkdir(TestUtils.TEST_WALLETS_DIR, { recursive: true });
+    }
 
 //    let daemon = await TestUtils.getDaemonRpc();
 //    let walletRpc = await TestUtils.getWalletRpc();
