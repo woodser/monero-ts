@@ -2464,6 +2464,7 @@ class WalletPoller {
   protected wallet: MoneroWalletRpc;
   protected looper: TaskLooper;
   protected prevLockedTxs: any;
+  protected prevLockedTxsMinHeight = 0;
   protected prevUnconfirmedNotifications: any;
   protected prevConfirmedNotifications: any;
   protected threadPool: any;
@@ -2518,6 +2519,7 @@ class WalletPoller {
           that.prevHeight = undefined;
           that.prevBalances = undefined;
           that.prevLockedTxs = [];
+          that.prevLockedTxsMinHeight = 0;
           that.prevUnconfirmedNotifications.clear();
           that.prevConfirmedNotifications.clear();
           that.snapshotGeneration = generation;
@@ -2558,10 +2560,12 @@ class WalletPoller {
         }
         
         // save locked txs for next comparison
+        let prevMinHeight = that.prevLockedTxsMinHeight;
         that.prevLockedTxs = lockedTxs;
+        that.prevLockedTxsMinHeight = minHeight;
         
-        // fetch txs which are no longer locked
-        let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(minHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true));
+        // use the previous snapshot's bound so tracked txs do not age out between polls
+        let unlockedTxs = noLongerLockedHashes.length === 0 ? [] : await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(false).setMinHeight(prevMinHeight).setHashes(noLongerLockedHashes).setIncludeOutputs(true));
         if (generation !== that.generation) return;
          
         // announce new unconfirmed and confirmed outputs
