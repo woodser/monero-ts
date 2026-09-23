@@ -3580,6 +3580,10 @@ export default class TestMoneroWalletCommon {
        */
       async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress?, useJsConfig?, subtractFeeFromDestinations?) {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
+
+        // include the last mined blocks before measuring balance changes
+        if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+        await that.wallet.sync();
         
         // compute the minimum account unlocked balance needed in order to fulfill the request
         let minAccountAmount;
