@@ -32,6 +32,7 @@ import MoneroWalletListener from "./model/MoneroWalletListener";
 import MoneroMessageSignatureType from "./model/MoneroMessageSignatureType";
 import MoneroMessageSignatureResult from "./model/MoneroMessageSignatureResult";
 import MoneroVersion from "../daemon/model/MoneroVersion";
+import MoneroConnectionManager from "../common/MoneroConnectionManager";
 /**
  * Implements a Monero wallet using client-side WebAssembly bindings to monero-project's wallet2 in C++.
  */
@@ -49,6 +50,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     protected syncPeriodInMs: number;
     protected syncLooper: TaskLooper;
     protected browserMainPath: string;
+    protected syncCalls: Set<Promise<any>>;
     /**
      * Internal constructor which is given the memory address of a C++ wallet instance.
      *
@@ -127,6 +129,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     addListener(listener: MoneroWalletListener): Promise<void>;
     removeListener(listener: any): Promise<void>;
     getListeners(): MoneroWalletListener[];
+    setConnectionManager(connectionManager?: MoneroConnectionManager): Promise<void>;
     setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean): Promise<void>;
     /**
      * Indicates if the wallet's daemon is trusted.
@@ -227,9 +230,12 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
      * @return {Promise<DataView[]>} is the keys and cache data, respectively
      */
     getData(): Promise<DataView[]>;
+    protected getDataWasm(): DataView[];
     changePassword(oldPassword: string, newPassword: string): Promise<void>;
     save(): Promise<void>;
-    close(save?: boolean): Promise<void>;
+    protected closeInternal(save: boolean): Promise<void>;
+    protected prepareClose(): Promise<void>;
+    protected getCloseData(): Promise<any>;
     getNumBlocksToUnlock(): Promise<number[] | undefined>;
     getTx(txHash: string): Promise<MoneroTxWallet | undefined>;
     getIncomingTransfers(query: Partial<MoneroTransferQuery>): Promise<MoneroIncomingTransfer[]>;
@@ -257,6 +263,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     protected setBrowserMainPath(browserMainPath: any): void;
     static moveTo(path: any, wallet: any): Promise<any>;
     static save(wallet: any): Promise<void>;
+    static writeWalletData(wallet: any, data: DataView[], primaryAddress: string): Promise<void>;
 }
 /**
  * Implements a MoneroWallet by proxying requests to a worker which runs a full wallet.
@@ -371,6 +378,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     moveTo(path: any): Promise<any>;
     changePassword(oldPassword: any, newPassword: any): Promise<void>;
     save(): Promise<void>;
+    isClosed(): Promise<any>;
     close(save: any): Promise<void>;
 }
 /**

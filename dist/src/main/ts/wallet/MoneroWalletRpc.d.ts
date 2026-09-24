@@ -416,19 +416,23 @@ declare class WalletPoller {
     protected wallet: MoneroWalletRpc;
     protected looper: TaskLooper;
     protected prevLockedTxs: any;
+    protected prevLockedTxsMinHeight: number;
     protected prevUnconfirmedNotifications: any;
     protected prevConfirmedNotifications: any;
     protected threadPool: any;
     protected numPolling: any;
     protected prevHeight: any;
     protected prevBalances: any;
+    protected generation: number;
+    protected snapshotGeneration: number;
     constructor(wallet: any);
+    reset(): void;
     setIsPolling(isPolling: any): void;
     setPeriodInMs(periodInMs: any): void;
     poll(): Promise<any>;
     protected onNewBlock(height: any): Promise<void>;
-    protected notifyOutputs(tx: any): Promise<void>;
+    protected notifyOutputs(tx: any, generation: any): Promise<void>;
     protected getTx(txs: any, txHash: any): any;
-    protected checkForChangedBalances(): Promise<boolean>;
+    protected checkForChangedBalances(generation: any): Promise<boolean>;
 }
 export {};

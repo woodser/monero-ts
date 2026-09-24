@@ -28,6 +28,7 @@ export default class HttpClient {
      * @param {string} [request.proxyUri] - proxy the request through a SOCKS5 server, e.g. a local Tor proxy (Node.js only, optional)
      * @param {boolean} [request.resolveWithFullResponse] - return full response if true, else body only (default false)
      * @param {boolean} [request.rejectUnauthorized] - whether or not to reject self-signed certificates (default true)
+     * @param {object} [request.cancelToken] - token to cancel a queued or active request (optional)
      * @param {number} request.timeout - maximum time allowed in milliseconds
      * @param {number} request.proxyToWorker - proxy request to worker thread
      * @return {object} response - the response object
@@ -37,6 +38,7 @@ export default class HttpClient {
      * @return {object} response.headers - the response headers
      */
     static request(request: any): Promise<any>;
+    static createCancelToken(): import("axios").CancelTokenSource;
     /**
      * Get a singleton instance of an HTTP client to share.
      *
@@ -58,5 +60,5 @@ export default class HttpClient {
     protected static getNonAgentTimeout(): number;
     protected static applyTimeouts(agent: any): any;
     protected static requestAxios(req: any): Promise<any>;
-    protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any, proxyUri?: any, rejectUnauthorized?: any) => Promise<import("axios").AxiosResponse<any, any>>;
+    protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any, proxyUri?: any, rejectUnauthorized?: any, cancelToken?: any) => Promise<import("axios").AxiosResponse<any, any>>;
 }

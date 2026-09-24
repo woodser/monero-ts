@@ -61,6 +61,7 @@ export default class MoneroWallet {
     protected connectionManager: MoneroConnectionManager;
     protected connectionManagerListener: MoneroConnectionManagerListener;
     protected listeners: MoneroWalletListener[];
+    protected listenerGeneration: number;
     protected _isClosed: boolean;
     /**
      * Hidden constructor.
