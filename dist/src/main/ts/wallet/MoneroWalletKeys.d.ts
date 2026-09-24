@@ -11,6 +11,8 @@ export declare class MoneroWalletKeys extends MoneroWallet {
     protected cppAddress: string;
     protected module: any;
     protected walletProxy: MoneroWalletKeysProxy;
+    protected closePromise: Promise<void>;
+    protected closeCompleted: boolean;
     /**
      * <p>Create a wallet using WebAssembly bindings to monero-project.</p>
      *
@@ -69,6 +71,7 @@ export declare class MoneroWalletKeys extends MoneroWallet {
     getAddressIndex(address: string): Promise<MoneroSubaddress>;
     getAccounts(includeSubaddresses?: boolean, tag?: string): Promise<MoneroAccount[]>;
     close(save?: boolean): Promise<void>;
+    protected closeInternal(save: boolean, listenerHandle?: number): Promise<void>;
     isClosed(): Promise<boolean>;
     getPrimaryAddress(): Promise<string>;
     getSubaddress(accountIdx: number, subaddressIdx: number): Promise<MoneroSubaddress>;
