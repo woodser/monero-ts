@@ -195,6 +195,9 @@ export default class LibraryUtils {
         // invoke callback function with this arg and arguments
         callbackFn.apply(thisArg, e.data.slice(2));
       }
+
+      // apply log level set before the worker was created, queued ahead of other calls without awaiting a reply
+      if (LibraryUtils.LOG_LEVEL > 0) LibraryUtils.invokeWorker(undefined, "setLogLevel", [LibraryUtils.LOG_LEVEL]);
     }
     return LibraryUtils.WORKER;
   }
@@ -282,7 +285,8 @@ export default class LibraryUtils {
   protected static initWasmModule(wasmModule) {
     wasmModule.taskQueue = new ThreadPool(1);
     wasmModule.queueTask = async function(asyncFn) { return wasmModule.taskQueue.submit(asyncFn); }
-    
+    if (LibraryUtils.LOG_LEVEL > 0) wasmModule.set_log_level(LibraryUtils.LOG_LEVEL); // apply log level set before load
+
     // assign utilities to globalThis
     const HttpClient = typeof require !== 'undefined' ? require("./HttpClient").default : (globalThis as any).HttpClient;
     if (HttpClient) (globalThis as any).HttpClient = HttpClient;
