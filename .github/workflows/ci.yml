@@ -45,7 +45,7 @@ jobs:
         run: npm run build_web_worker
 
       - name: Run offline tests # full test suite requires local monerod and monero-wallet-rpc
-        run: npm test -- --grep "TEST MONERO UTILITIES"
+        run: npm test -- --grep "TEST MONERO UTILITIES|TEST HTTP CLIENT"
 
   dist:
     name: dist
@@ -123,7 +123,7 @@ jobs:
           ./bin/build_dist.sh
 
       - name: Test dist
-        run: npm test -- --grep "TEST MONERO UTILITIES"
+        run: npm test -- --grep "TEST MONERO UTILITIES|TEST HTTP CLIENT"
 
       - name: Upload dist
         uses: actions/upload-artifact@v4

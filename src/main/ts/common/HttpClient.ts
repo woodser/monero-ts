@@ -1,7 +1,6 @@
 import GenUtils from "./GenUtils";
 import LibraryUtils from "./LibraryUtils";
 import ThreadPool from "./ThreadPool";
-import PromiseThrottle from "promise-throttle";
 import http from "http";
 import https from "https";
 import axios, { AxiosError } from "axios";
@@ -11,7 +10,7 @@ import axios, { AxiosError } from "axios";
  */
 export default class HttpClient {
 
-  static MAX_REQUESTS_PER_SECOND = 50;
+  static MAX_REQUESTS_PER_SECOND = 50; // positive requests per second, or Infinity to disable throttling
 
   // default request config
   protected static DEFAULT_REQUEST = {
@@ -21,7 +20,7 @@ export default class HttpClient {
   }
 
   // rate limit requests per host
-  protected static PROMISE_THROTTLES = [];
+  protected static REQUEST_START_TIMES = []; // recent request start times per host
   protected static TASK_QUEUES = [];
   protected static CONNECT_TIMEOUT = 180000; // ms to establish a connection, matching monero-java's default (0 to disable)
   protected static READ_TIMEOUT = 180000; // ms of socket inactivity before timing out
@@ -80,13 +79,8 @@ export default class HttpClient {
     // initialize one task queue per host
     if (!HttpClient.TASK_QUEUES[request.host]) HttpClient.TASK_QUEUES[request.host] = new ThreadPool(1);
 
-    // initialize one promise throttle per host
-    if (!HttpClient.PROMISE_THROTTLES[request.host]) {
-      HttpClient.PROMISE_THROTTLES[request.host] = new PromiseThrottle({
-        requestsPerSecond: HttpClient.MAX_REQUESTS_PER_SECOND, // TODO: HttpClient should not depend on MoneroUtils for configuration
-        promiseImplementation: Promise
-      });
-    }
+    // initialize one rate limit window per host
+    if (!HttpClient.REQUEST_START_TIMES[request.host]) HttpClient.REQUEST_START_TIMES[request.host] = [];
 
     // connection and response inactivity are bounded in the agents
     let requestPromise = HttpClient.requestAxios(request);
@@ -169,6 +163,28 @@ export default class HttpClient {
     return agent;
   }
 
+  // defer only when a host exceeds the rate limit since browsers throttle timers in background tabs
+  protected static async awaitRateLimit(host: string) {
+    const rate = HttpClient.MAX_REQUESTS_PER_SECOND;
+    if (!(rate > 0)) throw new Error("Max requests per second must be greater than 0 or Infinity");
+    const startTimes = HttpClient.REQUEST_START_TIMES[host];
+    if (rate === Infinity) {
+      startTimes.length = 0;
+      return;
+    }
+
+    // allow whole requests per window, extending the window to preserve fractional limits
+    const maxRequests = Math.ceil(rate);
+    const windowMs = 1000 * maxRequests / rate;
+    while (startTimes.length > 0 && startTimes[0] + windowMs <= Date.now()) startTimes.shift(); // bound history to the current window
+    while (startTimes.length >= maxRequests) {
+      const waitMs = Math.ceil(startTimes[0] + windowMs - Date.now());
+      if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+      else startTimes.shift();
+    }
+    startTimes.push(Date.now());
+  }
+
   protected static async requestAxios(req) {
     if (req.headers) throw new Error("Custom headers not implemented in XHR request");  // TODO
 
@@ -188,17 +204,15 @@ export default class HttpClient {
     // queue and throttle requests to execute in serial and rate limited per host
     const response = HttpClient.TASK_QUEUES[host].submit(async function() {
       if (cancelToken) cancelToken.throwIfRequested();
-      return HttpClient.PROMISE_THROTTLES[host].add(function() {
-        return new Promise(function(resolve, reject) {
-          HttpClient.axiosDigestAuthRequest(method, uri, username, password, body, proxyUri, rejectUnauthorized, cancelToken).then(function(resp) {
-            resolve(resp);
-          }).catch(function(error: AxiosError) {
-            if (error.response?.status) resolve(error.response);
-            reject(new Error("Request failed without response: " + method + " " + uri + " due to underlying error:\n" + error.message + "\n" + error.stack));
-          });
+      await HttpClient.awaitRateLimit(host);
+      return new Promise(function(resolve, reject) {
+        HttpClient.axiosDigestAuthRequest(method, uri, username, password, body, proxyUri, rejectUnauthorized, cancelToken).then(function(resp) {
+          resolve(resp);
+        }).catch(function(error: AxiosError) {
+          if (error.response?.status) resolve(error.response);
+          reject(new Error("Request failed without response: " + method + " " + uri + " due to underlying error:\n" + error.message + "\n" + error.stack));
         });
-
-      }.bind(this));
+      });
     });
 
     // reject cancellation immediately even when queued behind another wallet's request
