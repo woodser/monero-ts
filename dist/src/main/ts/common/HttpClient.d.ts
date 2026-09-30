@@ -8,7 +8,7 @@ export default class HttpClient {
         resolveWithFullResponse: boolean;
         rejectUnauthorized: boolean;
     };
-    protected static PROMISE_THROTTLES: any[];
+    protected static REQUEST_START_TIMES: any[];
     protected static TASK_QUEUES: any[];
     protected static CONNECT_TIMEOUT: number;
     protected static READ_TIMEOUT: number;
@@ -59,6 +59,7 @@ export default class HttpClient {
     protected static getSocksAgent(proxyUri: string, rejectUnauthorized: boolean): any;
     protected static getNonAgentTimeout(): number;
     protected static applyTimeouts(agent: any): any;
+    protected static awaitRateLimit(host: string): Promise<void>;
     protected static requestAxios(req: any): Promise<any>;
     protected static axiosDigestAuthRequest: (method: any, url: any, username: any, password: any, body: any, proxyUri?: any, rejectUnauthorized?: any, cancelToken?: any) => Promise<import("axios").AxiosResponse<any, any>>;
 }
