@@ -14,6 +14,7 @@ export default class HttpClient {
     protected static READ_TIMEOUT: number;
     protected static HTTP_AGENT: any;
     protected static HTTPS_AGENT: any;
+    protected static HTTPS_AGENT_UNVERIFIED: any;
     protected static SOCKS_AGENTS: any;
     /**
      * <p>Make a HTTP request.<p>
@@ -46,11 +47,11 @@ export default class HttpClient {
      */
     protected static getHttpAgent(): any;
     /**
-     * Get a singleton instance of an HTTPS client to share.
+     * Get a shared HTTPS client for the given SSL configuration.
      *
      * @return {https.Agent} a shared agent for network requests among library instances
      */
-    protected static getHttpsAgent(): any;
+    protected static getHttpsAgent(rejectUnauthorized?: boolean): any;
     /**
      * Get a singleton agent to route requests through a SOCKS5 proxy; hostnames are resolved by the proxy to avoid DNS leaks.
      *

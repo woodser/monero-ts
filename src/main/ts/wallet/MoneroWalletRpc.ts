@@ -332,20 +332,26 @@ export default class MoneroWalletRpc extends MoneroWallet {
   
   /**
    * Set the wallet's daemon connection.
+   * The cached connection records the requested allow-any-cert setting, not custom SSL options.
+   * Wallet RPC enforces a CA file or fingerprints; otherwise SSL autodetect can accept unverified certificates.
    * 
    * @param {string|MoneroRpcConnection} [uriOrConnection] - the daemon's URI or connection (defaults to offline)
    * @param {boolean} isTrusted - indicates if the daemon in trusted
-   * @param {SslOptions} sslOptions - custom SSL configuration
+   * @param {SslOptions} sslOptions - custom SSL configuration (takes precedence over the connection's rejectUnauthorized setting)
    */
   async setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void> {
     let connection = !uriOrConnection ? undefined : uriOrConnection instanceof MoneroRpcConnection ? uriOrConnection : new MoneroRpcConnection(uriOrConnection);
-    if (!sslOptions) sslOptions = new SslOptions();
+    if (!sslOptions) {
+      sslOptions = new SslOptions();
+      if (connection) sslOptions.setAllowAnyCert(connection.getRejectUnauthorized() === false);
+    }
     let params: any = {};
     params.address = connection ? connection.getUri() : "bad_uri"; // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
     params.username = connection ? connection.getUsername() : "";
     params.password = connection ? connection.getPassword() : "";
     params.trusted = isTrusted;
-    params.ssl_support = "autodetect";
+    const hasCertificates = !!sslOptions.getCertificateAuthorityFile() || sslOptions.getAllowedFingerprints()?.length > 0;
+    params.ssl_support = hasCertificates && sslOptions.getAllowAnyCert() !== true ? "enabled" : "autodetect"; // wallet rpc only enforces certificates if enabled
     params.ssl_private_key_path = sslOptions.getPrivateKeyPath();
     params.ssl_certificate_path  = sslOptions.getCertificatePath();
     params.ssl_ca_file = sslOptions.getCertificateAuthorityFile();
@@ -363,8 +369,10 @@ export default class MoneroWalletRpc extends MoneroWallet {
     }
     if (!params.proxy) params.proxy = "";
 
+    const daemonConnection = connection ? new MoneroRpcConnection(connection) : undefined;
+    if (daemonConnection) daemonConnection.rejectUnauthorized = params.ssl_allow_any_cert !== true;
     await this.config.getServer().sendJsonRequest("set_daemon", params);
-    this.daemonConnection = connection;
+    this.daemonConnection = daemonConnection;
   }
   
   async getDaemonConnection(): Promise<MoneroRpcConnection> {

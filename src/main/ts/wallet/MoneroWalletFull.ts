@@ -457,13 +457,13 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     let proxyUri = connection && connection.getProxyUri() ? connection.getProxyUri() : "";
     let rejectUnauthorized = connection ? connection.getRejectUnauthorized() : undefined;
     let isTrustedArg = isTrusted === undefined ? -1 : (isTrusted ? 1 : 0); // negative if unset
-    this.rejectUnauthorized = rejectUnauthorized;  // persist locally
 
     // set connection in queue
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
         this.module.set_daemon_connection(this.cppAddress, uri, username, password, proxyUri, isTrustedArg, (resp) => {
+          this.rejectUnauthorized = rejectUnauthorized;  // persist locally
           resolve();
         });
       });
