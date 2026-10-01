@@ -12,6 +12,20 @@
 1. Change RPC URIs to "https://..."
 2. Construct `MoneroWalletRpc` and `MoneroDaemonRpc` with `rejectUnauthorized: false` if using self-signed certificates
 
+Certificate verification is enabled by default, including when
+`NODE_TLS_REJECT_UNAUTHORIZED=0` is set. Use the connection's
+`rejectUnauthorized: false` setting to disable verification. For full wallets,
+set it on the `server` connection or the connection passed to
+`setDaemonConnection()`. For wallet RPC daemon connections, explicit `SslOptions`
+take precedence over this setting.
+
+Wallet RPC verifies daemon certificates only against a CA file or fingerprints
+given in `SslOptions`. Without them it uses SSL autodetect, which can accept
+unverified certificates even when `rejectUnauthorized` is true. Its cached
+daemon connection records the requested allow-any-cert setting. Custom CA,
+fingerprint, and client certificate options must be supplied again when
+changing the daemon connection.
+
 ## Enable SSL in web application
 1. Change RPC URIs to "https://..."
 2. Generate certificates for localhost web app (set password, use defaults except common name "localhost"), e.g.: `openssl req -x509 -newkey rsa:4096 -keyout localhost-key.pem -out localhost-cert.pem -days 365`

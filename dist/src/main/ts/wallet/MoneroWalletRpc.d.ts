@@ -164,10 +164,12 @@ export default class MoneroWalletRpc extends MoneroWallet {
     isViewOnly(): Promise<boolean>;
     /**
      * Set the wallet's daemon connection.
+     * The cached connection records the requested allow-any-cert setting, not custom SSL options.
+     * Wallet RPC enforces a CA file or fingerprints; otherwise SSL autodetect can accept unverified certificates.
      *
      * @param {string|MoneroRpcConnection} [uriOrConnection] - the daemon's URI or connection (defaults to offline)
      * @param {boolean} isTrusted - indicates if the daemon in trusted
-     * @param {SslOptions} sslOptions - custom SSL configuration
+     * @param {SslOptions} sslOptions - custom SSL configuration (takes precedence over the connection's rejectUnauthorized setting)
      */
     setDaemonConnection(uriOrConnection?: Partial<MoneroRpcConnection> | string, isTrusted?: boolean, sslOptions?: SslOptions): Promise<void>;
     getDaemonConnection(): Promise<MoneroRpcConnection>;
