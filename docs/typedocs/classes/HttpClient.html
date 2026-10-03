@@ -37,6 +37,7 @@
 <div class="tsd-index-list"><a href="HttpClient.html#CONNECT_TIMEOUT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>CONNECT_<wbr/>TIMEOUT</span></a>
 <a href="HttpClient.html#DEFAULT_REQUEST" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>REQUEST</span></a>
 <a href="HttpClient.html#HTTPS_AGENT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTPS_<wbr/>AGENT</span></a>
+<a href="HttpClient.html#HTTPS_AGENT_UNVERIFIED" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTPS_<wbr/>AGENT_<wbr/>UNVERIFIED</span></a>
 <a href="HttpClient.html#HTTP_AGENT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTP_<wbr/>AGENT</span></a>
 <a href="HttpClient.html#MAX_REQUESTS_PER_SECOND" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>REQUESTS_<wbr/>PER_<wbr/>SECOND</span></a>
 <a href="HttpClient.html#READ_TIMEOUT" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>READ_<wbr/>TIMEOUT</span></a>
@@ -85,6 +86,9 @@
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="HTTPS_AGENT" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>HTTPS_<wbr/>AGENT</span><a href="#HTTPS_AGENT" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">HTTPS_<wbr/>AGENT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
+<section class="tsd-panel tsd-member tsd-is-protected"><a id="HTTPS_AGENT_UNVERIFIED" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>HTTPS_<wbr/>AGENT_<wbr/>UNVERIFIED</span><a href="#HTTPS_AGENT_UNVERIFIED" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">HTTPS_<wbr/>AGENT_<wbr/>UNVERIFIED</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="HTTP_AGENT" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>HTTP_<wbr/>AGENT</span><a href="#HTTP_AGENT" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">HTTP_<wbr/>AGENT</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div></section>
@@ -176,10 +180,15 @@
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="getHttpsAgent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagProtected">Protected</code> <span>get<wbr/>Https<wbr/>Agent</span><a href="#getHttpsAgent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
-<li class="tsd-signature tsd-anchor-link" id="getHttpsAgent.getHttpsAgent-1"><span class="tsd-kind-call-signature">get<wbr/>Https<wbr/>Agent</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#getHttpsAgent.getHttpsAgent-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getHttpsAgent.getHttpsAgent-1"><span class="tsd-kind-call-signature">get<wbr/>Https<wbr/>Agent</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">rejectUnauthorized</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#getHttpsAgent.getHttpsAgent-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Get a singleton instance of an HTTPS client to share.</p>
+<div class="tsd-comment tsd-typography"><p>Get a shared HTTPS client for the given SSL configuration.</p>
 </div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">rejectUnauthorized</span>: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><p>a shared agent for network requests among library instances</p>
 
 <div class="tsd-comment tsd-typography"></div></li></ul></section>
@@ -256,6 +265,7 @@
 <li><a href="#CONNECT_TIMEOUT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>CONNECT_<wbr/>TIMEOUT</span></a></li>
 <li><a href="#DEFAULT_REQUEST" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>DEFAULT_<wbr/>REQUEST</span></a></li>
 <li><a href="#HTTPS_AGENT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTPS_<wbr/>AGENT</span></a></li>
+<li><a href="#HTTPS_AGENT_UNVERIFIED" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTPS_<wbr/>AGENT_<wbr/>UNVERIFIED</span></a></li>
 <li><a href="#HTTP_AGENT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>HTTP_<wbr/>AGENT</span></a></li>
 <li><a href="#MAX_REQUESTS_PER_SECOND" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>MAX_<wbr/>REQUESTS_<wbr/>PER_<wbr/>SECOND</span></a></li>
 <li><a href="#READ_TIMEOUT" class="tsd-is-protected"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>READ_<wbr/>TIMEOUT</span></a></li>

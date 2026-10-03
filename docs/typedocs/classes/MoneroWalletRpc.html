@@ -2270,7 +2270,9 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="setDaemonConnection.setDaemonConnection-1"><span class="tsd-kind-call-signature">set<wbr/>Daemon<wbr/>Connection</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">uriOrConnection</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">isTrusted</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">sslOptions</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#setDaemonConnection.setDaemonConnection-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Set the wallet&#39;s daemon connection.</p>
+<div class="tsd-comment tsd-typography"><p>Set the wallet&#39;s daemon connection.
+The cached connection records the requested allow-any-cert setting, not custom SSL options.
+Wallet RPC enforces a CA file or fingerprints; otherwise SSL autodetect can accept unverified certificates.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -2287,7 +2289,7 @@ daemon.  This method should be manually invoked to rescan outputs.</p></div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">sslOptions</span>: <a href="SslOptions.html" class="tsd-signature-type tsd-kind-class">SslOptions</a></h5>
-<div class="tsd-comment tsd-typography"><p>custom SSL configuration</p>
+<div class="tsd-comment tsd-typography"><p>custom SSL configuration (takes precedence over the connection&#39;s rejectUnauthorized setting)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
