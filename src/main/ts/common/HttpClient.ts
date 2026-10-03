@@ -27,6 +27,7 @@ export default class HttpClient {
 
   protected static HTTP_AGENT: any;
   protected static HTTPS_AGENT: any;
+  protected static HTTPS_AGENT_UNVERIFIED: any;
   protected static SOCKS_AGENTS: any = {}; // shared socks agents keyed by proxy uri and ssl config
 
   /**
@@ -108,16 +109,19 @@ export default class HttpClient {
   }
 
   /**
-   * Get a singleton instance of an HTTPS client to share.
+   * Get a shared HTTPS client for the given SSL configuration.
    *
    * @return {https.Agent} a shared agent for network requests among library instances
    */
-  protected static getHttpsAgent() {
-    if (!HttpClient.HTTPS_AGENT) HttpClient.HTTPS_AGENT = HttpClient.applyTimeouts(new https.Agent({
+  protected static getHttpsAgent(rejectUnauthorized?: boolean) {
+    rejectUnauthorized = rejectUnauthorized !== false;
+    const key = rejectUnauthorized ? "HTTPS_AGENT" : "HTTPS_AGENT_UNVERIFIED";
+    if (!HttpClient[key]) HttpClient[key] = HttpClient.applyTimeouts(new https.Agent({
       keepAlive: true,
-      family: 4 // use IPv4
+      family: 4, // use IPv4
+      rejectUnauthorized: rejectUnauthorized
     }));
-    return HttpClient.HTTPS_AGENT;
+    return HttpClient[key];
   }
 
   /**
@@ -245,7 +249,7 @@ export default class HttpClient {
     // route through socks proxy if configured, otherwise use direct agents
     const socksAgent = proxyUri ? HttpClient.getSocksAgent(proxyUri, rejectUnauthorized !== false) : undefined;
     const httpAgent = socksAgent ?? (url.startsWith("https") ? undefined : HttpClient.getHttpAgent());
-    const httpsAgent = socksAgent ?? (url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined);
+    const httpsAgent = socksAgent ?? (url.startsWith("https") ? HttpClient.getHttpsAgent(rejectUnauthorized) : undefined);
 
     const generateCnonce = function(): string {
       const characters = 'abcdef0123456789';
@@ -314,8 +318,9 @@ export default class HttpClient {
             'Content-Type': 'application/json'
           },
           responseType: body instanceof Uint8Array ? 'arraybuffer' : undefined,
-          httpAgent: url.startsWith("https") ? undefined : HttpClient.getHttpAgent(),
-          httpsAgent: url.startsWith("https") ? HttpClient.getHttpsAgent() : undefined,
+          httpAgent: httpAgent,
+          httpsAgent: httpsAgent,
+          proxy: socksAgent ? false : undefined, // env proxies must not bypass the socks agent
           timeout: HttpClient.getNonAgentTimeout(),
           cancelToken: cancelToken,
           data: body,

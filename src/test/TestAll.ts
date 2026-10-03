@@ -3,6 +3,7 @@ import {LibraryUtils} from "../../index";
 import TestSampleCode from "./TestSampleCode";
 import TestMoneroUtils from "./TestMoneroUtils";
 import TestHttpClient from "./TestHttpClient";
+import TestSsl from "./TestSsl";
 import TestMoneroDaemonRpc from "./TestMoneroDaemonRpc";
 import TestMoneroWalletKeys from "./TestMoneroWalletKeys";
 import TestMoneroWalletFull from "./TestMoneroWalletFull";
@@ -14,6 +15,7 @@ LibraryUtils.setLogLevel(0); // no need for await before worker used
 
 // test http scheduling before starting wallets or background polling
 new TestHttpClient().runTests();
+new TestSsl().runTests();
 
 // test sample code for readme
 new TestSampleCode().runTests();
