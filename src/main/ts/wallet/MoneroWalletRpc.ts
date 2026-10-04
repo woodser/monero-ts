@@ -939,7 +939,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     for (let destination of configNormalized.getDestinations()) {
       assert(destination.getAddress(), "Destination address is not defined");
       assert(destination.getAmount(), "Destination amount is not defined");
-      params.destinations.push({ address: destination.getAddress(), amount: destination.getAmount().toString() });
+      params.destinations.push({ address: destination.getAddress(), amount: destination.getAmount() });
     }
     if (configNormalized.getSubtractFeeFrom()) params.subtract_fee_from_outputs = configNormalized.getSubtractFeeFrom();
     params.account_index = accountIdx;
@@ -1257,7 +1257,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   async getReserveProofAccount(accountIdx: number, amount: bigint, message?: string): Promise<string> {
     let resp = await this.config.getServer().sendJsonRequest("get_reserve_proof", {
       account_index: accountIdx,
-      amount: amount.toString(),
+      amount: amount,
       message: message
     });
     return resp.result.signature;
@@ -1351,7 +1351,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
     config = MoneroWallet.normalizeCreateTxsConfig(config);
     let resp = await this.config.getServer().sendJsonRequest("make_uri", {
       address: config.getDestinations()[0].getAddress(),
-      amount: config.getDestinations()[0].getAmount() ? config.getDestinations()[0].getAmount().toString() : undefined,
+      amount: config.getDestinations()[0].getAmount(),
       payment_id: config.getPaymentId(),
       recipient_name: config.getRecipientName(),
       tx_description: config.getNote()
