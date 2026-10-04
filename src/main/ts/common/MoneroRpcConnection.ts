@@ -319,7 +319,7 @@ export default class MoneroRpcConnection {
       try {
 
         // build request body
-        let body = JSON.stringify({  // body is stringified so text/plain is returned so bigints are preserved
+        let body = MoneroRpcConnection.stringifyBigIntJson({  // body is stringified so text/plain is returned so bigints are preserved
           id: "0",
           jsonrpc: "2.0",
           method: method,
@@ -379,7 +379,8 @@ export default class MoneroRpcConnection {
       try {
 
         // logging
-        if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + JSON.stringify(params));
+        let body = MoneroRpcConnection.stringifyBigIntJson(params);
+        if (LibraryUtils.getLogLevel() >= 2) LibraryUtils.log(2, "Sending path request with path '" + path + "' and params: " + body);
 
         // send http request
         let startTime = new Date().getTime();
@@ -388,7 +389,7 @@ export default class MoneroRpcConnection {
           uri: this.getUri() + '/' + path,
           username: this.getUsername(),
           password: this.getPassword(),
-          body: JSON.stringify(params),  // body is stringified so text/plain is returned so bigints are preserved
+          body: body,  // body is stringified so text/plain is returned so bigints are preserved
           proxyUri: this.getProxyUri(),
           timeout: timeoutMs === undefined ? this.timeoutMs : timeoutMs,
           rejectUnauthorized: this.rejectUnauthorized,
@@ -506,6 +507,11 @@ export default class MoneroRpcConnection {
     return this.sendRequestMutex.submit(asyncFn);
   }
   
+  protected static stringifyBigIntJson(obj: any): string | undefined {
+    const tag = "bigint" + Math.random().toString(36).slice(2); // per-call tag avoids colliding with string values
+    return JSON.stringify(obj, (_key, val) => typeof val === "bigint" ? tag + val.toString() : val)?.replace(new RegExp('"' + tag + '(-?\\d+)"', "g"), "$1"); // write bigints as JSON numbers
+  }
+
   protected static parseBigIntJson(body: string): any {
     return JSON.parse(body.replace(/("[^"]*"\s*:\s*|[\[,]\s*)(\d{16,})(?=\s*[,\]}])/g, '$1"$2"')); // quote 16+ digit values and array elements to preserve precision
   }
