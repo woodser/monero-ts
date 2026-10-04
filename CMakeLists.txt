@@ -8,12 +8,20 @@ file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]' -D_REENTRANT")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
+add_definitions(-DCONFIGURED=1) # vendored libsodium sources warn when built outside its configure script
 
 ##############
 # C++ bridge
 ##############
 
 include_directories("src/cpp")
+
+#####################
+# libsodium
+#####################
+
+include_directories("external/libsodium/include")
+include_directories("external/libsodium/include/sodium")
 
 #####################
 # monero-cpp
@@ -24,8 +32,6 @@ set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
 include_directories("${MONERO_CPP_SRC}")
-include_directories("${MONERO_CPP}/external/libsodium/include")
-include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 
 ##################
 # monero-project
@@ -167,7 +173,9 @@ set(
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_keys.cpp
-    ${MONERO_CPP}/external/libsodium/src/crypto_verify/verify.c
+    external/libsodium/src/crypto_verify/verify.c
+    external/libsodium/src/crypto_shorthash/siphash24/shorthash_siphash24.c
+    external/libsodium/src/crypto_shorthash/siphash24/ref/shorthash_siphash24_ref.c
     
     # monero-project (modified for WASM)
     ${CMAKE_BINARY_DIR}/version.cpp
