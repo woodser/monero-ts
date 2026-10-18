@@ -722,8 +722,19 @@ export default class TestMoneroDaemonRpc {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get output indices given a list of transaction hashes (binary)", async function() {
-        throw new Error("Not implemented"); // get_o_indexes.bin
+      it("Can get output indices by transaction hash (binary)", async function() {
+        const txs = await getConfirmedTxs(that.daemon, 3);
+
+        for (const tx of txs) {
+          const indices = await that.daemon.getOutputIndices(tx.getHash());
+          const rpcTx = await that.daemon.getTx(tx.getHash());
+
+          assert(rpcTx);
+          assert(Array.isArray(indices));
+          assert(Array.isArray(rpcTx.getOutputIndices()));
+          assert.equal(indices.length, rpcTx.getOutputs().length);
+          assert.deepEqual(indices, rpcTx.getOutputIndices());
+        }
       });
       
       if (testConfig.testNonRelays)

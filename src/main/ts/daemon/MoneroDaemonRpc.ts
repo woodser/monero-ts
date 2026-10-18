@@ -339,6 +339,55 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     return txs;
   }
+
+  async getOutputIndices(txHash: string): Promise<number[]> {
+    if (this.config.proxyToWorker) return this.proxyDaemon.getOutputIndices(txHash);
+
+    if (!/^[0-9a-fA-F]{64}$/.test(txHash)) {
+    throw new MoneroError("Invalid transaction hash");
+    }
+
+    // Convert the hex hash to 32 bytes.
+    const txidBytes = new Uint8Array(32);
+    for (let i = 0; i < 32; i++) {
+      txidBytes[i] = parseInt(txHash.slice(i * 2, i * 2 + 2), 16);
+    }
+
+    // Generate a portable-storage template with an empty txid string.
+    // The 17-byte template ends with the string type (0x0a) and zero length (0x00).
+    const template = await MoneroUtils.jsonToBinary({ txid: "" });
+
+    if (
+      template.length !== 17 ||
+      template[template.length - 2] !== 0x0a ||
+      template[template.length - 1] !== 0x00
+    ) {
+      throw new MoneroError("Unexpected binary request format");
+    }
+     // Replace the empty string with the 32-byte hash.
+    const request = new Uint8Array(template.length - 1 + 33);
+    request.set(template.subarray(0, -1));
+    request[template.length - 1] = 0x80;
+    request.set(txidBytes, template.length);
+
+    // Send the pre-encoded binary request.
+    const respBin = await this.config.getServer().sendBinaryRequest(
+      "get_o_indexes.bin",
+      request
+    );
+
+    const resp = await MoneroUtils.binaryToJson(respBin);
+    MoneroDaemonRpc.checkResponseStatus(resp);
+
+    for (const index of resp.o_indexes) {
+      if (!Number.isSafeInteger(index) || index < 0) {
+        throw new MoneroError("Unsafe output index");
+      }
+    }
+
+    return resp.o_indexes;
+
+  }
   
   async getTxHexes(txHashes: string[], prune = false): Promise<string[]> {
     if (this.config.proxyToWorker) return this.proxyDaemon.getTxHexes(txHashes, prune);
@@ -1683,6 +1732,10 @@ class MoneroDaemonRpcProxy {
       }
     }
     return txs;
+  }
+
+  async getOutputIndices(txHash: string): Promise<number[]> {
+    return await this.invokeWorker("daemonGetOutputIndices", [txHash]) as number[];
   }
   
   async getTxHexes(txHashes, prune = false) {
