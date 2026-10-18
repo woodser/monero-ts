@@ -420,17 +420,19 @@ export default class MoneroRpcConnection {
   
   /**
    * Send a binary RPC request.
-   * 
+   *
    * @param {string} path - path of the binary RPC method to invoke
-   * @param {object} [params] - request parameters
+   * @param {object|Uint8Array} [params] - request parameters or pre-encoded portable-storage bytes
    * @param {number} [timeoutMs] - request timeout in milliseconds
-   * @return {Uint8Array} the binary response
+   * @return {Promise<Uint8Array>} the binary response
    */
-  async sendBinaryRequest(path, params?, timeoutMs?): Promise<any> {
+  async sendBinaryRequest(path: string, params?: object | Uint8Array, timeoutMs?: number): Promise<Uint8Array> {
     return this.queueSendRequest(async () => {
 
-      // serialize params
-      let paramsBin = await MoneroUtils.jsonToBinary(params);
+      // Reuse pre-encoded binary requests or serialize object parameters.
+      let paramsBin = params instanceof Uint8Array
+        ? params
+        : await MoneroUtils.jsonToBinary(params);
           
       try {
 
