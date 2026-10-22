@@ -1902,6 +1902,10 @@ export default class TestMoneroWalletCommon {
         for (let i = 0; i < txs.length; i++) {
           assert.equal(await that.wallet.getTxNote(txs[i].getHash()), uuid + i);
         }
+
+        // undefined clears the note
+        await that.wallet.setTxNote(txs[0].getHash(), undefined);
+        assert.equal(await that.wallet.getTxNote(txs[0].getHash()), "");
       });
       
       // TODO: why does getting cached txs take 2 seconds when should already be cached?
@@ -1914,7 +1918,7 @@ export default class TestMoneroWalletCommon {
         assert(txs.length >= 3, "Test requires 3 or more wallet transactions; run send tests");
         let txHashes: any = [];
         let txNotes: any = [];
-        for (let i = 0; i < txHashes.length; i++) {
+        for (let i = 0; i < txs.length; i++) {
           txHashes.push(txs[i].getHash());
           txNotes.push(uuid + i);
         }
@@ -1926,6 +1930,15 @@ export default class TestMoneroWalletCommon {
           assert.equal(uuid + i, txNotes[i]);
         }
         
+        // clear notes in a mixed batch without changing the caller's array
+        txNotes[0] = null;
+        txNotes[1] = undefined;
+        Object.freeze(txNotes);
+        await that.wallet.setTxNotes(txHashes, txNotes);
+        assert.strictEqual(txNotes[0], null);
+        assert.strictEqual(txNotes[1], undefined);
+        assert.deepEqual(await that.wallet.getTxNotes(txHashes), ["", "", ...txNotes.slice(2)]);
+
         // TODO: test that get transaction has note
       });
       

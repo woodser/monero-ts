@@ -1288,6 +1288,7 @@ export default class MoneroWalletRpc extends MoneroWallet {
   }
   
   async setTxNotes(txHashes: string[], notes: string[]): Promise<void> {
+    notes = notes.map(note => GenUtils.isInitialized(note) ? note : ""); // wallet rpc rejects json null
     await this.config.getServer().sendJsonRequest("set_tx_notes", {txids: txHashes, notes: notes});
   }
   
