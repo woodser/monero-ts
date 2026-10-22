@@ -1290,6 +1290,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
   
   async setTxNotes(txHashes: string[], notes: string[]): Promise<void> {
     if (this.getWalletProxy()) return this.getWalletProxy().setTxNotes(txHashes, notes);
+    notes = notes.map(note => GenUtils.isInitialized(note) ? note : ""); // the bridge would store json null as text
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       try { this.module.set_tx_notes(this.cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes})); }
