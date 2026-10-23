@@ -2160,21 +2160,19 @@ export default class TestMoneroWalletCommon {
       
       if (testConfig.testNonRelays)
       it("Can prove reserves in the wallet", async function() {
-        
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(that.wallet); // proof excludes unconfirmed change and incoming funds
+
         // get proof of entire wallet
         let signature = await that.wallet.getReserveProofWallet("Test message");
         assert(signature, "No signature returned for wallet reserve proof");
-        
+
         // check proof of entire wallet
         let check = await that.wallet.checkReserveProof(await that.wallet.getPrimaryAddress(), "Test message", signature);
         assert(check.getIsGood());
         testCheckReserve(check);
-        let balance = await that.wallet.getBalance();
-        if (balance !== check.getTotalAmount()) { // TODO monero-wallet-rpc: this check fails with unconfirmed txs
-          let unconfirmedTxs = await that.wallet.getTxs({inTxPool: true});
-          assert(unconfirmedTxs.length > 0, "Reserve amount must equal balance unless wallet has unconfirmed txs");
-        }
-        
+        let reserve = check.getTotalAmount() - check.getUnconfirmedSpentAmount(); // TODO monero-project: compare total directly once failed txs stop unspending confirmed inputs
+        assert.equal((await that.wallet.getBalance()).toString(), reserve.toString());
+
         // test different wallet address
         let differentAddress = await TestUtils.getExternalWalletAddress();
         try {
