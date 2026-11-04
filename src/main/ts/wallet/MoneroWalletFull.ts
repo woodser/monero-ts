@@ -1931,7 +1931,7 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     let walletId = GenUtils.getUUID();
     if (config.password === undefined) config.password = "";
     let daemonConnection = config.getServer();
-    await LibraryUtils.invokeWorker(walletId, "openWalletData", [config.path, config.password, config.networkType, config.keysData, config.cacheData, daemonConnection ? daemonConnection.toJson() : undefined]);
+    await LibraryUtils.invokeWorker(walletId, "openWalletData", [config.path, config.password, config.networkType, config.keysData, config.cacheData, daemonConnection ? daemonConnection.toJson() : undefined, config.getRegtest()]);
     let wallet = new MoneroWalletFullProxy(walletId, await LibraryUtils.getWorker(), config.path, config.getFs());
     if (config.path) await wallet.save();
     return wallet;

@@ -24,7 +24,7 @@ export default class TestSampleCode {
           let fs = await TestUtils.getDefaultFs();
           if (!await moneroTs.LibraryUtils.exists(fs, TestUtils.TEST_WALLETS_DIR)) {
             if (!await moneroTs.LibraryUtils.exists(fs, process.cwd())) await fs.mkdir(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-            await fs.mkdir(TestUtils.TEST_WALLETS_DIR);
+            await fs.mkdir(TestUtils.TEST_WALLETS_DIR, { recursive: true });
           }
 
           // create full test wallet
@@ -41,29 +41,26 @@ export default class TestSampleCode {
         if (wallet) await wallet.close(true);
       });
       
-      it("Sample code demonstration", async function() {
+      it("Sample code demonstration (CI)", async function() {
         
         // import monero-ts (or import as needed)
         // import moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
 
         // connect to daemon
-        let daemon = await moneroTs.connectToDaemonRpc("http://localhost:28081");
+        let daemon = await moneroTs.connectToDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
         let height = await daemon.getHeight();        // 1523651
         let txsInPool = await daemon.getTxPool();     // get transactions in the pool
 
         // create wallet from mnemonic phrase using WebAssembly bindings to monero-project
         let walletFull = await moneroTs.createWalletFull({
-          path: "./test_wallets/" + moneroTs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_full"
+          path: TestUtils.TEST_WALLETS_DIR + "/" + moneroTs.GenUtils.getUUID(),  // *** CHANGE README TO "sample_wallet_full"
           fs: await TestUtils.getDefaultFs(),                     // *** REMOVE FROM README SAMPLE ***
           password: "supersecretpassword123",
-          networkType: moneroTs.MoneroNetworkType.TESTNET,
+          networkType: TestUtils.NETWORK_TYPE,
+          regtest: true,
           seed: TestUtils.SEED,                          // *** REPLACE README WITH SEED ***
           restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, // *** REPLACE README WITH FIRST RECEIVE HEIGHT ***
-          server: { // provide url or MoneroRpcConnection
-            uri: "http://localhost:28081",
-            username: "superuser",
-            password: "abctesting123"
-          }
+          server: TestUtils.DAEMON_RPC_CONFIG
         });
 
         // synchronize with progress notifications
@@ -89,7 +86,7 @@ export default class TestSampleCode {
         });
 
         // connect to wallet RPC and open wallet
-        let walletRpc = await moneroTs.connectToWalletRpc("http://localhost:28084", "rpc_user", "abc123");
+        let walletRpc = await moneroTs.connectToWalletRpc(TestUtils.WALLET_RPC_CONFIG);
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");  // *** CHANGE README TO "sample_wallet_rpc" ***
         let primaryAddress = await walletRpc.getPrimaryAddress(); // 555zgduFhmKd2o8rPUz...
         let balance = await walletRpc.getBalance();   // 533648366742
@@ -118,7 +115,7 @@ export default class TestSampleCode {
         //await moneroTs.shutdown(); // *** IGNORED FOR TESTS ***
       });
       
-      it("Connection manager demonstration", async function() {
+      it("Connection manager demonstration (CI)", async function() {
 
         // import monero-ts (or import types individually)
         // import moneroTs from "monero-ts"; // *** UNCOMMENT IN README ***
@@ -127,7 +124,7 @@ export default class TestSampleCode {
         let connectionManager = new moneroTs.MoneroConnectionManager();
         
         // add managed connections with priorities
-        await connectionManager.addConnection({uri: "http://localhost:28081", priority: 1}); // use localhost as first priority
+        await connectionManager.addConnection({...TestUtils.DAEMON_RPC_CONFIG, priority: 1}); // use localhost as first priority
         await connectionManager.addConnection("http://example.com"); // default priority is prioritized last
         
         // set current connection
@@ -135,9 +132,10 @@ export default class TestSampleCode {
 
         // create or open wallet governed by connection manager
         let walletFull = await moneroTs.createWalletFull({
-          path: "./test_wallets/" + moneroTs.GenUtils.getUUID(), // *** CHANGE README TO "sample_wallet_full"
+          path: TestUtils.TEST_WALLETS_DIR + "/" + moneroTs.GenUtils.getUUID(), // *** CHANGE README TO "sample_wallet_full"
           password: "supersecretpassword123",
-          networkType: moneroTs.MoneroNetworkType.TESTNET,
+          networkType: TestUtils.NETWORK_TYPE,
+          regtest: true,
           connectionManager: connectionManager,
           seed: TestUtils.SEED,                          // *** REPLACE IN README ***
           restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, // *** REPLACE IN README ***
@@ -170,7 +168,7 @@ export default class TestSampleCode {
         await connectionManager.clear();
       });
       
-      it("Test developer guide transaction queries", async function() {
+      it("Test developer guide transaction queries (CI)", async function() {
         
         // get a transaction by hash
         let tx = await wallet.getTx((await wallet.getTxs())[0].getHash()); // REPLACE WITH BELOW FOR MD FILE
@@ -231,7 +229,7 @@ export default class TestSampleCode {
         }
       });
       
-      it("Test developer guide transfer queries", async function() {
+      it("Test developer guide transfer queries (CI)", async function() {
         
         // get all transfers
         let transfers = await wallet.getTransfers();
@@ -274,7 +272,7 @@ export default class TestSampleCode {
         }
       });
       
-      it("Test developer guide output queries", async function() {
+      it("Test developer guide output queries (CI)", async function() {
         
         // get all outputs
         let outputs = await wallet.getOutputs();
@@ -323,13 +321,14 @@ export default class TestSampleCode {
         assert.equal(outputs[0].getKeyImage().getHex(), keyImage);
       });
       
-      it("Test developer guide send funds", async function() {
+      it("Test developer guide send funds (CI)", async function() {
 
         // create in-memory test wallet with randomly generated seed
         let wallet = await moneroTs.createWalletFull({
           password: "abctesting123",
-          networkType: moneroTs.MoneroNetworkType.TESTNET,
-          server: "http://localhost:28081",
+          networkType: TestUtils.NETWORK_TYPE,
+          regtest: true,
+          server: TestUtils.DAEMON_RPC_CONFIG,
           proxyToWorker: TestUtils.PROXY_TO_WORKER
         });
 
@@ -338,7 +337,7 @@ export default class TestSampleCode {
           // create a transaction to send funds to an address, but do not relay
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             amount: 1000000000000n // send 1 XMR (denominated in atomic units)
           });
           
@@ -356,7 +355,7 @@ export default class TestSampleCode {
           // send funds to a single destination
           let tx = await wallet.createTx({
             accountIndex: 0,  // source account to send funds from
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             amount: 1000000000000n, // send 1 XMR (denominated in atomic units)
             relay: true // relay the transaction to the network
           });
@@ -372,10 +371,10 @@ export default class TestSampleCode {
             accountIndex: 0,    // source account to send funds from
             subaddressIndex: 1, // source subaddress to send funds from
             destinations: [{
-                address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+                address: TestUtils.MINING_ADDRESS,
                 amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
               }, {
-                address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+                address: TestUtils.MINING_ADDRESS,
                 amount: 500000000000n, // send 0.5 XMR (denominated in atomic units)
               }],
             priority: moneroTs.MoneroTxPriority.ELEVATED,
@@ -389,7 +388,7 @@ export default class TestSampleCode {
           
           // sweep an output
           let tx = await wallet.sweepOutput({
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             keyImage: "b7afd6afbb1615c98b1c0350b81c98a77d6d4fc0ab92020d25fd76aca0914f1e",
             relay: true
           });
@@ -401,7 +400,7 @@ export default class TestSampleCode {
           
           // sweep all unlocked funds in a wallet
           let txs = await wallet.sweepUnlocked({
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             relay: true
           });
         } catch (err: any) {
@@ -413,7 +412,7 @@ export default class TestSampleCode {
           // sweep unlocked funds in an account
           let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             relay: true
           });
         } catch (err: any) {
@@ -426,7 +425,7 @@ export default class TestSampleCode {
           let txs = await wallet.sweepUnlocked({
             accountIndex: 0,
             subaddressIndex: 0,
-            address: "9tsUiG9bwcU7oTbAdBwBk2PzxFtysge5qcEsHEpetmEKgerHQa1fDqH7a4FiquZmms7yM22jdifVAD7jAb2e63GSJMuhY75",
+            address: TestUtils.MINING_ADDRESS,
             relay: true
           });
         } catch (err: any) {

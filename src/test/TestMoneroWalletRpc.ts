@@ -1,6 +1,6 @@
 import assert from "assert";
 import TestUtils from "./utils/TestUtils";
-import TestMoneroWalletCommon from "./TestMoneroWalletCommon";
+import TestMoneroWalletCommon, {WalletFeature} from "./TestMoneroWalletCommon";
 import TestMoneroWalletFull from "./TestMoneroWalletFull";
 import {MoneroError,
         GenUtils,
@@ -68,6 +68,10 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 
     async getSeedLanguages(): Promise<string[]> {
         return await (this.wallet as MoneroWalletRpc).getSeedLanguages();
+    }
+
+    unsupported(): WalletFeature[] {
+        return ["getSeedLanguage", "getPublicViewKey", "getPublicSpendKey", "getHeightByDate", "subaddressLookahead"];
     }
 
     runTests() {
@@ -145,7 +149,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
             // ---------------------------- BEGIN TESTS ---------------------------------
 
             if (testConfig.testNonRelays)
-                it("Can create a wallet with a randomly generated mnemonic", async function() {
+                it("Can create a wallet with a randomly generated mnemonic (CI)", async function() {
 
                     // create random wallet with defaults
                     let path = GenUtils.getUUID();
@@ -177,7 +181,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
                 });
 
             if (testConfig.testNonRelays)
-                it("Can create a RPC wallet from a mnemonic phrase", async function() {
+                it("Can create a RPC wallet from a mnemonic phrase (CI)", async function() {
 
                     // create wallet with mnemonic and defaults
                     let path = GenUtils.getUUID();
@@ -201,7 +205,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
                 });
 
             if (testConfig.testNonRelays)
-                it("Can open wallets", async function() {
+                it("Can open wallets (CI)", async function() {
 
                     // create names of test wallets
                     let numTestWallets = 3;
@@ -245,12 +249,12 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
                 });
 
             if (testConfig.testNonRelays)
-                it("Can indicate if multisig import is needed for correct balance information", async function() {
+                it("Can indicate if multisig import is needed for correct balance information (CI)", async function() {
                     assert.equal(await that.wallet.isMultisigImportNeeded(), false);
                 });
 
             if (testConfig.testNonRelays)
-                it("Can tag accounts and query accounts by tag", async function() {
+                it("Can tag accounts and query accounts by tag (CI)", async function() {
 
                     // get accounts
                     let accounts = await that.wallet.getAccounts();
@@ -309,7 +313,7 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
                 });
 
             if (testConfig.testNonRelays)
-                it("Can fetch accounts and subaddresses without balance info because this is another RPC call", async function() {
+                it("Can fetch accounts and subaddresses without balance info because this is another RPC call (CI)", async function() {
                     let accounts = await (that.wallet as MoneroWalletRpc).getAccounts(true, undefined, true);
                     assert(accounts.length > 0);
                     for (let account of accounts) {
@@ -330,17 +334,17 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
                 });
 
             if (testConfig.testNonRelays)
-                it("Can rescan spent", async function() {
+                it("Can rescan spent (CI)", async function() {
                     await that.wallet.rescanSpent();
                 });
 
             if (testConfig.testNonRelays)
-                it("Can save the wallet file", async function() {
+                it("Can save the wallet file (CI)", async function() {
                     await that.wallet.save();
                 });
 
             if (testConfig.testNonRelays)
-                it("Can close a wallet", async function() {
+                it("Can close a wallet (CI)", async function() {
 
                     // create a test wallet
                     let path = GenUtils.getUUID();

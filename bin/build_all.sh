@@ -31,4 +31,4 @@ npm install || exit 1
 ./bin/build_dist.sh || exit 1
 
 # build browser tests
-./bin/build_browser_tests.sh || exit 1
+./bin/build_browser_tests.sh --no-serve || exit 1

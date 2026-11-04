@@ -2,7 +2,12 @@
  * Run tests when document ready.
  */
 document.addEventListener("DOMContentLoaded", function() {
-  runTests();
+  try {
+    runTests();
+  } catch (err) {
+    console.error(err);
+    if (window.mochaDone) window.mochaDone("1"); // a headless runner exits with a failure
+  }
 });
 
 /**
@@ -10,10 +15,12 @@ document.addEventListener("DOMContentLoaded", function() {
  */
 function runTests() {
   
-  // mocha setup
+  // mocha setup, reporting to the console instead of the page when run headless
+  let query = new URLSearchParams(location.search);
   mocha.setup({
     ui: 'bdd',
-    timeout: 3000000
+    timeout: Number(query.get("timeout")) || 3000000,
+    reporter: query.get("reporter") || 'html'
   });
   mocha.globals(['HttpClient', 'LibraryUtils', 'GenUtils', 'request']);
   mocha.checkLeaks();
@@ -21,7 +28,7 @@ function runTests() {
   // override default to run daemon and wallets on main thread
   //TestUtils.PROXY_TO_WORKER = false;
   
-  // run tests
+  // run tests, reporting the failure count to a headless runner
   require("../TestAll");
-  mocha.run();
+  mocha.run(failures => { if (window.mochaDone) window.mochaDone(String(failures)); });
 }

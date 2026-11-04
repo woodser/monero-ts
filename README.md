@@ -165,24 +165,23 @@ Compiled WebAssembly binaries are committed to ./dist for convenience, but these
 
 ## Running tests
 
-1. Clone the project repository: `git clone https://github.com/woodser/monero-ts.git`
-2. `cd monero-ts`
-3. Start RPC servers:
-	1. Download and install [Monero CLI](https://web.getmonero.org/downloads/).
-	2. Start monerod, e.g.: `./monerod --testnet` (or use a remote daemon).
-	3. Start monero-wallet-rpc, e.g.: `./monero-wallet-rpc --daemon-address http://localhost:38081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./`
-4. Configure the appropriate RPC endpoints, authentication, and other settings in [TestUtils.ts](src/test/utils/TestUtils.ts) (e.g. `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG`).
+Tests run automatically in CI. To run them locally, first [build from source](#building-webassembly-binaries-from-source). A regtest network is created and started automatically in ./test_regtest when tests run.
 
 #### Running tests in Node.js
 
-* Run all tests: `npm test`
-* Run tests by their description, e.g.: `npm run test -- --grep "Can get transactions"`
+```sh
+# run all tests
+npm run test
+
+# run tests by their description
+npm run test -- --grep "Sample code demonstration"
+```
 
 #### Running tests in a browser
 
-1. Start monero-wallet-rpc servers used by tests: `./bin/start_wallet_rpc_test_servers.sh`
-2. In another terminal, build browser tests: `./bin/build_browser_tests.sh`
-3. Access http://localhost:8080/tests.html in a browser to run all tests
+1. Build and serve the browser tests: `./bin/build_dist.sh && ./bin/build_browser_tests.sh`
+2. In a separate terminal, start the test servers: `./bin/start_browser_test_servers.sh`
+3. Open http://localhost:8080/tests.html
 
 ## License
 

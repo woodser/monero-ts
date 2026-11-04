@@ -43,6 +43,9 @@ const SEND_MAX_DIFF = BigInt(60);
 const MAX_TX_PROOFS = 25; // maximum number of transactions to check for each proof, undefined to check all
 const NUM_BLOCKS_LOCKED = 10;
 
+// wallet method or config option a wallet type may not support
+export type WalletFeature = keyof MoneroWallet | keyof MoneroWalletConfig;
+
 /**
  * Test a wallet for common functionality.
  */
@@ -87,7 +90,8 @@ export default class TestMoneroWalletCommon {
   async afterAll() {
     console.log("After all");
     
-    // try to stop mining
+    // stop mining
+    await StartMining.stopMining();
     if (this.daemon) {
       try { await this.daemon.stopMining(); }
       catch (err: any) { }
@@ -165,23 +169,33 @@ export default class TestMoneroWalletCommon {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Get the wallet methods and config options the wallet under test does not support.
+   * 
+   * @return {WalletFeature[]} the unsupported features, excluded from the common tests
+   */
+  unsupported(): WalletFeature[] {
+    return [];
+  }
+  
   // ------------------------------ BEGIN TESTS -------------------------------
   
   runCommonTests(testConfig?) {
     let that = this;
     testConfig = Object.assign({}, this.testConfig, testConfig)
+    let supports = (feature: WalletFeature) => !that.unsupported().includes(feature);
     describe("Common Wallet Tests" + (testConfig.liteMode ? " (lite mode)" : ""), function() {
       
       // start tests by sending to multiple addresses
       if (testConfig.testRelays)
-      it("Can send to multiple addresses in a single transaction", async function() {
+      it("Can send to multiple addresses in a single transaction (CI)", async function() {
         await testSendToMultiple(5, 3, false);
       });
       
       //  --------------------------- TEST NON RELAYS -------------------------
       
       if (testConfig.testNonRelays)
-      it("Can create a random wallet", async function() {
+      it("Can create a random wallet (CI)", async function() {
         let e1 = undefined;
         try {
           let wallet = await that.createWallet();
@@ -224,7 +238,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a wallet from a mnemonic phrase.", async function() {
+      it("Can create a wallet from a mnemonic phrase. (CI)", async function() {
         let e1 = undefined;
         try {
           
@@ -273,7 +287,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a wallet from a mnemonic phrase with a seed offset", async function() {
+      it("Can create a wallet from a mnemonic phrase with a seed offset (CI)", async function() {
         let e1 = undefined;
         try {
           
@@ -299,7 +313,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a wallet from keys", async function() {
+      it("Can create a wallet from keys (CI)", async function() {
         let e1 = undefined;
         try {
           
@@ -364,8 +378,62 @@ export default class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
-      if (testConfig.testRelays)
-      it("Can create wallets with subaddress lookahead", async function() {
+      if (testConfig.testNonRelays)
+      it("Can get the seed as a mnemonic phrase (CI)", async function() {
+        let mnemonic = await that.wallet.getSeed();
+        await MoneroUtils.validateMnemonic(mnemonic);
+        assert.equal(mnemonic, TestUtils.SEED);
+      });
+      
+      if (testConfig.testNonRelays && supports("getSeedLanguage"))
+      it("Can get the language of the seed (CI)", async function() {
+        let language = await that.wallet.getSeedLanguage();
+        assert.equal(language, "English");
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get a list of supported languages for the seed (CI)", async function() {
+        let languages = await that.getSeedLanguages();
+        assert(Array.isArray(languages));
+        assert(languages.length);
+        for (let language of languages) assert(language);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get the private view key (CI)", async function() {
+        let privateViewKey = await that.wallet.getPrivateViewKey()
+        await MoneroUtils.validatePrivateViewKey(privateViewKey);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get the private spend key (CI)", async function() {
+        let privateSpendKey = await that.wallet.getPrivateSpendKey()
+        await MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+      });
+      
+      if (testConfig.testNonRelays && supports("getPublicViewKey"))
+      it("Can get the public view key (CI)", async function() {
+        let publicViewKey = await that.wallet.getPublicViewKey()
+        await MoneroUtils.validatePublicViewKey(publicViewKey);
+      });
+      
+      if (testConfig.testNonRelays && supports("getPublicSpendKey"))
+      it("Can get the public spend key (CI)", async function() {
+        let publicSpendKey = await that.wallet.getPublicSpendKey()
+        await MoneroUtils.validatePublicSpendKey(publicSpendKey);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can get the primary address (CI)", async function() {
+        let primaryAddress = await that.wallet.getPrimaryAddress();
+        await MoneroUtils.validateAddress(primaryAddress, TestUtils.NETWORK_TYPE);
+        assert.equal(primaryAddress, await that.wallet.getAddress(0, 0));
+      });
+      
+      if (testConfig.keysOnly) return; // the remaining tests need a daemon connection or a persisted wallet
+      
+      if (testConfig.testRelays && supports("subaddressLookahead"))
+      it("Can create wallets with subaddress lookahead (CI)", async function() {
         let err;
         let receiver: MoneroWallet | undefined = undefined;
         try {
@@ -395,8 +463,8 @@ export default class TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (testConfig.testNonRelays)
-      it("Can get the wallet's version", async function() {
+      if (testConfig.testNonRelays && supports("getVersion"))
+      it("Can get the wallet's version (CI)", async function() {
         let version = await that.wallet.getVersion();
         assert.equal(typeof version.getNumber(), "number");
         assert(version.getNumber() > 0);
@@ -404,7 +472,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the wallet's path", async function() {
+      it("Can get the wallet's path (CI)", async function() {
         
         // create random wallet
         let wallet = await that.createWallet();
@@ -426,7 +494,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can set the daemon connection", async function() {
+      it("Can set the daemon connection (CI)", async function() {
         let err;
         let wallet: MoneroWallet;
         try {
@@ -491,7 +559,7 @@ export default class TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays)
-      it("Can use a connection manager", async function() {
+      it("Can use a connection manager (CI)", async function() {
         let err;
         let wallet: MoneroWallet | undefined = undefined;
         try {
@@ -528,8 +596,9 @@ export default class TestMoneroWalletCommon {
           // start polling connections
           connectionManager.startPolling(TestUtils.SYNC_PERIOD_IN_MS);
 
-          // test that wallet auto connects
-          await GenUtils.waitFor(TestUtils.AUTO_CONNECT_TIMEOUT_MS);
+          // test that wallet auto connects, allowing a timed out first check to retry after the polling period
+          let deadline = Date.now() + MoneroConnectionManager.DEFAULT_TIMEOUT + TestUtils.SYNC_PERIOD_IN_MS * 2;
+          while (!await wallet.getDaemonConnection() && Date.now() < deadline) await GenUtils.waitFor(100);
           assert.equal((await wallet.getDaemonConnection()).getUri(), connection1.getUri());
           assert(await wallet.isConnectedToDaemon());
 
@@ -565,59 +634,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the seed as a mnemonic phrase", async function() {
-        let mnemonic = await that.wallet.getSeed();
-        await MoneroUtils.validateMnemonic(mnemonic);
-        assert.equal(mnemonic, TestUtils.SEED);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the language of the seed", async function() {
-        let language = await that.wallet.getSeedLanguage();
-        assert.equal(language, "English");
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get a list of supported languages for the seed", async function() {
-        let languages = await that.getSeedLanguages();
-        assert(Array.isArray(languages));
-        assert(languages.length);
-        for (let language of languages) assert(language);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the private view key", async function() {
-        let privateViewKey = await that.wallet.getPrivateViewKey()
-        await MoneroUtils.validatePrivateViewKey(privateViewKey);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the private spend key", async function() {
-        let privateSpendKey = await that.wallet.getPrivateSpendKey()
-        await MoneroUtils.validatePrivateSpendKey(privateSpendKey);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the public view key", async function() {
-        let publicViewKey = await that.wallet.getPublicViewKey()
-        await MoneroUtils.validatePublicViewKey(publicViewKey);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the public spend key", async function() {
-        let publicSpendKey = await that.wallet.getPublicSpendKey()
-        await MoneroUtils.validatePublicSpendKey(publicSpendKey);
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the primary address", async function() {
-        let primaryAddress = await that.wallet.getPrimaryAddress();
-        await MoneroUtils.validateAddress(primaryAddress, TestUtils.NETWORK_TYPE);
-        assert.equal(primaryAddress, await that.wallet.getAddress(0, 0));
-      });
-      
-      if (testConfig.testNonRelays)
-      it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
+      it("Can get the address of a subaddress at a specified account and subaddress index (CI)", async function() {
         assert.equal((await that.wallet.getSubaddress(0, 0)).getAddress(), await that.wallet.getPrimaryAddress());
         for (let account of await that.wallet.getAccounts(true)) {
           for (let subaddress of account.getSubaddresses()) {
@@ -627,12 +644,12 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get addresses out of range of used accounts and subaddresses", async function() {
+      it("Can get addresses out of range of used accounts and subaddresses (CI)", async function() {
         await that.testGetSubaddressAddressOutOfRange();
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the account and subaddress indices of an address", async function() {
+      it("Can get the account and subaddress indices of an address (CI)", async function() {
         
         // get last subaddress to test
         let accounts = await that.wallet.getAccounts(true);
@@ -666,7 +683,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get an integrated address given a payment id", async function() {
+      it("Can get an integrated address given a payment id (CI)", async function() {
         
         // save address for later comparison
         let address = await that.wallet.getPrimaryAddress();
@@ -710,7 +727,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can decode an integrated address", async function() {
+      it("Can decode an integrated address (CI)", async function() {
         let integratedAddress = await that.wallet.getIntegratedAddress(undefined, "03284e41c342f036");
         let decodedAddress = await that.wallet.decodeIntegratedAddress(integratedAddress.toString());
         assert.deepEqual(decodedAddress, integratedAddress);
@@ -726,7 +743,7 @@ export default class TestMoneroWalletCommon {
       
       // TODO: test syncing from start height
       if (testConfig.testNonRelays)
-      it("Can sync (without progress)", async function() {
+      it("Can sync (without progress) (CI)", async function() {
         let numBlocks = 100;
         let chainHeight = await that.daemon.getHeight();
         assert(chainHeight >= numBlocks);
@@ -737,13 +754,13 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the current height that the wallet is synchronized to", async function() {
+      it("Can get the current height that the wallet is synchronized to (CI)", async function() {
         let height = await that.wallet.getHeight();
         assert(height >= 0);
       });
       
-      if (testConfig.testNonRelays)
-      it("Can get a blockchain height by date", async function() {
+      if (testConfig.testNonRelays && supports("getHeightByDate"))
+      it("Can get a blockchain height by date (CI)", async function() {
         
         // collect dates to test starting 100 days ago
         const DAY_MS = 24 * 60 * 60 * 1000;
@@ -776,7 +793,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses", async function() {
+      it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses (CI)", async function() {
         
         // fetch accounts with all info as reference
         let accounts = await that.wallet.getAccounts(true);
@@ -817,7 +834,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get accounts without subaddresses", async function() {
+      it("Can get accounts without subaddresses (CI)", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         accounts.map(async (account) => {
@@ -827,7 +844,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get accounts with subaddresses", async function() {
+      it("Can get accounts with subaddresses (CI)", async function() {
         let accounts = await that.wallet.getAccounts(true);
         assert(accounts.length > 0);
         accounts.map(async (account) => {
@@ -837,7 +854,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get an account at a specified index", async function() {
+      it("Can get an account at a specified index (CI)", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         for (let account of accounts) {
@@ -854,7 +871,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a new account without a label", async function() {
+      it("Can create a new account without a label (CI)", async function() {
         let accountsBefore = await that.wallet.getAccounts();
         let createdAccount = await that.wallet.createAccount();
         await testAccount(createdAccount);
@@ -862,7 +879,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a new account with a label", async function() {
+      it("Can create a new account with a label (CI)", async function() {
         
         // create account with label
         let accountsBefore = await that.wallet.getAccounts();
@@ -888,7 +905,7 @@ export default class TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays)
-      it("Can set account labels", async function() {
+      it("Can set account labels (CI)", async function() {
 
         // create account
         if ((await that.wallet.getAccounts()).length < 2) await that.wallet.createAccount();
@@ -900,7 +917,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get subaddresses at a specified account index", async function() {
+      it("Can get subaddresses at a specified account index (CI)", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         for (let account of accounts) {
@@ -914,7 +931,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get subaddresses at specified account and subaddress indices", async function() {
+      it("Can get subaddresses at specified account and subaddress indices (CI)", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         for (let account of accounts) {
@@ -939,7 +956,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get a subaddress at a specified account and subaddress index", async function() {
+      it("Can get a subaddress at a specified account and subaddress index (CI)", async function() {
         let accounts = await that.wallet.getAccounts();
         assert(accounts.length > 0);
         for (let account of accounts) {
@@ -954,7 +971,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a subaddress with and without a label", async function() {
+      it("Can create a subaddress with and without a label (CI)", async function() {
         
         // create subaddresses across accounts
         let accounts = await that.wallet.getAccounts();
@@ -985,7 +1002,7 @@ export default class TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays)
-      it("Can set subaddress labels", async function() {
+      it("Can set subaddress labels (CI)", async function() {
 
         // create subaddresses
         while ((await that.wallet.getSubaddresses(0)).length < 3) await that.wallet.createSubaddress(0);
@@ -999,7 +1016,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get transactions in the wallet", async function() {
+      it("Can get transactions in the wallet (CI)", async function() {
         let nonDefaultIncoming = false;
         let txs = await that.getAndTestTxs(that.wallet, undefined, true);
         assert(txs.length > 0, "Wallet has no txs to test");
@@ -1040,7 +1057,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get transactions by hash", async function() {
+      it("Can get transactions by hash (CI)", async function() {
         
         let maxNumTxs = 10;  // max number of txs to test
         
@@ -1085,7 +1102,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can get transactions with additional configuration", async function() {
+      it("Can get transactions with additional configuration (CI)", async function() {
         
         // get random transactions for testing
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
@@ -1195,14 +1212,15 @@ export default class TestMoneroWalletCommon {
         // get txs with input query // TODO: no inputs returned to filter
         
         // get txs with output query
-        let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(2);
+        let unspentOutput = (await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1)))[0]; // other tests spend from arbitrary subaddresses
+        let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(unspentOutput.getSubaddressIndex());
         txs = await that.wallet.getTxs(new MoneroTxQuery().setOutputQuery(outputQuery));
         assert(txs.length > 0);
         for (let tx of txs) {
           assert(tx.getOutputs().length > 0);
           found = false;
           for (let output of tx.getOutputsWallet()) {
-            if (output.getIsSpent() === false && output.getAccountIndex() === 1 && output.getSubaddressIndex() === 2) {
+            if (output.getIsSpent() === false && output.getAccountIndex() === 1 && output.getSubaddressIndex() === unspentOutput.getSubaddressIndex()) {
               found = true;
               break;
             }
@@ -1231,7 +1249,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get transactions by height", async function() {
+      it("Can get transactions by height (CI)", async function() {
         
         // get all confirmed txs for testing
         let txs = await that.getAndTestTxs(that.wallet, new MoneroTxQuery().setIsConfirmed(true));
@@ -1320,7 +1338,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Returns all known fields of txs regardless of filtering", async function() {
+      it("Returns all known fields of txs regardless of filtering (CI)", async function() {
         
         // fetch wallet txs
         let txs = await that.wallet.getTxs({isConfirmed: true});
@@ -1349,7 +1367,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Validates inputs when getting transactions", async function() {
+      it("Validates inputs when getting transactions (CI)", async function() {
         
         // fetch random txs for testing
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
@@ -1397,7 +1415,7 @@ export default class TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays)
-      it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
+      it("Can get transfers in the wallet, accounts, and subaddresses (CI)", async function() {
         
         // get all transfers
         await that.getAndTestTransfers(that.wallet, undefined, true);
@@ -1480,7 +1498,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can get transfers with additional configuration", async function() {
+      it("Can get transfers with additional configuration (CI)", async function() {
         
         // get incoming transfers
         let transfers = await that.getAndTestTransfers(that.wallet, {isIncoming: true}, true);
@@ -1566,7 +1584,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Validates inputs when getting transfers", async function() {
+      it("Validates inputs when getting transfers (CI)", async function() {
         
         // test with invalid hash
         let transfers = await that.wallet.getTransfers({txQuery: {hash: "invalid_id"}});
@@ -1593,7 +1611,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get incoming and outgoing transfers using convenience methods", async function() {
+      it("Can get incoming and outgoing transfers using convenience methods (CI)", async function() {
         
         // get incoming transfers
         let inTransfers = await that.wallet.getIncomingTransfers();
@@ -1651,7 +1669,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get outputs in the wallet, accounts, and subaddresses", async function() {
+      it("Can get outputs in the wallet, accounts, and subaddresses (CI)", async function() {
 
         // get all outputs
         await that.getAndTestOutputs(that.wallet, undefined, true);
@@ -1697,7 +1715,7 @@ export default class TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can get outputs with additional configuration", async function() {
+      it("Can get outputs with additional configuration (CI)", async function() {
         
         // get unspent outputs to account 0
         let outputs = await that.getAndTestOutputs(that.wallet, {accountIndex: 0, isSpent: false});
@@ -1762,7 +1780,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Validates inputs when getting outputs", async function() {
+      it("Validates inputs when getting outputs (CI)", async function() {
         
         // test with invalid hash
         let outputs = await that.wallet.getOutputs({txQuery: {hash: "invalid_id"}});
@@ -1778,7 +1796,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can export outputs in hex format", async function() {
+      it("Can export outputs in hex format (CI)", async function() {
         let outputsHex = await that.wallet.exportOutputs();
         assert.equal(typeof outputsHex, "string");  // TODO: this will fail if wallet has no outputs; run these tests on new wallet
         assert(outputsHex.length > 0);
@@ -1790,7 +1808,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can import outputs in hex format", async function() {
+      it("Can import outputs in hex format (CI)", async function() {
         
         // export outputs hex
         let outputsHex = await that.wallet.exportOutputs();
@@ -1803,7 +1821,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Has correct accounting across accounts, subaddresses, txs, transfers, and outputs", async function() {
+      it("Has correct accounting across accounts, subaddresses, txs, transfers, and outputs (CI)", async function() {
         
         // pre-fetch wallet balances, accounts, subaddresses, and txs
         let walletBalance = await that.wallet.getBalance();
@@ -1889,7 +1907,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get and set a transaction note", async function() {
+      it("Can get and set a transaction note (CI)", async function() {
         let txs = await getRandomTransactions(that.wallet, undefined, 1, 5);
         
         // set notes
@@ -1910,7 +1928,7 @@ export default class TestMoneroWalletCommon {
       
       // TODO: why does getting cached txs take 2 seconds when should already be cached?
       if (testConfig.testNonRelays)
-      it("Can get and set multiple transaction notes", async function() {
+      it("Can get and set multiple transaction notes (CI)", async function() {
         
         // set tx notes
         let uuid = GenUtils.getUUID();
@@ -1943,7 +1961,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can check a transfer using the transaction's secret key and the destination", async function() {
+      it("Can check a transfer using the transaction's secret key and the destination (CI)", async function() {
         
         // wait for pool txs to confirm if no confirmed txs with destinations
         if ((await that.wallet.getTxs({isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}})).length === 0) {
@@ -2034,7 +2052,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can prove a transaction by getting its signature", async function() {
+      it("Can prove a transaction by getting its signature (CI)", async function() {
         
         // get random txs with outgoing destinations
         let txs;
@@ -2111,7 +2129,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can prove a spend using a generated signature and no destination public address", async function() {
+      it("Can prove a spend using a generated signature and no destination public address (CI)", async function() {
         
         // get random confirmed outgoing txs
         let txs = await getRandomTransactions(that.wallet, {isIncoming: false, inTxPool: false, isFailed: false}, 2, MAX_TX_PROOFS);
@@ -2159,7 +2177,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can prove reserves in the wallet", async function() {
+      it("Can prove reserves in the wallet (CI)", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(that.wallet); // proof excludes unconfirmed change and incoming funds
 
         // get proof of entire wallet
@@ -2205,7 +2223,8 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can prove reserves in an account", async function() {
+      it("Can prove reserves in an account (CI)", async function() {
+        await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(that.wallet); // proof excludes unconfirmed change and incoming funds
         
         // test proofs of accounts
         let numNonZeroTests = 0;
@@ -2281,7 +2300,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can export key images", async function() {
+      it("Can export key images (CI)", async function() {
         let result = await that.wallet.exportKeyImages(true);
         assert.equal(result.getOffset(), 0);
         let images = result.getKeyImages();
@@ -2299,8 +2318,8 @@ export default class TestMoneroWalletCommon {
         assert(imagesAll.length > images.length);
       });
       
-      if (testConfig.testNonRelays)
-      it("Can get new key images from the last import", async function() {
+      if (testConfig.testNonRelays && supports("getNewKeyImagesFromLastImport"))
+      it("Can get new key images from the last import (CI)", async function() {
         
         // export all outputs for a fresh offline wallet
         let outputsHex = await that.wallet.exportOutputs(true);
@@ -2343,7 +2362,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can sign and verify messages", async function() {
+      it("Can sign and verify messages (CI)", async function() {
         
         // message to sign and subaddresses to test
         let msg = "This is a super important message which needs to be signed and verified.";
@@ -2389,7 +2408,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Has an address book", async function() {
+      it("Has an address book (CI)", async function() {
         
         // initial state
         let entries = await that.wallet.getAddressBookEntries();
@@ -2476,7 +2495,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get and set arbitrary key/value attributes", async function() {
+      it("Can get and set arbitrary key/value attributes (CI)", async function() {
         
         // set attributes
         let attrs = {};
@@ -2497,7 +2516,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can convert between a tx config and payment URI", async function() {
+      it("Can convert between a tx config and payment URI (CI)", async function() {
         
         // test with address and amount
         let config1 = new MoneroTxConfig({address: await that.wallet.getAddress(0, 0), amount: BigInt(0)});
@@ -2540,7 +2559,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can start and stop mining", async function() {
+      it("Can start and stop mining (CI)", async function() {
         let status = await that.daemon.getMiningStatus();
         if (status.getIsActive()) await that.wallet.stopMining();
         await that.wallet.startMining(2, false, true);
@@ -2548,7 +2567,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can change the wallet password", async function() {
+      it("Can change the wallet password (CI)", async function() {
         
         // create random wallet
         let wallet = await that.createWallet(new MoneroWalletConfig().setPassword(TestUtils.WALLET_PASSWORD));
@@ -2591,7 +2610,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can save and close the wallet in a single call", async function() {
+      it("Can save and close the wallet in a single call (CI)", async function() {
         
         // create random wallet
         let password = ""; // unencrypted
@@ -2622,17 +2641,17 @@ export default class TestMoneroWalletCommon {
       // ----------------------------- NOTIFICATION TESTS -------------------------
       
       if (testConfig.testNotifications)
-      it("Can generate notifications sending to different wallet.", async function() {
+      it("Can generate notifications sending to different wallet. (CI)", async function() {
         await testWalletNotifications("testNotificationsDifferentWallet", false, false, false, false, 0);
       });
       
       if (testConfig.testNotifications)
-      it("Can generate notifications sending to different wallet when relayed", async function() {
+      it("Can generate notifications sending to different wallet when relayed (CI)", async function() {
         await testWalletNotifications("testNotificationsDifferentWalletWhenRelayed", false, false, false, true, 3);
       });
       
       if (testConfig.testNotifications)
-      it("Can generate notifications sending to different account", async function() {
+      it("Can generate notifications sending to different account (CI)", async function() {
         await testWalletNotifications("testNotificationsDifferentAccounts", true, false, false, false, 0);
       });
       
@@ -2642,7 +2661,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNotifications)
-      it("Can generate notifications sweeping output to different account", async function() {
+      it("Can generate notifications sweeping output to different account (CI)", async function() {
         await testWalletNotifications("testNotificationsDifferentAccountSweepOutput", true, false, true, false, 0);
       });
       
@@ -2684,7 +2703,7 @@ export default class TestMoneroWalletCommon {
           await TestUtils.WALLET_TX_TRACKER.waitForUnlockedBalance(sender, 0, undefined, TestUtils.MAX_FEE * (10n));
 
           // include the last mined blocks before measuring balance changes
-          if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+          await StartMining.stopMining();
           await sender.sync();
           if (receiver !== sender) await receiver.sync();
 
@@ -2749,8 +2768,8 @@ export default class TestMoneroWalletCommon {
           if (senderUnlockedBalanceAfter >= senderUnlockedBalanceBefore) issues.push("ERROR: sender unlocked balance should have decreased after sending (before: " + senderUnlockedBalanceBefore + ", after: " + senderUnlockedBalanceAfter + ")");
           if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not notify balance change after sending");
           else {
-            if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after sending (" + await sender.getBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][0]) + ")";
-            if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + await sender.getUnlockedBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1][1]) + ")";
+            if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after sending (" + await sender.getBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance + ")");
+            if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after sending (" + await sender.getUnlockedBalance() + " != " + senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance + ")");
           }
           if (senderNotificationCollector.getOutputsSpent(outputQuery).length === 0) issues.push("ERROR: sender did not announce unconfirmed spent output");
 
@@ -2779,7 +2798,7 @@ export default class TestMoneroWalletCommon {
             }
           }
 
-          // mine until test completes
+          // mine until the funds unlock
           await StartMining.startMining();
 
           // loop every sync period until unlock tested
@@ -2845,6 +2864,7 @@ export default class TestMoneroWalletCommon {
 
             // otherwise test unlock notifications
             else if (height >= expectedUnlockTime) {
+              await StartMining.stopMining(); // freeze the chain so unrelated unlocks cannot change balances before the final checks
               let threadFn = async function() {
                 await GenUtils.waitFor(TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME); // wait 2 sync periods + poll time for notifications
                 let unlockedQuery = outputQuery.getTxQuery().copy().setIsLocked(false).getOutputQuery();
@@ -2853,13 +2873,15 @@ export default class TestMoneroWalletCommon {
                 if (!sameWallet && await receiver.getBalance() !== await receiver.getUnlockedBalance()) issues.push("ERROR: receiver balance != unlocked balance after funds unlocked");
                 if (senderNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: sender did not announce any balance notifications");
                 else {
-                  if (await sender.getBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: sender balance != last notified balance after funds unlocked");
-                  if (await sender.getUnlockedBalance() !== senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after funds unlocked");
+                  let lastNotified = senderNotificationCollector.getBalanceNotifications()[senderNotificationCollector.getBalanceNotifications().length - 1];
+                  if (await sender.getBalance() !== lastNotified.balance) issues.push("ERROR: sender balance != last notified balance after funds unlocked (" + await sender.getBalance() + " != " + lastNotified.balance + ")");
+                  if (await sender.getUnlockedBalance() !== lastNotified.unlockedBalance) issues.push("ERROR: sender unlocked balance != last notified unlocked balance after funds unlocked (" + await sender.getUnlockedBalance() + " != " + lastNotified.unlockedBalance + ")");
                 }
                 if (receiverNotificationCollector.getBalanceNotifications().length === 0) issues.push("ERROR: receiver did not announce any balance notifications");
                 else {
-                  if (await receiver.getBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].balance) issues.push("ERROR: receiver balance != last notified balance after funds unlocked");
-                  if (await receiver.getUnlockedBalance() !== receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1].unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds unlocked");
+                  let lastNotified = receiverNotificationCollector.getBalanceNotifications()[receiverNotificationCollector.getBalanceNotifications().length - 1];
+                  if (await receiver.getBalance() !== lastNotified.balance) issues.push("ERROR: receiver balance != last notified balance after funds unlocked (" + await receiver.getBalance() + " != " + lastNotified.balance + ")");
+                  if (await receiver.getUnlockedBalance() !== lastNotified.unlockedBalance) issues.push("ERROR: receiver unlocked balance != last notified unlocked balance after funds unlocked (" + await receiver.getUnlockedBalance() + " != " + lastNotified.unlockedBalance + ")");
                 }
               }
               threads.push(threadFn());
@@ -2888,7 +2910,7 @@ export default class TestMoneroWalletCommon {
           try {
             await Promise.allSettled(threads);
             try {
-              if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+              await StartMining.stopMining();
             } finally {
               try {
                 if (sender.getListeners().includes(senderNotificationCollector)) await sender.removeListener(senderNotificationCollector);
@@ -2962,7 +2984,7 @@ export default class TestMoneroWalletCommon {
         throw new Error("Unknown output state: " + output.toString());
       }
       
-      it("Can stop listening", async function() {
+      it("Can stop listening (CI)", async function() {
         
         // create offline wallet
         let wallet = await that.createWallet(new MoneroWalletConfig().setServer(TestUtils.OFFLINE_SERVER_URI));
@@ -2979,7 +3001,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNotifications)
-      it("Can be created and receive funds", async function() {
+      it("Can be created and receive funds (CI)", async function() {
         
         // create a random wallet
         let receiver = await that.createWallet({password: "mysupersecretpassword123"});
@@ -2998,7 +3020,7 @@ export default class TestMoneroWalletCommon {
           let sentTx = await that.wallet.createTx({accountIndex: 0, address: await receiver.getPrimaryAddress(), amount: TestUtils.MAX_FEE, relay: true});
           
           // wait for funds to confirm
-          try { await StartMining.startMining(); } catch (e: any) { }
+          await StartMining.startMining();
           while (!(await that.wallet.getTx(sentTx.getHash())).getIsConfirmed()) {
             if ((await that.wallet.getTx(sentTx.getHash())).getIsFailed()) throw new Error("Tx failed in mempool: " + sentTx.getHash());
             await that.daemon.waitForNextBlockHeader();
@@ -3014,31 +3036,31 @@ export default class TestMoneroWalletCommon {
         
         // final cleanup
         await that.closeWallet(receiver);
-        try { await that.daemon.stopMining(); } catch (e: any) { }
+        await StartMining.stopMining();
         if (err) throw err;
       });
       
       // TODO: test sending to multiple accounts
       if (testConfig.testRelays && testConfig.testNotifications)
-      it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
+      it("Can update a locked tx sent from/to the same account as blocks are added to the chain (CI)", async function() {
         let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
-      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
+      it("Can update split locked txs sent from/to the same account as blocks are added to the chain (CI)", async function() {
         let config = new MoneroTxConfig({accountIndex: 0, address: await that.wallet.getPrimaryAddress(), amount: TestUtils.MAX_FEE, canSplit: true, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain (CI)", async function() {
         let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, canSplit: false, relay: true});
         await testSendAndUpdateTxs(config);
       });
       
       if (testConfig.testRelays && testConfig.testNotifications && !testConfig.liteMode)
-      it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
+      it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain (CI)", async function() {
         let config = new MoneroTxConfig({accountIndex: 0, address: (await that.wallet.getSubaddress(1, 0)).getAddress(), amount: TestUtils.MAX_FEE, relay: true});
         await testSendAndUpdateTxs(config);
       });
@@ -3082,8 +3104,7 @@ export default class TestMoneroWalletCommon {
           let updatedTxs;
           
           // start mining
-          try { await StartMining.startMining(); }
-          catch (e: any) { console.log("WARNING: could not start mining: " + e.message); } // not fatal
+          await StartMining.startMining();
           
           // loop to update txs through confirmations
           let numConfirmations = 0;
@@ -3140,8 +3161,7 @@ export default class TestMoneroWalletCommon {
         }
         
         // stop mining
-        try { await that.wallet.stopMining(); }
-        catch (e: any) { }
+        await StartMining.stopMining();
         
         // throw error if there was one
         if (err) throw err;
@@ -3192,7 +3212,7 @@ export default class TestMoneroWalletCommon {
       //  ----------------------------- TEST RELAYS ---------------------------
       
       if (testConfig.testNonRelays)
-      it("Validates inputs when sending funds", async function() {
+      it("Validates inputs when sending funds (CI)", async function() {
         
         // try sending with invalid address
         try {
@@ -3204,7 +3224,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can send to self", async function() {
+      it("Can send to self (CI)", async function() {
         let err;
         let recipient;
         try {
@@ -3242,7 +3262,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can send to an external address", async function() {
+      it("Can send to an external address (CI)", async function() {
         let err;
         let recipient;
         try {
@@ -3288,12 +3308,12 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can send from multiple subaddresses in a single transaction", async function() {
+      it("Can send from multiple subaddresses in a single transaction (CI)", async function() {
         await testSendFromMultiple(new MoneroTxConfig().setCanSplit(false));
       });
       
       if (testConfig.testRelays)
-      it("Can send from multiple subaddresses in split transactions", async function() {
+      it("Can send from multiple subaddresses in split transactions (CI)", async function() {
         await testSendFromMultiple(new MoneroTxConfig().setCanSplit(true));
       });
       
@@ -3399,13 +3419,13 @@ export default class TestMoneroWalletCommon {
       }
       
       if (testConfig.testRelays)
-      it("Can send to an address in a single transaction.", async function() {
+      it("Can send to an address in a single transaction. (CI)", async function() {
         await testSendToSingle(new MoneroTxConfig().setCanSplit(false));
       });
       
       // NOTE: this test will be invalid when payment ids are fully removed
       if (testConfig.testRelays)
-      it("Can send to an address in a single transaction with a payment id", async function() {
+      it("Can send to an address in a single transaction with a payment id (CI)", async function() {
         let integratedAddress = await that.wallet.getIntegratedAddress();
         let paymentId = integratedAddress.getPaymentId();
         try {
@@ -3417,17 +3437,17 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can send to an address with split transactions", async function() {
+      it("Can send to an address with split transactions (CI)", async function() {
         await testSendToSingle(new MoneroTxConfig().setCanSplit(true).setRelay(true));
       });
       
       if (testConfig.testRelays)
-      it("Can create then relay a transaction to send to a single address", async function() {
+      it("Can create then relay a transaction to send to a single address (CI)", async function() {
         await testSendToSingle(new MoneroTxConfig().setCanSplit(false).setRelay(false));
       });
       
       if (testConfig.testRelays)
-      it("Can create then relay split transactions to send to a single address", async function() {
+      it("Can create then relay split transactions to send to a single address (CI)", async function() {
         await testSendToSingle(new MoneroTxConfig().setCanSplit(true).setRelay(false));
       });
       
@@ -3555,28 +3575,28 @@ export default class TestMoneroWalletCommon {
       }
       
       if (testConfig.testRelays)
-      it("Can send to multiple addresses in split transactions.", async function() {
+      it("Can send to multiple addresses in split transactions. (CI)", async function() {
         await testSendToMultiple(3, 15, true);
       });
       
       if (testConfig.testRelays)
-      it("Can send to multiple addresses in split transactions using a JavaScript object for configuration", async function() {
+      it("Can send to multiple addresses in split transactions using a JavaScript object for configuration (CI)", async function() {
         await testSendToMultiple(3, 15, true, undefined, true);
       });
       
       if (testConfig.testRelays)
-      it("Can send dust to multiple addresses in split transactions", async function() {
+      it("Can send dust to multiple addresses in split transactions (CI)", async function() {
         let dustAmt = (await that.daemon.getFeeEstimate()).getFee() / BigInt(2);
         await testSendToMultiple(5, 3, true, dustAmt);
       });
 
       if (testConfig.testRelays)
-      it("Can subtract fees from destinations", async function() {
+      it("Can subtract fees from destinations (CI)", async function() {
         await testSendToMultiple(5, 3, false, undefined, false, true);
       });
 
       if (testConfig.testRelays)
-      it("Cannot subtract fees from destinations in split transactions", async function() {
+      it("Cannot subtract fees from destinations in split transactions (CI)", async function() {
         await testSendToMultiple(3, 15, true, undefined, true, true);
       });
       
@@ -3594,7 +3614,7 @@ export default class TestMoneroWalletCommon {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
 
         // include the last mined blocks before measuring balance changes
-        if ((await that.daemon.getMiningStatus()).getIsActive()) await that.daemon.stopMining();
+        await StartMining.stopMining();
         await that.wallet.sync();
         
         // compute the minimum account unlocked balance needed in order to fulfill the request
@@ -3733,7 +3753,7 @@ export default class TestMoneroWalletCommon {
       }
       
       if (!testConfig.liteMode && (testConfig.testNonRelays || testConfig.testRelays))
-      it("Supports view-only and offline wallets to create, sign, and submit transactions", async function() {
+      it("Supports view-only and offline wallets to create, sign, and submit transactions (CI)", async function() {
         
         // create view-only and offline wallets
         let viewOnlyWallet = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
@@ -3755,7 +3775,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can sweep individual outputs identified by their key images", async function() {
+      it("Can sweep individual outputs identified by their key images (CI)", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // test config
@@ -3800,7 +3820,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can sweep dust without relaying", async function() {
+      it("Can sweep dust without relaying (CI)", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
@@ -3829,7 +3849,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testRelays)
-      it("Can sweep dust", async function() {
+      it("Can sweep dust (CI)", async function() {
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(that.wallet);
         
         // sweep dust which returns empty list if no dust to sweep (dust does not exist after rct)
@@ -3842,7 +3862,7 @@ export default class TestMoneroWalletCommon {
         }
       });
       
-      it("Supports multisig wallets", async function() {
+      it("Supports multisig wallets (CI)", async function() {
         await that.testMultisig(2, 2, false); // n/n
         await that.testMultisig(2, 3, false); // (n-1)/n
         await that.testMultisig(2, 4, testConfig.testRelays && !testConfig.liteMode); // m/n
@@ -4058,7 +4078,7 @@ export default class TestMoneroWalletCommon {
         }
       }
       
-      it("Can scan transactions by id", async function() {
+      it("Can scan transactions by id (CI)", async function() {
         
         // get a few tx hashes
         let txHashes: string[] = [];
@@ -4099,7 +4119,7 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can freeze and thaw outputs", async function() {
+      it("Can freeze and thaw outputs (CI)", async function() {
         
         // get an available output
         let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)));
@@ -4164,9 +4184,8 @@ export default class TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Provides key images of spent outputs", async function() {
+      it("Provides key images of spent outputs (CI)", async function() {
         let accountIndex = 0;
-        let subaddressIndex = (await that.wallet.getSubaddresses(0)).length > 1 ? 1 : 0; // TODO: avoid subaddress 0 which is more likely to fail transaction sanity check
       
         // test unrelayed single transaction
         testSpendTx(await that.wallet.createTx(new MoneroTxConfig().addDestination(await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE).setAccountIndex(accountIndex)));
@@ -4183,8 +4202,12 @@ export default class TestMoneroWalletCommon {
           for (let input of tx.getInputs()) dustKeyImages.push(input.getKeyImage().getHex());
         }
         
-        // get available outputs above min amount
-        let outputs = await that.wallet.getOutputs(new MoneroOutputQuery().setAccountIndex(accountIndex).setSubaddressIndex(subaddressIndex).setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)).setMinAmount(TestUtils.MAX_FEE));
+        // get available outputs above min amount from a subaddress with such outputs, preferring one other than 0 which is more likely to fail the tx sanity check
+        let availableQuery = new MoneroOutputQuery().setAccountIndex(accountIndex).setIsSpent(false).setIsFrozen(false).setTxQuery(new MoneroTxQuery().setIsLocked(false)).setMinAmount(TestUtils.MAX_FEE);
+        let subaddressIndex = 0;
+        for (let output of await that.wallet.getOutputs(availableQuery)) if (output.getSubaddressIndex() > 0) { subaddressIndex = output.getSubaddressIndex(); break; }
+        let outputs = await that.wallet.getOutputs(availableQuery.setSubaddressIndex(subaddressIndex));
+        assert(outputs.length > 0, "Wallet does not have unlocked outputs in account " + accountIndex + "; run send tests");
         
         // filter dust outputs
         let dustOutputs: any[] = [];
@@ -4226,7 +4249,7 @@ export default class TestMoneroWalletCommon {
       }
       
       if (testConfig.testNonRelays)
-      it("Can prove unrelayed txs", async function() {
+      it("Can prove unrelayed txs (CI)", async function() {
       
         // create unrelayed tx to verify
         let address1 = await TestUtils.getExternalWalletAddress();
@@ -4270,12 +4293,12 @@ export default class TestMoneroWalletCommon {
         await that.daemon.flushTxPool(tx.getHash());
         await that.closeWallet(verifyingWallet);
       });
-    });
-
-    if (testConfig.testNonRelays)
-    it("Can get the default fee priority", async function() {
-      const defaultPriority = await that.wallet.getDefaultFeePriority();
-      assert(defaultPriority > 0);
+      
+      if (testConfig.testNonRelays)
+      it("Can get the default fee priority (CI)", async function() {
+        const defaultPriority = await that.wallet.getDefaultFeePriority();
+        assert(defaultPriority > 0);
+      });
     });
   }
   
@@ -4752,8 +4775,7 @@ export default class TestMoneroWalletCommon {
     }
     
     // stop mining at end of test
-    try { await this.daemon.stopMining(); }
-    catch (err2) { }
+    await StartMining.stopMining();
     
     // save and close participants
     for (let participant of participants) await this.closeWallet(participant, true);
@@ -4921,7 +4943,7 @@ export default class TestMoneroWalletCommon {
       }
       
       // stop mining
-      await this.daemon.stopMining();
+      await StartMining.stopMining();
       
       // multisig wallet should have unlocked balance in subaddresses 0-3
       for (let i = 0; i < numSubaddresses; i++) {
@@ -5262,7 +5284,7 @@ function testSubaddress(subaddress) {
   TestUtils.testUnsignedBigInt(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
   assert(typeof subaddress.getIsUsed() === "boolean");
-  if (subaddress.getBalance() > 0n) assert(subaddress.getIsUsed());
+  if (subaddress.getNumUnspentOutputs() > 0) assert(subaddress.getIsUsed()); // pool funds count toward the balance before the subaddress is used
   assert(subaddress.getNumBlocksToUnlock() >= 0);
 }
 

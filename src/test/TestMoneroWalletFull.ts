@@ -1,6 +1,6 @@
 import assert from "assert";
 import TestUtils from "./utils/TestUtils";
-import TestMoneroWalletCommon from "./TestMoneroWalletCommon";
+import TestMoneroWalletCommon, {WalletFeature} from "./TestMoneroWalletCommon";
 import StartMining from "./utils/StartMining";
 import WalletSyncPrinter from "./utils/WalletSyncPrinter";
 import WalletEqualityUtils from "./utils/WalletEqualityUtils";
@@ -81,6 +81,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
     config = new MoneroWalletConfig(config);
     if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
+    if (config.getRegtest() === undefined) config.setRegtest(config.getNetworkType() === TestUtils.NETWORK_TYPE);
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
     if (config.getServer() === undefined && !config.getConnectionManager()) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getFs() === undefined) config.setFs(await TestUtils.getDefaultFs());
@@ -99,6 +100,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
     if (config.getPath() === undefined) config.setPath(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID());
     if (config.getPassword() === undefined) config.setPassword(TestUtils.WALLET_PASSWORD);
     if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
+    if (config.getRegtest() === undefined) config.setRegtest(config.getNetworkType() === TestUtils.NETWORK_TYPE);
     if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
     if (!config.getServer() && !config.getConnectionManager()) config.setServer(TestUtils.getDaemonRpcConnection());
     if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
@@ -118,6 +120,10 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
   
   async getSeedLanguages(): Promise<string[]> {
     return await MoneroWalletFull.getSeedLanguages();
+  }
+  
+  unsupported(): WalletFeature[] {
+    return ["getVersion", "getNewKeyImagesFromLastImport"];
   }
   
   // ------------------------------- BEGIN TESTS ------------------------------
@@ -157,14 +163,14 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the daemon's height", async function() {
+      it("Can get the daemon's height (CI)", async function() {
         assert(await that.wallet.isConnectedToDaemon());
         let daemonHeight = await that.wallet.getDaemonHeight();
         assert(daemonHeight > 0);
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can open, sync, and close wallets repeatedly", async function() {
+      it("Can open, sync, and close wallets repeatedly (CI)", async function() {
         let wallets: MoneroWalletFull[] = [];
         for (let i = 0; i < 4; i++) {
           let wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
@@ -175,13 +181,13 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can get the daemon's max peer height", async function() {
+      it("Can get the daemon's max peer height (CI)", async function() {
         let height = await (that.wallet as MoneroWalletFull).getDaemonMaxPeerHeight();
         assert(height > 0);
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a random full wallet", async function() {
+      it("Can create a random full wallet (CI)", async function() {
         
         // create unconnected random wallet
         let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, server: TestUtils.OFFLINE_SERVER_URI});
@@ -238,7 +244,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a full wallet from seed", async function() {
+      it("Can create a full wallet from seed (CI)", async function() {
         
         // create unconnected wallet with mnemonic
         let wallet = await that.createWallet({seed: TestUtils.SEED, server: TestUtils.OFFLINE_SERVER_URI});
@@ -310,7 +316,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can create a full wallet from keys", async function() {
+      it("Can create a full wallet from keys (CI)", async function() {
         
         // recreate test wallet from keys
         let wallet = that.wallet;
@@ -334,7 +340,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !GenUtils.isBrowser())
-      it("Is compatible with monero-wallet-rpc wallet files", async function() {
+      it("Is compatible with monero-wallet-rpc wallet files (CI)", async function() {
         
         // create wallet using monero-wallet-rpc
         let walletName = GenUtils.getUUID();
@@ -347,7 +353,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await walletRpc.close(true);
         
         // open as full wallet
-        let walletFull = await openWalletFull(new MoneroWalletConfig().setPath(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
+        let walletFull = await openWalletFull(new MoneroWalletConfig().setPath(TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setRegtest(true).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearPool(walletFull);
         assert.equal(TestUtils.SEED, await walletFull.getSeed());
         assert.equal(TestUtils.ADDRESS, await walletFull.getPrimaryAddress());
@@ -358,7 +364,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         // create full wallet
         walletName = GenUtils.getUUID();
         let path = TestUtils.WALLET_RPC_LOCAL_WALLET_DIR + "/" + walletName;
-        walletFull = await createWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setSeed(TestUtils.SEED).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setServer(TestUtils.DAEMON_RPC_CONFIG));
+        walletFull = await createWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setRegtest(true).setSeed(TestUtils.SEED).setRestoreHeight(TestUtils.FIRST_RECEIVE_HEIGHT).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.sync();
         balance = await walletFull.getBalance();
         outputsHex = await walletFull.exportOutputs();
@@ -366,7 +372,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         
         // rebuild wallet cache using full wallet
         await (await TestUtils.getDefaultFs()).unlink(path);
-        walletFull = await openWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setServer(TestUtils.DAEMON_RPC_CONFIG));
+        walletFull = await openWalletFull(new MoneroWalletConfig().setPath(path).setPassword(TestUtils.WALLET_PASSWORD).setNetworkType(TestUtils.NETWORK_TYPE).setRegtest(true).setServer(TestUtils.DAEMON_RPC_CONFIG));
         await walletFull.close(true);
         
         // open wallet using monero-wallet-rpc
@@ -380,7 +386,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (!testConfig.liteMode && (testConfig.testNonRelays || testConfig.testRelays))
-      it("Is compatible with monero-wallet-rpc outputs and offline transaction signing", async function() {
+      it("Is compatible with monero-wallet-rpc outputs and offline transaction signing (CI)", async function() {
         
         // create view-only wallet in wallet rpc process
         let viewOnlyWallet = await TestUtils.createWalletRpc({
@@ -407,7 +413,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (!testConfig.liteMode)
-      it("Is compatible with monero-wallet-rpc multisig wallets", async function() {
+      it("Is compatible with monero-wallet-rpc multisig wallets (CI)", async function() {
         
         // create participants with monero-wallet-rpc and full wallet
         let participants: MoneroWallet[] = [];
@@ -424,8 +430,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         }
         
         // stop mining at end of test
-        try { await that.daemon.stopMining(); }
-        catch (e) { }
+        await StartMining.stopMining();
         
         // save and close participants
         for (let participant of participants) await that.closeWallet(participant, true);
@@ -435,7 +440,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       // TODO monero-project: cannot re-sync from lower block height after wallet saved
       if (testConfig.testNonRelays && !testConfig.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {
-        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.TESTNET, server: TestUtils.OFFLINE_SERVER_URI}, true);  // wallet must already exist
+        let wallet = await that.openWallet({path: TestUtils.WALLET_FULL_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.OFFLINE_SERVER_URI}, true);  // wallet must already exist
         await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
         //long startHeight = TestUtils.TEST_RESTORE_HEIGHT;
         let startHeight = 0;
@@ -454,7 +459,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can sync a wallet with a randomly generated seed", async function() {
+      it("Can sync a wallet with a randomly generated seed (CI)", async function() {
         assert(await that.daemon.isConnected(), "Not connected to daemon");
 
         // create test wallet
@@ -524,27 +529,27 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can sync a wallet created from seed from the genesis", async function() {
+      it("Can sync a wallet created from seed from the genesis (CI)", async function() {
         await testSyncSeed(undefined, undefined, true, false);
       });
       
       if (testConfig.testNonRelays)
-      it("Can sync a wallet created from seed from a restore height", async function() {
+      it("Can sync a wallet created from seed from a restore height (CI)", async function() {
         await testSyncSeed(undefined, TestUtils.FIRST_RECEIVE_HEIGHT);
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can sync a wallet created from seed from a start height.", async function() {
+      it("Can sync a wallet created from seed from a start height. (CI)", async function() {
         await testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT, undefined, false, true);
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can sync a wallet created from seed from a start height less than the restore height", async function() {
+      it("Can sync a wallet created from seed from a start height less than the restore height (CI)", async function() {
         await testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT, TestUtils.FIRST_RECEIVE_HEIGHT + 3);
       });
       
       if (testConfig.testNonRelays && !testConfig.liteMode)
-      it("Can sync a wallet created from seed from a start height greater than the restore height", async function() {
+      it("Can sync a wallet created from seed from a start height greater than the restore height (CI)", async function() {
         await testSyncSeed(TestUtils.FIRST_RECEIVE_HEIGHT + 3, TestUtils.FIRST_RECEIVE_HEIGHT);
       });
       
@@ -638,7 +643,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       }
       
       if (testConfig.testNonRelays)
-      it("Can sync a wallet created from keys", async function() {
+      it("Can sync a wallet created from keys (CI)", async function() {
         
         // recreate test wallet from keys
         let walletKeys = await that.createWallet({primaryAddress: await that.wallet.getPrimaryAddress(), privateViewKey: await that.wallet.getPrivateViewKey(), privateSpendKey: await that.wallet.getPrivateSpendKey(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT}, false);
@@ -686,7 +691,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       
       // TODO: test start syncing, notification of syncs happening, stop syncing, no notifications, etc
       if (testConfig.testNonRelays)
-      it("Can start and stop syncing", async function() {
+      it("Can start and stop syncing (CI)", async function() {
         
         // test unconnected wallet
         let err;  // used to emulate Java's try...catch...finally
@@ -772,7 +777,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Does not interfere with other wallet notifications", async function() {
+      it("Does not interfere with other wallet notifications (CI)", async function() {
         
         // create 2 wallets with a recent restore height
         let height = await that.daemon.getHeight();
@@ -804,7 +809,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Is equal to the RPC wallet.", async function() {
+      it("Is equal to the RPC wallet. (CI)", async function() {
 
         // wait for pending txs to clear from wallets before rescanning spent outputs
         await TestUtils.WALLET_TX_TRACKER.waitForTxsToClearWallets(await TestUtils.getWalletRpc(), that.wallet);
@@ -818,7 +823,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
 
       if (testConfig.testNonRelays)
-      it("Is equal to the RPC wallet with a seed offset", async function() {
+      it("Is equal to the RPC wallet with a seed offset (CI)", async function() {
         
         // use common offset to compare wallet implementations
         let seedOffset = "my super secret offset!";
@@ -842,7 +847,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Supports multisig sample code", async function() {
+      it("Supports multisig sample code (CI)", async function() {
         await testCreateMultisigWallet(2, 2);
         await testCreateMultisigWallet(2, 3);
         await testCreateMultisigWallet(2, 4);
@@ -905,7 +910,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       }
       
       if (testConfig.testNonRelays)
-      it("Can be saved", async function() {
+      it("Can be saved (CI)", async function() {
         
         // create unique path for new test wallet
         let path = TestMoneroWalletFull.getRandomWalletPath();
@@ -999,7 +1004,37 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can export and import wallet files", async function() {
+      it("Can reopen regtest wallets and sync new blocks (CI)", async function() {
+        let wallet;
+        try {
+          assert((await that.daemon.getInfo()).getIsRegtest());
+          wallet = await that.createWallet({seed: TestUtils.SEED, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: true}, false);
+          await wallet.sync();
+          let path = await wallet.getPath();
+          let balance = await wallet.getBalance();
+          let height = await wallet.getHeight();
+          let keysData = (await wallet.getData())[0];
+          await wallet.close(true);
+
+          // advance the chain so reopening must process a new regtest block
+          await StartMining.generateBlocks(1);
+          assert(await that.daemon.getHeight() > height);
+
+          // reopen both saved files and a keys only backup through the worker
+          for (let config of [{path: path}, {keysData: keysData}]) {
+            wallet = await that.openWallet({...config, regtest: true, proxyToWorker: true}, false);
+            await wallet.sync();
+            assert.equal(await wallet.getHeight(), await that.daemon.getHeight());
+            assert.equal(await wallet.getBalance(), balance);
+            await wallet.close();
+          }
+        } finally {
+          if (wallet && !await wallet.isClosed()) await wallet.close();
+        }
+      });
+
+      if (testConfig.testNonRelays)
+      it("Can export and import wallet files (CI)", async function() {
         let err;
         let wallet
         let wallet2;
@@ -1045,7 +1080,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can be moved", async function() {
+      it("Can be moved (CI)", async function() {
         let err;
         let wallet;
         try {
@@ -1101,7 +1136,7 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
       });
       
       if (testConfig.testNonRelays)
-      it("Can be closed", async function() {
+      it("Can be closed (CI)", async function() {
         let err;
         let wallet;
         try {

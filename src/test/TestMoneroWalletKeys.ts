@@ -76,7 +76,7 @@ export default class TestMoneroWalletKeys extends TestMoneroWalletCommon {
       that.testWalletKeys();
       
       // run common tests
-      that.runCommonTests();
+      that.runCommonTests({keysOnly: true});
     });
   }
   
@@ -89,11 +89,11 @@ export default class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     
     describe("Tests specific to keys wallet", function() {
       
-      it("Has the same keys as the RPC wallet", async function() {
+      it("Has the same keys as the RPC wallet (CI)", async function() {
         await WalletEqualityUtils.testWalletEqualityKeys(await TestUtils.getWalletRpc(), await that.getTestWallet());
       });
       
-      it("Has the same keys as the RPC wallet with a seed offset", async function() {
+      it("Has the same keys as the RPC wallet with a seed offset (CI)", async function() {
         
         // use common offset to compare wallet implementations
         let seedOffset = "my super secret offset!";
@@ -113,7 +113,7 @@ export default class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         await WalletEqualityUtils.testWalletEqualityKeys(walletRpc, walletKeys);
       });
       
-      it("Can get the address of a specified account and subaddress index", async function() {
+      it("Can get the address of a specified account and subaddress index (CI)", async function() {
         for (let accountIdx= 0; accountIdx < 5; accountIdx++) {
           for (let subaddressIdx = 0; subaddressIdx < 5; subaddressIdx++) {
             await MoneroUtils.validateAddress(await that.wallet.getAddress(accountIdx, subaddressIdx), TestUtils.NETWORK_TYPE);

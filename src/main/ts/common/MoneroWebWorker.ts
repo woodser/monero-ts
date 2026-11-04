@@ -427,9 +427,9 @@ self.daemonWaitForNextBlockHeader = async function(daemonId) {
 
 //------------------------------ WALLET METHODS -------------------------------
 
-self.openWalletData = async function(walletId, path, password, networkType, keysData, cacheData, daemonUriOrConfig) {
+self.openWalletData = async function(walletId, path, password, networkType, keysData, cacheData, daemonUriOrConfig, regtest) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull.openWallet({path: "", password: password, networkType: networkType, keysData: keysData, cacheData: cacheData, server: daemonConnection, proxyToWorker: false});
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletFull.openWallet({path: "", password: password, networkType: networkType, keysData: keysData, cacheData: cacheData, server: daemonConnection, proxyToWorker: false, regtest: regtest});
   self.WORKER_OBJECTS[walletId].setBrowserMainPath(path);
 }
 

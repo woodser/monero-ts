@@ -15,5 +15,5 @@ cp node_modules/mocha/mocha.js browser_build/mocha.js || exit 1
 cp node_modules/mocha/mocha.js.map browser_build/mocha.js.map || exit 1
 cp node_modules/mocha/mocha.css browser_build/mocha.css || exit 1
 
-# start server
-./bin/start_browser_test_server.sh
+# serve the browser build unless skipped
+[ "$1" = "--no-serve" ] || ./bin/serve_browser_tests.sh

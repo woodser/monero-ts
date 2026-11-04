@@ -9,6 +9,7 @@ import TestMoneroWalletKeys from "./TestMoneroWalletKeys";
 import TestMoneroWalletFull from "./TestMoneroWalletFull";
 import TestMoneroWalletRpc from "./TestMoneroWalletRpc";
 import TestMoneroConnectionManager from "./TestMoneroConnectionManager";
+import Regtest from "./utils/Regtest";
 
 // set log level
 LibraryUtils.setLogLevel(0); // no need for await before worker used
@@ -63,3 +64,6 @@ new TestMoneroConnectionManager().runTests();
 
 // test scratchpad
 require("./Scratchpad");
+
+// stop the regtest servers started for the tests
+after(async function() { await Regtest.stop(); });
