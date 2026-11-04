@@ -1,8 +1,6 @@
 import TestUtils from "./TestUtils"; // to avoid circular reference
 import StartMining from "./StartMining";
-import {GenUtils,
-        MoneroTxQuery,
-        MoneroUtils,
+import {MoneroTxQuery,
         MoneroWallet} from "../../../index";
 
 /**
@@ -71,7 +69,7 @@ export default class WalletTxTracker {
       
       // break if no txs to wait for
       if (txHashesPool.size === 0) {
-        if (miningStarted) await daemon.stopMining(); // stop mining if started mining
+        if (miningStarted) await StartMining.stopMining(); // stop mining if started mining
         break;
       }
 
@@ -79,16 +77,8 @@ export default class WalletTxTracker {
       if (isFirst) {
         isFirst = false;
         console.log("Waiting for wallet txs to clear from the pool in order to fully sync and avoid double spend attempts: " + Array.from(txHashesPool).join(", "));
-        let miningStatus = await daemon.getMiningStatus();
-        if (!miningStatus.getIsActive()) {
-          try {
-            await StartMining.startMining();
-            miningStarted = true;
-          } catch (e) {
-            console.error("Error starting mining:");
-            console.error(e);
-          }
-        }
+        miningStarted = !StartMining.isMining();
+        await StartMining.startMining();
       }
       
       // sleep for sync period
@@ -107,20 +97,8 @@ export default class WalletTxTracker {
     if (unlockedBalance > minAmount) return unlockedBalance;
    
     // start mining
-    //import TestUtils from "./TestUtils"; // to avoid circular reference
-    let daemon = await TestUtils.getDaemonRpc();
-    let miningStarted = false;
-    if (!(await daemon.getMiningStatus()).getIsActive()) {
-      try {
-        console.log("Starting mining!");
-        //import StartMining from "./StartMining"; // to avoid circular reference
-        await StartMining.startMining();
-        miningStarted = true;
-      } catch (err) {
-        console.error("Error starting mining:");
-        console.error(err);
-      }
-    }
+    let miningStarted = !StartMining.isMining();
+    await StartMining.startMining();
     
     // wait for unlocked balance // TODO: promote to MoneroWallet interface?
     console.log("Waiting for unlocked balance");
@@ -130,7 +108,7 @@ export default class WalletTxTracker {
     }
     
     // stop mining if started
-    if (miningStarted) await daemon.stopMining();
+    if (miningStarted) await StartMining.stopMining();
     return unlockedBalance;
   }
 }

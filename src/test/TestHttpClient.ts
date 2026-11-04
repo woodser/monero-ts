@@ -58,21 +58,21 @@ export default class TestHttpClient {
         return HttpClient.request({uri: "http://" + host + "/rpc", cancelToken: cancelToken});
       }
 
-      it("Can send requests below the limit without timers", async function() {
+      it("Can send requests below the limit without timers (CI)", async function() {
         for (let i = 0; i < 50; i++) assert.equal((await request()).body, "ok");
         assert.equal(starts.length, 50);
         assert.equal(now, 0);
         assert.deepEqual(delays, []);
       });
 
-      it("Can rate limit queued requests and bound the request history", async function() {
+      it("Can rate limit queued requests and bound the request history (CI)", async function() {
         await Promise.all(Array.from({length: 151}, () => request()));
         for (let i = 0; i < starts.length; i++) assert.equal(starts[i], Math.floor(i / 50) * 1000);
         assert.deepEqual(delays, [1000, 1000, 1000]);
         assert.equal(client.REQUEST_START_TIMES["rate-limit.test"].length, 50);
       });
 
-      it("Can resume an idle host without timers", async function() {
+      it("Can resume an idle host without timers (CI)", async function() {
         for (let i = 0; i < 50; i++) await request();
         now = 10000;
         for (let i = 0; i < 50; i++) await request();
@@ -80,7 +80,7 @@ export default class TestHttpClient {
         assert.equal(starts[99], 10000);
       });
 
-      it("Can recheck the rate limit when a timer fires early", async function() {
+      it("Can recheck the rate limit when a timer fires early (CI)", async function() {
         const setTimeout = globalThis.setTimeout;
         let firstTimer = true;
         globalThis.setTimeout = ((callback, delay) => setTimeout(() => {
@@ -95,7 +95,7 @@ export default class TestHttpClient {
         assert.deepEqual(delays, [1000, 1]);
       });
 
-      it("Can rate limit hosts independently", async function() {
+      it("Can rate limit hosts independently (CI)", async function() {
         for (let i = 0; i < 50; i++) await request();
         for (let i = 0; i < 50; i++) await request("other.test");
         assert.deepEqual(delays, []);
@@ -103,7 +103,7 @@ export default class TestHttpClient {
       });
 
       for (const rate of [0.5, 1.5, 2.5, 50.5]) {
-        it("Can preserve fractional request rates of " + rate + " per second", async function() {
+        it("Can preserve fractional request rates of " + rate + " per second (CI)", async function() {
           HttpClient.MAX_REQUESTS_PER_SECOND = rate;
           const maxRequests = Math.ceil(rate);
           const windowMs = Math.ceil(1000 * maxRequests / rate);
@@ -113,7 +113,7 @@ export default class TestHttpClient {
         });
       }
 
-      it("Can bound the request history for large rates", async function() {
+      it("Can bound the request history for large rates (CI)", async function() {
         HttpClient.MAX_REQUESTS_PER_SECOND = Number.MAX_SAFE_INTEGER;
         for (let i = 0; i < 200; i++) {
           await request();
@@ -123,7 +123,7 @@ export default class TestHttpClient {
         assert.equal(client.REQUEST_START_TIMES["rate-limit.test"].length, 10);
       });
 
-      it("Can disable throttling without retaining request history", async function() {
+      it("Can disable throttling without retaining request history (CI)", async function() {
         await request();
         HttpClient.MAX_REQUESTS_PER_SECOND = Infinity;
         for (let i = 0; i < 200; i++) await request();
@@ -133,7 +133,7 @@ export default class TestHttpClient {
         assert.equal(client.REQUEST_START_TIMES["rate-limit.test"].length, 0);
       });
 
-      it("Can reject invalid rates and recover the queue", async function() {
+      it("Can reject invalid rates and recover the queue (CI)", async function() {
         for (const rate of [0, -1, NaN, -Infinity]) {
           HttpClient.MAX_REQUESTS_PER_SECOND = rate;
           await assert.rejects(request(), /Max requests per second must be greater than 0 or Infinity/);
@@ -143,7 +143,7 @@ export default class TestHttpClient {
         assert.equal((await request()).statusCode, 200);
       });
 
-      it("Can cancel a queued request while keeping requests serialized", async function() {
+      it("Can cancel a queued request while keeping requests serialized (CI)", async function() {
         let release;
         let started;
         const blocked = new Promise<void>(resolve => { release = resolve; });
@@ -171,7 +171,7 @@ export default class TestHttpClient {
         assert.equal(starts.length, 2);
       });
 
-      it("Can preserve HTTP errors and recover from transport errors", async function() {
+      it("Can preserve HTTP errors and recover from transport errors (CI)", async function() {
         const transport = client.axiosDigestAuthRequest;
         client.axiosDigestAuthRequest = async function() {
           throw {response: {status: 503, headers: {}, data: "unavailable"}};
@@ -183,7 +183,7 @@ export default class TestHttpClient {
         assert.equal((await request()).statusCode, 200);
       });
 
-      it("Can cancel a request during a rate limit wait", async function() {
+      it("Can cancel a request during a rate limit wait (CI)", async function() {
         HttpClient.MAX_REQUESTS_PER_SECOND = 1;
         await request();
         const setTimeout = globalThis.setTimeout;

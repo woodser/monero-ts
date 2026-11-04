@@ -17,7 +17,7 @@ class TestMoneroConnectionManager {
   
   runTests() {
     describe("Test connection manager", function() {
-      it("Can manage connections", async function() {
+      it("Can manage connections (CI)", async function() {
         let err;
         let walletRpcs: MoneroWalletRpc[] = [];
         let connectionManager: MoneroConnectionManager;
@@ -163,7 +163,7 @@ class TestMoneroConnectionManager {
           assert.equal(listener.changedConnections.length, ++numExpectedChanges);
           
           // connect to specific endpoint with authentication
-          orderedConnections[1].setCredentials("rpc_user", "abc123");
+          orderedConnections[1].setCredentials(TestUtils.WALLET_RPC_CONFIG.username, TestUtils.WALLET_RPC_CONFIG.password);
           await connectionManager.checkConnection();
           assert.equal(connectionManager.getConnection().getUri(), walletRpcs[1].getRpcConnection()!.getUri());
           assert.equal(connection.getUri(), walletRpcs[1].getRpcConnection()!.getUri());

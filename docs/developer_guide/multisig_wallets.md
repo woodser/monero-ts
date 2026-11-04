@@ -15,7 +15,7 @@ let N = 5;
 let wallets = []
 for (let i = 0; i < N; i++) {
   wallets.push(await moneroTs.createWalletFull({
-    path: "./test_wallets/multisig_participant_" + (i + 1),
+    path: "./wallets/multisig_participant_" + (i + 1),
     password: "supersecretpassword123",
     networkType: moneroTs.MoneroNetworkType.STAGENET
   }));

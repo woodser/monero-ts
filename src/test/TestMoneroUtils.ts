@@ -17,7 +17,7 @@ export default class TestMoneroUtils {
         MoneroUtils.setProxyToWorker(true);
       });
       
-      it("Can get integrated addresses", async function() {
+      it("Can get integrated addresses (CI)", async function() {
         let primaryAddress = "58qRVVjZ4KxMX57TH6yWqGcH5AswvZZS494hWHcHPt6cDkP7V8AqxFhi3RKXZueVRgUnk8niQGHSpY5Bm9DjuWn16GDKXpF";
         let subaddress = "7B9w2xieXjhDumgPX39h1CAYELpsZ7Pe8Wqtr3pVL9jJ5gGDqgxjWt55gTYUCAuhahhM85ajEp6VbQfLDPETt4oT2ZRXa6n";
         let paymentId = "03284e41c342f036";
@@ -51,7 +51,7 @@ export default class TestMoneroUtils {
         }
       });
       
-      it("Can serialize heights with small numbers", async function() {
+      it("Can serialize heights with small numbers (CI)", async function() {
         let json = { heights: [111, 222, 333] };
         let binary = await MoneroUtils.jsonToBinary(json);
         assert(binary);
@@ -59,7 +59,7 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
-      it("Can serialize heights with big numbers", async function() {
+      it("Can serialize heights with big numbers (CI)", async function() {
         let json = { heights: [123456, 1234567, 870987] };
         let binary = await MoneroUtils.jsonToBinary(json);
         assert(binary);
@@ -67,7 +67,7 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
-      it("Can serialize json with text", async function() {
+      it("Can serialize json with text (CI)", async function() {
         let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' };
         let binary = await MoneroUtils.jsonToBinary(json);
         assert(binary);
@@ -75,7 +75,7 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
-      it("Can serialize json with long text", async function() {
+      it("Can serialize json with long text (CI)", async function() {
         let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' +
             'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
             'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
@@ -96,7 +96,7 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
-      it("Can validate addresses", async function() {
+      it("Can validate addresses (CI)", async function() {
         
         // test mainnet primary address validation
         assert(await MoneroUtils.isValidAddress("42U9v3qs5CjZEePHBZHwuSckQXebuZu299NSmVEmQ41YJZQhKcPyujyMSzpDH4VMMVSBo3U3b54JaNvQLwAjqDhKS3rvM3L", MoneroNetworkType.MAINNET));
@@ -165,7 +165,7 @@ export default class TestMoneroUtils {
         await testInvalidAddress("718B5D2JmMh5TJVWFbygJR15dvio5Z5B24hfSrWDzeroM8j8Lqc9sMoFE6324xg2ReaAZqHJkgfGFRugRmYHugHZ4f17Gxo", MoneroNetworkType.STAGENET);
       });
       
-      it("Can validate keys", async function() {
+      it("Can validate keys (CI)", async function() {
         
         // test private view key validation
         assert(await MoneroUtils.isValidPrivateViewKey("86cf351d10894769feba29b9e201e12fb100b85bb52fc5825c864eef55c5840d"));
@@ -243,7 +243,7 @@ export default class TestMoneroUtils {
         }
       }
       
-      it("Can convert between XMR and atomic units", function() {
+      it("Can convert between XMR and atomic units (CI)", function() {
         assert.equal(MoneroUtils.xmrToAtomicUnits(1).toString(), 1000000000000n.toString());
         assert.equal(MoneroUtils.atomicUnitsToXmr(1000000000000n), 1);
         assert.equal(MoneroUtils.xmrToAtomicUnits(0.001).toString(), 1000000000n.toString());

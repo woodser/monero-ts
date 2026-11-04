@@ -34,7 +34,7 @@ See [MoneroWalletFull.createWallet()](https://woodser.github.io/monero-ts/typedo
 ```typescript
 // create wallet using WebAssembly
 let wallet = await moneroTs.createWalletFull({
-   path: "./test_wallets/wallet1", // leave blank for in-memory wallet
+   path: "./wallets/wallet1", // leave blank for in-memory wallet
    password: "supersecretpassword",
    networkType: moneroTs.MoneroNetworkType.STAGENET
    seed: "coexist igloo pamphlet lagoon...",

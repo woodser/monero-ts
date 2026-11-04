@@ -1216,7 +1216,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
       else if (key === "white_peerlist_size") info.setNumOnlinePeers(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
-      else if (key === "nettype") GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.parse(val));
+      else if (key === "nettype") {
+        info.setIsRegtest(val === "fakechain");
+        GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, val === "fakechain" ? MoneroNetworkType.MAINNET : MoneroNetworkType.parse(val));
+      }
       else if (key === "mainnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
       else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }

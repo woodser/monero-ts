@@ -18,6 +18,7 @@ export default class MoneroDaemonInfo {
   height: number;
   heightWithoutBootstrap: number;
   networkType: string;
+  isRegtest: boolean;
   isOffline: boolean;
   numIncomingConnections: number;
   numOutgoingConnections: number;
@@ -186,6 +187,15 @@ export default class MoneroDaemonInfo {
 
   setNetworkType(networkType: string) {
     this.networkType = networkType;
+    return this;
+  }
+
+  getIsRegtest(): boolean {
+    return this.isRegtest;
+  }
+
+  setIsRegtest(isRegtest: boolean): MoneroDaemonInfo {
+    this.isRegtest = isRegtest;
     return this;
   }
 

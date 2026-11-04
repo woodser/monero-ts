@@ -16,13 +16,10 @@ export default class TestSsl {
 
   runTests() {
     describe("TEST SSL", function() {
+      if (!GenUtils.isBrowser() && !GenUtils.isDeno())
       describe("HTTP transport", function() {
         let request;
         let calls: any[];
-
-        before(function() {
-          if (GenUtils.isBrowser() || GenUtils.isDeno()) this.skip();
-        });
 
         beforeEach(function() {
           request = axios.request;
@@ -40,7 +37,7 @@ export default class TestSsl {
 
         for (const proxyUri of [undefined, "socks5://127.0.0.1:9050"]) {
           for (const rejectUnauthorized of [false, true, undefined, null]) {
-            it("Can preserve TLS and proxy settings through digest authentication: " + proxyUri + ", " + rejectUnauthorized, async function() {
+            it("Can preserve TLS and proxy settings through digest authentication: " + proxyUri + ", " + rejectUnauthorized + " (CI)", async function() {
               const response = await HttpClient.request({uri: "https://localhost/json_rpc", username: "user", password: "password", proxyUri, rejectUnauthorized});
               assert.equal(response.body, "ok");
               assert.equal(calls.length, 2);
@@ -54,7 +51,7 @@ export default class TestSsl {
         }
       });
 
-      it("Can propagate daemon TLS settings to wallet RPC and preserve explicit SSL options", async function() {
+      it("Can propagate daemon TLS settings to wallet RPC and preserve explicit SSL options (CI)", async function() {
         const server = new MoneroRpcConnection("http://localhost:18083");
         let params;
         server.sendJsonRequest = async (method, request) => {
@@ -90,7 +87,7 @@ export default class TestSsl {
         assert.strictEqual(await wallet.getDaemonConnection(), undefined);
       });
 
-      it("Can snapshot wallet RPC settings before the request and retain them on failure", async function() {
+      it("Can snapshot wallet RPC settings before the request and retain them on failure (CI)", async function() {
         const connection = new MoneroRpcConnection({uri: "https://localhost:18081", rejectUnauthorized: false});
         const server = new MoneroRpcConnection("http://localhost:18083");
         server.sendJsonRequest = async () => { connection.rejectUnauthorized = true; };
@@ -104,7 +101,7 @@ export default class TestSsl {
         assert.strictEqual(cached.getRejectUnauthorized(), false);
       });
 
-      it("Can apply full wallet TLS settings in queue order and preserve them on failure", async function() {
+      it("Can apply full wallet TLS settings in queue order and preserve them on failure (CI)", async function() {
         const wallet = Object.create(MoneroWalletFull.prototype);
         const queue = new ThreadPool(1);
         wallet.rejectUnauthorized = true;

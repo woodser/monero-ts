@@ -179,7 +179,7 @@ function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
  *
  * <code>
  * const wallet = await moneroTs.createWalletFull({<br>
- * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
+ * &nbsp;&nbsp; path: "./wallets/wallet1", // leave blank for in-memory wallet<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: moneroTs.MoneroNetworkType.STAGENET,<br>
  * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
@@ -190,7 +190,7 @@ function connectToWalletRpc(uriOrConfig: string | Partial<MoneroRpcConnection> |
  * <br>
  * <code>
  * const wallet = await moneroTs.createWalletFull({<br>
- * &nbsp;&nbsp; path: "./test_wallets/wallet1", // leave blank for in-memory wallet<br>
+ * &nbsp;&nbsp; path: "./wallets/wallet1", // leave blank for in-memory wallet<br>
  * &nbsp;&nbsp; password: "supersecretpassword",<br>
  * &nbsp;&nbsp; networkType: moneroTs.MoneroNetworkType.STAGENET,<br>
  * &nbsp;&nbsp; seed: "coexist igloo pamphlet lagoon...",<br>
