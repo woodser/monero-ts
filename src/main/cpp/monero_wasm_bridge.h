@@ -27,8 +27,10 @@ namespace monero_wasm_bridge
   string validate_address(const string& address, int network_type);
   string get_exception_message(int exception_ptr);
   string malloc_binary_from_json(const string& args_string);
+  string malloc_binary_get_hashes_request(const string& request_json);
   string binary_to_json(const string& args_string);
   string binary_blocks_to_json(const string& args_string);
+  string binary_hashes_to_json(const string& bin_mem_info_str);
 
   // ------------------------- STATIC WALLET UTILS ----------------------------
 

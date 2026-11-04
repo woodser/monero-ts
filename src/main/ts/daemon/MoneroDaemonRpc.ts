@@ -282,6 +282,32 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     return blocks;
   }
+
+  async getBlockHashes(
+    blockHashes: string[],
+    startHeight: number
+  ): Promise<string[]> {
+    if (this.config.proxyToWorker) return this.proxyDaemon.getBlockHashes(blockHashes, startHeight);
+
+    // serialize binary request
+    const request = await MoneroUtils.getHashesRequestToBinary(
+      blockHashes,
+      startHeight
+    );
+
+    // fetch block hashes in binary
+    const response = await this.config.getServer().sendBinaryRequest(
+      "get_hashes.bin",
+      request
+    );
+
+    // deserialize binary response
+    const decoded = await MoneroUtils.binaryHashesToJson(response);
+
+    MoneroDaemonRpc.checkResponseStatus(decoded);
+
+    return decoded.hashes;
+  }
   
   async getBlocksByRange(startHeight?: number, endHeight?: number): Promise<MoneroBlock[]> {
     if (this.config.proxyToWorker) return this.proxyDaemon.getBlocksByRange(startHeight, endHeight);

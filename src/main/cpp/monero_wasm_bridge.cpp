@@ -5,6 +5,14 @@
 #include "utils/monero_utils.h"
 #include "wallet/monero_wallet_full.h"
 #include "http_client_wasm.h"
+#include <cstdlib>
+#include <cstring>
+#include "rpc/core_rpc_server_commands_defs.h"
+#include "storages/portable_storage_template_helper.h"
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <memory>
 
 using namespace std;
 using namespace monero_wasm_bridge;
@@ -122,6 +130,63 @@ string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
   return gen_utils::serialize(root);
 }
 
+string monero_wasm_bridge::malloc_binary_get_hashes_request(const string& request_json)
+{
+  boost::property_tree::ptree root;
+  gen_utils::deserialize(request_json, root);
+
+  cryptonote::COMMAND_RPC_GET_HASHES_FAST::request_t request{};
+  request.start_height = root.get<uint64_t>("start_height");
+
+  for (const auto& entry : root.get_child("block_hashes")) {
+    const string hash_hex = entry.second.get_value<string>();
+
+    string hash_bytes;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(hash_hex, hash_bytes)
+        || hash_bytes.size() != sizeof(crypto::hash)) {
+      throw std::runtime_error("Invalid block hash");
+    }
+
+    crypto::hash hash{};
+    std::memcpy(&hash, hash_bytes.data(), sizeof(hash));
+    request.block_ids.push_back(hash);
+  }
+
+  if (request.block_ids.empty()) {
+    throw std::runtime_error("Block hashes cannot be empty");
+  }
+
+  // Serialize block hashes as a POD blob in portable storage.
+  epee::byte_slice binary;
+  if (!epee::serialization::store_t_to_binary(request, binary)) {
+    throw std::runtime_error("Failed to serialize get_hashes.bin request");
+  }
+
+
+  // Allocate binary data for transfer to JavaScript
+  std::unique_ptr<void, decltype(&std::free)> ptr(
+    std::malloc(binary.size()),
+    &std::free
+  );
+
+  if (!ptr) {
+    throw std::runtime_error("Failed to allocate binary request");
+  }
+
+  std::memcpy(ptr.get(), binary.data(), binary.size());
+
+  boost::property_tree::ptree result;
+  result.put("ptr", reinterpret_cast<intptr_t>(ptr.get()));
+  result.put("length", binary.size());
+
+  string mem_info = gen_utils::serialize(result);
+
+  // Transfer ownership to JavaScript, which frees the allocation
+  ptr.release();
+
+  return mem_info;
+}
+
 string monero_wasm_bridge::binary_to_json(const std::string &bin_mem_info_str)
 {
   // deserialize memory address info to json
@@ -158,6 +223,60 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
   std::string buff_json;
   monero_utils::binary_blocks_to_json(buff_bin, buff_json);
   return buff_json;
+}
+
+string monero_wasm_bridge::binary_hashes_to_json(const string& bin_mem_info_str)
+{
+  // Read binary memory address information
+  boost::property_tree::ptree root;
+  gen_utils::deserialize(bin_mem_info_str, root);
+
+  const char* ptr = reinterpret_cast<const char*>(
+    static_cast<uintptr_t>(root.get<uint64_t>("ptr"))
+  );
+  const size_t length = root.get<size_t>("length");
+
+  // Deserialize the typed Monero Core response
+  string buff_bin(ptr, length);
+  cryptonote::COMMAND_RPC_GET_HASHES_FAST::response resp{};
+
+  if (!epee::serialization::load_t_from_binary(resp, buff_bin)) {
+    throw runtime_error("Failed to parse get_hashes.bin response");
+  }
+
+  // Convert the POD hash blob to a JSON array of hexadecimal hashes.
+  rapidjson::Document doc;
+  doc.SetObject();
+  auto& allocator = doc.GetAllocator();
+
+  rapidjson::Value hashes(rapidjson::kArrayType);
+
+  for (const crypto::hash& hash : resp.m_block_ids) {
+    string hash_hex = epee::string_tools::pod_to_hex(hash);
+
+    rapidjson::Value value;
+    value.SetString(
+      hash_hex.c_str(),
+      static_cast<rapidjson::SizeType>(hash_hex.size()),
+      allocator
+    );
+    hashes.PushBack(value, allocator);
+  }
+
+  doc.AddMember("hashes", hashes, allocator);
+
+  doc.AddMember("start_height", resp.start_height, allocator);
+  doc.AddMember("current_height", resp.current_height, allocator);
+
+  rapidjson::Value status;
+  status.SetString(resp.status.c_str(), allocator);
+  doc.AddMember("status", status, allocator);
+
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  doc.Accept(writer);
+
+  return string(buffer.GetString(), buffer.GetSize());
 }
 
 // -------------------------- STATIC WALLET UTILS -----------------------------

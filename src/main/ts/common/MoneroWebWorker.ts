@@ -216,7 +216,7 @@ self.daemonGetBlocksByRangeChunked = async function(daemonId, startHeight, endHe
 }
 
 self.daemonGetBlockHashes = async function(daemonId, blockHashes, startHeight) {
-  throw new Error("worker.getBlockHashes not implemented");
+  return self.WORKER_OBJECTS[daemonId].getBlockHashes(blockHashes, startHeight);
 }
 
 // TODO: factor common code with self.getTxs()

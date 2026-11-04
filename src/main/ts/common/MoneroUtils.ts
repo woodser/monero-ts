@@ -335,6 +335,50 @@ export default class MoneroUtils {
       return view;
     });
   }
+
+  /**
+   * Serialize a get_hashes.bin request using Monero Core's binary serialization.
+   *
+   * @param {string[]} blockHashes - known block hashes in hexadecimal format
+   * @param {number} startHeight - starting block height
+   * @return {Promise<Uint8Array>} request serialized to portable storage binary
+   */
+  static async getHashesRequestToBinary(
+    blockHashes: string[],
+    startHeight: number
+  ): Promise<Uint8Array> {
+    if (!Number.isSafeInteger(startHeight) || startHeight < 0) {
+      throw new MoneroError("Invalid start height");
+    }
+
+    if (LibraryUtils.getWasmModule() === undefined) {
+      await LibraryUtils.loadWasmModule();
+    }
+
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      const wasm = LibraryUtils.getWasmModule();
+
+      const memInfoStr = wasm.malloc_binary_get_hashes_request(
+        JSON.stringify({
+          block_hashes: blockHashes,
+          start_height: startHeight
+        })
+      );
+
+      const memInfo = JSON.parse(memInfoStr);
+      const ptr = Number(memInfo.ptr);
+      const length = Number(memInfo.length);
+
+      try {
+        // Copy the binary data before freeing the WASM allocation.
+        return new Uint8Array(
+          wasm.HEAPU8.subarray(ptr, ptr + length)
+        );
+      } finally {
+        wasm._free(ptr);
+      }
+    });
+  }
   
   /**
    * Convert the given portable storage binary to JSON.
@@ -410,6 +454,50 @@ export default class MoneroUtils {
       json.blocks = json.blocks.map(blockStr => JSON.parse(blockStr));          // replace block strings with parsed blocks
       json.txs = json.txs.map(txs => txs ? txs.map(tx => JSON.parse(tx.replace(",", "{") + "}")) : []); // modify tx string to proper json and parse // TODO: more efficient way than this json manipulation?
       return json;
+    });
+  }
+
+  /**
+   * Deserialize a get_hashes.bin response using Monero Core.
+   *
+   * @param {Uint8Array} binary - binary response in portable storage format
+   * @return {Promise<object>} decoded response with hexadecimal block hashes
+   */
+  static async binaryHashesToJson(
+    binary: Uint8Array
+  ): Promise<{
+    hashes: string[];
+    start_height: number;
+    current_height: number;
+    status: string;
+  }> {
+    if (LibraryUtils.getWasmModule() === undefined) {
+      await LibraryUtils.loadWasmModule();
+    }
+
+    return LibraryUtils.getWasmModule().queueTask(async function() {
+      const wasm = LibraryUtils.getWasmModule();
+
+      const ptr = wasm._malloc(binary.byteLength);
+      if (!ptr) throw new MoneroError("Failed to allocate binary response");
+
+      try {
+        // Copy the binary response to WASM memory.
+        wasm.HEAPU8.set(binary, ptr);
+
+        const memInfo = {
+          ptr: ptr,
+          length: binary.byteLength
+        };
+
+        const json = wasm.binary_hashes_to_json(
+          JSON.stringify(memInfo)
+        );
+
+        return JSON.parse(json);
+      } finally {
+        wasm._free(ptr);
+      }
     });
   }
   

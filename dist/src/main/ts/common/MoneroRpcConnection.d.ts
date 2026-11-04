@@ -156,7 +156,7 @@ export default class MoneroRpcConnection {
      * Send a binary RPC request.
      *
      * @param {string} path - path of the binary RPC method to invoke
-     * @param {object} [params] - request parameters
+     * @param {object | Uint8Array} [params] - request parameters or pre-serialized binary
      * @param {number} [timeoutMs] - request timeout in milliseconds
      * @return {Uint8Array} the binary response
      */

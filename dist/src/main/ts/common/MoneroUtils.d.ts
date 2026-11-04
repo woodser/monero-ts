@@ -153,6 +153,14 @@ export default class MoneroUtils {
      */
     static jsonToBinary(json: any): Promise<any>;
     /**
+     * Serialize a get_hashes.bin request using Monero Core's binary serialization.
+     *
+     * @param {string[]} blockHashes - known block hashes in hexadecimal format
+     * @param {number} startHeight - starting block height
+     * @return {Promise<Uint8Array>} request serialized to portable storage binary
+     */
+    static getHashesRequestToBinary(blockHashes: string[], startHeight: number): Promise<Uint8Array>;
+    /**
      * Convert the given portable storage binary to JSON.
      *
      * @param {Uint8Array} uint8arr - binary data in Monero's portable storage format
@@ -166,6 +174,18 @@ export default class MoneroUtils {
      * @return {Promise<object>} JSON object with the blocks data
      */
     static binaryBlocksToJson(uint8arr: any): Promise<any>;
+    /**
+     * Deserialize a get_hashes.bin response using Monero Core.
+     *
+     * @param {Uint8Array} binary - binary response in portable storage format
+     * @return {Promise<object>} decoded response with hexadecimal block hashes
+     */
+    static binaryHashesToJson(binary: Uint8Array): Promise<{
+        hashes: string[];
+        start_height: number;
+        current_height: number;
+        status: string;
+    }>;
     /**
      * Convert XMR to atomic units.
      *

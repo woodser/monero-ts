@@ -99,6 +99,7 @@ declare class MoneroDaemonRpc extends MoneroDaemon {
     getBlockByHash(blockHash: string): Promise<MoneroBlock>;
     getBlockByHeight(height: number): Promise<MoneroBlock>;
     getBlocksByHeight(heights: number[]): Promise<MoneroBlock[]>;
+    getBlockHashes(blockHashes: string[], startHeight: number): Promise<string[]>;
     getBlocksByRange(startHeight?: number, endHeight?: number): Promise<MoneroBlock[]>;
     getBlocksByRangeChunked(startHeight?: number, endHeight?: number, maxChunkSize?: number): Promise<MoneroBlock[]>;
     getTxs(txHashes: string[], prune?: boolean): Promise<MoneroTx[]>;

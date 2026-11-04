@@ -338,7 +338,41 @@ export default class TestMoneroDaemonRpc {
       if (testConfig.testNonRelays)
       it("Can get block hashes (binary)", async function() {
         //get_hashes.bin
-        throw new Error("Not implemented");
+        const chainHeight = await that.daemon.getHeight();
+        assert(chainHeight > 30);
+
+        const startHeight = chainHeight - 20;
+        const startHash = await that.daemon.getBlockHash(startHeight);
+        const genesisHash = await that.daemon.getBlockHash(0);
+
+        // Fetch block hashes from a known common block
+        const hashes = await that.daemon.getBlockHashes(
+          [startHash, genesisHash],
+          0
+        );
+
+        assert(Array.isArray(hashes));
+        assert(hashes.length >= 5);
+
+        // Verify hash format and ordering against the daemon
+        for (let i = 0; i < hashes.length; i++) {
+          assert(/^[0-9a-f]{64}$/i.test(hashes[i]));
+        }
+
+        for (let i = 0; i < 5; i++) {
+          const expectedHash = await that.daemon.getBlockHash(startHeight + i);
+          assert.equal(hashes[i], expectedHash);
+        }
+
+        // Reject malformed and missing block hashes
+        await assert.rejects(that.daemon.getBlockHashes(["invalid_hash", genesisHash], 0));
+
+        await assert.rejects(that.daemon.getBlockHashes([], 0));
+
+        // Reject invalid start heights
+        for (const height of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+          await assert.rejects(that.daemon.getBlockHashes([genesisHash], height));
+        }
       });
       
       if (testConfig.testNonRelays)
