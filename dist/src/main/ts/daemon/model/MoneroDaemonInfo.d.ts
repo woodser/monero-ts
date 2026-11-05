@@ -17,6 +17,7 @@ export default class MoneroDaemonInfo {
     height: number;
     heightWithoutBootstrap: number;
     networkType: string;
+    isRegtest: boolean;
     isOffline: boolean;
     numIncomingConnections: number;
     numOutgoingConnections: number;
@@ -67,6 +68,8 @@ export default class MoneroDaemonInfo {
     setHeightWithoutBootstrap(heightWithoutBootstrap: number): MoneroDaemonInfo;
     getNetworkType(): string;
     setNetworkType(networkType: string): this;
+    getIsRegtest(): boolean;
+    setIsRegtest(isRegtest: boolean): MoneroDaemonInfo;
     getIsOffline(): boolean;
     setIsOffline(isOffline: boolean): MoneroDaemonInfo;
     getNumIncomingConnections(): number;
