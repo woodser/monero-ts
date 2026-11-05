@@ -92,25 +92,13 @@
 <li>Build the monero-cpp submodule (located at ./external/monero-cpp) by following <a href="https://github.com/woodser/monero-cpp#using-monero-cpp-in-your-project">instructions</a> for your system. This will ensure all dependencies are installed. Be sure to install unbound 1.19.0 to your home directory (<code>~/unbound-1.19.0</code>).</li>
 <li><code>./bin/build_all.sh</code> (install <a href="https://github.com/monero-project/monero#dependencies">monero-project dependencies</a> as needed for your system)</li>
 </ol>
-<a id="md:running-tests" class="tsd-anchor"></a><h2><a href="#md:running-tests">Running tests</a></h2><ol>
-<li>Clone the project repository: <code>git clone https://github.com/woodser/monero-ts.git</code></li>
-<li><code>cd monero-ts</code></li>
-<li>Start RPC servers:<ol>
-<li>Download and install <a href="https://web.getmonero.org/downloads/">Monero CLI</a>.</li>
-<li>Start monerod, e.g.: <code>./monerod --testnet</code> (or use a remote daemon).</li>
-<li>Start monero-wallet-rpc, e.g.: <code>./monero-wallet-rpc --daemon-address http://localhost:38081 --testnet --rpc-bind-port 28084 --rpc-login rpc_user:abc123 --wallet-dir ./</code></li>
-</ol>
-</li>
-<li>Configure the appropriate RPC endpoints, authentication, and other settings in <a href="src/test/utils/TestUtils.ts">TestUtils.ts</a> (e.g. <code>WALLET_RPC_CONFIG</code> and <code>DAEMON_RPC_CONFIG</code>).</li>
-</ol>
-<a id="md:running-tests-in-nodejs" class="tsd-anchor"></a><h4><a href="#md:running-tests-in-nodejs">Running tests in Node.js</a></h4><ul>
-<li>Run all tests: <code>npm test</code></li>
-<li>Run tests by their description, e.g.: <code>npm run test -- --grep &quot;Can get transactions&quot;</code></li>
-</ul>
+<a id="md:running-tests" class="tsd-anchor"></a><h2><a href="#md:running-tests">Running tests</a></h2><p>Tests run automatically in CI. To run them locally, first <a href="#building-webassembly-binaries-from-source">build from source</a>. A regtest network is created and started automatically in ./test_regtest when tests run.</p>
+<a id="md:running-tests-in-nodejs" class="tsd-anchor"></a><h4><a href="#md:running-tests-in-nodejs">Running tests in Node.js</a></h4><pre><code class="language-sh"><span class="hl-0"># run all tests</span><br/><span class="hl-6">npm</span><span class="hl-2"> </span><span class="hl-4">run</span><span class="hl-2"> </span><span class="hl-4">test</span><br/><br/><span class="hl-0"># run tests by their description</span><br/><span class="hl-6">npm</span><span class="hl-2"> </span><span class="hl-4">run</span><span class="hl-2"> </span><span class="hl-4">test</span><span class="hl-2"> </span><span class="hl-5">--</span><span class="hl-2"> </span><span class="hl-5">--grep</span><span class="hl-2"> </span><span class="hl-4">&quot;Sample code demonstration&quot;</span>
+</code><button>Copy</button></pre>
 <a id="md:running-tests-in-a-browser" class="tsd-anchor"></a><h4><a href="#md:running-tests-in-a-browser">Running tests in a browser</a></h4><ol>
-<li>Start monero-wallet-rpc servers used by tests: <code>./bin/start_wallet_rpc_test_servers.sh</code></li>
-<li>In another terminal, build browser tests: <code>./bin/build_browser_tests.sh</code></li>
-<li>Access <a href="http://localhost:8080/tests.html">http://localhost:8080/tests.html</a> in a browser to run all tests</li>
+<li>Build and serve the browser tests: <code>./bin/build_dist.sh &amp;&amp; ./bin/build_browser_tests.sh</code></li>
+<li>In a separate terminal, start the test servers: <code>./bin/start_browser_test_servers.sh</code></li>
+<li>Open <a href="http://localhost:8080/tests.html">http://localhost:8080/tests.html</a></li>
 </ol>
 <a id="md:license" class="tsd-anchor"></a><h2><a href="#md:license">License</a></h2><p>This project is licensed under MIT.</p>
 <a id="md:donations" class="tsd-anchor"></a><h2><a href="#md:donations">Donations</a></h2><p>If this library has been valuable to you, please consider donating to support its continued development.</p>
