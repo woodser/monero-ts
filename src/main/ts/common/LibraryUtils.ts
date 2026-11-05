@@ -257,13 +257,16 @@ export default class LibraryUtils {
   static serializeError(err) {
     const serializedErr: any = { name: err.name, message: err.message, code: err.code, stack: err.stack };
     if (err instanceof MoneroError) serializedErr.type = "MoneroError";
+    if (err.cause instanceof Error) serializedErr.cause = LibraryUtils.serializeError(err.cause);
     return serializedErr;
   }
 
   protected static deserializeError(serializedErr) {
     const err = serializedErr.type === "MoneroError" ? new MoneroError(serializedErr.message, serializedErr.code) : new Error(serializedErr.message);
     err.name = serializedErr.name;
+    if (serializedErr.code !== undefined) (err as any).code = serializedErr.code;
     err.stack = err.stack + "\nWorker error: " + serializedErr.stack;
+    if (serializedErr.cause) err.cause = LibraryUtils.deserializeError(serializedErr.cause);
     return err;
   }
 

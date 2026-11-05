@@ -2604,7 +2604,10 @@ class WalletPoller {
         // announce balance changes
         await that.checkForChangedBalances(generation);
       } catch (err: any) {
-        if (generation === that.generation && that.isPolling) console.error("Failed to background poll wallet '" + await that.wallet.getPath() + "': " + err.message); // ignore errors from polls straggling after the wallet is closed
+        if (generation === that.generation && that.isPolling) { // ignore errors from polls straggling after the wallet is closed
+          let label = await that.wallet.getPath() || that.wallet.getRpcConnection()?.getUri(); // the path is unknown when connected to an already loaded wallet
+          console.error("Failed to background poll wallet '" + label + "': " + err.message);
+        }
       } finally {
         that.numPolling--;
       }

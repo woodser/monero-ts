@@ -214,7 +214,12 @@ export default class HttpClient {
           resolve(resp);
         }).catch(function(error: AxiosError) {
           if (error.response?.status) resolve(error.response);
-          reject(new Error("Request failed without response: " + method + " " + uri + " due to underlying error:\n" + error.message + "\n" + error.stack));
+          else {
+            const message = "Request failed without response: " + method + " " + uri + " due to underlying error: " + error.message;
+            LibraryUtils.log(2, message + "\n" + error.stack); // the stack cannot follow the cause across the wasm bridge
+            const cause = Object.assign(new Error(error.message), {name: error.name, code: error.code, stack: error.stack}); // omit request data from the cause
+            reject(new Error(message, {cause}));
+          }
         });
       });
     });
