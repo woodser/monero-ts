@@ -1,5 +1,8 @@
 import assert from "assert";
 import HttpClient from "../main/ts/common/HttpClient";
+import LibraryUtils from "../main/ts/common/LibraryUtils";
+import MoneroRpcConnection from "../main/ts/common/MoneroRpcConnection";
+import MoneroRpcError from "../main/ts/common/MoneroRpcError";
 
 /**
  * Test HTTP request scheduling without network access or real timers.
@@ -181,6 +184,26 @@ export default class TestHttpClient {
         await assert.rejects(request(), /offline/);
         client.axiosDigestAuthRequest = transport;
         assert.equal((await request()).statusCode, 200);
+      });
+
+      it("Can describe transport failures without stack traces (CI)", async function() {
+        const refused = Object.assign(new Error("connect ECONNREFUSED 127.0.0.1:38084"), {name: "AxiosError", code: "ECONNREFUSED", config: {data: "private request data"}, request: {}});
+        client.axiosDigestAuthRequest = async function() { throw refused; };
+        const err = await request().catch((err) => err);
+        assert.equal(err.message, "Request failed without response: GET http://rate-limit.test/rpc due to underlying error: " + refused.message);
+        assert(err.cause instanceof Error);
+        assert.equal(err.cause.name, refused.name);
+        assert.equal(err.cause.message, refused.message);
+        assert.equal(err.cause.stack, refused.stack);
+        assert.equal(err.cause.code, refused.code);
+        assert.equal(err.cause.config, undefined);
+        assert.equal(err.cause.request, undefined);
+        const rpcErr = await new MoneroRpcConnection("http://rate-limit.test").sendJsonRequest("get_version", undefined, 0).catch((err) => err); // timeout 0 skips the stubbed timer
+        assert(rpcErr instanceof MoneroRpcError && rpcErr.cause instanceof Error && rpcErr.cause.cause instanceof Error);
+        assert.equal(rpcErr.cause.cause.message, refused.message);
+        const relayed = (LibraryUtils as any).deserializeError(JSON.parse(JSON.stringify(LibraryUtils.serializeError(rpcErr)))); // worker errors cross as serialized objects
+        assert.equal(relayed.cause.cause.message, refused.message);
+        assert.equal(relayed.cause.cause.code, refused.code);
       });
 
       it("Can cancel a request during a rate limit wait (CI)", async function() {

@@ -3,6 +3,7 @@
     "declaration": true,
     "module": "es2022",
     "target": "es2021",
+    "lib": ["es2022", "dom", "dom.iterable", "webworker.importscripts"],
     "allowJs": true,
     "outDir": "dist",
     "skipLibCheck": true,
