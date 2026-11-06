@@ -36,7 +36,7 @@ export default class TestUtils {
   static MONERO_BINS_DIR = env.MONERO_BINS_DIR || "./external/monero-cpp/external/monero-project/build/release/bin"; // directory with monero binaries to test (monerod and monero-wallet-rpc)
   static REGTEST_DIR = "./test_regtest"; // directory with the chain and wallets of the regtest servers started by the tests
   static SYNC_PERIOD_IN_MS = 5000; // period between wallet syncs in milliseconds
-  static BLOCK_PERIOD_IN_MS = 2000; // period between blocks mined in the background
+  static BLOCK_PERIOD_IN_MS = 2000; // average period between blocks mined in the background
   static OFFLINE_SERVER_URI = "offline_server_uri"; // dummy server uri to remain offline because wallet2 connects to default if not given
   static AUTO_CONNECT_TIMEOUT_MS = 3000;
 
