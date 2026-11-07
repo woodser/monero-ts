@@ -246,6 +246,10 @@ self.daemonGetTxs = async function(daemonId, txHashes, prune) {
   return blocks;
 }
 
+self.daemonGetOutputIndices = async function(daemonId, txHash) {
+  return self.WORKER_OBJECTS[daemonId].getOutputIndices(txHash);
+}
+
 self.daemonGetTxHexes = async function(daemonId, txHashes, prune) {
   return self.WORKER_OBJECTS[daemonId].getTxHexes(txHashes, prune);
 }

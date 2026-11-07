@@ -283,6 +283,16 @@ export default class MoneroDaemon {
   }
   
   /**
+   * Get the global output indices of a transaction.
+   *
+   * @param {string} txHash - hash of the transaction
+   * @return {Promise<number[]>} global output indices in transaction output order
+   */
+  async getOutputIndices(txHash: string): Promise<number[]> {
+    throw new MoneroError("Subclass must implement");
+  }
+
+  /**
    * Get a transaction hex by hash.
    * 
    * @param {string} txHash - hash of the transaction to get hex from
