@@ -105,6 +105,52 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
+      it("Can reject invalid json and binary (CI)", async function() {
+        let binary = await MoneroUtils.jsonToBinary({ heights: [111, 222, 333] });
+        for (let test of [
+          { convert: () => MoneroUtils.jsonToBinary({ heights: [[111], [222]] }), error: "Invalid JSON" }, // nested arrays are not supported
+          { convert: () => MoneroUtils.jsonToBinary({ ["k".repeat(255)]: 1 }), error: "Failed to serialize binary" }, // field names must be shorter than 255 bytes
+          { convert: () => MoneroUtils.binaryToJson(new Uint8Array([1, 2, 3])), error: "Invalid binary" },
+          { convert: () => MoneroUtils.binaryToJson(binary.slice(0, binary.length - 1)), error: "Invalid binary" },
+          { convert: () => MoneroUtils.binaryBlocksToJson(new Uint8Array([1, 2, 3])), error: "failed to parse get_blocks_by_height.bin response" },
+          { convert: async () => MoneroUtils.binaryBlocksToJson(await MoneroUtils.jsonToBinary({ status: 123 })), error: "failed to parse get_blocks_by_height.bin response" } // status must be a string
+        ]) {
+          try {
+            await test.convert();
+            throw new Error("Converting invalid input should have failed");
+          } catch (err) {
+            assert(err instanceof MoneroError);
+            assert.equal(test.error, err.message);
+          }
+        }
+        assert.deepEqual(await MoneroUtils.binaryToJson(binary), { heights: [111, 222, 333] });
+      });
+
+      it("Can release binary conversion memory on failure (CI)", async function() {
+        try {
+          for (let proxyToWorker of [false, true]) {
+            MoneroUtils.setProxyToWorker(proxyToWorker);
+            let json = { padding: "x".repeat(200000), z: 42 };
+            let binary = await MoneroUtils.jsonToBinary(json);
+            let truncated = binary.slice(0, binary.length - 1);
+            let conversions = [
+              () => MoneroUtils.jsonToBinary({ ...json, z: [[111]] }),
+              () => MoneroUtils.binaryToJson(truncated),
+              () => MoneroUtils.binaryBlocksToJson(truncated)
+            ];
+            for (let convert of conversions) await assert.rejects(convert, MoneroError);
+            let memoryBefore = await LibraryUtils.getWasmMemoryUsed();
+            for (let i = 0; i < 100; i++) {
+              for (let convert of conversions) await assert.rejects(convert, MoneroError);
+            }
+            assert(await LibraryUtils.getWasmMemoryUsed() <= memoryBefore + 1024 * 1024, "Failed conversions retained WASM memory");
+            assert.deepEqual(await MoneroUtils.binaryToJson(binary), json);
+          }
+        } finally {
+          MoneroUtils.setProxyToWorker(true);
+        }
+      });
+
       it("Can validate addresses (CI)", async function() {
         
         // test mainnet primary address validation
