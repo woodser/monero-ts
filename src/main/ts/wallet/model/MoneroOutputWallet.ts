@@ -78,11 +78,6 @@ export default class MoneroOutputWallet extends MoneroOutput {
     return this;
   }
   
-  getIsLocked(): boolean {
-    if (this.getTx() === undefined) return undefined;
-    return (this.getTx() as MoneroTxWallet).getIsLocked();
-  }
-  
   copy(): MoneroOutputWallet {
     return new MoneroOutputWallet(this.toJson());
   }

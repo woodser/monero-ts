@@ -83,6 +83,11 @@ export default class MoneroOutput {
     return this;
   }
   
+  getIsLocked(): boolean {
+    if (this.getTx() === undefined) return undefined;
+    return this.getTx().getIsLocked();
+  }
+  
   copy(): MoneroOutput {
     return new MoneroOutput(this);
   }

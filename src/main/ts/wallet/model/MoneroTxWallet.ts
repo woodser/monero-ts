@@ -23,7 +23,6 @@ export default class MoneroTxWallet extends MoneroTx {
   incomingTransfers: MoneroIncomingTransfer[];
   outgoingTransfer: MoneroOutgoingTransfer;
   note: string;
-  isLocked: boolean;
   inputSum: bigint;
   outputSum: bigint;
   changeAddress: string;
@@ -321,22 +320,6 @@ export default class MoneroTxWallet extends MoneroTx {
   }
   
   /**
-   * @return {boolean} true if the tx is locked, false otherwise
-   */
-  getIsLocked(): boolean {
-    return this.isLocked;
-  }
-  
-  /**
-   * @param {boolean} isLocked - true if the tx is locked, false otherwise
-   * @return {MoneroTxWallet} this tx for chaining
-   */
-  setIsLocked(isLocked: boolean): MoneroTxWallet {
-    this.isLocked = isLocked;
-    return this;
-  }
-  
-  /**
    * @return {bigint} sum of tx inputs
    */
   getInputSum(): bigint {
@@ -488,7 +471,6 @@ export default class MoneroTxWallet extends MoneroTx {
     this.setIsIncoming(GenUtils.reconcile(this.getIsIncoming(), tx.getIsIncoming(), {resolveTrue: true}));  // outputs seen on confirmation
     this.setIsOutgoing(GenUtils.reconcile(this.getIsOutgoing(), tx.getIsOutgoing()));
     this.setNote(GenUtils.reconcile(this.getNote(), tx.getNote()));
-    this.setIsLocked(GenUtils.reconcile(this.getIsLocked(), tx.getIsLocked(), {resolveTrue: false})); // tx can become unlocked
     this.setInputSum(GenUtils.reconcile(this.getInputSum(), tx.getInputSum()));
     this.setOutputSum(GenUtils.reconcile(this.getOutputSum(), tx.getOutputSum()));
     this.setChangeAddress(GenUtils.reconcile(this.getChangeAddress(), tx.getChangeAddress()));
@@ -536,7 +518,6 @@ export default class MoneroTxWallet extends MoneroTx {
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
     str += GenUtils.kvLine("Note", this.getNote(), indent);
-    str += GenUtils.kvLine("Is locked", this.getIsLocked(), indent);
     str += GenUtils.kvLine("Input sum", this.getInputSum(), indent);
     str += GenUtils.kvLine("Output sum", this.getOutputSum(), indent);
     str += GenUtils.kvLine("Change address", this.getChangeAddress(), indent);
@@ -611,6 +592,11 @@ export default class MoneroTxWallet extends MoneroTx {
 
   setInTxPool(inTxPool: boolean): MoneroTxWallet {
     super.setInTxPool(inTxPool);
+    return this;
+  }
+
+  setIsLocked(isLocked: boolean): MoneroTxWallet {
+    super.setIsLocked(isLocked);
     return this;
   }
 
