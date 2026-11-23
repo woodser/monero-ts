@@ -21,6 +21,7 @@ export default class MoneroTx {
   isRelayed: boolean;
   isConfirmed: boolean;
   inTxPool: boolean;
+  isLocked: boolean;
   numConfirmations: number;
   unlockTime: bigint;
   lastRelayedTimestamp: number;
@@ -256,6 +257,22 @@ export default class MoneroTx {
    */
   setInTxPool(inTxPool: boolean): MoneroTx {
     this.inTxPool = inTxPool;
+    return this;
+  }
+  
+  /**
+   * @return {boolean} true if the tx is locked, false otherwise
+   */
+  getIsLocked(): boolean {
+    return this.isLocked;
+  }
+  
+  /**
+   * @param {boolean} isLocked - true if the tx is locked, false otherwise
+   * @return {MoneroTx} this tx for chaining
+   */
+  setIsLocked(isLocked: boolean): MoneroTx {
+    this.isLocked = isLocked;
     return this;
   }
   
@@ -741,6 +758,7 @@ export default class MoneroTx {
     this.setRelay(GenUtils.reconcile(this.getRelay(), tx.getRelay(), {resolveTrue: true}));       // tx can become relayed
     this.setIsRelayed(GenUtils.reconcile(this.getIsRelayed(), tx.getIsRelayed(), {resolveTrue: true})); // tx can become relayed
     this.setIsDoubleSpendSeen(GenUtils.reconcile(this.getIsDoubleSpendSeen(), tx.getIsDoubleSpendSeen(), {resolveTrue: true})); // double spend can become seen
+    this.setIsLocked(GenUtils.reconcile(this.getIsLocked(), tx.getIsLocked(), {resolveTrue: false})); // tx can become unlocked
     this.setKey(GenUtils.reconcile(this.getKey(), tx.getKey()));
     this.setFullHex(GenUtils.reconcile(this.getFullHex(), tx.getFullHex()));
     this.setPrunedHex(GenUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
@@ -835,6 +853,7 @@ export default class MoneroTx {
     str += GenUtils.kvLine("Is relayed", this.getIsRelayed(), indent);
     str += GenUtils.kvLine("Is confirmed", this.getIsConfirmed(), indent);
     str += GenUtils.kvLine("In tx pool", this.getInTxPool(), indent);
+    str += GenUtils.kvLine("Is locked", this.getIsLocked(), indent);
     str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
     str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
     str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
