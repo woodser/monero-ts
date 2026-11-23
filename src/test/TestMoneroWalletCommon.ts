@@ -42,6 +42,7 @@ const SEND_DIVISOR = BigInt(10);
 const SEND_MAX_DIFF = BigInt(60);
 const MAX_TX_PROOFS = 25; // maximum number of transactions to check for each proof, undefined to check all
 const NUM_BLOCKS_LOCKED = 10;
+const MAX_POLL_TIME = 5000; // maximum time granted for wallet to poll
 
 // wallet method or config option a wallet type may not support
 export type WalletFeature = keyof MoneroWallet | keyof MoneroWalletConfig;
@@ -2680,8 +2681,6 @@ export default class TestMoneroWalletCommon {
       
       // TODO: test sweepUnlocked()
       async function testWalletNotificationsAux(sameWallet, sameAccount, sweepOutput, createThenRelay, unlockDelay) {
-        let MAX_POLL_TIME = 5000; // maximum time granted for wallet to poll
-
         // collect issues as test runs
         let issues: any[] = [];
 
@@ -3026,9 +3025,9 @@ export default class TestMoneroWalletCommon {
             await that.daemon.waitForNextBlockHeader();
           }
           
-          // receiver should notify listeners of received outputs within rpc refresh + client poll periods
-          let startTime = Date.now();
-          while (myListener.getOutputsReceived().length === 0 && Date.now() - startTime < TestUtils.SYNC_PERIOD_IN_MS * 2) await GenUtils.waitFor(1000);
+          // receiver should notify listeners of received outputs within 2 sync periods + poll time
+          let deadline = Date.now() + TestUtils.SYNC_PERIOD_IN_MS * 2 + MAX_POLL_TIME;
+          while (myListener.getOutputsReceived().length === 0 && Date.now() < deadline) await GenUtils.waitFor(100);
           assert(myListener.getOutputsReceived().length > 0, "Listener did not receive outputs");
         } catch (e: any) {
           err = e;
