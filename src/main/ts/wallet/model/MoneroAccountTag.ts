@@ -11,6 +11,10 @@ export default class MoneroAccountTag {
     Object.assign(this, accountTag);
   }
   
+  toJson(): any {
+    return Object.assign({}, this);
+  }
+  
   getTag(): string {
     return this.tag;
   }

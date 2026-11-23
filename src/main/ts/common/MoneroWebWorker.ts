@@ -923,19 +923,21 @@ self.deleteAddressBookEntry = async function(walletId, index) {
 }
 
 self.tagAccounts = async function(walletId, tag, accountIndices) {
-  throw new Error("Not implemented");
+  return self.WORKER_OBJECTS[walletId].tagAccounts(tag, accountIndices);
 }
 
 self.untagAccounts = async function(walletId, accountIndices) {
-  throw new Error("Not implemented");
+  return self.WORKER_OBJECTS[walletId].untagAccounts(accountIndices);
 }
 
 self.getAccountTags = async function(walletId) {
-  throw new Error("Not implemented");
+  let accountTagsJson = [];
+  for (let accountTag of await self.WORKER_OBJECTS[walletId].getAccountTags()) accountTagsJson.push(accountTag.toJson());
+  return accountTagsJson;
 }
 
 self.setAccountTagLabel = async function(walletId, tag, label) {
-  throw new Error("Not implemented");
+  return self.WORKER_OBJECTS[walletId].setAccountTagLabel(tag, label);
 }
 
 self.getPaymentUri = async function(walletId, configJson) {

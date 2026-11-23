@@ -592,16 +592,20 @@ string monero_wasm_bridge::get_unlocked_balance_subaddress(int handle, const uin
 }
 
 string monero_wasm_bridge::get_accounts(int handle, bool include_subaddresses, const string& tag) {
-
-  // get accounts
   monero_wallet* wallet = (monero_wallet*) handle;
-  vector<monero_account> accounts = wallet->get_accounts(include_subaddresses, tag);
+  try {
 
-  // wrap and serialize accounts
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("accounts", monero_utils::to_rapidjson_val(doc.GetAllocator(), accounts), doc.GetAllocator());
-  return gen_utils::serialize(doc);
+    // get accounts
+    vector<monero_account> accounts = wallet->get_accounts(include_subaddresses, tag);
+
+    // wrap and serialize accounts
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("accounts", monero_utils::to_rapidjson_val(doc.GetAllocator(), accounts), doc.GetAllocator());
+    return gen_utils::serialize(doc);
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
@@ -1186,24 +1190,70 @@ string monero_wasm_bridge::delete_address_book_entry(int handle, int index) {
   }
 }
 
-void monero_wasm_bridge::tag_accounts(int handle, const string& args) {
-  cout << "string monero_wasm_bridge::tag_accounts()" << endl;
-  throw runtime_error("Not implemented");
+string monero_wasm_bridge::tag_accounts(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
+
+    // get tag and account indices from args
+    string tag = node.get_child("tag").get_value<string>();
+    vector<uint32_t> account_indices;
+    for (const auto& child : node.get_child("accountIndices")) account_indices.push_back(child.second.get_value<uint32_t>());
+
+    // tag accounts
+    wallet->tag_accounts(tag, account_indices);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
-void monero_wasm_bridge::untag_accounts(int handle, const string& args) {
-  cout << "string monero_wasm_bridge::untag_accounts()" << endl;
-  throw runtime_error("Not implemented");
+string monero_wasm_bridge::untag_accounts(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
+
+    // get account indices from args
+    vector<uint32_t> account_indices;
+    for (const auto& child : node.get_child("accountIndices")) account_indices.push_back(child.second.get_value<uint32_t>());
+
+    // untag accounts
+    wallet->untag_accounts(account_indices);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_account_tags(int handle) {
-  cout << "string monero_wasm_bridge::get_account_tags()" << endl;
-  throw runtime_error("Not implemented");
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // get account tags
+  vector<shared_ptr<monero_account_tag>> account_tags = wallet->get_account_tags();
+
+  // wrap and serialize account tags
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("accountTags", monero_utils::to_rapidjson_val(doc.GetAllocator(), account_tags), doc.GetAllocator());
+  return gen_utils::serialize(doc);
 }
 
-void monero_wasm_bridge::set_account_tag_label(int handle, const string& tag, const string& label) {
-  cout << "string monero_wasm_bridge::set_account_tag_label()" << endl;
-  throw runtime_error("Not implemented");
+string monero_wasm_bridge::set_account_tag_label(int handle, const string& tag, const string& label) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    wallet->set_account_tag_label(tag, label);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_payment_uri(int handle, const string& config_json) {

@@ -744,6 +744,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       let accountsStr = this.module.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
+      if (accountsStr.charAt(0) !== '{') throw new MoneroError(accountsStr);
       let accounts = [];
       for (let accountJson of JSON.parse(GenUtils.stringifyBigInts(accountsStr)).accounts) {
         accounts.push(MoneroWalletFull.sanitizeAccount(new MoneroAccount(accountJson)));
@@ -1363,7 +1364,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!accountIndices) accountIndices = [];
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.tag_accounts(this.cppAddress, JSON.stringify({tag: tag, accountIndices: accountIndices}));
+      let errMsg = this.module.tag_accounts(this.cppAddress, JSON.stringify({tag: tag, accountIndices: accountIndices}));
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
 
@@ -1372,7 +1374,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!accountIndices) accountIndices = [];
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.tag_accounts(this.cppAddress, JSON.stringify({accountIndices: accountIndices}));
+      let errMsg = this.module.untag_accounts(this.cppAddress, JSON.stringify({accountIndices: accountIndices}));
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -1392,7 +1395,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!label) label = "";
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.set_account_tag_label(this.cppAddress, tag, label);
+      let errMsg = this.module.set_account_tag_label(this.cppAddress, tag, label);
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -2359,7 +2363,11 @@ class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
   }
   
   async getAccountTags() {
-    return this.invokeWorker("getAccountTags", Array.from(arguments));
+    let accountTags = [];
+    for (let accountTagJson of await this.invokeWorker("getAccountTags", Array.from(arguments))) {
+      accountTags.push(new MoneroAccountTag(accountTagJson));
+    }
+    return accountTags;
   }
 
   async setAccountTagLabel(tag, label) {
