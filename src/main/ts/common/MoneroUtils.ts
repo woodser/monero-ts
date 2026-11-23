@@ -316,6 +316,7 @@ export default class MoneroUtils {
       
       // serialize json to binary which is stored in c++ heap
       let binMemInfoStr = LibraryUtils.getWasmModule().malloc_binary_from_json(JSON.stringify(json));
+      if (binMemInfoStr.charAt(0) !== '{') throw new MoneroError(binMemInfoStr);
       
       // sanitize binary memory address info
       let binMemInfo = JSON.parse(binMemInfoStr);
@@ -363,10 +364,10 @@ export default class MoneroUtils {
       let binMemInfo = { ptr: ptr, length: uint8arr.length };
       
       // convert binary to json str
-      const ret_string = LibraryUtils.getWasmModule().binary_to_json(JSON.stringify(binMemInfo));
-      
-      // free binary on heap
-      LibraryUtils.getWasmModule()._free(ptr);
+      let ret_string;
+      try { ret_string = LibraryUtils.getWasmModule().binary_to_json(JSON.stringify(binMemInfo)); }
+      finally { LibraryUtils.getWasmModule()._free(ptr); } // free binary on heap
+      if (ret_string.charAt(0) !== '{') throw new MoneroError(ret_string);
       
       // parse and return json
       return JSON.parse(ret_string);
@@ -400,10 +401,10 @@ export default class MoneroUtils {
       let binMemInfo = { ptr: ptr, length: uint8arr.length  }
 
       // convert binary to json str
-      const json_str = LibraryUtils.getWasmModule().binary_blocks_to_json(JSON.stringify(binMemInfo));
-      
-      // free memory
-      LibraryUtils.getWasmModule()._free(ptr);
+      let json_str;
+      try { json_str = LibraryUtils.getWasmModule().binary_blocks_to_json(JSON.stringify(binMemInfo)); }
+      finally { LibraryUtils.getWasmModule()._free(ptr); } // free memory
+      if (json_str.charAt(0) !== '{') throw new MoneroError(json_str);
       
       // parse result to json
       let json = JSON.parse(json_str);                                          // parsing json gives arrays of block and tx strings

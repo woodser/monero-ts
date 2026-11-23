@@ -430,7 +430,7 @@ export default class MoneroRpcConnection {
     return this.queueSendRequest(async () => {
 
       // serialize params
-      let paramsBin = await MoneroUtils.jsonToBinary(params);
+      let paramsBin = await MoneroUtils.jsonToBinary(params === undefined ? {} : params);
           
       try {
 
