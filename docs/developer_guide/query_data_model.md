@@ -19,9 +19,10 @@ let txs = await wallet.getTxs({
 ```
 
 ```typescript
-// get transactions since height 582106 with incoming transfers to
-// account 0, subaddress 0
+// get confirmed transactions since height 582106 with incoming transfers to
+// account 0, subaddress 1
 let txs = await wallet.getTxs({
+  isConfirmed: true,
   minHeight: 582106,
   transferQuery: {
     isIncoming: true,
