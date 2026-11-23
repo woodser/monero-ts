@@ -1538,8 +1538,12 @@ export default class MoneroWalletRpc extends MoneroWallet {
     let uri;
     let that = this;
     let output = "";
+    let timeout;
     try {
       return await new Promise(function(resolve, reject) {
+        
+        // fail if process does not start within the timeout
+        if (config.cmdTimeoutMs > 0) timeout = setTimeout(() => reject(new MoneroError("Failed to start monero-wallet-rpc within " + config.cmdTimeoutMs + " ms" + (output ? ":\n\n" + output : ""))), config.cmdTimeoutMs);
       
         // handle stdout
         childProcess.stdout.on('data', async function(data) {
@@ -1561,26 +1565,30 @@ export default class MoneroWalletRpc extends MoneroWallet {
           
           // read success message
           if (line.indexOf("Starting wallet RPC server") >= 0) {
-            
-            // get username, password, zmq publish uri, and proxy uri from params
-            let userPassIdx = config.cmd.indexOf("--rpc-login");
-            let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
-            let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
-            let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
-            let zmqUriIdx = config.cmd.indexOf("--zmq-pub");
-            let zmqUri = zmqUriIdx >= 0 ? config.cmd[zmqUriIdx + 1] : undefined;
-            let proxyUriIdx = config.cmd.indexOf("--proxy");
-            this.startupProxyUri = proxyUriIdx >= 0 ? config.cmd[proxyUriIdx + 1] : undefined;
-            
-            // create client connected to internal process
-            config = config.copy().setServer({uri: uri, username: username, password: password, zmqUri: zmqUri, proxyUri: this.startupProxyUri, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
-            config.cmd = undefined;
-            let wallet = await MoneroWalletRpc.connectToWalletRpc(config);
-            wallet.process = childProcess;
-            
-            // resolve promise with client connected to internal process 
-            this.isResolved = true;
-            resolve(wallet);
+            try {
+              
+              // get username, password, zmq publish uri, and proxy uri from params
+              let userPassIdx = config.cmd.indexOf("--rpc-login");
+              let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
+              let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
+              let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
+              let zmqUriIdx = config.cmd.indexOf("--zmq-pub");
+              let zmqUri = zmqUriIdx >= 0 ? config.cmd[zmqUriIdx + 1] : undefined;
+              let proxyUriIdx = config.cmd.indexOf("--proxy");
+              this.startupProxyUri = proxyUriIdx >= 0 ? config.cmd[proxyUriIdx + 1] : undefined;
+              
+              // create client connected to internal process
+              config = config.copy().setServer({uri: uri, username: username, password: password, zmqUri: zmqUri, proxyUri: this.startupProxyUri, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
+              config.cmd = undefined;
+              let wallet = await MoneroWalletRpc.connectToWalletRpc(config);
+              wallet.process = childProcess;
+              
+              // resolve promise with client connected to internal process 
+              this.isResolved = true;
+              resolve(wallet);
+            } catch (err) {
+              reject(err);
+            }
           }
         });
         
@@ -1608,7 +1616,10 @@ export default class MoneroWalletRpc extends MoneroWallet {
         });
       });
     } catch (err: any) {
+      await GenUtils.killProcess(childProcess, "SIGKILL"); // do not leave the process running
       throw new MoneroError(err.message);
+    } finally {
+      clearTimeout(timeout);
     }
   }
   

@@ -2,7 +2,8 @@ import assert from "assert";
 import TestUtils from "./utils/TestUtils";
 import TestMoneroWalletCommon, {WalletFeature} from "./TestMoneroWalletCommon";
 import TestMoneroWalletFull from "./TestMoneroWalletFull";
-import {MoneroError,
+import {connectToWalletRpc,
+        MoneroError,
         GenUtils,
         MoneroWalletConfig,
         MoneroUtils,
@@ -147,6 +148,34 @@ export default class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         describe("Tests specific to RPC wallet", function() {
 
             // ---------------------------- BEGIN TESTS ---------------------------------
+
+            if (testConfig.testNonRelays && !GenUtils.isBrowser())
+                it("Can start a wallet rpc process within a timeout (CI)", async function() {
+                    let cmd = [
+                        TestUtils.WALLET_RPC_LOCAL_PATH,
+                        "--offline",
+                        "--rpc-bind-port", "58090",
+                        "--rpc-login", TestUtils.WALLET_RPC_CONFIG.username, // stalls prompting for the password
+                        "--wallet-dir", TestUtils.WALLET_RPC_LOCAL_WALLET_DIR
+                    ];
+
+                    // process is killed if not started within the timeout
+                    try {
+                        await connectToWalletRpc({cmd: cmd, cmdTimeoutMs: 1000});
+                        throw new Error("Should have timed out");
+                    } catch (e: any) {
+                        assert(e.message.indexOf("within 1000 ms") >= 0, e.message);
+                    }
+
+                    // start and stop process
+                    cmd[cmd.indexOf("--rpc-login") + 1] = TestUtils.WALLET_RPC_CONFIG.username + ":" + TestUtils.WALLET_RPC_CONFIG.password;
+                    let walletRpc = await connectToWalletRpc({cmd: cmd, cmdTimeoutMs: 60000});
+                    try {
+                        assert((await walletRpc.getVersion()).getNumber() > 0);
+                    } finally {
+                        await walletRpc.stopProcess();
+                    }
+                });
 
             if (testConfig.testNonRelays)
                 it("Can create a wallet with a randomly generated mnemonic (CI)", async function() {

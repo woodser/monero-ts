@@ -88,8 +88,16 @@ export default class TestMoneroDaemonRpc {
             "--zmq-rpc-bind-port", "58082"
         ];
         
-        // start monerod process from command
-        let daemon = await connectToDaemonRpc(cmd);
+        // start monerod process from command, which is killed if not started within the timeout
+        let stalledCmd = cmd.slice();
+        stalledCmd[stalledCmd.indexOf("--rpc-login") + 1] = "superuser"; // stalls prompting for the password
+        try {
+          await connectToDaemonRpc({cmd: stalledCmd, cmdTimeoutMs: 1000});
+          throw new Error("Should have timed out");
+        } catch (e: any) {
+          assert(e.message.indexOf("within 1000 ms") >= 0, e.message);
+        }
+        let daemon = await connectToDaemonRpc({cmd: cmd, cmdTimeoutMs: 60000});
         
         // query daemon
         let connection = await daemon.getRpcConnection();
