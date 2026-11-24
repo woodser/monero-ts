@@ -1192,7 +1192,15 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
           () => that.wallet.getTxKey(invalid),
           () => that.wallet.getTxNotes([invalid]),
           () => that.wallet.setTxNotes([invalid], ["note"]),
-          () => that.wallet.parsePaymentUri(invalid)
+          () => that.wallet.parsePaymentUri(invalid),
+          () => that.wallet.createSubaddress(999999, invalid),
+          () => that.wallet.setSubaddressLabel(999999, 0, invalid),
+          () => that.wallet.getAddressBookEntries([999999]),
+          () => that.wallet.addAddressBookEntry(invalid, invalid),
+          () => that.wallet.editAddressBookEntry(999999, true, invalid, true, invalid),
+          () => that.wallet.deleteAddressBookEntry(999999),
+          () => that.wallet.exportMultisigHex(),
+          () => that.wallet.setDaemonConnection("http://localhost:99999999")
         ];
         for (let call of calls) await assert.rejects(call, MoneroError);
         let memoryBefore = await LibraryUtils.getWasmMemoryUsed();

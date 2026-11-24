@@ -246,8 +246,12 @@ bool monero_wasm_bridge::is_view_only(int handle) {
 
 void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, const string& proxy_uri, int is_trusted, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_daemon_connection(uri, username, password, proxy_uri, is_trusted < 0 ? boost::none : boost::optional<bool>(is_trusted != 0)); // trusted is unset if negative
-  callback();
+  try {
+    wallet->set_daemon_connection(uri, username, password, proxy_uri, is_trusted < 0 ? boost::none : boost::optional<bool>(is_trusted != 0)); // trusted is unset if negative
+    callback();
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 string monero_wasm_bridge::get_daemon_connection(int handle) {
@@ -629,13 +633,22 @@ string monero_wasm_bridge::get_subaddresses(int handle, const string& args) {
 
 string monero_wasm_bridge::create_subaddress(int handle, const uint32_t account_idx, const string& label) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_subaddress subaddress = wallet->create_subaddress(account_idx, label);
-  return subaddress.serialize();
+  try {
+    monero_subaddress subaddress = wallet->create_subaddress(account_idx, label);
+    return subaddress.serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
-void monero_wasm_bridge::set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label) {
+string monero_wasm_bridge::set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->set_subaddress_label(account_idx, subaddress_idx, label);
+  try {
+    wallet->set_subaddress_label(account_idx, subaddress_idx, label);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscripten::val callback) {
@@ -1107,40 +1120,58 @@ string monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
 
 string monero_wasm_bridge::get_address_book_entries(int handle, const string& args) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-  // get entry indices from args
-  vector<uint64_t> entry_indices;
-  boost::property_tree::ptree entry_indices_node = node.get_child("entryIndices");
-  for (const auto& child : entry_indices_node) entry_indices.push_back(child.second.get_value<uint64_t>());
+    // get entry indices from args
+    vector<uint64_t> entry_indices;
+    boost::property_tree::ptree entry_indices_node = node.get_child("entryIndices");
+    for (const auto& child : entry_indices_node) entry_indices.push_back(child.second.get_value<uint64_t>());
 
-  // get address book entries
-  vector<monero_address_book_entry> entries = wallet->get_address_book_entries(entry_indices);
+    // get address book entries
+    vector<monero_address_book_entry> entries = wallet->get_address_book_entries(entry_indices);
 
-  // wrap and serialize entries
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("entries", monero_utils::to_rapidjson_val(doc.GetAllocator(), entries), doc.GetAllocator());
-  return gen_utils::serialize(doc);
+    // wrap and serialize entries
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("entries", monero_utils::to_rapidjson_val(doc.GetAllocator(), entries), doc.GetAllocator());
+    return gen_utils::serialize(doc);
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
-int monero_wasm_bridge::add_address_book_entry(int handle, const string& address, const string& description) {
+emscripten::val monero_wasm_bridge::add_address_book_entry(int handle, const string& address, const string& description) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->add_address_book_entry(address, description);
+  try {
+    return emscripten::val((int) wallet->add_address_book_entry(address, description));
+  } catch (exception& e) {
+    return emscripten::val(string(e.what()));
+  }
 }
 
-void monero_wasm_bridge::edit_address_book_entry(int handle, int index, bool set_address, const string& address, bool set_description, const string& description) {
+string monero_wasm_bridge::edit_address_book_entry(int handle, int index, bool set_address, const string& address, bool set_description, const string& description) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->edit_address_book_entry(index, set_address, address, set_description, description);
+  try {
+    wallet->edit_address_book_entry(index, set_address, address, set_description, description);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
-void monero_wasm_bridge::delete_address_book_entry(int handle, int index) {
+string monero_wasm_bridge::delete_address_book_entry(int handle, int index) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->delete_address_book_entry(index);
+  try {
+    wallet->delete_address_book_entry(index);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 void monero_wasm_bridge::tag_accounts(int handle, const string& args) {
@@ -1206,7 +1237,11 @@ string monero_wasm_bridge::get_multisig_info(int handle) {
 
 string monero_wasm_bridge::prepare_multisig(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->prepare_multisig();
+  try {
+    return wallet->prepare_multisig();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what()); // indicate error with prefix
+  }
 }
 
 void monero_wasm_bridge::make_multisig(int handle, const string& args, emscripten::val callback) {
@@ -1260,7 +1295,11 @@ void monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args, 
 
 string monero_wasm_bridge::export_multisig_hex(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->export_multisig_hex();
+  try {
+    return wallet->export_multisig_hex();
+  } catch (exception& e) {
+    return string("error: ") + string(e.what()); // indicate error with prefix
+  }
 }
 
 void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, emscripten::val callback) {
