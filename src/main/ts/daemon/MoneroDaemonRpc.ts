@@ -869,8 +869,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // return promise which resolves after starting monerod
     let uri;
     let output = "";
+    let timeout;
     try {
       return await new Promise(function(resolve, reject) {
+        
+        // fail if process does not start within the timeout
+        if (config.cmdTimeoutMs > 0) timeout = setTimeout(() => reject(new Error("Failed to start monerod within " + config.cmdTimeoutMs + " ms" + (output ? ":\n\n" + output : ""))), config.cmdTimeoutMs);
       
         // handle stdout
         childProcess.stdout.on('data', async function(data) {
@@ -892,23 +896,27 @@ class MoneroDaemonRpc extends MoneroDaemon {
           
           // read success message
           if (line.indexOf("core RPC server started ok") >= 0) {
-            
-            // get username and password from params
-            let userPassIdx = config.cmd.indexOf("--rpc-login");
-            let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
-            let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
-            let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
-            
-            // create client connected to internal process
-            config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
-            config.setProxyToWorker(config.proxyToWorker);
-            config.cmd = undefined
-            let daemon = await MoneroDaemonRpc.connectToDaemonRpc(config);
-            daemon.process = childProcess;
-            
-            // resolve promise with client connected to internal process 
-            this.isResolved = true;
-            resolve(daemon);
+            try {
+              
+              // get username and password from params
+              let userPassIdx = config.cmd.indexOf("--rpc-login");
+              let userPass = userPassIdx >= 0 ? config.cmd[userPassIdx + 1] : undefined;
+              let username = userPass === undefined ? undefined : userPass.substring(0, userPass.indexOf(':'));
+              let password = userPass === undefined ? undefined : userPass.substring(userPass.indexOf(':') + 1);
+              
+              // create client connected to internal process
+              config = config.copy().setServer({uri: uri, username: username, password: password, rejectUnauthorized: config.getServer() ? config.getServer().getRejectUnauthorized() : undefined});
+              config.setProxyToWorker(config.proxyToWorker);
+              config.cmd = undefined
+              let daemon = await MoneroDaemonRpc.connectToDaemonRpc(config);
+              daemon.process = childProcess;
+              
+              // resolve promise with client connected to internal process 
+              this.isResolved = true;
+              resolve(daemon);
+            } catch (err) {
+              reject(err);
+            }
           }
         });
         
@@ -936,7 +944,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
         });
       });
     } catch (err: any) {
+      await GenUtils.killProcess(childProcess, "SIGKILL"); // do not leave the process running
       throw new MoneroError(err.message);
+    } finally {
+      clearTimeout(timeout);
     }
   }
   
