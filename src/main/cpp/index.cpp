@@ -12,7 +12,6 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("set_log_level", &monero_wasm_bridge::set_log_level);
   emscripten::function("get_integrated_address_util", &monero_wasm_bridge::get_integrated_address_util);
   emscripten::function("validate_address", &monero_wasm_bridge::validate_address);
-  emscripten::function("get_exception_message", &monero_wasm_bridge::get_exception_message);
   emscripten::function("malloc_binary_from_json", &monero_wasm_bridge::malloc_binary_from_json);
   emscripten::function("binary_to_json", &monero_wasm_bridge::binary_to_json);
   emscripten::function("binary_blocks_to_json", &monero_wasm_bridge::binary_blocks_to_json);

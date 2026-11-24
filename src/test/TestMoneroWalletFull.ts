@@ -9,8 +9,10 @@ import {createWalletFull,
         LibraryUtils,
         MoneroWalletConfig,
         GenUtils,
+        MoneroError,
         MoneroUtils,
         MoneroNetworkType,
+        MoneroTxSet,
         MoneroTxWallet,
         MoneroOutputQuery,
         MoneroOutputWallet,
@@ -1179,6 +1181,26 @@ export default class TestMoneroWalletFull extends TestMoneroWalletCommon {
         await wallet.close();
         assert(await wallet.isClosed());
         if (err) throw err;
+      });
+
+      if (testConfig.testNonRelays)
+      it("Can release memory of failed calls (CI)", async function() {
+        let invalid = "ab".repeat(100000);
+        let calls = [
+          () => that.wallet.describeTxSet(new MoneroTxSet({unsignedTxHex: invalid})),
+          () => that.wallet.signTxs(invalid),
+          () => that.wallet.getTxKey(invalid),
+          () => that.wallet.getTxNotes([invalid]),
+          () => that.wallet.setTxNotes([invalid], ["note"]),
+          () => that.wallet.parsePaymentUri(invalid)
+        ];
+        for (let call of calls) await assert.rejects(call, MoneroError);
+        let memoryBefore = await LibraryUtils.getWasmMemoryUsed();
+        for (let i = 0; i < 100; i++) {
+          for (let call of calls) await assert.rejects(call, MoneroError);
+          assert(!(await that.wallet.verifyMessage(invalid, "invalid address", invalid)).getIsGood());
+        }
+        assert(await LibraryUtils.getWasmMemoryUsed() <= memoryBefore + 1024 * 1024, "Failed calls retained WASM memory");
       });
 
       if (false)

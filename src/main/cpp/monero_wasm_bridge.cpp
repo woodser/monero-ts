@@ -98,11 +98,6 @@ string monero_wasm_bridge::validate_address(const string& address, int network_t
   }
 }
 
-string monero_wasm_bridge::get_exception_message(int exception_ptr)
-{
-  return std::string(reinterpret_cast<std::exception *>(exception_ptr)->what());
-}
-
 string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
 {
   // convert json to binary string
@@ -915,19 +910,27 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
 
 string monero_wasm_bridge::describe_tx_set(int handle, const string& tx_set_str) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  shared_ptr<monero_tx_set> tx_set = monero_tx_set::deserialize(tx_set_str);
-  monero_tx_set described_tx_set = wallet->describe_tx_set(*tx_set);
-  std::string monero_tx_set_json = described_tx_set.serialize();
-  monero_utils::free(described_tx_set.m_txs);
-  return monero_tx_set_json;
+  try {
+    shared_ptr<monero_tx_set> tx_set = monero_tx_set::deserialize(tx_set_str);
+    monero_tx_set described_tx_set = wallet->describe_tx_set(*tx_set);
+    std::string monero_tx_set_json = described_tx_set.serialize();
+    monero_utils::free(described_tx_set.m_txs);
+    return monero_tx_set_json;
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::sign_txs(int handle, const string& unsigned_tx_hex) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_tx_set signed_tx_set = wallet->sign_txs(unsigned_tx_hex);
-  std::string monero_tx_set_json = signed_tx_set.serialize();
-  monero_utils::free(signed_tx_set.m_txs);
-  return monero_tx_set_json;
+  try {
+    monero_tx_set signed_tx_set = wallet->sign_txs(unsigned_tx_hex);
+    std::string monero_tx_set_json = signed_tx_set.serialize();
+    monero_utils::free(signed_tx_set.m_txs);
+    return monero_tx_set_json;
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback) {
@@ -948,17 +951,29 @@ void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, ems
 string monero_wasm_bridge::sign_message(int handle, const string& msg, uint32_t signature_type_num, uint32_t account_idx, uint32_t subaddress_idx) {
   monero_wallet* wallet = (monero_wallet*) handle;
   monero_message_signature_type signature_type = signature_type_num == 0 ? monero_message_signature_type::SIGN_WITH_SPEND_KEY : monero_message_signature_type::SIGN_WITH_VIEW_KEY;
-  return wallet->sign_message(msg, signature_type, account_idx, subaddress_idx);
+  try {
+    return wallet->sign_message(msg, signature_type, account_idx, subaddress_idx);
+  } catch (exception& e) {
+    return string("error: ") + string(e.what()); // indicate error with prefix
+  }
 }
 
 string monero_wasm_bridge::verify_message(int handle, const string& msg, const string& address, const string& signature) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->verify_message(msg, address, signature).serialize();
+  try {
+    return wallet->verify_message(msg, address, signature).serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_tx_key(int handle, const string& tx_hash) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_tx_key(tx_hash);
+  try {
+    return wallet->get_tx_key(tx_hash);
+  } catch (exception& e) {
+    return string("error: ") + string(e.what()); // indicate error with prefix
+  }
 }
 
 void monero_wasm_bridge::check_tx_key(int handle, const string& tx_hash, const string& tx_key, const string& address, emscripten::val callback) {
@@ -1038,47 +1053,56 @@ void monero_wasm_bridge::check_reserve_proof(int handle, const string& address, 
 
 string monero_wasm_bridge::get_tx_notes(int handle, const string& args) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-  // get tx hashes from args
-  vector<string> tx_hashes;
-  boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
-  for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
+    // get tx hashes from args
+    vector<string> tx_hashes;
+    boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
+    for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
 
-  // get tx notes
-  vector<string> notes = wallet->get_tx_notes(tx_hashes);
+    // get tx notes
+    vector<string> notes = wallet->get_tx_notes(tx_hashes);
 
-  // wrap and serialize notes
-  rapidjson::Document doc;
-  doc.SetObject();
-  doc.AddMember("txNotes", monero_utils::to_rapidjson_val(doc.GetAllocator(), notes), doc.GetAllocator());
-  return gen_utils::serialize(doc);
+    // wrap and serialize notes
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txNotes", monero_utils::to_rapidjson_val(doc.GetAllocator(), notes), doc.GetAllocator());
+    return gen_utils::serialize(doc);
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
-void monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
+string monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-  // get tx hashes from args
-  vector<string> tx_hashes;
-  boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
-  for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
+    // get tx hashes from args
+    vector<string> tx_hashes;
+    boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
+    for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
 
-  // get tx notes from args
-  vector<string> tx_notes;
-  boost::property_tree::ptree tx_notes_node = node.get_child("txNotes");
-  for (const auto& child : tx_notes_node) tx_notes.push_back(child.second.get_value<string>());
+    // get tx notes from args
+    vector<string> tx_notes;
+    boost::property_tree::ptree tx_notes_node = node.get_child("txNotes");
+    for (const auto& child : tx_notes_node) tx_notes.push_back(child.second.get_value<string>());
 
-  // set tx notes
-  wallet->set_tx_notes(tx_hashes, tx_notes);
+    // set tx notes
+    wallet->set_tx_notes(tx_hashes, tx_notes);
+    return string("");
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_address_book_entries(int handle, const string& args) {
@@ -1141,13 +1165,21 @@ void monero_wasm_bridge::set_account_tag_label(int handle, const string& tag, co
 
 string monero_wasm_bridge::get_payment_uri(int handle, const string& config_json) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
-  return wallet->get_payment_uri(*config);
+  try {
+    shared_ptr<monero_tx_config> config = monero_tx_config::deserialize(config_json);
+    return wallet->get_payment_uri(*config);
+  } catch (exception& e) {
+    return string("error: ") + string(e.what()); // indicate error with prefix
+  }
 }
 
 string monero_wasm_bridge::parse_payment_uri(int handle, const string& uri) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->parse_payment_uri(uri)->serialize();
+  try {
+    return wallet->parse_payment_uri(uri)->serialize();
+  } catch (exception& e) {
+    return string(e.what());
+  }
 }
 
 string monero_wasm_bridge::get_attribute(int handle, const string& key) {

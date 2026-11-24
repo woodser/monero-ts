@@ -25,7 +25,6 @@ namespace monero_wasm_bridge
   void set_log_level(int level);
   string get_integrated_address_util(int network_type, const string& standard_address, const string& payment_id);
   string validate_address(const string& address, int network_type);
-  string get_exception_message(int exception_ptr);
   string malloc_binary_from_json(const string& args_string);
   string binary_to_json(const string& args_string);
   string binary_blocks_to_json(const string& args_string);
@@ -123,7 +122,7 @@ namespace monero_wasm_bridge
   void get_reserve_proof_account(int handle, uint32_t account_idx, const string& amount_str, const string& message, emscripten::val callback);
   void check_reserve_proof(int handle, const string& address, const string& message, const string& signature, emscripten::val callback);
   string get_tx_notes(int handle, const string& args);
-  void set_tx_notes(int handle, const string& args);
+  string set_tx_notes(int handle, const string& args);
   string get_address_book_entries(int handle, const string& args);
   int add_address_book_entry(int handle, const string& address, const string& description);
   void edit_address_book_entry(int handle, int index, bool setAddress, const string& address, bool setDescription, const string& description);
