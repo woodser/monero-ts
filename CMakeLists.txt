@@ -2,11 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(monero-ts-wasm)
 
-# build with exception whitelist from file
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS wasm_exception_whitelist.txt) # reconfigure when the whitelist changes so flags are not stale
-file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
-string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s EXCEPTION_CATCHING_ALLOWED='[${WASM_EXCEPTION_WHITELIST}]' -D_REENTRANT")
+# build with exception catching in all functions
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Oz -s DISABLE_EXCEPTION_CATCHING=0 -D_REENTRANT")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 add_definitions(-DCONFIGURED=1) # vendored libsodium sources warn when built outside its configure script
 
@@ -282,7 +279,6 @@ set(
 #-s USE_PTHREADS=1 \
 #-s PTHREAD_POOL_SIZE=2 \
 #-s PROXY_TO_PTHREAD \
-#-s DISABLE_EXCEPTION_CATCHING=0 \
 #-s ASYNCIFY=1 \
 #-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 #-s ALLOW_MEMORY_GROWTH=0 \
@@ -317,7 +313,6 @@ EMCC_LINKER_FLAGS_BASE
 -s STACK_SIZE=5MB \
 -s DEFAULT_PTHREAD_STACK_SIZE=2MB \
 "
-    # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
     #
     #
