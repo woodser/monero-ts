@@ -89,7 +89,7 @@ namespace monero_wasm_bridge
   string create_account(int handle, const string& label);
   string get_subaddresses(int handle, const string& args);
   string create_subaddress(int handle, const uint32_t account_idx, const string& label);
-  void set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label);
+  string set_subaddress_label(int handle, const uint32_t account_idx, const uint32_t subaddress_idx, const string& label);
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
   void get_transfers(int handle, const string& transfer_query_json, emscripten::val callback);
   void get_outputs(int handle, const string& output_query_json, emscripten::val callback);
@@ -124,9 +124,9 @@ namespace monero_wasm_bridge
   string get_tx_notes(int handle, const string& args);
   string set_tx_notes(int handle, const string& args);
   string get_address_book_entries(int handle, const string& args);
-  int add_address_book_entry(int handle, const string& address, const string& description);
-  void edit_address_book_entry(int handle, int index, bool setAddress, const string& address, bool setDescription, const string& description);
-  void delete_address_book_entry(int handle, int entry_idx);
+  emscripten::val add_address_book_entry(int handle, const string& address, const string& description);
+  string edit_address_book_entry(int handle, int index, bool setAddress, const string& address, bool setDescription, const string& description);
+  string delete_address_book_entry(int handle, int entry_idx);
   void tag_accounts(int handle, const string& args);
   void untag_accounts(int handle, const string& args);
   string get_account_tags(int handle);

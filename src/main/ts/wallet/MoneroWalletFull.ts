@@ -463,6 +463,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
       this.assertNotClosed();
       return new Promise<void>((resolve, reject) => {
         this.module.set_daemon_connection(this.cppAddress, uri, username, password, proxyUri, isTrustedArg, (resp) => {
+          if (resp) return reject(new MoneroError(resp));
           this.rejectUnauthorized = rejectUnauthorized;  // persist locally
           resolve();
         });
@@ -791,6 +792,7 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       let subaddressStr = this.module.create_subaddress(this.cppAddress, accountIdx, label);
+      if (subaddressStr.charAt(0) !== '{') throw new MoneroError(subaddressStr);
       let subaddressJson = JSON.parse(GenUtils.stringifyBigInts(subaddressStr));
       return MoneroWalletKeys.sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
     });
@@ -801,7 +803,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (label === undefined) label = "";
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.set_subaddress_label(this.cppAddress, accountIdx, subaddressIdx, label);
+      let errMsg = this.module.set_subaddress_label(this.cppAddress, accountIdx, subaddressIdx, label);
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -1311,7 +1314,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       let entries = [];
-      for (let entryJson of JSON.parse(this.module.get_address_book_entries(this.cppAddress, JSON.stringify({entryIndices: entryIndices}))).entries) {
+      let resp = this.module.get_address_book_entries(this.cppAddress, JSON.stringify({entryIndices: entryIndices}));
+      if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+      for (let entryJson of JSON.parse(resp).entries) {
         entries.push(new MoneroAddressBookEntry(entryJson));
       }
       return entries;
@@ -1324,7 +1329,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!description) description = "";
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      return this.module.add_address_book_entry(this.cppAddress, address, description);
+      let resp = this.module.add_address_book_entry(this.cppAddress, address, description);
+      if (typeof resp === "string") throw new MoneroError(resp);
+      return resp;
     });
   }
   
@@ -1336,7 +1343,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (!description) description = "";
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.edit_address_book_entry(this.cppAddress, index, setAddress, address, setDescription, description);
+      let errMsg = this.module.edit_address_book_entry(this.cppAddress, index, setAddress, address, setDescription, description);
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -1344,7 +1352,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().deleteAddressBookEntry(entryIdx);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      this.module.delete_address_book_entry(this.cppAddress, entryIdx);
+      let errMsg = this.module.delete_address_book_entry(this.cppAddress, entryIdx);
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -1477,7 +1486,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().prepareMultisig();
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      return this.module.prepare_multisig(this.cppAddress);
+      let multisigHex = this.module.prepare_multisig(this.cppAddress);
+      let errorKey = "error: ";
+      if (multisigHex.indexOf(errorKey) === 0) throw new MoneroError(multisigHex.substring(errorKey.length));
+      return multisigHex;
     });
   }
   
@@ -1513,7 +1525,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().exportMultisigHex();
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      return this.module.export_multisig_hex(this.cppAddress);
+      let multisigHex = this.module.export_multisig_hex(this.cppAddress);
+      let errorKey = "error: ";
+      if (multisigHex.indexOf(errorKey) === 0) throw new MoneroError(multisigHex.substring(errorKey.length));
+      return multisigHex;
     });
   }
   
