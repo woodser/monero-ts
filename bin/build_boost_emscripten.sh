@@ -110,6 +110,7 @@ HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2
   optimization=space          \
   variant=release             \
   cxxflags=-no-pthread        \
+  cxxflags=-sDISABLE_EXCEPTION_CATCHING=0 \
   stage                       \
   --stagedir="$INSTALL_PATH"  \
   2>&1
