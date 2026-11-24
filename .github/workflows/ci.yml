@@ -11,6 +11,7 @@ permissions:
 jobs:
   build:
     name: node ${{ matrix.node }}
+    needs: dist
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -34,6 +35,15 @@ jobs:
 
       - name: Check types
         run: npx tsc --noEmit
+
+      - name: Remove checked in dist # test the dist built by this run
+        run: rm -rf dist
+
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: monero-ts-dist
+          path: dist
 
       - name: Build commonjs
         run: npm run build_commonjs
@@ -117,6 +127,7 @@ jobs:
         run: |
           source ./emsdk/emsdk_env.sh
           export EMSCRIPTEN=$EMSDK/upstream/emscripten
+          rm -rf dist # upload only what this build produces
           ./bin/build_dist.sh
 
       - name: Upload dist
@@ -185,6 +196,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind-dev liblzma-dev libreadline-dev libexpat1-dev libpgm-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev libudev-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev
+
+      - name: Remove checked in dist # test the dist built by this run
+        run: rm -rf dist
 
       - name: Download dist
         uses: actions/download-artifact@v4
