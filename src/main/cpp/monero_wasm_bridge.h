@@ -127,10 +127,10 @@ namespace monero_wasm_bridge
   emscripten::val add_address_book_entry(int handle, const string& address, const string& description);
   string edit_address_book_entry(int handle, int index, bool setAddress, const string& address, bool setDescription, const string& description);
   string delete_address_book_entry(int handle, int entry_idx);
-  void tag_accounts(int handle, const string& args);
-  void untag_accounts(int handle, const string& args);
+  string tag_accounts(int handle, const string& args);
+  string untag_accounts(int handle, const string& args);
   string get_account_tags(int handle);
-  void set_account_tag_label(int handle, const string& tag, const string& label);
+  string set_account_tag_label(int handle, const string& tag, const string& label);
   string get_payment_uri(int handle, const string& config_json);
   string parse_payment_uri(int handle, const string& uri);
   string get_attribute(int handle, const string& key);

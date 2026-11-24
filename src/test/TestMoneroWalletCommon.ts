@@ -5,6 +5,7 @@ import {Filter,
         GenUtils,
         LibraryUtils,
         MoneroAccount,
+        MoneroAccountTag,
         MoneroBlock,
         MoneroDaemonRpc,
         MoneroError,
@@ -915,6 +916,84 @@ export default class TestMoneroWalletCommon {
         const label = GenUtils.getUUID();
         await that.wallet.setAccountLabel(1, label);
         assert.equal((await that.wallet.getSubaddress(1, 0)).getLabel(), label);
+      });
+      
+      if (testConfig.testNonRelays)
+      it("Can tag accounts and query accounts by tag (CI)", async function() {
+
+        // get accounts
+        let accounts = await that.wallet.getAccounts();
+        assert(accounts.length >= 3, "Not enough accounts to test; run create account test");
+
+        // tag some of the accounts
+        let tag = new MoneroAccountTag({tag: "my_tag_" + GenUtils.getUUID(), label: "my tag label", accountIndices: [0, 1]});
+        await that.wallet.tagAccounts(tag.getTag(), tag.getAccountIndices());
+
+        // query accounts by tag
+        let taggedAccounts = await that.wallet.getAccounts(undefined, tag.getTag());
+        assert.equal(taggedAccounts.length, 2);
+        assert.equal(taggedAccounts[0].getIndex(), 0);
+        assert.equal(taggedAccounts[0].getTag(), tag.getTag());
+        assert.equal(taggedAccounts[1].getIndex(), 1);
+        assert.equal(taggedAccounts[1].getTag(), tag.getTag());
+
+        // tag has no label until one is set
+        assert(GenUtils.arrayContains(await that.wallet.getAccountTags(), new MoneroAccountTag({tag: tag.getTag(), accountIndices: tag.getAccountIndices()})));
+
+        // set tag label
+        await that.wallet.setAccountTagLabel(tag.getTag(), tag.getLabel());
+
+        // fetch tags and ensure new tag is contained
+        let tags = await that.wallet.getAccountTags();
+        assert(GenUtils.arrayContains(tags, tag));
+
+        // re-tag an account
+        let tag2 = new MoneroAccountTag({tag: "my_tag_" + GenUtils.getUUID(), label: "my tag label 2", accountIndices: [1]});
+        await that.wallet.tagAccounts(tag2.getTag(), tag2.getAccountIndices());
+        let taggedAccounts2 = await that.wallet.getAccounts(undefined, tag2.getTag())
+        assert.equal(taggedAccounts2.length, 1);
+        assert.equal(taggedAccounts2[0].getIndex(), 1);
+        assert.equal(taggedAccounts2[0].getTag(), tag2.getTag());
+
+        // re-query original tag which only applies to one account now
+        taggedAccounts = await that.wallet.getAccounts(undefined, tag.getTag());
+        assert.equal(taggedAccounts.length, 1);
+        assert.equal(taggedAccounts[0].getIndex(), 0);
+        assert.equal(taggedAccounts[0].getTag(), tag.getTag());
+
+        // test that tagging an account out of range fails
+        try {
+          await that.wallet.tagAccounts(tag.getTag(), [accounts.length]);
+          throw new Error("Should have thrown exception with account out of range");
+        } catch (e: any) {
+          assert.equal(e.message, "Account index out of bound");
+        }
+
+        // test that labeling an unregistered tag fails
+        try {
+          await that.wallet.setAccountTagLabel("non_existing_tag", "my label");
+          throw new Error("Should have thrown exception with unregistered tag");
+        } catch (e: any) {
+          assert.equal(e.message, "Tag is unregistered");
+        }
+
+        // untag and query accounts
+        await that.wallet.untagAccounts([0, 1]);
+        assert.equal((await that.wallet.getAccountTags()).length, 0);
+        try {
+          await that.wallet.getAccounts(undefined, tag.getTag());
+          throw new Error("Should have thrown exception with unregistered tag");
+        } catch (e: any) {
+          assert.equal(e.message, "Tag " + tag.getTag() + " is unregistered.");
+        }
+
+        // test that non-existing tag returns no accounts
+        try {
+          await that.wallet.getAccounts(undefined, "non_existing_tag");
+          throw new Error("Should have thrown exception with unregistered tag");
+        } catch (e: any) {
+          assert.equal(e.message, "Tag non_existing_tag is unregistered.");
+        }
       });
       
       if (testConfig.testNonRelays)
