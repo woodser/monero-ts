@@ -67,6 +67,15 @@ export default class TestMoneroUtils {
         assert.deepEqual(json2, json);
       });
       
+      it("Can convert binary views (CI)", async function() {
+        let toView = (binary) => new Uint8Array([0, ...binary, 0]).subarray(1, binary.length + 1); // view into a larger buffer
+        let json = { heights: [111, 222, 333] };
+        assert.deepEqual(await MoneroUtils.binaryToJson(toView(await MoneroUtils.jsonToBinary(json))), json);
+        let block = "\x01" + "\0".repeat(38) + "\x01" + "\0".repeat(5); // header, empty miner tx, no tx hashes
+        let binary = await MoneroUtils.jsonToBinary({ blocks: [{ block, txs: [] }], status: "OK" });
+        assert.deepEqual(await MoneroUtils.binaryBlocksToJson(toView(binary)), await MoneroUtils.binaryBlocksToJson(binary));
+      });
+      
       it("Can serialize json with text (CI)", async function() {
         let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' };
         let binary = await MoneroUtils.jsonToBinary(json);
