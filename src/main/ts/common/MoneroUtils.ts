@@ -357,7 +357,7 @@ export default class MoneroUtils {
       if (ptr !== heap.byteOffset) throw new MoneroError("Memory ptr !== heap.byteOffset"); // should be equal
       
       // write binary to heap
-      heap.set(new Uint8Array(uint8arr.buffer));
+      heap.set(new Uint8Array(uint8arr.buffer, uint8arr.byteOffset, uint8arr.byteLength));
       
       // create object with binary memory address info
       let binMemInfo = { ptr: ptr, length: uint8arr.length };
@@ -394,7 +394,7 @@ export default class MoneroUtils {
       if (ptr !== heap.byteOffset) throw new MoneroError("Memory ptr !== heap.byteOffset"); // should be equal
       
       // write binary to heap
-      heap.set(new Uint8Array(uint8arr.buffer));
+      heap.set(new Uint8Array(uint8arr.buffer, uint8arr.byteOffset, uint8arr.byteLength));
       
       // create object with binary memory address info
       let binMemInfo = { ptr: ptr, length: uint8arr.length  }
