@@ -1103,8 +1103,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       txSet = new MoneroTxSet({unsignedTxHex: txSet.getUnsignedTxHex(), signedTxHex: txSet.getSignedTxHex(), multisigTxHex: txSet.getMultisigTxHex()});
-      try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBigInts(this.module.describe_tx_set(this.cppAddress, JSON.stringify(txSet.toJson()))))); }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let resp = this.module.describe_tx_set(this.cppAddress, JSON.stringify(txSet.toJson()));
+      if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+      return new MoneroTxSet(JSON.parse(GenUtils.stringifyBigInts(resp)));
     });
   }
   
@@ -1112,8 +1113,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().signTxs(unsignedTxHex);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { return new MoneroTxSet(JSON.parse(GenUtils.stringifyBigInts(this.module.sign_txs(this.cppAddress, unsignedTxHex)))); }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let resp = this.module.sign_txs(this.cppAddress, unsignedTxHex);
+      if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+      return new MoneroTxSet(JSON.parse(GenUtils.stringifyBigInts(resp)));
     });
   }
   
@@ -1141,8 +1143,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     // queue task to sign message
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { return this.module.sign_message(this.cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx); }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let signature = this.module.sign_message(this.cppAddress, message, signatureType === MoneroMessageSignatureType.SIGN_WITH_SPEND_KEY ? 0 : 1, accountIdx, subaddressIdx);
+      let errorKey = "error: ";
+      if (signature.indexOf(errorKey) === 0) throw new MoneroError(signature.substring(errorKey.length));
+      return signature;
     });
   }
   
@@ -1167,8 +1171,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().getTxKey(txHash);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { return this.module.get_tx_key(this.cppAddress, txHash); }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let txKey = this.module.get_tx_key(this.cppAddress, txHash);
+      let errorKey = "error: ";
+      if (txKey.indexOf(errorKey) === 0) throw new MoneroError(txKey.substring(errorKey.length));
+      return txKey;
     });
   }
   
@@ -1283,8 +1289,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     if (this.getWalletProxy()) return this.getWalletProxy().getTxNotes(txHashes);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { return JSON.parse(this.module.get_tx_notes(this.cppAddress, JSON.stringify({txHashes: txHashes}))).txNotes; }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let resp = this.module.get_tx_notes(this.cppAddress, JSON.stringify({txHashes: txHashes}));
+      if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+      return JSON.parse(resp).txNotes;
     });
   }
   
@@ -1293,8 +1300,8 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     notes = notes.map(note => GenUtils.isInitialized(note) ? note : ""); // the bridge would store json null as text
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try { this.module.set_tx_notes(this.cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes})); }
-      catch (err) { throw new MoneroError(this.module.get_exception_message(err)); }
+      let errMsg = this.module.set_tx_notes(this.cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes}));
+      if (errMsg) throw new MoneroError(errMsg);
     });
   }
   
@@ -1385,11 +1392,10 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     config = MoneroWallet.normalizeCreateTxsConfig(config);
     return this.module.queueTask(async () => {
       this.assertNotClosed();
-      try {
-        return this.module.get_payment_uri(this.cppAddress, JSON.stringify(config.toJson()));
-      } catch (err) {
-        throw new MoneroError("Cannot make URI from supplied parameters");
-      }
+      let uri = this.module.get_payment_uri(this.cppAddress, JSON.stringify(config.toJson()));
+      let errorKey = "error: ";
+      if (uri.indexOf(errorKey) === 0) throw new MoneroError(uri.substring(errorKey.length));
+      return uri;
     });
   }
   
@@ -1398,7 +1404,9 @@ export default class MoneroWalletFull extends MoneroWalletKeys {
     return this.module.queueTask(async () => {
       this.assertNotClosed();
       try {
-        return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBigInts(this.module.parse_payment_uri(this.cppAddress, uri))));
+        let resp = this.module.parse_payment_uri(this.cppAddress, uri);
+        if (resp.charAt(0) !== '{') throw new MoneroError(resp);
+        return new MoneroTxConfig(JSON.parse(GenUtils.stringifyBigInts(resp)));
       } catch (err: any) {
         throw new MoneroError(err.message);
       }
