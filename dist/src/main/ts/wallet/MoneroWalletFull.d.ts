@@ -356,7 +356,7 @@ declare class MoneroWalletFullProxy extends MoneroWalletKeysProxy {
     deleteAddressBookEntry(entryIdx: any): Promise<any>;
     tagAccounts(tag: any, accountIndices: any): Promise<any>;
     untagAccounts(accountIndices: any): Promise<any>;
-    getAccountTags(): Promise<any>;
+    getAccountTags(): Promise<any[]>;
     setAccountTagLabel(tag: any, label: any): Promise<any>;
     getPaymentUri(config: any): Promise<any>;
     parsePaymentUri(uri: any): Promise<MoneroTxConfig>;

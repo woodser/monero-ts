@@ -28,6 +28,7 @@ export default class MoneroOutput {
     setRingOutputIndices(ringOutputIndices: number[]): MoneroOutput;
     getStealthPublicKey(): string;
     setStealthPublicKey(stealthPublicKey: string): MoneroOutput;
+    getIsLocked(): boolean;
     copy(): MoneroOutput;
     toJson(): any;
     merge(output: MoneroOutput): MoneroOutput;
