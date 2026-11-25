@@ -33,7 +33,6 @@ export default class MoneroOutputWallet extends MoneroOutput {
      */
     getIsFrozen(): boolean;
     setIsFrozen(isFrozen: boolean): MoneroOutputWallet;
-    getIsLocked(): boolean;
     copy(): MoneroOutputWallet;
     toJson(): any;
     /**

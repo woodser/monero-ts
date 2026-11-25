@@ -18,7 +18,6 @@ export default class MoneroTxWallet extends MoneroTx {
     incomingTransfers: MoneroIncomingTransfer[];
     outgoingTransfer: MoneroOutgoingTransfer;
     note: string;
-    isLocked: boolean;
     inputSum: bigint;
     outputSum: bigint;
     changeAddress: string;
@@ -133,15 +132,6 @@ export default class MoneroTxWallet extends MoneroTx {
      */
     setNote(note: string): MoneroTxWallet;
     /**
-     * @return {boolean} true if the tx is locked, false otherwise
-     */
-    getIsLocked(): boolean;
-    /**
-     * @param {boolean} isLocked - true if the tx is locked, false otherwise
-     * @return {MoneroTxWallet} this tx for chaining
-     */
-    setIsLocked(isLocked: boolean): MoneroTxWallet;
-    /**
      * @return {bigint} sum of tx inputs
      */
     getInputSum(): bigint;
@@ -227,6 +217,7 @@ export default class MoneroTxWallet extends MoneroTx {
     setIsRelayed(isRelayed: boolean): MoneroTxWallet;
     setIsConfirmed(isConfirmed: boolean): MoneroTxWallet;
     setInTxPool(inTxPool: boolean): MoneroTxWallet;
+    setIsLocked(isLocked: boolean): MoneroTxWallet;
     setNumConfirmations(numConfirmations: number): MoneroTxWallet;
     setUnlockTime(unlockTime: bigint): MoneroTxWallet;
     setLastRelayedTimestamp(lastRelayedTimestamp: number): MoneroTxWallet;

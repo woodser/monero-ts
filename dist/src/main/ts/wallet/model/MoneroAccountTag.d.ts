@@ -6,6 +6,7 @@ export default class MoneroAccountTag {
     label: string;
     accountIndices: number[];
     constructor(accountTag?: Partial<MoneroAccountTag>);
+    toJson(): any;
     getTag(): string;
     setTag(tag: string): MoneroAccountTag;
     getLabel(): string;

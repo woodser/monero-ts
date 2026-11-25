@@ -16,6 +16,7 @@ export default class MoneroTx {
     isRelayed: boolean;
     isConfirmed: boolean;
     inTxPool: boolean;
+    isLocked: boolean;
     numConfirmations: number;
     unlockTime: bigint;
     lastRelayedTimestamp: number;
@@ -146,6 +147,15 @@ export default class MoneroTx {
      * @return {MoneroTx} this tx for chaining
      */
     setInTxPool(inTxPool: boolean): MoneroTx;
+    /**
+     * @return {boolean} true if the tx is locked, false otherwise
+     */
+    getIsLocked(): boolean;
+    /**
+     * @param {boolean} isLocked - true if the tx is locked, false otherwise
+     * @return {MoneroTx} this tx for chaining
+     */
+    setIsLocked(isLocked: boolean): MoneroTx;
     /**
      * @return {number} number of block confirmations
      */

@@ -51,6 +51,8 @@ export default class MoneroWalletConfig {
     regtest: boolean;
     /** Command to start monero-wallet-rpc as a child process. */
     cmd: string[];
+    /** Timeout in milliseconds to start monero-wallet-rpc from the command, after which the process is killed (default no timeout). */
+    cmdTimeoutMs: number;
     /**
      * Construct a configuration to open or create a wallet.
      *
@@ -81,6 +83,7 @@ export default class MoneroWalletConfig {
      * @param {number} [config.subaddressLookahead] - number of subaddresses to scan per account (optional)
      * @param {boolean} [config.regtest] - specifies if the wallet should operate in regtest mode (default false)
      * @param {string[]} [config.cmd] - command to start wallet daemon (optional)
+     * @param {number} [config.cmdTimeoutMs] - timeout in milliseconds to start wallet daemon from the command, after which the process is killed (default no timeout)
      */
     constructor(config?: Partial<MoneroWalletConfig>);
     copy(): MoneroWalletConfig;
