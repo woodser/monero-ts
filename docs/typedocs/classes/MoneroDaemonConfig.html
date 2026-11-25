@@ -35,6 +35,7 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="MoneroDaemonConfig.html#cmd" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cmd</span></a>
+<a href="MoneroDaemonConfig.html#cmdTimeoutMs" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cmd<wbr/>Timeout<wbr/>Ms</span></a>
 <a href="MoneroDaemonConfig.html#pollInterval" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>poll<wbr/>Interval</span></a>
 <a href="MoneroDaemonConfig.html#proxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroDaemonConfig.html#server" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>server</span></a>
@@ -43,10 +44,12 @@
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="MoneroDaemonConfig.html#copy" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>copy</span></a>
 <a href="MoneroDaemonConfig.html#getCmd" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Cmd</span></a>
+<a href="MoneroDaemonConfig.html#getCmdTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Cmd<wbr/>Timeout</span></a>
 <a href="MoneroDaemonConfig.html#getPollInterval" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Poll<wbr/>Interval</span></a>
 <a href="MoneroDaemonConfig.html#getProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroDaemonConfig.html#getServer" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Server</span></a>
 <a href="MoneroDaemonConfig.html#setCmd" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Cmd</span></a>
+<a href="MoneroDaemonConfig.html#setCmdTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Cmd<wbr/>Timeout</span></a>
 <a href="MoneroDaemonConfig.html#setPollInterval" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Poll<wbr/>Interval</span></a>
 <a href="MoneroDaemonConfig.html#setProxyToWorker" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a>
 <a href="MoneroDaemonConfig.html#setServer" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Server</span></a>
@@ -77,6 +80,12 @@
 <h3 class="tsd-anchor-link"><span>cmd</span><a href="#cmd" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">cmd</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 <div class="tsd-comment tsd-typography"><p>Command to start monerod as a child process.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
+<section class="tsd-panel tsd-member"><a id="cmdTimeoutMs" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>cmd<wbr/>Timeout<wbr/>Ms</span><a href="#cmdTimeoutMs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">cmd<wbr/>Timeout<wbr/>Ms</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Timeout in milliseconds to start monerod from the command, after which the process is killed (default no timeout).</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="pollInterval" class="tsd-anchor"></a>
@@ -111,6 +120,12 @@
 <li class="tsd-signature tsd-anchor-link" id="getCmd.getCmd-1"><span class="tsd-kind-call-signature">get<wbr/>Cmd</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><a href="#getCmd.getCmd-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="getCmdTimeout" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Cmd<wbr/>Timeout</span><a href="#getCmdTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="getCmdTimeout.getCmdTimeout-1"><span class="tsd-kind-call-signature">get<wbr/>Cmd<wbr/>Timeout</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#getCmdTimeout.getCmdTimeout-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getPollInterval" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Poll<wbr/>Interval</span><a href="#getPollInterval" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -139,6 +154,17 @@
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">cmd</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MoneroDaemonConfig.html" class="tsd-signature-type tsd-kind-class">MoneroDaemonConfig</a></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="setCmdTimeout" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>set<wbr/>Cmd<wbr/>Timeout</span><a href="#setCmdTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="setCmdTimeout.setCmdTimeout-1"><span class="tsd-kind-call-signature">set<wbr/>Cmd<wbr/>Timeout</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">cmdTimeoutMs</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MoneroDaemonConfig.html" class="tsd-signature-type tsd-kind-class">MoneroDaemonConfig</a><a href="#setCmdTimeout.setCmdTimeout-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">cmdTimeoutMs</span>: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="MoneroDaemonConfig.html" class="tsd-signature-type tsd-kind-class">MoneroDaemonConfig</a></h4></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setPollInterval" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Poll<wbr/>Interval</span><a href="#setPollInterval" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
@@ -199,15 +225,18 @@
 <ul>
 <li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
 <li><a href="#cmd" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cmd</span></a></li>
+<li><a href="#cmdTimeoutMs" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cmd<wbr/>Timeout<wbr/>Ms</span></a></li>
 <li><a href="#pollInterval" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>poll<wbr/>Interval</span></a></li>
 <li><a href="#proxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#server" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>server</span></a></li>
 <li><a href="#copy" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>copy</span></a></li>
 <li><a href="#getCmd" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Cmd</span></a></li>
+<li><a href="#getCmdTimeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Cmd<wbr/>Timeout</span></a></li>
 <li><a href="#getPollInterval" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Poll<wbr/>Interval</span></a></li>
 <li><a href="#getProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#getServer" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Server</span></a></li>
 <li><a href="#setCmd" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Cmd</span></a></li>
+<li><a href="#setCmdTimeout" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Cmd<wbr/>Timeout</span></a></li>
 <li><a href="#setPollInterval" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Poll<wbr/>Interval</span></a></li>
 <li><a href="#setProxyToWorker" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Proxy<wbr/>To<wbr/>Worker</span></a></li>
 <li><a href="#setServer" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>set<wbr/>Server</span></a></li>
